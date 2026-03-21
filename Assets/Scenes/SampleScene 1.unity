@@ -1148,6 +1148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1025883013}
   - component: {fileID: 1025883014}
+  - component: {fileID: 1025883015}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -1191,6 +1192,18 @@ MonoBehaviour:
   description: Place this card to spawn an tower
   cardImage: {fileID: 0}
   manaCost: 3
+--- !u!225 &1025883015
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025883012}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1204522648
 GameObject:
   m_ObjectHideFlags: 0
