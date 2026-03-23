@@ -15,7 +15,9 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
     private Canvas canvas;
     private Vector2 originalPosition;
     private Transform originalParent;
-
+    private Vector3 originalScale;
+    
+    
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -26,13 +28,14 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
     {
         originalPosition = rectTransform.anchoredPosition;
         originalParent = transform.parent;
+        originalScale = transform.localScale;
         
         transform.SetParent(canvas.transform);
         transform.SetAsLastSibling();
+        transform.DOScale(1.3f, 0.4f).SetEase(Ease.InOutExpo);
         
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, eventData.position, canvas.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
-        // rectTransform.DOAnchorPos(localPoint, 0.15f).SetEase(Ease.OutQuad);
         
         GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
@@ -44,10 +47,13 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        ActivateCard();
         GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         transform.SetParent(originalParent);
-        rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutBack);
+        rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
+        transform.DOScale(originalScale, 0.4f).SetEase(Ease.OutQuint);
+        
     }
 
     public virtual void ActivateCard()
