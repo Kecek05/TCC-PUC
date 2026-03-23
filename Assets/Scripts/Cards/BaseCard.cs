@@ -7,10 +7,7 @@ using UnityEngine.EventSystems;
 public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Title("Card Properties")]
-    [SerializeField] private string cardName;
-    [SerializeField] private string description;
-    [SerializeField] private Sprite cardImage;
-    [SerializeField] private int manaCost;
+    [SerializeField] private CardDataSO cardDataSo;
 
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private Canvas canvasArea;
@@ -59,6 +56,6 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
 
     public virtual void ActivateCard(RaycastResult pointerRaycast)
     {
-        Debug.Log("Activating BaseCard: " + cardName + " pos: " + pointerRaycast.worldPosition);
+        Debug.Log("Activating BaseCard: " + cardDataSo.CardName + " pos: " + pointerRaycast.worldPosition);
     }
 }
