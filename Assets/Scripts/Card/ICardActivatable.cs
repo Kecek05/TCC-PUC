@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public interface ICardActivatable
 {
-    public void ActivateCard();
+    public void ActivateCard(RaycastResult pointerRaycast);
 }

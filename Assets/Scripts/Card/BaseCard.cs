@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -11,44 +12,44 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
     [SerializeField] private Sprite cardImage;
     [SerializeField] private int manaCost;
 
-    private RectTransform rectTransform;
-    private Canvas canvas;
+    [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private Canvas canvasArea;
+    [SerializeField] private Transform safeArea;
+    [SerializeField] private CanvasGroup selfCanvasGroup;
     private Vector2 originalPosition;
     private Transform originalParent;
     private Vector3 originalScale;
-    
-    
-    private void Awake()
-    {
-        rectTransform = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
-    }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    private void Start()
     {
         originalPosition = rectTransform.anchoredPosition;
         originalParent = transform.parent;
         originalScale = transform.localScale;
-        
-        transform.SetParent(canvas.transform);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        transform.DOKill();
+        rectTransform.DOKill();
+        transform.SetParent(safeArea.transform);
         transform.SetAsLastSibling();
-        transform.DOScale(1.3f, 0.4f).SetEase(Ease.InOutExpo);
+        transform.DOScale(1.15f, 0.4f).SetEase(Ease.OutCirc);
         
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, eventData.position, canvas.worldCamera, out Vector2 localPoint);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasArea.transform as RectTransform, eventData.position, canvasArea.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
         
-        GetComponent<CanvasGroup>().blocksRaycasts = false;
+        selfCanvasGroup.blocksRaycasts = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+        rectTransform.anchoredPosition += eventData.delta / canvasArea.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        ActivateCard();
-        GetComponent<CanvasGroup>().blocksRaycasts = true;
+        ActivateCard(eventData.pointerCurrentRaycast);
+        selfCanvasGroup.blocksRaycasts = true;
 
         transform.SetParent(originalParent);
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
@@ -56,8 +57,8 @@ public class BaseCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDra
         
     }
 
-    public virtual void ActivateCard()
+    public virtual void ActivateCard(RaycastResult pointerRaycast)
     {
-        Debug.Log("Activating BaseCard: " + cardName);
+        Debug.Log("Activating BaseCard: " + cardName + " pos: " + pointerRaycast.worldPosition);
     }
 }
