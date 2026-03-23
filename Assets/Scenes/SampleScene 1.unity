@@ -131,6 +131,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Advanced FPS Counter
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: e84b65f6b68cbca4a9a9c63e390ea836, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: e84b65f6b68cbca4a9a9c63e390ea836, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -342,7 +346,7 @@ Transform:
   m_GameObject: {fileID: 404437716}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.30999947, y: -4.89, z: 0}
+  m_LocalPosition: {x: -0.3099994, y: -5.515, z: 0}
   m_LocalScale: {x: 0.5625, y: 9.199415, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -729,8 +733,8 @@ Transform:
   m_GameObject: {fileID: 586231315}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.67, y: 0.125, z: 0}
-  m_LocalScale: {x: 0.5625, y: 10.700116, z: 1}
+  m_LocalPosition: {x: -4.67, y: 0.0625, z: 0}
+  m_LocalScale: {x: 0.5625, y: 11.575006, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1497423394}
@@ -979,7 +983,7 @@ Transform:
   m_GameObject: {fileID: 679044525}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.2841015, y: 5.1700006, z: 0}
+  m_LocalPosition: {x: -0.28410155, y: 5.6700006, z: 0}
   m_LocalScale: {x: 0.5625, y: 9.251233, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1328,13 +1332,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1025883012}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b183a7d347e85840b355188a25f679f, type: 3}
+  m_Script: {fileID: 11500000, guid: a0f5b57417d976c49a0a00c9e5134422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableCard
-  cardName: Tower
-  description: Place this card to spawn an tower
-  cardImage: {fileID: 0}
-  manaCost: 3
+  cardDataSo: {fileID: 11400000, guid: 80fed4d03c09ef44a8c8fd13667c209f, type: 2}
   rectTransform: {fileID: 1025883013}
   canvasArea: {fileID: 876738156}
   safeArea: {fileID: 396404247}
@@ -1375,7 +1376,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1115869682}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 98d9db9626104da59357651088226725, type: 3}
   m_Name: 
@@ -1928,7 +1929,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1965126425}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17737e0516da2445b9b0077ae2bd9b4f, type: 3}
   m_Name: 
@@ -2126,8 +2127,8 @@ Transform:
   m_GameObject: {fileID: 2126528680}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.04, y: 0.1875, z: 0}
-  m_LocalScale: {x: 0.5625, y: 10.574837, z: 1}
+  m_LocalPosition: {x: 4.04, y: -0.06250048, z: 0}
+  m_LocalScale: {x: 0.5625, y: 11.325248, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1497423394}
