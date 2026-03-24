@@ -2,6 +2,11 @@ using UnityEngine;
 
 public interface IPlaceable
 {
-    bool occupied { get; set; }
-    void Place();
+    public bool Occupied { get; }
+    
+    public Transform PlaceablePoint { get; }
+    
+    public void Place();
+    
+    public bool IsOccupied();
 }

@@ -1,13 +1,23 @@
 using UnityEngine;
 
-public class AbstractPlaceable : MonoBehaviour, IPlaceable
+public abstract class AbstractPlaceable : MonoBehaviour, IPlaceable
 {
+    [SerializeField] private Transform placeablePoint;
     
-    private bool _occupied;
-    public bool occupied => _occupied;
+    private bool occupied;
+    public bool Occupied => occupied;
+    public Transform PlaceablePoint => placeablePoint;
 
-    public void Place()
+    public virtual void Place()
     {
+        if (occupied) 
+            return;
         
+        occupied = true;
+    }
+
+    public bool IsOccupied()
+    {
+        return occupied;
     }
 }

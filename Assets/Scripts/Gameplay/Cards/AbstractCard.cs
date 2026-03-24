@@ -4,10 +4,10 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
+public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Title("Card Properties")]
-    [SerializeField] private CardDataSO cardDataSo;
+    [SerializeField] protected CardDataSO cardDataSo;
 
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private Canvas canvasArea;

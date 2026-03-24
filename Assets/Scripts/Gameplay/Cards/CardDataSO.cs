@@ -11,9 +11,13 @@ public class CardDataSO : ScriptableObject
     [SerializeField] private Sprite cardImage;
     [SerializeField] private int cost;
     
+    [Title("Card References")]
+    [SerializeField] private GameObject cardPrefab;
+    
     public int CardId => cardId;
     public string CardName => cardName;
     public string Description => description;
     public Sprite CardImage => cardImage;
     public int Cost => cost;
+    public GameObject CardPrefab => cardPrefab;
 }
