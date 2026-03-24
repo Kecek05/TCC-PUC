@@ -5,4 +5,9 @@ using UnityEngine;
 public class CardDataListSO : ScriptableObject
 {
     [SerializeField] private List<CardDataSO> cardDataList;
+    
+    public CardDataSO GetCardDataById(int id)
+    {
+        return cardDataList.Find(card => card.CardId == id);
+    }
 }

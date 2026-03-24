@@ -1,10 +1,11 @@
 using System;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
+public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Title("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;

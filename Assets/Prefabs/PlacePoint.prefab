@@ -209,6 +209,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3015838588582644369}
   - component: {fileID: 325941693325496682}
+  - component: {fileID: 1325446405423303089}
   m_Layer: 11
   m_Name: GFX
   m_TagString: Untagged
@@ -290,3 +291,12 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1652712579 &1325446405423303089
+MultiplayerRolesData:
+  m_ObjectHideFlags: 2
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8167595525001872649}
+  m_GameObjectRolesMask: 1
+  m_ComponentsRolesMasks: []

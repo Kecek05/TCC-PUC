@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,72 +8,63 @@ public class BuildableCard : AbstractCard
     [Title("Buildable Settings")]
     [SerializeField] private float castRadius = 0.5f;
     [SerializeField] private LayerMask placeableLayer;
+    [SerializeField] private ParticleSystem loadingPlaceEffectPrefab;
+    [SerializeField] private ParticleSystem validPlaceEffectPrefab;
+    [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
 
-    //Debug
-    private Vector2 lastCastOrigin;
-    private float lastClosestDist;
-    private bool hasDebugData;
-
-    private void BuildCard(Transform placeablePoint)
-    {
-        Instantiate(cardDataSo.CardPrefab, placeablePoint.position, Quaternion.identity);
-    }
+    private bool waitingResult = false;
 
     public override void ActivateCard(RaycastResult pointerRaycast)
     {
         if (pointerRaycast.gameObject == null) return;
+        
+        if (!HasPlaceableNearby(pointerRaycast.worldPosition)) return;
+        
+        waitingResult = true;
+        CardDeployer.Instance.OnPlaceResult += HandlePlaceResult;
 
-        IPlaceable placeable = FindClosestPlaceable(pointerRaycast.worldPosition);
-        if (placeable == null) return;
-
-        if (placeable.IsOccupied()) return;
-
-        placeable.Place();
-        BuildCard(placeable.PlaceablePoint);
+        ClientVisualEffect(pointerRaycast.worldPosition);
+        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardId, pointerRaycast.worldPosition);
     }
 
-    private IPlaceable FindClosestPlaceable(Vector2 origin)
+    private void HandlePlaceResult(PlaceResult result)
     {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayer);
+        if (!waitingResult || result.CardId != cardDataSo.CardId) return;
+        
+        waitingResult = false;
+        CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
-        //Debug
-        lastCastOrigin = origin;
-        lastClosestDist = 0f;
-        hasDebugData = true;
-
-        IPlaceable closest = null;
-        float closestDist = float.MaxValue;
-
-        foreach (RaycastHit2D hit in hits)
+        if (result.Success)
         {
-            IPlaceable placeable = hit.collider.GetComponentInParent<IPlaceable>();
-
-            if (placeable == null)  continue;
-
-            float dist = Vector2.Distance(origin, hit.collider.transform.position);
-            if (!(dist < closestDist)) continue;
-
-            closestDist = dist;
-            closest = placeable;
+            Instantiate(validPlaceEffectPrefab, result.Position, Quaternion.identity);
+            Destroy(gameObject);
         }
+        else
+            Instantiate(invalidPlaceEffectPrefab, result.Position, Quaternion.identity);
 
-        lastClosestDist = closestDist == float.MaxValue ? 0f : closestDist;
-        return closest;
+    }
+
+    private void ClientVisualEffect(Vector3 position)
+    {
+        Instantiate(loadingPlaceEffectPrefab, position, Quaternion.identity);
+    }
+    
+    private bool HasPlaceableNearby(Vector2 origin)
+    {
+        var hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayer);
+        foreach (var hit in hits)
+        {
+            if (hit.collider.GetComponentInParent<IPlaceable>() != null)
+                return true;
+        }
+        return false;
     }
     
     #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if (!hasDebugData) return;
-        
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(lastCastOrigin, castRadius);
-        
-        if (lastClosestDist > 0f)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(lastCastOrigin, lastClosestDist);
-        }
+        Gizmos.DrawWireSphere(transform.position, castRadius);
     }
     #endif
 }

@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python -c \"import zipfile; z = zipfile.ZipFile\\(''.claude/skills/unity-td-netcode.skill''\\); print\\(z.namelist\\(\\)\\)\")",
+      "Bash(python -c \":*)"
     ]
   }
 }
