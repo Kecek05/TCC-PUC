@@ -1968,8 +1968,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 226931339}
-  - component: {fileID: 226931338}
   - component: {fileID: 226931340}
+  - component: {fileID: 226931338}
   m_Layer: 0
   m_Name: CardDeployer
   m_TagString: Untagged
@@ -2691,8 +2691,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 443791790}
-  - component: {fileID: 443791791}
   - component: {fileID: 443791792}
+  - component: {fileID: 443791791}
   m_Layer: 0
   m_Name: TeamManager
   m_TagString: Untagged
@@ -5350,6 +5350,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapTranslator
   mapOffset: 9.75
+  player1Map: {fileID: 1522872422}
+  player2Map: {fileID: 1828513982}
 --- !u!4 &917948729
 Transform:
   m_ObjectHideFlags: 0

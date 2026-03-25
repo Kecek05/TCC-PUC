@@ -7,10 +7,13 @@ public class MapTranslator : MonoBehaviour
     public static MapTranslator Instance { get; private set; }
 
     [SerializeField] private float mapOffset = 10f;
+    [SerializeField] private Transform player1Map;
+    [SerializeField] private Transform player2Map;
 
-    public bool IsInitialized { get; private set; }
-
+    private bool _isInitialized = false;
+    
     private bool _needsTranslation;
+    public bool IsInitialized =>  _isInitialized;
 
     private void Awake() => Instance = this;
 
@@ -23,7 +26,7 @@ public class MapTranslator : MonoBehaviour
         // Dedicated server never translates
         if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient)
         {
-            IsInitialized = true;
+            _isInitialized = true;
             yield break;
         }
 
@@ -36,7 +39,7 @@ public class MapTranslator : MonoBehaviour
         if (_needsTranslation)
             RepositionSceneObjects();
 
-        IsInitialized = true;
+        _isInitialized = true;
     }
 
     public Vector2 LocalToServer(Vector2 localPos)
@@ -65,11 +68,7 @@ public class MapTranslator : MonoBehaviour
 
     private void RepositionSceneObjects()
     {
-        TeamIdentifier[] teamIdentifiers = FindObjectsByType<TeamIdentifier>(FindObjectsSortMode.None);
-        foreach (TeamIdentifier identifier in teamIdentifiers)
-        {
-            Vector2 pos = identifier.transform.position;
-            identifier.transform.position = new Vector2(pos.x, mapOffset - pos.y);
-        }
+        player1Map.transform.position = new Vector2(player1Map.transform.position.x, mapOffset);
+        player2Map.transform.position = new Vector2(player2Map.transform.position.x, 0f);
     }
 }
