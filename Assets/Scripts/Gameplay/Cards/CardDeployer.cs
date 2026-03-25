@@ -82,7 +82,6 @@ public class CardDeployer : NetworkBehaviour
     [Rpc(SendTo.SpecifiedInParams)]
     private void PlaceResultRpc(PlaceResult result, RpcParams rpcParams = default)
     {
-        // Rede → Evento. Só isso. Sem lógica visual.
         OnPlaceResult?.Invoke(result);
     }
 
