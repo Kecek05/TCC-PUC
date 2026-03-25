@@ -35,7 +35,7 @@ public class BuildableCard : AbstractCard
         waitingResult = false;
         CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
-        Vector3 localPos = MapTranslator.Instance.ServerToLocal((Vector3)result.Position);
+        Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position);
 
         if (result.Success)
         {

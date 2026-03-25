@@ -34,7 +34,7 @@ public class MapTranslator : MonoBehaviour
             TeamManager.Instance != null &&
             TeamManager.Instance.HasLocalTeamBeenAssigned());
 
-        _needsTranslation = TeamManager.Instance.GetLocalTeam() == TeamType.Red;
+        _needsTranslation = TeamManager.Instance.GetLocalTeam() == TeamType.Blue;
 
         if (_needsTranslation)
             RepositionSceneObjects();
@@ -42,28 +42,16 @@ public class MapTranslator : MonoBehaviour
         _isInitialized = true;
     }
 
-    public Vector2 LocalToServer(Vector2 localPos)
-    {
-        if (!_needsTranslation) return localPos;
-        return new Vector2(localPos.x, mapOffset - localPos.y);
-    }
-
-    public Vector2 ServerToLocal(Vector2 serverPos)
-    {
-        if (!_needsTranslation) return serverPos;
-        return new Vector2(serverPos.x, mapOffset - serverPos.y);
-    }
-
     public Vector3 LocalToServer(Vector3 localPos)
     {
         if (!_needsTranslation) return localPos;
-        return new Vector3(localPos.x, mapOffset - localPos.y, localPos.z);
+        return new Vector3(localPos.x,  localPos.y + mapOffset, localPos.z);
     }
 
     public Vector3 ServerToLocal(Vector3 serverPos)
     {
         if (!_needsTranslation) return serverPos;
-        return new Vector3(serverPos.x, mapOffset - serverPos.y, serverPos.z);
+        return new Vector3(serverPos.x, serverPos.y - mapOffset, serverPos.z);
     }
 
     private void RepositionSceneObjects()
