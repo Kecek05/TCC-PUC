@@ -6457,12 +6457,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraSwap
   mainCamera: {fileID: 519420031}
-  minSwipeDistance: 100
-  maxSwipeTime: 0.4
   downY: 0
   upY: 10.125
-  tweenDuration: 0.2
-  tweenEase: 6
+  tweenDuration: 0.3
+  tweenEase: 27
+  screenToWorldRatio: 0.004
+  commitThreshold: 0.3
+  flickVelocityThreshold: 800
+  snapBackDuration: 0.3
+  snapBackEase: 27
 --- !u!4 &520542916 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2501581645706275590, guid: 068a93cdf184025459603be2f9145773, type: 3}
