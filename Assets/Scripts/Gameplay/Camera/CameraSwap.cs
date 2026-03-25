@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -30,12 +31,23 @@ public class CameraSwap : MonoBehaviour
     private bool _swiping;
     private bool _isUp;
     private float _homeY;
+    private bool _initialized;
 
     public event Action OnSwipeUp;
     public event Action OnSwipeDown;
 
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() =>
+            MapTranslator.Instance != null && MapTranslator.Instance.IsInitialized);
+
+        _initialized = true;
+    }
+
     private void Update()
     {
+        if (!_initialized) return;
+
         var pointer = Pointer.current;
         if (pointer == null) return;
 
@@ -83,9 +95,7 @@ public class CameraSwap : MonoBehaviour
         float totalDistance = upY - downY;
         float progress = (currentY - downY) / totalDistance;
         float velocity = GetRecentVelocity();
-
-        // Swipe down (negative velocity) = camera goes up in world
-        // Swipe up (positive velocity) = camera goes down in world
+        
         bool flickingToCommit = _isUp
             ? velocity > flickVelocityThreshold
             : velocity < -flickVelocityThreshold;

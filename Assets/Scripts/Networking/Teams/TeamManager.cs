@@ -75,6 +75,12 @@ public class TeamManager : NetworkBehaviour
         if (_bluePlayer.Value.ClientId == localId) return TeamType.Blue;
         return TeamType.Red;
     }
+
+    public bool HasLocalTeamBeenAssigned()
+    {
+        ulong localId = NetworkManager.LocalClientId;
+        return _bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId;
+    }
 }
 
 public struct PlayerTeamPair : INetworkSerializable, System.IEquatable<PlayerTeamPair>

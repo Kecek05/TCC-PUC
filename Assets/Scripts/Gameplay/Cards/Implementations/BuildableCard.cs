@@ -19,12 +19,13 @@ public class BuildableCard : AbstractCard
         if (pointerRaycast.gameObject == null) return;
         
         if (!HasPlaceableNearby(pointerRaycast.worldPosition)) return;
-        
+
         waitingResult = true;
         CardDeployer.Instance.OnPlaceResult += HandlePlaceResult;
 
         ClientVisualEffect(pointerRaycast.worldPosition);
-        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardId, pointerRaycast.worldPosition);
+        Vector2 serverPos = MapTranslator.Instance.LocalToServer(pointerRaycast.worldPosition);
+        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardId, serverPos);
     }
 
     private void HandlePlaceResult(PlaceResult result)
@@ -34,13 +35,15 @@ public class BuildableCard : AbstractCard
         waitingResult = false;
         CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
+        Vector3 localPos = MapTranslator.Instance.ServerToLocal((Vector3)result.Position);
+
         if (result.Success)
         {
-            Instantiate(validPlaceEffectPrefab, result.Position, Quaternion.identity);
+            Instantiate(validPlaceEffectPrefab, localPos, Quaternion.identity);
             Destroy(gameObject);
         }
         else
-            Instantiate(invalidPlaceEffectPrefab, result.Position, Quaternion.identity);
+            Instantiate(invalidPlaceEffectPrefab, localPos, Quaternion.identity);
 
     }
 
