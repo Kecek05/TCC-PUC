@@ -22,6 +22,14 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         var data = GetComponent<EnemyDataHolder>().EnemyData;
         _maxHealth = data.MaxHealth;
         _currentHealth.Value = _maxHealth;
+
+        ServerTowerCombat.RegisterEnemy(this);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+            ServerTowerCombat.UnregisterEnemy(this);
     }
 
     public void TakeDamage(float damage)

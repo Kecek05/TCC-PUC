@@ -18,8 +18,14 @@ public class ServerEnemyMovement : NetworkBehaviour
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
 
+    // Only sync PathProgress when the change exceeds this threshold.
+    // Reduces bandwidth: avoids marking the NetworkVariable dirty every single frame.
+    // 0.005 on a 20-unit path ≈ 0.1 units — imperceptible with client interpolation.
+    private const float SyncThreshold = 0.005f;
+
     private WaypointPath _path;
     private float _baseSpeed;
+    private float _localProgress;
     private bool _reachedEnd;
 
     /// <summary>
@@ -42,6 +48,7 @@ public class ServerEnemyMovement : NetworkBehaviour
         var data = GetComponent<EnemyDataHolder>().EnemyData;
         _baseSpeed = data.MoveSpeed;
         _currentSpeed.Value = _baseSpeed;
+        _localProgress = 0f;
         _pathProgress.Value = 0f;
     }
 
@@ -52,18 +59,23 @@ public class ServerEnemyMovement : NetworkBehaviour
         float totalLength = _path.TotalLength;
         if (totalLength <= 0f) return;
 
-        // Advance progress based on speed and path length
-        _pathProgress.Value += (_currentSpeed.Value * Time.deltaTime) / totalLength;
+        // Advance local progress every frame
+        _localProgress += (_currentSpeed.Value * Time.deltaTime) / totalLength;
 
-        if (_pathProgress.Value >= 1f)
+        // Only push to NetworkVariable when change exceeds threshold (saves bandwidth)
+        if (_localProgress - _pathProgress.Value >= SyncThreshold)
+            _pathProgress.Value = _localProgress;
+
+        if (_localProgress >= 1f)
         {
+            _localProgress = 1f;
             _pathProgress.Value = 1f;
             _reachedEnd = true;
             OnReachedEnd();
         }
 
-        // Update server-side transform for physics queries (tower targeting)
-        transform.position = _path.SamplePosition(_pathProgress.Value);
+        // Update server-side transform for tower targeting distance checks
+        transform.position = _path.SamplePosition(_localProgress);
     }
 
     private void OnReachedEnd()

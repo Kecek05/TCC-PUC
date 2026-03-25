@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ClientEnemyHealth : NetworkBehaviour
 {
+    [SerializeField] private EnemyHealthBar healthBar;
+
     private ServerEnemyHealth _serverHealth;
 
     public override void OnNetworkSpawn()
@@ -15,6 +17,13 @@ public class ClientEnemyHealth : NetworkBehaviour
 
         _serverHealth = GetComponent<ServerEnemyHealth>();
         _serverHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
+
+        // Initialize health bar with max health from data
+        if (healthBar != null)
+        {
+            var data = GetComponent<EnemyDataHolder>().EnemyData;
+            healthBar.Initialize(transform, data.MaxHealth);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -25,7 +34,9 @@ public class ClientEnemyHealth : NetworkBehaviour
 
     private void OnHealthChanged(float previousValue, float newValue)
     {
-        // TODO: Update health bar UI
-        // TODO: Play hit VFX (Feel/MMFeedbacks)
+        if (healthBar != null)
+            healthBar.SetHealth(newValue);
+
+        // TODO: Play hit VFX (Feel/MMFeedbacks) when newValue < previousValue
     }
 }

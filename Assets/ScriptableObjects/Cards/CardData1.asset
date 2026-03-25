@@ -17,4 +17,4 @@ MonoBehaviour:
   description: Test card
   cardImage: {fileID: 21300000, guid: 16a86a7f581fc4dfb953e0df8ad3ecac, type: 3}
   cost: 5
-  cardPrefab: {fileID: 2877453852381650902, guid: 6efd387e961b1434784d6ad3178b5e15, type: 3}
+  cardPrefab: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
