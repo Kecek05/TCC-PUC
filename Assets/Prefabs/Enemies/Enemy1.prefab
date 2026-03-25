@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 1810410909286907981}
   - component: {fileID: 5940204312391163142}
   - component: {fileID: 5614380360627772003}
-  - component: {fileID: 4117527621098300929}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Untagged
@@ -93,7 +92,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClientEnemyHealth
   ShowTopMostFoldoutHeaderGroup: 1
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 6133551588950874317}
 --- !u!114 &1810410909286907981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 790438112
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -145,19 +144,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6ed28d66b565d14788fe6a615f8e8f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPathAssignment
-  ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &4117527621098300929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 721806592549603216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5830e4d095cbc5c499e3e398474ef710, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkMapPosition
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &4997745565905050734
 GameObject:

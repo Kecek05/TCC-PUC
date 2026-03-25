@@ -38,11 +38,11 @@ public class TeamManager : NetworkBehaviour
     {
         if (clientId == 1)
         {
-            _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
+            _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
         }
         else
         {
-            _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
+            _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
         }
     }
 
