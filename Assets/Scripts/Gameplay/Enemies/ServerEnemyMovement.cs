@@ -7,13 +7,9 @@ using UnityEngine;
 /// </summary>
 public class ServerEnemyMovement : NetworkBehaviour
 {
-    private NetworkVariable<float> _pathProgress = new(
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    private NetworkVariable<float> _pathProgress = new(writePerm: NetworkVariableWritePermission.Server);
 
-    private NetworkVariable<float> _currentSpeed = new(
-        writePerm: NetworkVariableWritePermission.Server
-    );
+    private NetworkVariable<float> _currentSpeed = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;

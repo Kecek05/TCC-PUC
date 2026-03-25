@@ -8,6 +8,7 @@ public class TowerDataSO : ScriptableObject
     [SerializeField] private float damage = 10f;
     [SerializeField] private float range = 3f;
     [SerializeField] private float shootCooldown = 1f;
+    [SerializeField] private float bulletSpeed = 15f;
 
     [Title("Visuals")]
     [SerializeField] private Sprite towerSprite;
@@ -15,5 +16,6 @@ public class TowerDataSO : ScriptableObject
     public float Damage => damage;
     public float Range => range;
     public float ShootCooldown => shootCooldown;
+    public float BulletSpeed => bulletSpeed;
     public Sprite TowerSprite => towerSprite;
 }

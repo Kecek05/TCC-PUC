@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class ServerTowerCombat : NetworkBehaviour
     private float _damage;
     private float _range;
     private float _shootCooldown;
+    private float _bulletSpeed;
     private float _cooldownTimer;
 
     private ClientTowerCombat _clientCombat;
@@ -33,6 +35,7 @@ public class ServerTowerCombat : NetworkBehaviour
         _damage = data.Damage;
         _range = data.Range;
         _shootCooldown = data.ShootCooldown;
+        _bulletSpeed = data.BulletSpeed;
         _cooldownTimer = 0f;
     }
 
@@ -46,11 +49,14 @@ public class ServerTowerCombat : NetworkBehaviour
         var target = FindClosestEnemy();
         if (target == null) return;
 
-        // Apply damage immediately on server
-        target.TakeDamage(_damage);
+        float distance = Vector2.Distance(transform.position, target.transform.position);
+        float travelTime = distance / _bulletSpeed;
         _cooldownTimer = _shootCooldown;
 
-        // Notify clients to play cosmetic bullet via ClientTowerCombat RPC
+        // Schedule damage after bullet travel time (skip if enemy dies mid-flight)
+        StartCoroutine(ApplyDamageAfterDelay(target, _damage, travelTime));
+
+        // Notify clients immediately to play cosmetic bullet
         _clientCombat.FireBulletRpc(
             transform.position,
             target.GetComponent<NetworkObject>()
@@ -103,6 +109,15 @@ public class ServerTowerCombat : NetworkBehaviour
     public static void UnregisterEnemy(ServerEnemyHealth enemy)
     {
         _activeEnemies.Remove(enemy);
+    }
+
+    private IEnumerator ApplyDamageAfterDelay(ServerEnemyHealth target, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Enemy may have died or despawned during bullet flight — skip if so
+        if (target != null && target.NetworkObject != null && target.NetworkObject.IsSpawned)
+            target.TakeDamage(damage);
     }
 
     private static void RefreshEnemyList()

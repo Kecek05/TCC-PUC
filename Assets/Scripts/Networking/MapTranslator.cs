@@ -48,10 +48,10 @@ public class MapTranslator : MonoBehaviour
         return new Vector3(localPos.x,  localPos.y + mapOffset, localPos.z);
     }
 
-    public Vector3 ServerToLocal(Vector3 serverPos)
+    public Vector3 ServerToLocal(Vector3 serverPos, TeamType teamType)
     {
         if (!_needsTranslation) return serverPos;
-        return new Vector3(serverPos.x, serverPos.y - mapOffset, serverPos.z);
+        return new Vector3(serverPos.x, teamType == TeamType.Blue ? serverPos.y - mapOffset : serverPos.y + mapOffset, serverPos.z);
     }
 
     private void RepositionSceneObjects()

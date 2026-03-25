@@ -10,6 +10,7 @@ using UnityEngine;
 public class ClientEnemyMovement : NetworkBehaviour
 {
     [SerializeField] private float interpolationSpeed = 10f;
+    [SerializeField] private EntityTeam entityTeam;
 
     private ServerEnemyMovement _serverMovement;
     private WaypointPath _path;
@@ -46,7 +47,7 @@ public class ClientEnemyMovement : NetworkBehaviour
 
         // Snap to initial position
         Vector3 serverPos = _path.SamplePosition(_serverMovement.PathProgress.Value);
-        transform.position = MapTranslator.Instance.ServerToLocal(serverPos);
+        transform.position = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
         _initialized = true;
     }
 
@@ -56,7 +57,7 @@ public class ClientEnemyMovement : NetworkBehaviour
 
         float progress = _serverMovement.PathProgress.Value;
         Vector3 serverPos = _path.SamplePosition(progress);
-        Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPos);
+        Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
 
         // Smooth interpolation to avoid snapping between network updates
         transform.position = Vector3.Lerp(

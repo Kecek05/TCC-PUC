@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 3096684015542124624}
   - component: {fileID: 2606555038004479415}
   - component: {fileID: 5787397079051057888}
+  - component: {fileID: 7854881983952793562}
   m_Layer: 0
   m_Name: Tower1
   m_TagString: Untagged
@@ -140,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 590291487
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -192,6 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
+  entityTeam: {fileID: 7854881983952793562}
 --- !u!114 &5787397079051057888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,4 +206,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5830e4d095cbc5c499e3e398474ef710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkMapPosition
+  ShowTopMostFoldoutHeaderGroup: 1
+  entityTeam: {fileID: 7854881983952793562}
+--- !u!114 &7854881983952793562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8400586856522066902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe06eaad7593709468d1cc8f13550077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityTeam
   ShowTopMostFoldoutHeaderGroup: 1

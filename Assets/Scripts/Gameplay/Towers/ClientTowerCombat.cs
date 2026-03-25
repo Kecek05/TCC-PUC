@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class ClientTowerCombat : NetworkBehaviour
 {
+    [SerializeField] private EntityTeam entityTeam;
     public override void OnNetworkSpawn()
     {
         if (IsServer && !IsClient)
@@ -32,7 +33,7 @@ public class ClientTowerCombat : NetworkBehaviour
 
         // Convert server-space origin to local-space
         Vector3 localOrigin = MapTranslator.Instance != null && MapTranslator.Instance.IsInitialized
-            ? MapTranslator.Instance.ServerToLocal(originServerPos)
+            ? MapTranslator.Instance.ServerToLocal(originServerPos, entityTeam.GetTeamType())
             : originServerPos;
 
         var bullet = CosmeticBulletPool.Instance.Get();
