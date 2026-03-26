@@ -41,6 +41,11 @@ public class CardDeployer : NetworkBehaviour
         // Spawn server-authoritative
         hit.placeable.Place();
         var newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
+
+        var entityTeam = newTower.GetComponent<EntityTeam>();
+        if (entityTeam != null)
+            entityTeam.SetTeamType(team);
+
         newTower.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
         
         PlaceResultRpc(new PlaceResult

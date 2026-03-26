@@ -25,5 +25,20 @@ MonoBehaviour:
   - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
     count: 6
     spawnInterval: 2
+  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+    count: 6
+    spawnInterval: 2
+  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+    count: 6
+    spawnInterval: 2
+  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+    count: 6
+    spawnInterval: 2
+  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+    count: 6
+    spawnInterval: 2
+  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+    count: 6
+    spawnInterval: 2
   initialDelay: 5
   delayBetweenWaves: 10

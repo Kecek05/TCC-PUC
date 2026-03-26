@@ -8,8 +8,6 @@ public class EntityTeam : NetworkBehaviour, ITeamMember
     public TeamType GetTeamType() => _teamType.Value;
     public void SetTeamType(TeamType teamType)
     {
-        if (!IsServer)  return;
-        
         _teamType.Value = teamType;
     }
 }
