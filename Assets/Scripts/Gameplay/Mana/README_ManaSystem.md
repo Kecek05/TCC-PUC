@@ -14,7 +14,7 @@ Smooth continuous regeneration, starting mana, max cap at 10.
 |------|--------|-------------|
 | `ManaSettingsSO.cs` | New | ScriptableObject for balance tuning |
 | `ServerManaManager.cs` | Rewrite | Server-authoritative mana manager |
-| `ClientManaUI.cs` | New | Client-side UI (bar + text) |
+| `ClientManaManager.cs` | Rewrite | Client-side predicted mana + UI |
 
 ---
 
@@ -65,20 +65,63 @@ After spending, the client needs to see the mana drop instantly (not wait for th
 
 ---
 
-## ClientManaUI
+## ClientManaManager (Client-Side Prediction + UI)
 
-Follows `ClientWaveUI` pattern exactly:
-- Coroutine waits for `TeamManager` + `ServerManaManager` singletons
-- `Update()` polls the correct team's NetworkVariable
+Plain `MonoBehaviour` (not NetworkBehaviour). Reads `ServerManaManager`'s NetworkVariables, owns no network state.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────┐
+│  ServerManaManager (NetworkVariable<float>)          │
+│    BlueMana / RedMana                                │
+│         │  OnValueChanged                            │
+│         ▼                                            │
+│  ClientManaManager                                   │
+│    _serverMana  ← updated by OnValueChanged          │
+│    _predictedMana ← drives all UI                    │
+│         │                                            │
+│         ▼                                            │
+│  UI: manaBarFill.fillAmount + manaText               │
+└─────────────────────────────────────────────────────┘
+```
+
+### Prediction Flow
+
+**Normal regen (no spend):**
+- `Update()` advances `_predictedMana += regenPerSecond * deltaTime` locally
+- `OnValueChanged` snaps `_predictedMana = serverValue` to stay aligned
+- Result: perfectly smooth bar, no jitter between network ticks
+
+**On card spend (optimistic):**
+1. Card UI calls `PredictSpend(cost)` → bar drops instantly
+2. Sets `_pendingSpend = true` so `OnValueChanged` doesn't immediately overwrite
+3. Server processes spend → sends updated mana via NetworkVariable
+4. `OnValueChanged` sees server value dropped (confirming spend) → clears `_pendingSpend`, snaps to server
+
+**On server reject:**
+1. Card system calls `RevertSpend(cost)` → bar jumps back up
+2. Clears `_pendingSpend`, resumes normal reconciliation
+
+### Public API
+
+| Method | Description |
+|--------|-------------|
+| `PredictSpend(int cost)` | Optimistic UI deduction, sets pending flag |
+| `RevertSpend(int cost)` | Undo prediction on server reject |
+| `CanAffordLocally(int cost)` | `FloorToInt(_predictedMana) >= cost` — for graying out cards |
+| `float PredictedMana` | Read-only property for other UI |
 
 ### UI Elements (serialized fields)
-- **`Image manaBarFill`** — `fillAmount` (0-1) for smooth continuous bar
+- **`Image manaBarFill`** — `fillAmount` for smooth continuous bar
 - **`TMP_Text manaText`** — integer display via `FloorToInt`
+- **`ManaSettingsSO manaSettings`** — for `maxMana` (bar divisor) and `regenPerSecond` (local prediction)
 
 ### Visual Behavior
-- Bar fills smoothly from 5 toward 10 (raw float / 10 = fillAmount)
-- Text shows integer, jumps at whole numbers: 5 → 6 → 7 → ... → 10
-- At 10, bar stays full
+- Bar fills smoothly using local prediction (no network jitter)
+- On spend: bar drops instantly (optimistic)
+- On server reject: bar snaps back (revert)
+- On server confirm: seamless transition
 
 ---
 

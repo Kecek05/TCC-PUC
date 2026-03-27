@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -39,27 +37,29 @@ public class TeamManager : NetworkBehaviour
         if (clientId == 1)
         {
             _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
+            Debug.Log($"TeamManager: Client {clientId} connected to Team RED");
         }
         else
         {
             _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
+            Debug.Log($"TeamManager: Client {clientId} connected to Team BLUE");
         }
     }
 
     private void OnTeamAssigned(PlayerTeamPair previousValue, PlayerTeamPair newValue)
     {
-        Debug.Log($"Time atribuído: Client {newValue.ClientId} → {newValue.Team}");
+        Debug.Log($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");
     }
 
-    // ===== API Server-side =====
+    // ===== Server-side =====
 
     public TeamType GetTeam(ulong clientId)
     { 
         if (_bluePlayer.Value.ClientId == clientId) return TeamType.Blue;
         if (_redPlayer.Value.ClientId == clientId) return TeamType.Red;
         
-        Debug.LogError($"ClientId {clientId} não tem time atribuído!");
-        return TeamType.Blue;
+        Debug.LogError($"ClientId {clientId} dont have team!");
+        return TeamType.None;
     }
 
     public bool IsOnTeam(ulong clientId, TeamType team)
@@ -67,19 +67,20 @@ public class TeamManager : NetworkBehaviour
         return GetTeam(clientId) == team;
     }
 
-    // ===== API Client-side =====
+    // ===== Client-side =====
 
     public TeamType GetLocalTeam()
     {
         ulong localId = NetworkManager.LocalClientId;
         if (_bluePlayer.Value.ClientId == localId) return TeamType.Blue;
-        return TeamType.Red;
+        if  (_redPlayer.Value.ClientId == localId) return TeamType.Red;
+        return TeamType.None;
     }
 
     public bool HasLocalTeamBeenAssigned()
     {
         ulong localId = NetworkManager.LocalClientId;
-        return _bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId;
+        return (_bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId) && NetworkManager.IsConnectedClient;
     }
 }
 

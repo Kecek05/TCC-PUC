@@ -8,11 +8,14 @@ public class ServerManaManager : NetworkBehaviour
     [SerializeField] private ManaSettingsSO _manaSettings;
     [SerializeField] private float _syncThreshold = 0.1f;
     
-    private NetworkVariable<float> redMana = new(writePerm: NetworkVariableWritePermission.Server);
-    private NetworkVariable<float> blueMana = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<float> _blueMana = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<float> _redMana = new(writePerm: NetworkVariableWritePermission.Server);
 
-    private float localRedMana = 0f;
-    private float localBlueMana = 0f;
+    public NetworkVariable<float> BlueMana => _blueMana;
+    public NetworkVariable<float> RedMana => _redMana;
+
+    private float _blueLocalMana;
+    private float _redLocalMana;
 
     private void Awake()
     {
@@ -27,10 +30,10 @@ public class ServerManaManager : NetworkBehaviour
             return;
         }
 
-        redMana.Value = _manaSettings.StartingMana;
-        blueMana.Value = _manaSettings.StartingMana;
-        localRedMana = _manaSettings.StartingMana;
-        localBlueMana = _manaSettings.StartingMana;
+        _blueLocalMana = _manaSettings.StartingMana;
+        _redLocalMana = _manaSettings.StartingMana;
+        _blueMana.Value = _manaSettings.StartingMana;
+        _redMana.Value = _manaSettings.StartingMana;
     }
 
     private void Update()
@@ -42,51 +45,66 @@ public class ServerManaManager : NetworkBehaviour
     
     private void RegenerateMana()
     {
-        localBlueMana += _manaSettings.RegenPerSecond * Time.deltaTime;
-        localRedMana += _manaSettings.RegenPerSecond * Time.deltaTime;
-        
-        localBlueMana = Mathf.Min(localBlueMana, _manaSettings.MaxMana);
-        localRedMana = Mathf.Min(localRedMana, _manaSettings.MaxMana);
-        
-        if (localBlueMana - redMana.Value >= _syncThreshold)
-        {
-            redMana.Value = localRedMana;
-            Debug.Log("Sync red mana to: " + redMana.Value);
-        }
+        float regen = _manaSettings.RegenPerSecond * Time.deltaTime;
 
-        if (localBlueMana - blueMana.Value >= _syncThreshold)
+        _blueLocalMana = Mathf.Min(_blueLocalMana + regen, _manaSettings.MaxMana);
+        _redLocalMana = Mathf.Min(_redLocalMana + regen, _manaSettings.MaxMana);
+
+        if (Mathf.Abs(_blueLocalMana - _blueMana.Value) >= _syncThreshold)
+            _blueMana.Value = _blueLocalMana;
+
+        if (Mathf.Abs(_redLocalMana - _redMana.Value) >= _syncThreshold)
+            _redMana.Value = _redLocalMana;
+    }
+
+    public float GetMana(TeamType team)
+    {
+        switch (team)
         {
-            blueMana.Value = localBlueMana;
-            Debug.Log("Sync blue mana to: " + blueMana.Value);
+            case TeamType.Blue:
+                return _blueLocalMana;
+            case TeamType.Red:
+                return _redLocalMana;
+            default:
+                Debug.LogError($"Invalid team: {team}");
+                return 0f;
         }
     }
 
-    public float GetMana(TeamType teamType)
+    public bool CanAfford(TeamType team, int cost)
     {
-        return teamType == TeamType.Blue ? blueMana.Value : redMana.Value;
+        Debug.Log($"Can afford {team} cost {cost} : {Mathf.FloorToInt(GetMana(team)) >= cost}");
+        return Mathf.FloorToInt(GetMana(team)) >= cost;
     }
 
-    public bool CanAfford(TeamType teamType, int cost)
+    public bool TrySpendMana(TeamType team, int cost)
     {
-        return Mathf.FloorToInt(GetMana(teamType)) >= cost;
-    }
+        if (!CanAfford(team, cost)) return false;
 
-    public bool TrySpendMana(TeamType teamType, int cost)
-    {
-        if (!CanAfford(teamType, cost)) return false;
-        
-        if (teamType == TeamType.Blue)
-        {
-            localBlueMana -= cost;
-            blueMana.Value = localBlueMana; // Force sync immediately on spend
-            Debug.Log($"Blue team spent {cost} mana. Remaining: {localBlueMana}");
-        }
-        else
-        {
-            localRedMana -= cost;
-            redMana.Value = localRedMana; // Force sync immediately on spend
-            Debug.Log($"Red team spent {cost} mana. Remaining: {localRedMana}");
-        }
+        if (team == TeamType.Blue)
+            _blueLocalMana -= cost;
+        else if  (team == TeamType.Red)
+            _redLocalMana -= cost;
+        else 
+            return false;
+
+        SyncMana(team);
         return true;
+    }
+
+    private void SyncMana(TeamType team)
+    {
+        switch (team)
+        {
+            case TeamType.Blue:
+                _blueMana.Value = _blueLocalMana;
+                break;
+            case TeamType.Red:
+                _redMana.Value = _redLocalMana;
+                break;
+            default:
+                Debug.LogError($"Invalid team: {team}");
+                break;
+        }
     }
 }

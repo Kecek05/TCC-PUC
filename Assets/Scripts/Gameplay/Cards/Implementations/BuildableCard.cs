@@ -17,11 +17,14 @@ public class BuildableCard : AbstractCard
     public override void ActivateCard(RaycastResult pointerRaycast)
     {
         if (pointerRaycast.gameObject == null) return;
-        
+
         if (!HasPlaceableNearby(pointerRaycast.worldPosition)) return;
+
+        if (!ClientManaManager.Instance.CanAffordLocally(cardDataSo.Cost)) return;
 
         waitingResult = true;
         CardDeployer.Instance.OnPlaceResult += HandlePlaceResult;
+        ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
         ClientVisualEffect(pointerRaycast.worldPosition);
         Vector2 serverPos = MapTranslator.Instance.LocalToServer(pointerRaycast.worldPosition);
@@ -39,11 +42,15 @@ public class BuildableCard : AbstractCard
 
         if (result.Success)
         {
+            ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
             Instantiate(validPlaceEffectPrefab, localPos, Quaternion.identity);
             Destroy(gameObject);
         }
         else
+        {
+            ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
             Instantiate(invalidPlaceEffectPrefab, localPos, Quaternion.identity);
+        }
 
     }
 

@@ -16,8 +16,9 @@ public class TeamIdentifier : MonoBehaviour, ITeamMember
 
 public enum TeamType
 {
-    Blue = 0,
-    Red = 1
+    None = 0,
+    Blue = 1,
+    Red = 2
 }
 
 public interface ITeamMember

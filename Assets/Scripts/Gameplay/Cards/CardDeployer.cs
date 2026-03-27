@@ -22,11 +22,20 @@ public class CardDeployer : NetworkBehaviour
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
         TeamType team = TeamManager.Instance.GetTeam(clientId);
-        CardDataSO cardData = cardDataListSO.GetCardDataById(cardId);
-        if (cardData == null) return;
+        if (team == TeamType.None)
+        {
+            Debug.LogError($"Client {clientId} does not have a team.");
+            PlaceResultRpc(new PlaceResult
+            {
+                CardId = cardId,
+                Success = false,
+                Position = placePosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            return;
+        }
         
-        var hit = FindClosestValidPlaceable(placePosition, team);
-        if (hit.placeable == null || hit.placeable.IsOccupied())
+        CardDataSO cardData = cardDataListSO.GetCardDataById(cardId);
+        if (cardData == null)
         {
             PlaceResultRpc(new PlaceResult
             {
@@ -34,9 +43,21 @@ public class CardDeployer : NetworkBehaviour
                 Success = false,
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-
             return;
-        };
+        }
+
+        var hit = FindClosestValidPlaceable(placePosition, team);
+        if (hit.placeable == null || hit.placeable.IsOccupied()
+            || !ServerManaManager.Instance.TrySpendMana(team, cardData.Cost))
+        {
+            PlaceResultRpc(new PlaceResult
+            {
+                CardId = cardId,
+                Success = false,
+                Position = placePosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            return;
+        }
 
         // Spawn server-authoritative
         hit.placeable.Place();
