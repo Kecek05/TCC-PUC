@@ -1,12 +1,11 @@
 using System.Collections;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
 /// Client-only: predicted mana display with optimistic spend visuals.
-/// Reads from ServerManaManager's NetworkVariables, owns no network state.
+/// Reads from <see cref="ServerManaManager"/>'s NetworkVariables.
 /// </summary>
 public class ClientManaManager : MonoBehaviour
 {
@@ -39,13 +38,6 @@ public class ClientManaManager : MonoBehaviour
             ServerManaManager.Instance != null);
 
         _localTeam = TeamManager.Instance.GetLocalTeam();
-        if (_localTeam == TeamType.None)
-        {
-            Debug.LogError("ClientManaManager: Local team not assigned. Mana display will not function.");
-            yield break;
-        }
-        
-        Debug.Log($"ClientManaManager: Local team is {_localTeam}");
         
         var manaVar = _localTeam == TeamType.Blue
             ? ServerManaManager.Instance.BlueMana
@@ -65,7 +57,6 @@ public class ClientManaManager : MonoBehaviour
         if (_pendingSpendTotal > 0f)
         {
             // Server truth minus what it hasn't processed yet
-            Debug.Log($"ClientManaManager: Server mana updated to {_serverMana}. Pending spend total is {_pendingSpendTotal}. Predicted:  {Mathf.Max(0f, _serverMana - _pendingSpendTotal)}");
             _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
         }
         else
@@ -89,7 +80,6 @@ public class ClientManaManager : MonoBehaviour
 
     public bool CanAffordLocally(int cost)
     {
-        Debug.Log($"ClientManaManager: Can afford local cost {cost} : {Mathf.FloorToInt(_predictedMana) >= cost} (server: {Mathf.FloorToInt(_serverMana)}, pending: {_pendingSpendTotal})");
         return Mathf.FloorToInt(_predictedMana) >= cost;
     }
 
@@ -100,15 +90,16 @@ public class ClientManaManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when server confirms the spend was processed.
-    /// No need to adjust _predictedMana — the next OnValueChanged will
-    /// recompute it as _serverMana - remainingPending automatically.
+    /// Called from the client when received the result from the server, when predicted cost is true.
     /// </summary>
     public void ConfirmSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
     }
 
+    /// <summary>
+    /// Called from the client when received the result from the server, when predicted cost is false.
+    /// </summary>
     public void RevertSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);

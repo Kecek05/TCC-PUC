@@ -1,5 +1,4 @@
 using Sirenix.OdinInspector;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,17 +11,29 @@ public class BuildableCard : AbstractCard
     [SerializeField] private ParticleSystem validPlaceEffectPrefab;
     [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
 
-    private bool waitingResult = false;
+    private bool _waitingResult;
+
+    public override CardValidation CanPlayCard()
+    {
+        if (_waitingResult) return CardValidation.Invalid(CardInvalidReason.WaitingForServer);
+
+        return base.CanPlayCard();
+    }
+
+    public override CardValidation CanPlayCardAt(RaycastResult target)
+    {
+        var baseCheck = base.CanPlayCardAt(target);
+        if (!baseCheck) return baseCheck;
+
+        if (target.gameObject == null || !HasPlaceableNearby(target.worldPosition))
+            return CardValidation.Invalid(CardInvalidReason.InvalidTarget);
+
+        return CardValidation.Valid;
+    }
 
     public override void ActivateCard(RaycastResult pointerRaycast)
     {
-        if (pointerRaycast.gameObject == null) return;
-
-        if (!HasPlaceableNearby(pointerRaycast.worldPosition)) return;
-
-        if (!ClientManaManager.Instance.CanAffordLocally(cardDataSo.Cost)) return;
-
-        waitingResult = true;
+        _waitingResult = true;
         CardDeployer.Instance.OnPlaceResult += HandlePlaceResult;
         ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
@@ -33,9 +44,9 @@ public class BuildableCard : AbstractCard
 
     private void HandlePlaceResult(PlaceResult result)
     {
-        if (!waitingResult || result.CardId != cardDataSo.CardId) return;
+        if (!_waitingResult || result.CardId != cardDataSo.CardId) return;
         
-        waitingResult = false;
+        _waitingResult = false;
         CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position, TeamManager.Instance.GetLocalTeam());

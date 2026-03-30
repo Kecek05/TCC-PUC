@@ -74,6 +74,7 @@ public class TeamManager : NetworkBehaviour
         ulong localId = NetworkManager.LocalClientId;
         if (_bluePlayer.Value.ClientId == localId) return TeamType.Blue;
         if  (_redPlayer.Value.ClientId == localId) return TeamType.Red;
+        Debug.LogError($"LocalId {localId} dont have team! Returning None");
         return TeamType.None;
     }
 

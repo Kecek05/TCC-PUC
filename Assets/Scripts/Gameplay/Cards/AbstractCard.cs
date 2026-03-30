@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
@@ -32,10 +31,10 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         transform.SetParent(safeArea.transform);
         transform.SetAsLastSibling();
         transform.DOScale(1.15f, 0.4f).SetEase(Ease.OutCirc);
-        
+
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasArea.transform as RectTransform, eventData.position, canvasArea.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
-        
+
         selfCanvasGroup.blocksRaycasts = false;
     }
 
@@ -46,17 +45,28 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        ActivateCard(eventData.pointerCurrentRaycast);
-        selfCanvasGroup.blocksRaycasts = true;
+        var raycast = eventData.pointerCurrentRaycast;
+        if (CanPlayCardAt(raycast))
+            ActivateCard(raycast);
 
+        selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(originalParent);
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
         transform.DOScale(originalScale, 0.4f).SetEase(Ease.OutQuint);
-        
     }
 
-    public virtual void ActivateCard(RaycastResult pointerRaycast)
+    public virtual CardValidation CanPlayCard()
     {
-        Debug.Log("Activating BaseCard: " + cardDataSo.CardName + " pos: " + pointerRaycast.worldPosition);
+        if (!ClientManaManager.Instance.CanAffordLocally(cardDataSo.Cost))
+            return CardValidation.Invalid(CardInvalidReason.NotEnoughMana);
+
+        return CardValidation.Valid;
     }
+
+    public virtual CardValidation CanPlayCardAt(RaycastResult target)
+    {
+        return CanPlayCard();
+    }
+
+    public abstract void ActivateCard(RaycastResult target);
 }
