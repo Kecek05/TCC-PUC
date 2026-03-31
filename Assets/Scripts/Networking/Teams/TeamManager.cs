@@ -51,7 +51,7 @@ public class TeamManager : NetworkBehaviour
         Debug.Log($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");
     }
 
-    // ===== Server-side =====
+    // Server-side
 
     public TeamType GetTeam(ulong clientId)
     { 
@@ -67,7 +67,7 @@ public class TeamManager : NetworkBehaviour
         return GetTeam(clientId) == team;
     }
 
-    // ===== Client-side =====
+    // Client-side 
 
     public TeamType GetLocalTeam()
     {

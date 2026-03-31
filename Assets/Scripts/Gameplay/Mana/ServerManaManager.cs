@@ -73,7 +73,6 @@ public class ServerManaManager : NetworkBehaviour
 
     public bool CanAfford(TeamType team, int cost)
     {
-        Debug.Log($"Can afford {team} cost {cost} : {Mathf.FloorToInt(GetMana(team)) >= cost}");
         return Mathf.FloorToInt(GetMana(team)) >= cost;
     }
 

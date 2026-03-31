@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,7 +40,7 @@ public class ClientManaManager : MonoBehaviour
 
         _localTeam = TeamManager.Instance.GetLocalTeam();
         
-        var manaVar = _localTeam == TeamType.Blue
+        NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
             ? ServerManaManager.Instance.BlueMana
             : ServerManaManager.Instance.RedMana;
 

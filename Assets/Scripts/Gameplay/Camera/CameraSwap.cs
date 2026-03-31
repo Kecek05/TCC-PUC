@@ -108,7 +108,7 @@ public class CameraSwap : MonoBehaviour
             ? progress <= 1f - commitThreshold
             : progress >= commitThreshold;
 
-        // Flick overrides position — fast intent wins
+        // Flick overrides position, fast intent wins
         if (flickingToCancel)
         {
             SnapBack();
