@@ -15,6 +15,7 @@ MonoBehaviour:
   sceneDatas_byGuid:
     keys:
     - 3d0b4f561421d4d409f00af1e3d20c78
+    - 359166c415588524ba1ae08c9d8f7e10
     values:
     - goDatas_byGlobalId:
         keys:
@@ -39,6 +40,9 @@ MonoBehaviour:
           iconNameOrGuid: Folder Icon
           isIconRecursive: 0
           isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys: []
+        values: []
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/SampleScene 1.unity
