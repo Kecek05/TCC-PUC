@@ -95,7 +95,7 @@ public class ServerWaveManager : NetworkBehaviour
     /// Spawns an enemy on the specified map's path.
     /// Used by both PvE waves and PvP send-enemy mechanic.
     /// </summary>
-    public void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam)
+    public void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool reversed = false)
     {
         if (!IsServer) return;
 
@@ -107,7 +107,7 @@ public class ServerWaveManager : NetworkBehaviour
 
         EnemyManager enemyManager = enemyObj.GetComponent<EnemyManager>();
 
-        enemyManager.ServerMovement.Initialize(path);
+        enemyManager.ServerMovement.Initialize(path, reversed);
         
         enemyManager.PathAssignment.SetTargetMap(targetTeam);
         
@@ -134,7 +134,7 @@ public class ServerWaveManager : NetworkBehaviour
         EnemyDataSO enemyData = FindEnemyDataById(enemyId);
         if (enemyData == null) return;
 
-        SpawnEnemy(enemyData, targetMap);
+        SpawnEnemy(enemyData, targetMap, true);
     }
 
     public WaypointPath GetPath(TeamType map)

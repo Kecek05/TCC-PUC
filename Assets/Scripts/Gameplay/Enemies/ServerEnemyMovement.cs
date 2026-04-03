@@ -10,11 +10,12 @@ public class ServerEnemyMovement : NetworkBehaviour
     [SerializeField] private EnemyManager enemyManager;
     
     private NetworkVariable<float> _pathProgress = new(writePerm: NetworkVariableWritePermission.Server);
-
     private NetworkVariable<float> _currentSpeed = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<bool> _reversed = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
+    public NetworkVariable<bool> Reversed => _reversed;
 
     // Only sync PathProgress when the change exceeds this threshold.
     // Reduces bandwidth: avoids marking the NetworkVariable dirty every single frame.
@@ -25,14 +26,16 @@ public class ServerEnemyMovement : NetworkBehaviour
     private float _baseSpeed;
     private float _localProgress;
     private bool _reachedEnd;
+    private bool _reversedLocal;
 
     /// <summary>
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
     /// Must be called on the server before or right after NetworkObject.Spawn().
     /// </summary>
-    public void Initialize(WaypointPath path)
+    public void Initialize(WaypointPath path, bool reversed = false)
     {
         _path = path;
+        _reversedLocal = reversed;
     }
 
     public override void OnNetworkSpawn()
@@ -45,6 +48,7 @@ public class ServerEnemyMovement : NetworkBehaviour
         
         _baseSpeed = enemyManager.Data.MoveSpeed;
         _currentSpeed.Value = _baseSpeed;
+        _reversed.Value = _reversedLocal;
         _localProgress = 0f;
         _pathProgress.Value = 0f;
     }
@@ -72,7 +76,8 @@ public class ServerEnemyMovement : NetworkBehaviour
         }
 
         // Update server-side transform for tower targeting distance checks
-        transform.position = _path.SamplePosition(_localProgress);
+        float sampleT = _reversed.Value ? 1f - _localProgress : _localProgress;
+        transform.position = _path.SamplePosition(sampleT);
     }
 
     private void OnReachedEnd()
