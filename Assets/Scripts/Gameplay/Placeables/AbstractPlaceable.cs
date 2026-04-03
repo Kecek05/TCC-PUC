@@ -4,20 +4,25 @@ public abstract class AbstractPlaceable : MonoBehaviour, IPlaceable
 {
     [SerializeField] private Transform placeablePoint;
     
-    private bool occupied;
-    public bool Occupied => occupied;
+    private bool _occupied;
+    public bool Occupied => _occupied;
+    
+    private TowerDataHolder _occupiedTower;
+    public TowerDataHolder OccupiedTower => _occupiedTower;
+    
     public Transform PlaceablePoint => placeablePoint;
 
-    public virtual void Place()
+    public void Occupy(TowerDataHolder towerDataHolder)
     {
-        if (occupied) 
+        if (_occupied) 
             return;
         
-        occupied = true;
+        _occupiedTower =  towerDataHolder;
+        _occupied = true;
     }
 
     public bool IsOccupied()
     {
-        return occupied;
+        return _occupied;
     }
 }

@@ -46,3 +46,4 @@ MonoBehaviour:
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/SampleScene 1.unity
+  - Assets/Scenes/ArtScene.unity

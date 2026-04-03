@@ -8,6 +8,11 @@ using UnityEngine;
 public class ClientTowerCombat : NetworkBehaviour
 {
     [SerializeField] private EntityTeam entityTeam;
+    [SerializeField] private ServerTowerCombat serverTowerCombat;
+    [SerializeField] private ClientTowerGFX clientTowerGFX;
+    
+    private int _towerLevel = 1;
+    
     public override void OnNetworkSpawn()
     {
         if (IsServer && !IsClient)
@@ -15,6 +20,14 @@ public class ClientTowerCombat : NetworkBehaviour
             enabled = false;
             return;
         }
+        
+        serverTowerCombat.TowerLevel.OnValueChanged += OnTowerLevelChanged;
+        OnTowerLevelChanged(0, serverTowerCombat.TowerLevel.Value);
+    }
+
+    private void OnTowerLevelChanged(int previousValue, int newValue)
+    {
+        clientTowerGFX.UpgradeTower(newValue);
     }
 
     /// <summary>
@@ -38,5 +51,6 @@ public class ClientTowerCombat : NetworkBehaviour
 
         var bullet = CosmeticBulletPool.Instance.Get();
         bullet.Fire(localOrigin, targetTransform);
+        clientTowerGFX.FireBulletFeedback();
     }
 }

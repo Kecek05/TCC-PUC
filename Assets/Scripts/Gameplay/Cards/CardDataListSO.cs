@@ -6,8 +6,16 @@ public class CardDataListSO : ScriptableObject
 {
     [SerializeField] private List<CardDataSO> cardDataList;
     
-    public CardDataSO GetCardDataById(int id)
+    public CardDataSO GetCardDataByType(CardType cardType)
     {
-        return cardDataList.Find(card => card.CardId == id);
+        return cardDataList.Find(cardData => cardData.CardType == cardType);
     }
+}
+
+public enum CardType
+{
+    None,
+    TowerCircle,
+    TowerSquare,
+    SpellFireball
 }

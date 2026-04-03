@@ -11,7 +11,7 @@ public class TowerDataHolder : MonoBehaviour
     {
         if (towerData == null) return;
         Gizmos.color = new Color(1f, 0.3f, 0.3f, 0.3f);
-        Gizmos.DrawWireSphere(transform.position, towerData.Range);
+        Gizmos.DrawWireSphere(transform.position, towerData.RangeLevel1);
     }
 #endif
 }

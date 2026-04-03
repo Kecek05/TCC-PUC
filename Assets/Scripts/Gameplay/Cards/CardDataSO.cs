@@ -5,7 +5,7 @@ using UnityEngine;
 public class CardDataSO : ScriptableObject
 {
     [Title("Card Properties")]
-    [SerializeField] private int cardId;
+    [SerializeField] private CardType cardType;
     [SerializeField] private string cardName;
     [SerializeField] private string description;
     [SerializeField] private Sprite cardImage;
@@ -14,7 +14,7 @@ public class CardDataSO : ScriptableObject
     [Title("Card References")]
     [SerializeField] private GameObject cardPrefab;
     
-    public int CardId => cardId;
+    public CardType CardType => cardType;
     public string CardName => cardName;
     public string Description => description;
     public Sprite CardImage => cardImage;

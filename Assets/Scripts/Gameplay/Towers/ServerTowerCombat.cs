@@ -10,17 +10,24 @@ using UnityEngine;
 /// </summary>
 public class ServerTowerCombat : NetworkBehaviour
 {
+    [SerializeField] private TowerDataHolder towerDataHolder;
+    [SerializeField] private ClientTowerCombat clientCombat;
+    
+    private TowerDataSO _towerData => towerDataHolder.TowerData;
+    
+    private NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
     private float _damage;
     private float _range;
     private float _shootCooldown;
     private float _bulletSpeed;
     private float _cooldownTimer;
 
-    private ClientTowerCombat _clientCombat;
 
     // Cached list to avoid allocations during targeting
     private static readonly List<ServerEnemyHealth> _activeEnemies = new();
 
+    public NetworkVariable<int> TowerLevel => _towerLevel;
+    
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -29,13 +36,8 @@ public class ServerTowerCombat : NetworkBehaviour
             return;
         }
 
-        _clientCombat = GetComponent<ClientTowerCombat>();
-
-        var data = GetComponent<TowerDataHolder>().TowerData;
-        _damage = data.Damage;
-        _range = data.Range;
-        _shootCooldown = data.ShootCooldown;
-        _bulletSpeed = data.BulletSpeed;
+        _towerLevel.Value = 1;
+        UpdateData();
         _cooldownTimer = 0f;
     }
 
@@ -57,7 +59,7 @@ public class ServerTowerCombat : NetworkBehaviour
         StartCoroutine(ApplyDamageAfterDelay(target, _damage, travelTime));
 
         // Notify clients immediately to play cosmetic bullet
-        _clientCombat.FireBulletRpc(
+        clientCombat.FireBulletRpc(
             transform.position,
             target.GetComponent<NetworkObject>()
         );
@@ -120,9 +122,30 @@ public class ServerTowerCombat : NetworkBehaviour
             target.TakeDamage(damage);
     }
 
+    public void UpgradeTower(int newAmount)
+    {
+        int newLevel = _towerLevel.Value + newAmount;
+        if (newLevel < 1 || newLevel > 3)
+        {
+            Debug.LogError("UpgradeTower: Level must be between 1 and 3");
+            return;
+        }
+
+        _towerLevel.Value = newLevel;
+        UpdateData();
+    }
+
+    private void UpdateData()
+    {
+        _damage = _towerData.GetDamageByLevel(_towerLevel.Value);
+        _range = _towerData.GetRangeByLevel(_towerLevel.Value);
+        _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
+        _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
+    }
+    
     private static void RefreshEnemyList()
     {
         // Remove any null entries that slipped through
-        _activeEnemies.RemoveAll(e => e == null);
+        _activeEnemies.RemoveAll(enemy => enemy == null);
     }
 }

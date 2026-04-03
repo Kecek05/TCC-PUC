@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1e84b0ff9a75c384ea0314c59968ea63
+guid: f51d97d2778c1b04ab67ca628245514d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4826788127009644304
-    second: SquareTower1_0
+      213: 7126103918077697828
+    second: CircleTower3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,9 +46,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1300
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0

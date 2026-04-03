@@ -7,6 +7,7 @@ public class CardDeployer : NetworkBehaviour
     public static CardDeployer Instance { get; private set; }
 
     [SerializeField] private CardDataListSO cardDataListSO;
+    [SerializeField] private TowerDataListSO towerDataListSO;
     [SerializeField] private float castRadius = 0.5f;
     [SerializeField] private LayerMask placeableLayerMask;
 
@@ -18,28 +19,29 @@ public class CardDeployer : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void RequestPlaceCardServerRpc(int cardId, Vector2 placePosition, RpcParams rpcParams = default)
+    public void RequestPlaceCardServerRpc(CardType cardType, Vector2 placePosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
         TeamType team = TeamManager.Instance.GetTeam(clientId);
+        
         if (team == TeamType.None)
         {
             Debug.LogError($"Client {clientId} does not have a team.");
             PlaceResultRpc(new PlaceResult
             {
-                CardId = cardId,
+                CardType = cardType,
                 Success = false,
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
         
-        CardDataSO cardData = cardDataListSO.GetCardDataById(cardId);
+        CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData == null)
         {
             PlaceResultRpc(new PlaceResult
             {
-                CardId = cardId,
+                CardType = cardType,
                 Success = false,
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
@@ -47,36 +49,65 @@ public class CardDeployer : NetworkBehaviour
         }
 
         var hit = FindClosestValidPlaceable(placePosition, team);
-        if (hit.placeable == null || hit.placeable.IsOccupied()
-            || !ServerManaManager.Instance.TrySpendMana(team, cardData.Cost))
+        
+        if (hit.placeable == null || !ServerManaManager.Instance.TrySpendMana(team, cardData.Cost)
+            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.TowerData.TowerType != GameUtils.GetTowerTypeByCardType(cardType)))
         {
             PlaceResultRpc(new PlaceResult
             {
-                CardId = cardId,
+                CardType = cardType,
                 Success = false,
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
 
-        // Spawn server-authoritative
-        hit.placeable.Place();
-        var newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
-
-        var entityTeam = newTower.GetComponent<EntityTeam>();
-        if (entityTeam != null)
-            entityTeam.SetTeamType(team);
-
-        newTower.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
-        
-        PlaceResultRpc(new PlaceResult
+        if (hit.placeable.IsOccupied())
         {
-            CardId = cardId,
-            Success = true,
-            Position = hit.placeable.PlaceablePoint.position
-        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            //Level Up
+            hit.placeable.OccupiedTower.GetComponent<ServerTowerCombat>().UpgradeTower(1);
+            
+            PlaceResultRpc(new PlaceResult
+            {
+                CardType = cardType,
+                Success = false,
+                Position = placePosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            
+            // PlaceResultRpc(new PlaceResult
+            // {
+            //     CardType = cardType,
+            //     Success = true,
+            //     Position = hit.placeable.PlaceablePoint.position
+            // }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        }
+        else
+        {
+            // Spawn server-authoritative
+            GameObject newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
+            hit.placeable.Occupy(newTower.GetComponent<TowerDataHolder>());
+
+            EntityTeam entityTeam = newTower.GetComponent<EntityTeam>();
+            if (entityTeam != null)
+                entityTeam.SetTeamType(team);
+
+            newTower.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+        
+            PlaceResultRpc(new PlaceResult
+            {
+                CardType = cardType,
+                Success = true,
+                Position = hit.placeable.PlaceablePoint.position
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        }
     }
     
+    /// <summary>
+    /// Finds the closest valid placeable within a certain radius of the origin point that belongs to the required team.
+    /// </summary>
+    /// <param name="origin"> Origin Position</param>
+    /// <param name="requiredTeam"> Team</param>
+    /// <returns> Closest Placeable and the Team of the Placeable</returns>
     private (IPlaceable placeable, TeamIdentifier team) FindClosestValidPlaceable(Vector2 origin, TeamType requiredTeam)
     {
         var hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayerMask);
@@ -115,13 +146,13 @@ public class CardDeployer : NetworkBehaviour
 
 public struct PlaceResult : INetworkSerializable
 {
-    public int CardId;
+    public CardType CardType;
     public bool Success;
     public Vector2 Position;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref CardId);
+        serializer.SerializeValue(ref CardType);
         serializer.SerializeValue(ref Success);
         serializer.SerializeValue(ref Position);
     }

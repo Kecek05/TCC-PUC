@@ -39,12 +39,12 @@ public class BuildableCard : AbstractCard
 
         ClientVisualEffect(pointerRaycast.worldPosition);
         Vector2 serverPos = MapTranslator.Instance.LocalToServer(pointerRaycast.worldPosition);
-        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardId, serverPos);
+        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPos);
     }
 
     private void HandlePlaceResult(PlaceResult result)
     {
-        if (!_waitingResult || result.CardId != cardDataSo.CardId) return;
+        if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
         
         _waitingResult = false;
         CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
