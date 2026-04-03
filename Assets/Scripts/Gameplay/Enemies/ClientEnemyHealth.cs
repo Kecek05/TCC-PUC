@@ -4,7 +4,7 @@ using UnityEngine;
 public class ClientEnemyHealth : NetworkBehaviour
 {
     [SerializeField] private EnemyHealthBar healthBar;
-
+    [SerializeField] private EnemyManager enemyManager;
     private ServerEnemyHealth _serverHealth;
 
     public override void OnNetworkSpawn()
@@ -21,8 +21,7 @@ public class ClientEnemyHealth : NetworkBehaviour
         // Initialize health bar with max health from data
         if (healthBar != null)
         {
-            var data = GetComponent<EnemyDataHolder>().EnemyData;
-            healthBar.Initialize(transform, data.MaxHealth);
+            healthBar.Initialize(transform, enemyManager.Data.MaxHealth);
         }
     }
 

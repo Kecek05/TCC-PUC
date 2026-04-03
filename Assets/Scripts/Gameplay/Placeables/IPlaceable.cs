@@ -3,11 +3,11 @@ using UnityEngine;
 public interface IPlaceable
 {
     public bool Occupied { get; }
-    public TowerDataHolder OccupiedTower { get; }
+    public TowerManager OccupiedTower { get; }
     
     public Transform PlaceablePoint { get; }
     
-    public void Occupy(TowerDataHolder towerDataHolder);
+    public void Occupy(TowerManager towerManager);
     
     public bool IsOccupied();
 }

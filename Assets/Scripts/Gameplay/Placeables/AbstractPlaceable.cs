@@ -7,12 +7,12 @@ public abstract class AbstractPlaceable : MonoBehaviour, IPlaceable
     private bool _occupied;
     public bool Occupied => _occupied;
     
-    private TowerDataHolder _occupiedTower;
-    public TowerDataHolder OccupiedTower => _occupiedTower;
+    private TowerManager _occupiedTower;
+    public TowerManager OccupiedTower => _occupiedTower;
     
     public Transform PlaceablePoint => placeablePoint;
 
-    public void Occupy(TowerDataHolder towerDataHolder)
+    public void Occupy(TowerManager towerDataHolder)
     {
         if (_occupied) 
             return;

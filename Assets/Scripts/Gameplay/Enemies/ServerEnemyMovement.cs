@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class ServerEnemyMovement : NetworkBehaviour
 {
+    [SerializeField] private EnemyManager enemyManager;
+    
     private NetworkVariable<float> _pathProgress = new(writePerm: NetworkVariableWritePermission.Server);
 
     private NetworkVariable<float> _currentSpeed = new(writePerm: NetworkVariableWritePermission.Server);
@@ -40,9 +42,8 @@ public class ServerEnemyMovement : NetworkBehaviour
             enabled = false;
             return;
         }
-
-        var data = GetComponent<EnemyDataHolder>().EnemyData;
-        _baseSpeed = data.MoveSpeed;
+        
+        _baseSpeed = enemyManager.Data.MoveSpeed;
         _currentSpeed.Value = _baseSpeed;
         _localProgress = 0f;
         _pathProgress.Value = 0f;

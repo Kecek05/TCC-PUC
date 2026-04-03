@@ -51,7 +51,7 @@ public class CardDeployer : NetworkBehaviour
         var hit = FindClosestValidPlaceable(placePosition, team);
         
         if (hit.placeable == null || !ServerManaManager.Instance.TrySpendMana(team, cardData.Cost)
-            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.TowerData.TowerType != GameUtils.GetTowerTypeByCardType(cardType)))
+            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != GameUtils.GetTowerTypeByCardType(cardType)))
         {
             PlaceResultRpc(new PlaceResult
             {
@@ -67,7 +67,7 @@ public class CardDeployer : NetworkBehaviour
             //Level Up
             TowerManager towerManager = hit.placeable.OccupiedTower.GetComponent<TowerManager>();
 
-            if (!towerManager.ServerTowerCombat.CanUpgradeTower())
+            if (!towerManager.ServerCombat.CanUpgradeTower())
             {
                 PlaceResultRpc(new PlaceResult
                 {
@@ -77,7 +77,7 @@ public class CardDeployer : NetworkBehaviour
                 }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             }
             
-            towerManager.ServerTowerCombat.UpgradeTower(1);
+            towerManager.ServerCombat.UpgradeTower(1);
             
             PlaceResultRpc(new PlaceResult
             {
@@ -91,10 +91,10 @@ public class CardDeployer : NetworkBehaviour
             // Spawn server-authoritative
             GameObject newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
             TowerManager towerManager = newTower.GetComponent<TowerManager>();
-            hit.placeable.Occupy(towerManager.TowerDataHolder);
+            hit.placeable.Occupy(towerManager);
 
-            if (towerManager.EntityTeam != null)
-                towerManager.EntityTeam.SetTeamType(team);
+            if (towerManager.Team != null)
+                towerManager.Team.SetTeamType(team);
 
             towerManager.NetworkObject.SpawnWithOwnership(clientId);
         

@@ -10,10 +10,10 @@ using UnityEngine;
 /// </summary>
 public class ServerTowerCombat : NetworkBehaviour
 {
-    [SerializeField] private TowerDataHolder towerDataHolder;
+    [SerializeField] private TowerManager towerDataHolder;
     [SerializeField] private ClientTowerCombat clientCombat;
     
-    private TowerDataSO _towerData => towerDataHolder.TowerData;
+    private TowerDataSO _towerData => towerDataHolder.Data;
     
     private NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
     private float _damage;
@@ -24,7 +24,7 @@ public class ServerTowerCombat : NetworkBehaviour
 
 
     // Cached list to avoid allocations during targeting
-    private static readonly List<ServerEnemyHealth> _activeEnemies = new();
+    private static readonly List<EnemyManager> _activeEnemies = new();
 
     public NetworkVariable<int> TowerLevel => _towerLevel;
     
@@ -48,7 +48,7 @@ public class ServerTowerCombat : NetworkBehaviour
         _cooldownTimer -= Time.deltaTime;
         if (_cooldownTimer > 0f) return;
 
-        var target = FindClosestEnemy();
+        EnemyManager target = FindClosestEnemy();
         if (target == null) return;
 
         float distance = Vector2.Distance(transform.position, target.transform.position);
@@ -66,16 +66,15 @@ public class ServerTowerCombat : NetworkBehaviour
         );
     }
 
-    private ServerEnemyHealth FindClosestEnemy()
+    private EnemyManager FindClosestEnemy()
     {
         RefreshEnemyList();
 
-        ServerEnemyHealth closest = null;
-        float closestDist = _range;
+        EnemyManager closestEnemy = null;
 
         for (int i = _activeEnemies.Count - 1; i >= 0; i--)
         {
-            var enemy = _activeEnemies[i];
+            EnemyManager enemy = _activeEnemies[i];
 
             // Clean up destroyed/despawned enemies
             if (enemy == null || !enemy.NetworkObject.IsSpawned)
@@ -85,21 +84,29 @@ public class ServerTowerCombat : NetworkBehaviour
             }
 
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
-            if (dist <= closestDist)
+            if (dist > _range) continue;
+            
+            if (closestEnemy == null)
             {
-                closestDist = dist;
-                closest = enemy;
+                closestEnemy = enemy;
+                continue;
+            }
+            
+            if (enemy.ServerMovement.PathProgress.Value > closestEnemy.ServerMovement.PathProgress.Value)
+            {
+                closestEnemy = enemy;
             }
         }
 
-        return closest;
+        Debug.Log($"Tower {name} found target: {(closestEnemy != null ? closestEnemy.name : "None")}");
+        return closestEnemy;
     }
 
     /// <summary>
     /// Registers an enemy so towers can find it via distance checks.
     /// Called by ServerEnemyHealth.OnNetworkSpawn().
     /// </summary>
-    public static void RegisterEnemy(ServerEnemyHealth enemy)
+    public static void RegisterEnemy(EnemyManager enemy)
     {
         if (!_activeEnemies.Contains(enemy))
             _activeEnemies.Add(enemy);
@@ -109,18 +116,18 @@ public class ServerTowerCombat : NetworkBehaviour
     /// Unregisters an enemy when it is despawned or destroyed.
     /// Called by ServerEnemyHealth.OnNetworkDespawn().
     /// </summary>
-    public static void UnregisterEnemy(ServerEnemyHealth enemy)
+    public static void UnregisterEnemy(EnemyManager enemy)
     {
         _activeEnemies.Remove(enemy);
     }
 
-    private IEnumerator ApplyDamageAfterDelay(ServerEnemyHealth target, float damage, float delay)
+    private IEnumerator ApplyDamageAfterDelay(EnemyManager target, float damage, float delay)
     {
         yield return new WaitForSeconds(delay);
 
         // Enemy may have died or despawned during bullet flight — skip if so
         if (target != null && target.NetworkObject != null && target.NetworkObject.IsSpawned)
-            target.TakeDamage(damage);
+            target.ServerHealth.TakeDamage(damage);
     }
 
     public bool CanUpgradeTower()
@@ -147,6 +154,7 @@ public class ServerTowerCombat : NetworkBehaviour
     private void UpdateData()
     {
         _damage = _towerData.GetDamageByLevel(_towerLevel.Value);
+        Debug.Log($"UpdateData: Damage: {_damage} - TowerLevel: {_towerLevel.Value}");
         _range = _towerData.GetRangeByLevel(_towerLevel.Value);
         _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);

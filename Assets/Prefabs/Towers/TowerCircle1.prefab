@@ -2819,7 +2819,6 @@ GameObject:
   - component: {fileID: 7534808882448730159}
   - component: {fileID: 4691726937858701052}
   - component: {fileID: 4064182366859840236}
-  - component: {fileID: 240355637608547063}
   - component: {fileID: 3096684015542124624}
   - component: {fileID: 2606555038004479415}
   - component: {fileID: 5787397079051057888}
@@ -2860,7 +2859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4f1f5724e544b4094cb8756db31d16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TowerManager
-  towerDataHolder: {fileID: 240355637608547063}
+  towerDataSO: {fileID: 11400000, guid: 3527497a52af09a46bb535e5b8e97326, type: 2}
   networkObject: {fileID: 4064182366859840236}
   serverTowerCombat: {fileID: 3096684015542124624}
   clientTowerCombat: {fileID: 2606555038004479415}
@@ -2877,7 +2876,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 590291487
+  GlobalObjectIdHash: 2113466914
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2890,19 +2889,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &240355637608547063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8400586856522066902}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c94a7fd7e05d92649a843b0f93790838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TowerDataHolder
-  towerData: {fileID: 11400000, guid: 3527497a52af09a46bb535e5b8e97326, type: 2}
 --- !u!114 &3096684015542124624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2916,7 +2902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  towerDataHolder: {fileID: 240355637608547063}
+  towerDataHolder: {fileID: 4691726937858701052}
   clientCombat: {fileID: 2606555038004479415}
 --- !u!114 &2606555038004479415
 MonoBehaviour:

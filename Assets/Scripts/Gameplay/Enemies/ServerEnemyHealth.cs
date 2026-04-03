@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ServerEnemyHealth : NetworkBehaviour, IDamageable
 {
+    [SerializeField] private EnemyManager enemyManager;
+    
     private NetworkVariable<float> _currentHealth = new(
         writePerm: NetworkVariableWritePermission.Server
     );
@@ -18,18 +20,17 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
             enabled = false;
             return;
         }
-
-        var data = GetComponent<EnemyDataHolder>().EnemyData;
-        _maxHealth = data.MaxHealth;
+        
+        _maxHealth = enemyManager.Data.MaxHealth;
         _currentHealth.Value = _maxHealth;
 
-        ServerTowerCombat.RegisterEnemy(this);
+        ServerTowerCombat.RegisterEnemy(enemyManager);
     }
 
     public override void OnNetworkDespawn()
     {
         if (IsServer)
-            ServerTowerCombat.UnregisterEnemy(this);
+            ServerTowerCombat.UnregisterEnemy(enemyManager);
     }
 
     public void TakeDamage(float damage)
