@@ -35,7 +35,7 @@ public class ClientTowerCombat : NetworkBehaviour
     /// Spawns a local-only CosmeticBullet that lerps from tower to target.
     /// </summary>
     [Rpc(SendTo.NotServer)]
-    public void FireBulletRpc(Vector3 originServerPos, NetworkObjectReference targetRef)
+    public void FireBulletRpc(Vector3 originServerPos, float bulletSpeed, NetworkObjectReference targetRef)
     {
         if (CosmeticBulletPool.Instance == null) return;
 
@@ -49,8 +49,8 @@ public class ClientTowerCombat : NetworkBehaviour
             ? MapTranslator.Instance.ServerToLocal(originServerPos, entityTeam.GetTeamType())
             : originServerPos;
 
-        var bullet = CosmeticBulletPool.Instance.Get();
-        bullet.Fire(localOrigin, targetTransform);
+        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();
+        bullet.Fire(localOrigin, targetTransform, bulletSpeed);
         clientTowerGFX.FireBulletFeedback();
     }
 }

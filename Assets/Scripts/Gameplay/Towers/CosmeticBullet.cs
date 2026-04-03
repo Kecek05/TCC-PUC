@@ -7,9 +7,6 @@ using UnityEngine;
 /// </summary>
 public class CosmeticBullet : MonoBehaviour
 {
-    [SerializeField] private float speed = 15f;
-    [SerializeField] private SpriteRenderer spriteRenderer;
-
     private Vector3 _origin;
     private Transform _target;
     private Vector3 _lastTargetPos;
@@ -17,6 +14,8 @@ public class CosmeticBullet : MonoBehaviour
     private float _distanceTraveled;
     private bool _active;
 
+    private float _lastSpeed;
+    
     private CosmeticBulletPool _pool;
 
     public void Initialize(CosmeticBulletPool pool)
@@ -24,13 +23,14 @@ public class CosmeticBullet : MonoBehaviour
         _pool = pool;
     }
 
-    public void Fire(Vector3 origin, Transform target)
+    public void Fire(Vector3 origin, Transform target, float bulletSpeed)
     {
         _origin = origin;
         _target = target;
         _lastTargetPos = target != null ? target.position : origin;
         _journeyLength = Vector3.Distance(_origin, _lastTargetPos);
         _distanceTraveled = 0f;
+        _lastSpeed =  bulletSpeed;
         _active = true;
 
         transform.position = origin;
@@ -46,7 +46,7 @@ public class CosmeticBullet : MonoBehaviour
         if (_target != null)
             _lastTargetPos = _target.position;
 
-        _distanceTraveled += speed * Time.deltaTime;
+        _distanceTraveled += _lastSpeed * Time.deltaTime;
         _journeyLength = Vector3.Distance(_origin, _lastTargetPos);
 
         if (_journeyLength <= 0.01f)

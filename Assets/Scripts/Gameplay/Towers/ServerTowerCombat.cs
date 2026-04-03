@@ -61,6 +61,7 @@ public class ServerTowerCombat : NetworkBehaviour
         // Notify clients immediately to play cosmetic bullet
         clientCombat.FireBulletRpc(
             transform.position,
+            _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
             target.GetComponent<NetworkObject>()
         );
     }

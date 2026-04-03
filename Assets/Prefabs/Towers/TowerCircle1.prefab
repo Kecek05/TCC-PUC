@@ -1199,7 +1199,7 @@ MonoBehaviour:
   DebugActive: 0
   InScriptDrivenPause: 0
   FeedbacksList:
-  - rid: 2896952636412788990
+  - rid: 2896952636412788993
   KeepPlayModeChanges: 0
   PerformanceMode: 0
   RestoreInitialValuesOnDisable: 0
@@ -1211,11 +1211,11 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2896952636412788990
+    - rid: 2896952636412788993
       type: {class: MMF_SquashAndStretchSpring, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
       data:
         Active: 1
-        UniqueID: 1377634823
+        UniqueID: -1144733238
         Label: Squash and Stretch Spring
         OriginalLabel: Squash and Stretch Spring
         ChannelMode: 0
@@ -1232,7 +1232,7 @@ MonoBehaviour:
           NumberOfRepeats: 0
           RepeatForever: 0
           DelayBetweenRepeats: 1
-          PlayCount: 86
+          PlayCount: 184
           LimitPlayCount: 0
           MaxPlayCount: 3
           SetPlayCountToZeroOnReset: 0
@@ -1250,7 +1250,7 @@ MonoBehaviour:
           Mode: 0
           ChildIndex: 0
         RandomizeOutput: 1
-        RandomMultiplier: {x: 0.5, y: 1.1}
+        RandomMultiplier: {x: 0.8, y: 1.2}
         RandomizeDuration: 1
         RandomDurationMultiplier: {x: 0.8, y: 1.2}
         UseRange: 0
@@ -1286,15 +1286,15 @@ MonoBehaviour:
         Owner: {fileID: 211216264628474573}
         DebugActive: 0
         AnimateScaleTarget: {fileID: 7256169366091304597}
-        DeclaredDuration: 0.15
+        DeclaredDuration: 0.2
         Axis: 0
-        Damping: 0.366
-        Frequency: 6
+        Damping: 0.268
+        Frequency: 4.5
         Mode: 2
         MoveToMin: 1
         MoveToMax: 2
-        BumpScaleMin: 20
-        BumpScaleMax: 25
+        BumpScaleMin: 15
+        BumpScaleMax: 20
 --- !u!1 &5866930998065046397
 GameObject:
   m_ObjectHideFlags: 0
