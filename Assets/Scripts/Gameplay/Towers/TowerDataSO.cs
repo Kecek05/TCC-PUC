@@ -6,6 +6,8 @@ public class TowerDataSO : ScriptableObject
 {
     [Title("General")]
     [SerializeField] private TowerType towerType;
+
+    [SerializeField] private int maxLevel = 3;
     
     [Title("Level 1")]
     [SerializeField] private float damageLevel1 = 15f;
@@ -26,6 +28,7 @@ public class TowerDataSO : ScriptableObject
     [SerializeField] private float bulletSpeedLevel3 = 25f;
     
     public TowerType TowerType => towerType;
+    public int MaxLevel => maxLevel;
     public float DamageLevel1 => damageLevel1;
     public float RangeLevel1 => rangeLevel1;
     public float ShootCooldownLevel1 => shootCooldownLevel1;

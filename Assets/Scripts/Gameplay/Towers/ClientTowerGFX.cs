@@ -21,12 +21,10 @@ public class ClientTowerGFX : MonoBehaviour
 
     public void UpgradeTower(int newLevel)
     {
-        Debug.Log("Upgrade level " + newLevel);
         foreach (TowerFeedback towerFeedback in towerFeedbacks)
         {
             if (towerFeedback.level == newLevel)
             {
-                Debug.Log($"Playing feedback for tower level {newLevel}");
                 towerFeedback.Feedback?.PlayFeedbacks();
                 break;
             }

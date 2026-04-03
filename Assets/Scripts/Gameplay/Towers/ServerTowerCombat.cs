@@ -123,6 +123,14 @@ public class ServerTowerCombat : NetworkBehaviour
             target.TakeDamage(damage);
     }
 
+    public bool CanUpgradeTower()
+    {
+        if (_towerLevel.Value >= _towerData.MaxLevel)
+            return false;
+        
+        return true;
+    }
+
     public void UpgradeTower(int newAmount)
     {
         int newLevel = _towerLevel.Value + newAmount;

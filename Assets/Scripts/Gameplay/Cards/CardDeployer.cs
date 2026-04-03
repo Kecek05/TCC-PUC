@@ -30,7 +30,7 @@ public class CardDeployer : NetworkBehaviour
             PlaceResultRpc(new PlaceResult
             {
                 CardType = cardType,
-                Success = false,
+                Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
@@ -42,7 +42,7 @@ public class CardDeployer : NetworkBehaviour
             PlaceResultRpc(new PlaceResult
             {
                 CardType = cardType,
-                Success = false,
+                Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
@@ -56,7 +56,7 @@ public class CardDeployer : NetworkBehaviour
             PlaceResultRpc(new PlaceResult
             {
                 CardType = cardType,
-                Success = false,
+                Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
                 Position = placePosition
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
@@ -65,38 +65,43 @@ public class CardDeployer : NetworkBehaviour
         if (hit.placeable.IsOccupied())
         {
             //Level Up
-            hit.placeable.OccupiedTower.GetComponent<ServerTowerCombat>().UpgradeTower(1);
+            TowerManager towerManager = hit.placeable.OccupiedTower.GetComponent<TowerManager>();
+
+            if (!towerManager.ServerTowerCombat.CanUpgradeTower())
+            {
+                PlaceResultRpc(new PlaceResult
+                {
+                    CardType = cardType,
+                    Validation = TowerValidation.Invalid(TowerReason.NotSuccessMaxLevel),
+                    Position = placePosition
+                }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            }
+            
+            towerManager.ServerTowerCombat.UpgradeTower(1);
             
             PlaceResultRpc(new PlaceResult
             {
                 CardType = cardType,
-                Success = false,
-                Position = placePosition
+                Validation = TowerValidation.LevelUp,
+                Position = hit.placeable.PlaceablePoint.position
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-            
-            // PlaceResultRpc(new PlaceResult
-            // {
-            //     CardType = cardType,
-            //     Success = true,
-            //     Position = hit.placeable.PlaceablePoint.position
-            // }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
         else
         {
             // Spawn server-authoritative
             GameObject newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
-            hit.placeable.Occupy(newTower.GetComponent<TowerDataHolder>());
+            TowerManager towerManager = newTower.GetComponent<TowerManager>();
+            hit.placeable.Occupy(towerManager.TowerDataHolder);
 
-            EntityTeam entityTeam = newTower.GetComponent<EntityTeam>();
-            if (entityTeam != null)
-                entityTeam.SetTeamType(team);
+            if (towerManager.EntityTeam != null)
+                towerManager.EntityTeam.SetTeamType(team);
 
-            newTower.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+            towerManager.NetworkObject.SpawnWithOwnership(clientId);
         
             PlaceResultRpc(new PlaceResult
             {
                 CardType = cardType,
-                Success = true,
+                Validation = TowerValidation.Success,
                 Position = hit.placeable.PlaceablePoint.position
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
@@ -147,13 +152,13 @@ public class CardDeployer : NetworkBehaviour
 public struct PlaceResult : INetworkSerializable
 {
     public CardType CardType;
-    public bool Success;
+    public TowerValidation Validation;
     public Vector2 Position;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref CardType);
-        serializer.SerializeValue(ref Success);
+        serializer.SerializeValue(ref Validation);
         serializer.SerializeValue(ref Position);
     }
 }
