@@ -103,24 +103,18 @@ public class ServerWaveManager : NetworkBehaviour
         if (path == null || path.WaypointCount < 2) return;
 
         Vector3 spawnPos = path.SamplePosition(0f);
-        var enemyObj = Instantiate(enemyData.EnemyPrefab, spawnPos, Quaternion.identity);
+        GameObject enemyObj = Instantiate(enemyData.EnemyPrefab, spawnPos, Quaternion.identity);
 
-        // Initialize server movement with the correct path
-        var serverMovement = enemyObj.GetComponent<ServerEnemyMovement>();
-        if (serverMovement != null)
-            serverMovement.Initialize(path);
+        EnemyManager enemyManager = enemyObj.GetComponent<EnemyManager>();
 
-        // Set the target map so clients can look up the correct path
-        var pathAssignment = enemyObj.GetComponent<EnemyPathAssignment>();
-        if (pathAssignment != null)
-            pathAssignment.SetTargetMap(targetTeam);
+        enemyManager.ServerMovement.Initialize(path);
         
-        var entityTeam = enemyObj.GetComponent<EntityTeam>();
-        if (entityTeam != null)
-            entityTeam.SetTeamType(targetTeam);
+        enemyManager.PathAssignment.SetTargetMap(targetTeam);
+        
+        enemyManager.Team.SetTeamType(targetTeam);
+        
+        enemyManager.NetworkObject.Spawn();
 
-        // Spawn as server-owned NetworkObject
-        enemyObj.GetComponent<NetworkObject>().Spawn();
     }
 
     /// <summary>
@@ -137,8 +131,7 @@ public class ServerWaveManager : NetworkBehaviour
         TeamType targetMap = senderTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
 
         // TODO: Validate cost/cooldown for sending enemies
-        // For now, just spawn it
-        var enemyData = FindEnemyDataById(enemyId);
+        EnemyDataSO enemyData = FindEnemyDataById(enemyId);
         if (enemyData == null) return;
 
         SpawnEnemy(enemyData, targetMap);

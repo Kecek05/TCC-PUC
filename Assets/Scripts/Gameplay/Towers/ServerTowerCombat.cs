@@ -10,10 +10,10 @@ using UnityEngine;
 /// </summary>
 public class ServerTowerCombat : NetworkBehaviour
 {
-    [SerializeField] private TowerManager towerDataHolder;
+    [SerializeField] private TowerManager towerManager;
     [SerializeField] private ClientTowerCombat clientCombat;
     
-    private TowerDataSO _towerData => towerDataHolder.Data;
+    private TowerDataSO _towerData => towerManager.Data;
     
     private NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
     private float _damage;
@@ -77,7 +77,7 @@ public class ServerTowerCombat : NetworkBehaviour
             EnemyManager enemy = _activeEnemies[i];
 
             // Clean up destroyed/despawned enemies
-            if (enemy == null || !enemy.NetworkObject.IsSpawned)
+            if (enemy == null || !enemy.NetworkObject.IsSpawned || enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
             {
                 _activeEnemies.RemoveAt(i);
                 continue;
@@ -109,7 +109,9 @@ public class ServerTowerCombat : NetworkBehaviour
     public static void RegisterEnemy(EnemyManager enemy)
     {
         if (!_activeEnemies.Contains(enemy))
+        {
             _activeEnemies.Add(enemy);
+        }
     }
 
     /// <summary>

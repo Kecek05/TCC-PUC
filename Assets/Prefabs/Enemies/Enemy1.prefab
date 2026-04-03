@@ -57,6 +57,8 @@ MonoBehaviour:
   networkObject: {fileID: 5940204312391163142}
   serverEnemyMovement: {fileID: 7508654934558401029}
   serverEnemyHealth: {fileID: 1995391638603950467}
+  entityTeam: {fileID: 6620339120972220906}
+  enemyPathAssignment: {fileID: 5614380360627772003}
 --- !u!114 &1995391638603950467
 MonoBehaviour:
   m_ObjectHideFlags: 0

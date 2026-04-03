@@ -12,9 +12,15 @@ public class EnemyManager : MonoBehaviour
     private ServerEnemyMovement serverEnemyMovement;
     [SerializeField, Required]
     private ServerEnemyHealth serverEnemyHealth;
+    [SerializeField, Required]
+    private EntityTeam entityTeam;
+    [SerializeField, Required]
+    private EnemyPathAssignment enemyPathAssignment;
     
     public EnemyDataSO Data => enemyData;
     public NetworkObject NetworkObject => networkObject;
     public ServerEnemyMovement ServerMovement => serverEnemyMovement;
     public ServerEnemyHealth ServerHealth => serverEnemyHealth;
+    public EntityTeam Team => entityTeam;
+    public EnemyPathAssignment PathAssignment => enemyPathAssignment;
 }
