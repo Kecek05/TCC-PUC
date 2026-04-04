@@ -46,7 +46,9 @@ public class ClientEnemyMovement : NetworkBehaviour
             MapTranslator.Instance.IsInitialized);
 
         // Snap to initial position
-        Vector3 serverPos = _path.SamplePosition(_serverMovement.PathProgress.Value);
+        float progress = _serverMovement.PathProgress.Value;
+        float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
+        Vector3 serverPos = _path.SamplePosition(sampleT);
         transform.position = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
         _initialized = true;
     }
@@ -56,7 +58,8 @@ public class ClientEnemyMovement : NetworkBehaviour
         if (!_initialized || _path == null) return;
 
         float progress = _serverMovement.PathProgress.Value;
-        Vector3 serverPos = _path.SamplePosition(progress);
+        float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
+        Vector3 serverPos = _path.SamplePosition(sampleT);
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
 
         // Smooth interpolation to avoid snapping between network updates
