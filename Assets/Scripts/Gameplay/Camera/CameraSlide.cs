@@ -31,6 +31,13 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private bool _initialized;
     private bool _dragging;
 
+    private void Awake()
+    {
+        float orthoForWidth = mapSettingsSO.TargetWorldWidth / (2f * mainCamera.aspect);
+        float orthoForHeight = mapSettingsSO.TargetWorldHeight / 2f;
+        mainCamera.orthographicSize = Mathf.Max(orthoForWidth, orthoForHeight);
+    }
+
     private IEnumerator Start()
     {
         yield return new WaitUntil(() =>
