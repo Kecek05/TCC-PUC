@@ -17,6 +17,16 @@ public class ServerEnemyMovement : NetworkBehaviour
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
     public NetworkVariable<bool> Reversed => _reversed;
 
+    public bool IsTargetable
+    {
+        get
+        {
+            if (_path == null) return false;
+            float sampleT = _reversedLocal ? 1f - _localProgress : _localProgress;
+            return sampleT >= _path.MinTargetableProgress && sampleT <= _path.MaxTargetableProgress;
+        }
+    }
+
     // Only sync PathProgress when the change exceeds this threshold.
     // Reduces bandwidth: avoids marking the NetworkVariable dirty every single frame.
     // 0.005 on a 20-unit path ≈ 0.1 units — imperceptible with client interpolation.

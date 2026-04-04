@@ -75,6 +75,7 @@ public class CardTowerDeployer : NetworkBehaviour
                     Validation = TowerValidation.Invalid(TowerReason.NotSuccessMaxLevel),
                     Position = placePosition
                 }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+                return;
             }
             
             towerManager.ServerCombat.UpgradeTower(1);

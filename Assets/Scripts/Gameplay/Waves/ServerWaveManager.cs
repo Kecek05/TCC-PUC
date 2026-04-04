@@ -30,8 +30,8 @@ public class ServerWaveManager : NetworkBehaviour
     public NetworkVariable<int> BlueCurrentWave => _blueCurrentWave;
     public NetworkVariable<int> RedCurrentWave => _redCurrentWave;
 
-    private List<EnemyManager> _redActiveEnemies;
-    private List<EnemyManager> _blueActiveEnemies;
+    private List<EnemyManager> _redActiveEnemies = new();
+    private List<EnemyManager> _blueActiveEnemies = new() ;
     
     private void Awake() => Instance = this;
 
@@ -54,6 +54,14 @@ public class ServerWaveManager : NetworkBehaviour
         StartCoroutine(RunWaves(TeamType.Red));
     }
 
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer) return;
+        
+        ServerEnemyHealth.OnDeath -= ServerEnemyHealthOnOnDeath;
+        StopAllCoroutines();
+    }
+
     private void ServerEnemyHealthOnOnDeath(EnemyManager enemyManager)
     {
         RemoveEnemyFromList(enemyManager.Team.GetTeamType(), enemyManager);
@@ -65,8 +73,9 @@ public class ServerWaveManager : NetworkBehaviour
 
         for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
         {
-            Debug.Log($"Starting wave {waveIndex + 1} for {teamType}");
             SetCurrentWave(teamType, waveIndex + 1);
+            if (waveIndex > 0)
+                yield return new WaitForSeconds(waveData.DelayBetweenWaves);
             
             WaveEntry currentWave = waveData.Waves[waveIndex];
 
@@ -82,8 +91,6 @@ public class ServerWaveManager : NetworkBehaviour
             }
 
             yield return new WaitUntil(() => GetEnemyList(teamType).Count <= 0);
-            Debug.Log($"All enemies in wave {waveIndex + 1} for {teamType} defeated!");
-            yield return new WaitForSeconds(waveData.DelayBetweenWaves);
         }
     }
     

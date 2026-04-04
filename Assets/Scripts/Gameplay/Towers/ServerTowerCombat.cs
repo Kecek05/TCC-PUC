@@ -87,6 +87,10 @@ public class ServerTowerCombat : NetworkBehaviour
             if (enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
                 continue;
 
+            // Skip enemies still in the off-screen portion of the path
+            if (!enemy.ServerMovement.IsTargetable)
+                continue;
+
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
             if (dist > _range) continue;
             
@@ -159,7 +163,6 @@ public class ServerTowerCombat : NetworkBehaviour
     private void UpdateData()
     {
         _damage = _towerData.GetDamageByLevel(_towerLevel.Value);
-        Debug.Log($"UpdateData: Damage: {_damage} - TowerLevel: {_towerLevel.Value}");
         _range = _towerData.GetRangeByLevel(_towerLevel.Value);
         _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);

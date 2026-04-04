@@ -8,8 +8,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     [SerializeField] private Camera mainCamera;
 
     [Header("Camera Positions")]
-    [SerializeField] private float downY;
-    [SerializeField] private float upY = 10.125f;
+    [SerializeField] private MapSettingsSO  mapSettingsSO;
     [SerializeField] private float tweenDuration = 0.4f;
     [SerializeField] private Ease tweenEase = Ease.OutCubic;
 
@@ -48,7 +47,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         mainCamera.transform.DOKill();
         _startPos = eventData.position;
         _lastPointerY = _startPos.y;
-        _homeY = _isUp ? upY : downY;
+        _homeY = _isUp ? mapSettingsSO.BluePlayerMapY : mapSettingsSO.RedPlayerMapY;
         ResetSamples();
     }
 
@@ -83,7 +82,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         float dragPixels = currentPos.y - _startPos.y;
         float worldOffset = -dragPixels * screenToWorldRatio;
-        float targetY = Mathf.Clamp(_homeY + worldOffset, downY, upY);
+        float targetY = Mathf.Clamp(_homeY + worldOffset, mapSettingsSO.RedPlayerMapY, mapSettingsSO.BluePlayerMapY);
 
         mainCamera.transform.position = new Vector3(
             mainCamera.transform.position.x,
@@ -95,8 +94,8 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void EvaluateRelease()
     {
         float currentY = mainCamera.transform.position.y;
-        float totalDistance = upY - downY;
-        float progress = (currentY - downY) / totalDistance;
+        float totalDistance = mapSettingsSO.RedPlayerMapY - mapSettingsSO.BluePlayerMapY;
+        float progress = (currentY - mapSettingsSO.RedPlayerMapY) / totalDistance;
         float velocity = GetRecentVelocity();
         
         bool flickingToCommit = _isUp
@@ -132,18 +131,18 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (_isUp)
         {
             _isUp = false;
-            TweenCameraTo(downY);
+            TweenCameraTo(mapSettingsSO.RedPlayerMapY);
         }
         else
         {
             _isUp = true;
-            TweenCameraTo(upY);
+            TweenCameraTo(mapSettingsSO.BluePlayerMapY);
         }
     }
 
     private void SnapBack()
     {
-        float homeY = _isUp ? upY : downY;
+        float homeY = _isUp ? mapSettingsSO.BluePlayerMapY : mapSettingsSO.RedPlayerMapY;
         mainCamera.transform.DOKill();
         mainCamera.transform.DOMoveY(homeY, snapBackDuration).SetEase(snapBackEase);
     }
