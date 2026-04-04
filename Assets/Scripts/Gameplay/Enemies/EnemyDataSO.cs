@@ -9,6 +9,8 @@ public class EnemyDataSO : ScriptableObject
     [SerializeField] private string enemyName;
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
+    [SerializeField, Tooltip("Duration of spawn invincibility (frozen + untargetable).")]
+    private float spawnDuration = 1f;
 
     [Title("Visuals")]
     [SerializeField] private Sprite enemySprite;
@@ -20,6 +22,7 @@ public class EnemyDataSO : ScriptableObject
     public string EnemyName => enemyName;
     public float MaxHealth => maxHealth;
     public float MoveSpeed => moveSpeed;
+    public float SpawnDuration => spawnDuration;
     public Sprite EnemySprite => enemySprite;
     public GameObject EnemyPrefab => enemyPrefab;
 }

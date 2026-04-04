@@ -41,6 +41,7 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     public void TakeDamage(float damage)
     {
         if (!IsServer) return;
+        if (enemyManager.ServerMovement.Invincible.Value) return;
 
         _currentHealth.Value -= damage;
 

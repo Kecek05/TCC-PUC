@@ -16,5 +16,6 @@ MonoBehaviour:
   enemyName: Enemy 1
   maxHealth: 100
   moveSpeed: 2
+  spawnDuration: 0.5
   enemySprite: {fileID: 0}
   enemyPrefab: {fileID: 721806592549603216, guid: 76b6f6ebd34d8404eb2643228dfa56ba, type: 3}

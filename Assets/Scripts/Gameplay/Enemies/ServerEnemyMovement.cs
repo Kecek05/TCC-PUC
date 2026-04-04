@@ -12,24 +12,16 @@ public class ServerEnemyMovement : NetworkBehaviour
     private NetworkVariable<float> _pathProgress = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> _currentSpeed = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> _reversed = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<bool> _invincible = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
     public NetworkVariable<bool> Reversed => _reversed;
+    public NetworkVariable<bool> Invincible => _invincible;
 
-    public bool IsTargetable
-    {
-        get
-        {
-            if (_path == null) return false;
-            float sampleT = _reversedLocal ? 1f - _localProgress : _localProgress;
-            return sampleT >= _path.MinTargetableProgress && sampleT <= _path.MaxTargetableProgress;
-        }
-    }
+    public bool IsTargetable => !_invincible.Value;
 
     // Only sync PathProgress when the change exceeds this threshold.
-    // Reduces bandwidth: avoids marking the NetworkVariable dirty every single frame.
-    // 0.005 on a 20-unit path ≈ 0.1 units — imperceptible with client interpolation.
     private const float SyncThreshold = 0.005f;
 
     private WaypointPath _path;
@@ -37,6 +29,7 @@ public class ServerEnemyMovement : NetworkBehaviour
     private float _localProgress;
     private bool _reachedEnd;
     private bool _reversedLocal;
+    private float _invincibilityTimer;
 
     /// <summary>
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
@@ -61,11 +54,22 @@ public class ServerEnemyMovement : NetworkBehaviour
         _reversed.Value = _reversedLocal;
         _localProgress = 0f;
         _pathProgress.Value = 0f;
+
+        _invincibilityTimer = enemyManager.Data.SpawnDuration;
+        _invincible.Value = _invincibilityTimer > 0f;
     }
 
     private void Update()
     {
         if (!IsServer || _path == null || _reachedEnd) return;
+
+        if (_invincible.Value)
+        {
+            _invincibilityTimer -= Time.deltaTime;
+            if (_invincibilityTimer <= 0f)
+                _invincible.Value = false;
+            return;
+        }
 
         float totalLength = _path.TotalLength;
         if (totalLength <= 0f) return;

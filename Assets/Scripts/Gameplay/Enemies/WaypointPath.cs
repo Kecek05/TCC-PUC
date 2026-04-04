@@ -12,12 +12,6 @@ public class WaypointPath : MonoBehaviour
     [SerializeField, InfoBox("Add child Transforms as waypoints. Order = path order.")]
     private List<Transform> waypoints = new();
 
-    [Title("Off-Screen Waypoints")]
-    [SerializeField, Tooltip("How many waypoints at the start are off-screen (not targetable).")]
-    private int entryWaypoints = 1;
-    [SerializeField, Tooltip("How many waypoints at the end are off-screen (not targetable).")]
-    private int exitWaypoints = 1;
-
     private float[] _segmentStartProgress;
     private float _totalLength;
     private bool _isComputed;
@@ -32,26 +26,6 @@ public class WaypointPath : MonoBehaviour
     }
 
     public int WaypointCount => waypoints.Count;
-
-    public float MinTargetableProgress
-    {
-        get
-        {
-            if (!_isComputed) ComputePath();
-            if (entryWaypoints <= 0 || waypoints.Count < 2) return 0f;
-            return _segmentStartProgress[Mathf.Min(entryWaypoints, waypoints.Count - 1)];
-        }
-    }
-
-    public float MaxTargetableProgress
-    {
-        get
-        {
-            if (!_isComputed) ComputePath();
-            if (exitWaypoints <= 0 || waypoints.Count < 2) return 1f;
-            return _segmentStartProgress[Mathf.Max(0, waypoints.Count - 1 - exitWaypoints)];
-        }
-    }
 
     private void Awake()
     {
@@ -145,20 +119,18 @@ public class WaypointPath : MonoBehaviour
     {
         if (waypoints == null || waypoints.Count < 2) return;
 
+        Gizmos.color = Color.yellow;
         for (int i = 0; i < waypoints.Count - 1; i++)
         {
             if (waypoints[i] == null || waypoints[i + 1] == null) continue;
-            bool offScreen = i < entryWaypoints || i >= waypoints.Count - 1 - exitWaypoints;
-            Gizmos.color = offScreen ? Color.red : Color.yellow;
             Gizmos.DrawLine(waypoints[i].position, waypoints[i + 1].position);
         }
 
+        Gizmos.color = Color.green;
         for (int i = 0; i < waypoints.Count; i++)
         {
             if (waypoints[i] == null) continue;
-            bool offScreen = i < entryWaypoints || i > waypoints.Count - 1 - exitWaypoints;
-            Gizmos.color = offScreen ? Color.red : Color.green;
-            Gizmos.DrawSphere(waypoints[i].position, offScreen ? 0.1f : 0.15f);
+            Gizmos.DrawSphere(waypoints[i].position, 0.15f);
         }
     }
 #endif

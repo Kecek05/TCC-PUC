@@ -1340,8 +1340,6 @@ MonoBehaviour:
   - {fileID: 485228742}
   - {fileID: 188551898}
   - {fileID: 359952040}
-  entryWaypoints: 1
-  exitWaypoints: 1
 --- !u!1001 &147601233
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11655,7 +11653,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 7.0982056, y: 14.0982}
+  m_AnchoredPosition: {x: 7.0982666, y: 14.0982}
   m_SizeDelta: {x: 114.1963, y: 114.1963}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1495729091
@@ -12756,8 +12754,6 @@ MonoBehaviour:
   - {fileID: 1596032302}
   - {fileID: 1456147406}
   - {fileID: 231418149}
-  entryWaypoints: 1
-  exitWaypoints: 1
 --- !u!4 &1677528803
 Transform:
   m_ObjectHideFlags: 0
