@@ -6,13 +6,14 @@ using UnityEngine.EventSystems;
 
 public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [Title("Card Properties")]
+    [Header("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;
 
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private Canvas canvasArea;
     [SerializeField] private Transform safeArea;
     [SerializeField] private CanvasGroup selfCanvasGroup;
+    
     private Vector2 originalPosition;
     private Transform originalParent;
     private Vector3 originalScale;

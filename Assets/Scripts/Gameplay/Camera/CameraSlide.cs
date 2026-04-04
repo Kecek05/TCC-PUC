@@ -1,10 +1,9 @@
-using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
-public class CameraSwap : MonoBehaviour
+public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Camera mainCamera;
 
@@ -28,13 +27,10 @@ public class CameraSwap : MonoBehaviour
 
     private Vector2 _startPos;
     private float _lastPointerY;
-    private bool _swiping;
     private bool _isUp;
     private float _homeY;
     private bool _initialized;
-
-    public event Action OnSwipeUp;
-    public event Action OnSwipeDown;
+    private bool _dragging;
 
     private IEnumerator Start()
     {
@@ -44,35 +40,42 @@ public class CameraSwap : MonoBehaviour
         _initialized = true;
     }
 
-    private void Update()
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!_initialized) return;
+        if (!_initialized || !enabled) return;
 
-        var pointer = Pointer.current;
-        if (pointer == null) return;
+        _dragging = true;
+        mainCamera.transform.DOKill();
+        _startPos = eventData.position;
+        _lastPointerY = _startPos.y;
+        _homeY = _isUp ? upY : downY;
+        ResetSamples();
+    }
 
-        if (pointer.press.wasPressedThisFrame)
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!_dragging) return;
+
+        float currentY = eventData.position.y;
+        RecordSample(currentY - _lastPointerY, Time.unscaledDeltaTime);
+        _lastPointerY = currentY;
+        ApplyDrag(eventData.position);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!_dragging) return;
+
+        _dragging = false;
+        EvaluateRelease();
+    }
+
+    private void OnDisable()
+    {
+        if (_dragging)
         {
-            mainCamera.transform.DOKill();
-            _startPos = pointer.position.ReadValue();
-            _lastPointerY = _startPos.y;
-            _homeY = _isUp ? upY : downY;
-            _swiping = true;
-            ResetSamples();
-        }
-
-        if (_swiping && pointer.press.isPressed)
-        {
-            float currentY = pointer.position.ReadValue().y;
-            RecordSample(currentY - _lastPointerY, Time.unscaledDeltaTime);
-            _lastPointerY = currentY;
-            ApplyDrag(pointer.position.ReadValue());
-        }
-
-        if (pointer.press.wasReleasedThisFrame && _swiping)
-        {
-            _swiping = false;
-            EvaluateRelease();
+            _dragging = false;
+            SnapBack();
         }
     }
 
@@ -130,13 +133,11 @@ public class CameraSwap : MonoBehaviour
         {
             _isUp = false;
             TweenCameraTo(downY);
-            OnSwipeDown?.Invoke();
         }
         else
         {
             _isUp = true;
             TweenCameraTo(upY);
-            OnSwipeUp?.Invoke();
         }
     }
 

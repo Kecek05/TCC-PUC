@@ -4,9 +4,11 @@ using UnityEngine.EventSystems;
 
 public class BuildableCard : AbstractCard
 {
-    [Title("Buildable Settings")]
+    [Header("Buildable Settings")]
     [SerializeField] private float castRadius = 0.5f;
     [SerializeField] private LayerMask placeableLayer;
+    [SerializeField] private LayerMask blockedLayer;
+    
     [SerializeField] private ParticleSystem loadingPlaceEffectPrefab;
     [SerializeField] private ParticleSystem validPlaceEffectPrefab;
     [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
