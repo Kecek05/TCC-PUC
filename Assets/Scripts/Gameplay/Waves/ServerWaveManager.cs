@@ -62,22 +62,22 @@ public class ServerWaveManager : NetworkBehaviour
         }
         SetWaveTimer(map, 0f);
 
-        for (int w = 0; w < waveData.Waves.Count; w++)
+        for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
         {
-            SetCurrentWave(map, w + 1);
-            var wave = waveData.Waves[w];
+            SetCurrentWave(map, waveIndex + 1);
+            WaveEntry currentWave = waveData.Waves[waveIndex];
 
             // Spawn all enemies in this wave
 
-            for (int i = 0; i < wave.count; i++)
+            for (int i = 0; i < currentWave.count; i++)
             {
-                SpawnEnemy(wave.enemyData, map);
-                if (i < wave.count - 1)
-                    yield return new WaitForSeconds(wave.spawnInterval);
+                SpawnEnemy(currentWave.enemyData, map);
+                if (i < currentWave.count - 1)
+                    yield return new WaitForSeconds(currentWave.spawnInterval);
             }
 
             // Delay between waves
-            if (w < waveData.Waves.Count - 1)
+            if (waveIndex < waveData.Waves.Count - 1)
             {
                 timer = waveData.DelayBetweenWaves;
                 while (timer > 0f)
