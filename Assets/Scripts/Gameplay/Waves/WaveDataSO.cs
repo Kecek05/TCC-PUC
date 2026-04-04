@@ -6,15 +6,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "WaveData", menuName = "Scriptable Objects/WaveData")]
 public class WaveDataSO : ScriptableObject
 {
-    [Title("Wave Sequence")]
-    [SerializeField] private List<WaveEntry> waves = new();
-
     [Title("Timing")]
     [Tooltip("Seconds before the first wave starts")]
-    [SerializeField] private float initialDelay = 5f;
+    [SerializeField, Unit(Units.Second)] 
+    private float initialDelay = 5f;
 
-    [Tooltip("Seconds between waves (after all enemies in a wave have spawned)")]
-    [SerializeField] private float delayBetweenWaves = 10f;
+    [Tooltip("Seconds between waves (after all enemies in a wave are dead)")]
+    [SerializeField, Unit(Units.Second)] 
+    private float delayBetweenWaves = 10f;
+    
+    [Title("Wave Sequence")]
+    [SerializeField] private List<WaveEntry> waves = new();
 
     public IReadOnlyList<WaveEntry> Waves => waves;
     public float InitialDelay => initialDelay;
@@ -23,24 +25,33 @@ public class WaveDataSO : ScriptableObject
     public List<GameObject> GetAllEnemyPrefabs()
     {
         List<GameObject> prefabs = new();
-        foreach (var wave in waves)
+        foreach (WaveEntry wave in waves)
         {
-            if (!prefabs.Contains(wave.enemyData.EnemyPrefab))
-                prefabs.Add(wave.enemyData.EnemyPrefab);
+            foreach (WaveEnemy waveEnemy in wave.waveEnemies)
+            {
+                if (!prefabs.Contains(waveEnemy.enemyData.EnemyPrefab))
+                    prefabs.Add(waveEnemy.enemyData.EnemyPrefab);
+            }
         }
         return prefabs;
     }
 }
 
 [Serializable]
-public struct WaveEntry
+public struct WaveEnemy
 {
-    [Tooltip("Which enemy to spawn (references EnemyDataSO for prefab + stats)")]
+    [Tooltip("Which enemy to spawn")]
     public EnemyDataSO enemyData;
 
-    [Tooltip("How many enemies in this wave")]
+    [Tooltip("How many enemies")]
     public int count;
+}
 
-    [Tooltip("Seconds between each enemy spawn within this wave")]
+[Serializable]
+public struct WaveEntry
+{
+    public WaveEnemy[] waveEnemies;
+
+    [Tooltip("Seconds between each enemy spawn within this wave"), Unit(Units.Second)]
     public float spawnInterval;
 }

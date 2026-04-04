@@ -1,9 +1,11 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
 public class ServerEnemyHealth : NetworkBehaviour, IDamageable
 {
     [SerializeField] private EnemyManager enemyManager;
+    
     
     private NetworkVariable<float> _currentHealth = new(
         writePerm: NetworkVariableWritePermission.Server
@@ -12,7 +14,7 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     private float _maxHealth;
 
     public NetworkVariable<float> CurrentHealth => _currentHealth;
-
+    public static event Action<EnemyManager> OnDeath;
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -30,7 +32,10 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     public override void OnNetworkDespawn()
     {
         if (IsServer)
+        {
             ServerTowerCombat.UnregisterEnemy(enemyManager);
+            OnDeath?.Invoke(enemyManager);
+        }
     }
 
     public void TakeDamage(float damage)

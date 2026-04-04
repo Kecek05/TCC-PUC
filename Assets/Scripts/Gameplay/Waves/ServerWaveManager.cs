@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
@@ -25,14 +26,13 @@ public class ServerWaveManager : NetworkBehaviour
     [Title("Synced State")]
     private NetworkVariable<int> _blueCurrentWave = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<int> _redCurrentWave = new(writePerm: NetworkVariableWritePermission.Server);
-    private NetworkVariable<float> _blueWaveTimer = new(writePerm: NetworkVariableWritePermission.Server);
-    private NetworkVariable<float> _redWaveTimer = new(writePerm: NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> BlueCurrentWave => _blueCurrentWave;
     public NetworkVariable<int> RedCurrentWave => _redCurrentWave;
-    public NetworkVariable<float> BlueWaveTimer => _blueWaveTimer;
-    public NetworkVariable<float> RedWaveTimer => _redWaveTimer;
 
+    private List<EnemyManager> _redActiveEnemies;
+    private List<EnemyManager> _blueActiveEnemies;
+    
     private void Awake() => Instance = this;
 
     public override void OnNetworkSpawn()
@@ -48,56 +48,46 @@ public class ServerWaveManager : NetworkBehaviour
             EnemyNetworkPool.Instance.RegisterPrefab(enemy);
         }
         
+        ServerEnemyHealth.OnDeath += ServerEnemyHealthOnOnDeath;
+        
         StartCoroutine(RunWaves(TeamType.Blue));
         StartCoroutine(RunWaves(TeamType.Red));
     }
 
-    private IEnumerator RunWaves(TeamType map)
+    private void ServerEnemyHealthOnOnDeath(EnemyManager enemyManager)
     {
-        // Initial delay
-        float timer = waveData.InitialDelay;
-        while (timer > 0f)
-        {
-            SetWaveTimer(map, timer);
-            timer -= Time.deltaTime;
-            yield return null;
-        }
-        SetWaveTimer(map, 0f);
+        RemoveEnemyFromList(enemyManager.Team.GetTeamType(), enemyManager);
+    }
+
+    private IEnumerator RunWaves(TeamType teamType)
+    {
+        yield return new WaitForSeconds(waveData.InitialDelay);
 
         for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
         {
-            SetCurrentWave(map, waveIndex + 1);
+            Debug.Log($"Starting wave {waveIndex + 1} for {teamType}");
+            SetCurrentWave(teamType, waveIndex + 1);
+            
             WaveEntry currentWave = waveData.Waves[waveIndex];
 
             // Spawn all enemies in this wave
-
-            for (int i = 0; i < currentWave.count; i++)
+            foreach (WaveEnemy waveEnemy in currentWave.waveEnemies)
             {
-                SpawnEnemy(currentWave.enemyData, map);
-                if (i < currentWave.count - 1)
-                    yield return new WaitForSeconds(currentWave.spawnInterval);
-            }
-
-            // Delay between waves
-            if (waveIndex < waveData.Waves.Count - 1)
-            {
-                timer = waveData.DelayBetweenWaves;
-                while (timer > 0f)
+                for (int i = 0; i < waveEnemy.count; i++)
                 {
-                    SetWaveTimer(map, timer);
-                    timer -= Time.deltaTime;
-                    yield return null;
+                    SpawnEnemy(waveEnemy.enemyData, teamType);
+                    if (i < waveEnemy.count - 1)
+                        yield return new WaitForSeconds(currentWave.spawnInterval);
                 }
-                SetWaveTimer(map, 0f);
             }
+
+            yield return new WaitUntil(() => GetEnemyList(teamType).Count <= 0);
+            Debug.Log($"All enemies in wave {waveIndex + 1} for {teamType} defeated!");
+            yield return new WaitForSeconds(waveData.DelayBetweenWaves);
         }
     }
-
-    /// <summary>
-    /// Spawns an enemy on the specified map's path.
-    /// Used by both PvE waves and PvP send-enemy mechanic.
-    /// </summary>
-    public void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool reversed = false)
+    
+    public void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false)
     {
         if (!IsServer) return;
 
@@ -109,26 +99,24 @@ public class ServerWaveManager : NetworkBehaviour
 
         EnemyManager enemyManager = enemyObj.GetComponent<EnemyManager>();
 
-        enemyManager.ServerMovement.Initialize(path, reversed);
+        enemyManager.ServerMovement.Initialize(path, fromPlayer);
         enemyManager.PathAssignment.SetTargetMap(targetTeam);
         enemyManager.Team.SetTeamType(targetTeam);
 
+        if (!fromPlayer)
+            AddEnemyToList(targetTeam, enemyManager);
+        
         enemyManager.NetworkObject.Spawn();
 
     }
-
-    /// <summary>
-    /// PvP: player requests to send an enemy to their opponent's map.
-    /// Server validates and spawns on the opponent's map.
-    /// </summary>
+    
     public void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId)
     {
         TeamType senderTeam = TeamManager.Instance.GetTeam(clientId);
 
         // Send enemy to the OPPONENT's map
         TeamType targetMap = senderTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
-
-        // TODO: Validate cost/cooldown for sending enemies
+        
         EnemyDataSO enemyData = enemyDataListSO.GetEnemyDataByType(enemyType);
         if (enemyData == null) return;
 
@@ -147,12 +135,31 @@ public class ServerWaveManager : NetworkBehaviour
         else
             _redCurrentWave.Value = wave;
     }
-
-    private void SetWaveTimer(TeamType map, float time)
+    
+    private void AddEnemyToList(TeamType team, EnemyManager enemy)
     {
-        if (map == TeamType.Blue)
-            _blueWaveTimer.Value = time;
+        if (team == TeamType.Blue)
+            _blueActiveEnemies.Add(enemy);
         else
-            _redWaveTimer.Value = time;
+            _redActiveEnemies.Add(enemy);
+    }
+    
+    
+    private List<EnemyManager> GetEnemyList(TeamType team)
+    {
+        return team == TeamType.Blue ? _blueActiveEnemies : _redActiveEnemies;
+    }
+    
+    private void RemoveEnemyFromList(TeamType team, EnemyManager enemy)
+    {
+        if (team == TeamType.Blue)
+            _blueActiveEnemies.Remove(enemy);
+        else if  (team == TeamType.Red)
+            _redActiveEnemies.Remove(enemy);
+        else
+        {
+            Debug.LogError($"Trying to remove enemy from list with invalid team {team}");
+            return;
+        }
     }
 }

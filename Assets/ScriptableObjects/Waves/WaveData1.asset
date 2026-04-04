@@ -13,32 +13,29 @@ MonoBehaviour:
   m_Name: WaveData1
   m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
   waves:
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 1
-    spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 2
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
+    spawnInterval: 5
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
     spawnInterval: 4
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 4
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
+    spawnInterval: 4
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
+    spawnInterval: 3.5
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
     spawnInterval: 3
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 10
     spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
-    spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
-    spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
-    spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
-    spawnInterval: 2
-  - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-    count: 6
-    spawnInterval: 2
-  initialDelay: 5
-  delayBetweenWaves: 10
+  initialDelay: 7
+  delayBetweenWaves: 4
