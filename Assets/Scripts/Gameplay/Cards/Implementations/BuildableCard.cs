@@ -5,20 +5,11 @@ public class BuildableCard : AbstractCard
     [Header("Buildable Settings")]
     [SerializeField] private float castRadius = 0.5f;
     [SerializeField] private LayerMask placeableLayer;
-    [SerializeField] private LayerMask blockedLayer;
+    [SerializeField] private LayerMask enemyMapLayer;
     
     [SerializeField] private ParticleSystem loadingPlaceEffectPrefab;
     [SerializeField] private ParticleSystem validPlaceEffectPrefab;
     [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
-
-    private bool _waitingResult;
-
-    public override CardValidation CanPlayCard()
-    {
-        if (_waitingResult) return CardValidation.Invalid(CardInvalidReason.WaitingForServer);
-
-        return base.CanPlayCard();
-    }
 
     public override CardValidation CanPlayCardAt(Vector2 worldPosition)
     {
@@ -28,12 +19,14 @@ public class BuildableCard : AbstractCard
         if (!HasPlaceableNearby(worldPosition))
             return CardValidation.Invalid(CardInvalidReason.InvalidTarget);
 
+        if (IsEnemyMap(worldPosition))
+            return CardValidation.Invalid(CardInvalidReason.InvalidTarget);
+        
         return CardValidation.Valid;
     }
 
     public override void ActivateCard(Vector2 worldPosition)
     {
-        _waitingResult = true;
         CardTowerDeployer.Instance.OnPlaceResult += HandlePlaceResult;
         ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
@@ -56,11 +49,11 @@ public class BuildableCard : AbstractCard
             case TowerReason.Success:
                 ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
                 Instantiate(validPlaceEffectPrefab, localPos, Quaternion.identity);
-                Destroy(gameObject);
+                // Destroy(gameObject);
                 break;
             case TowerReason.LevelUp:
                 ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
-                Destroy(gameObject);
+                // Destroy(gameObject);
                 break;
             case TowerReason.NotSuccess:
                 ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
@@ -84,13 +77,19 @@ public class BuildableCard : AbstractCard
     
     private bool HasPlaceableNearby(Vector2 origin)
     {
-        var hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayer);
-        foreach (var hit in hits)
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayer);
+        foreach (RaycastHit2D hit in hits)
         {
             if (hit.collider.GetComponentInParent<IPlaceable>() != null)
                 return true;
         }
         return false;
+    }
+    
+    private bool IsEnemyMap(Vector2 position)
+    {
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, castRadius, Vector2.zero, 10f, enemyMapLayer);
+        return hits.Length > 0;
     }
     
     #if UNITY_EDITOR

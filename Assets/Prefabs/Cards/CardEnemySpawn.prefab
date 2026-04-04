@@ -63,7 +63,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCard
   ShowTopMostFoldoutHeaderGroup: 1
-  cardDataSo: {fileID: 11400000, guid: a82d944159a3e7449898080c1ae6dea8, type: 2}
+  cardDataSo: {fileID: 11400000, guid: 78376a3e54fb56444973da76941a6e0c, type: 2}
   rectTransform: {fileID: 8668370272196556119}
   canvasArea: {fileID: 0}
   safeArea: {fileID: 0}

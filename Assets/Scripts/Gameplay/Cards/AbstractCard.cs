@@ -1,5 +1,4 @@
 using DG.Tweening;
-using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +16,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     private Vector2 originalPosition;
     private Transform originalParent;
     private Vector3 originalScale;
+    protected bool _waitingResult;
 
     private void Start()
     {
@@ -49,7 +49,10 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
 
         if (CanPlayCardAt(worldPos))
+        {
+            _waitingResult = true;
             ActivateCard(worldPos);
+        }
 
         selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(originalParent);
@@ -62,6 +65,8 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         if (!ClientManaManager.Instance.CanAffordLocally(cardDataSo.Cost))
             return CardValidation.Invalid(CardInvalidReason.NotEnoughMana);
 
+        if (_waitingResult) return CardValidation.Invalid(CardInvalidReason.WaitingForServer);
+        
         return CardValidation.Valid;
     }
 

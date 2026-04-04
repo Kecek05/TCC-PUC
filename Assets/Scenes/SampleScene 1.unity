@@ -898,6 +898,7 @@ Transform:
   m_Children:
   - {fileID: 1522872422}
   - {fileID: 497772059}
+  - {fileID: 551346695}
   - {fileID: 1731112515}
   - {fileID: 1142844065}
   - {fileID: 1178712924}
@@ -4364,6 +4365,81 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2501581645706275590, guid: 068a93cdf184025459603be2f9145773, type: 3}
   m_PrefabInstance: {fileID: 549121493}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &551346694
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 50380074}
+    m_Modifications:
+    - target: {fileID: 1362829099246222041, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_Name
+      value: EnemyArea
+      objectReference: {fileID: 0}
+    - target: {fileID: 1362829099246222041, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 11.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6300984164272065459, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_Size.y
+      value: 10.579399
+      objectReference: {fileID: 0}
+    - target: {fileID: 6300984164272065459, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.5227163
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 7970173131414540021, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+--- !u!4 &551346695 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6259870739775224854, guid: f32e18511b09f5048aab5fdb43ce3707, type: 3}
+  m_PrefabInstance: {fileID: 551346694}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &552554995
 PrefabInstance:
@@ -10634,14 +10710,6 @@ PrefabInstance:
       propertyPath: canvasArea
       value: 
       objectReference: {fileID: 876738156}
-    - target: {fileID: 4375924738067130191, guid: e2ac251dfd7206645872d0b414fb02a2, type: 3}
-      propertyPath: cardDataSo
-      value: 
-      objectReference: {fileID: 11400000, guid: 8028b93dd24cb374cb0190514f55b5ef, type: 2}
-    - target: {fileID: 4375924738067130191, guid: e2ac251dfd7206645872d0b414fb02a2, type: 3}
-      propertyPath: castRadius
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 7702086940624368518, guid: e2ac251dfd7206645872d0b414fb02a2, type: 3}
       propertyPath: m_Name
       value: CardCircleTower (1)
@@ -16113,10 +16181,6 @@ PrefabInstance:
       propertyPath: canvasArea
       value: 
       objectReference: {fileID: 876738156}
-    - target: {fileID: 65261480331012708, guid: 1e0e94891b17769418b647e6c98caa0a, type: 3}
-      propertyPath: cardDataSo
-      value: 
-      objectReference: {fileID: 11400000, guid: 78376a3e54fb56444973da76941a6e0c, type: 2}
     - target: {fileID: 2889732793635910601, guid: 1e0e94891b17769418b647e6c98caa0a, type: 3}
       propertyPath: m_Name
       value: CardEnemySpawn

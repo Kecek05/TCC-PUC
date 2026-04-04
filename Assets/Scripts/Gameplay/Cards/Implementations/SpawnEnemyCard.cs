@@ -2,18 +2,8 @@ using UnityEngine;
 
 public class SpawnEnemyCard : AbstractCard
 {
-    private bool _waitingResult;
-    
-    public override CardValidation CanPlayCard()
-    {
-        if (_waitingResult) return CardValidation.Invalid(CardInvalidReason.WaitingForServer);
-
-        return base.CanPlayCard();
-    }
-    
     public override void ActivateCard(Vector2 worldPosition)
     {
-        _waitingResult = true;
         CardSpawnEnemyDeployer.Instance.OnSpawnResult += HandleSpawnResult;
         ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
@@ -31,7 +21,7 @@ public class SpawnEnemyCard : AbstractCard
         {
             Debug.Log("Spawn result successful!");
             ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
-            Destroy(gameObject);
+            // Destroy(gameObject);
             return;
         }
         
