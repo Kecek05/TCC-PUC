@@ -4737,7 +4737,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   waveData: {fileID: 11400000, guid: 64a0398ea897b6040b8b0a6fd7b7e4d2, type: 2}
   enemyDataListSO: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}
-  blueMapPath: {fileID: 0}
+  blueMapPath: {fileID: 124211142}
   redMapPath: {fileID: 1677528802}
 --- !u!4 &571398527
 Transform:
