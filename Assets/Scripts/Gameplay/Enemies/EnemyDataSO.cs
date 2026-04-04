@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyDataSO : ScriptableObject
 {
     [Title("Enemy Properties")]
-    [SerializeField] private int enemyId;
+    [SerializeField] private EnemyType enemyType;
     [SerializeField] private string enemyName;
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 2f;
@@ -16,7 +16,7 @@ public class EnemyDataSO : ScriptableObject
     [Title("References")]
     [SerializeField] private GameObject enemyPrefab;
 
-    public int EnemyId => enemyId;
+    public EnemyType EnemyType => enemyType;
     public string EnemyName => enemyName;
     public float MaxHealth => maxHealth;
     public float MoveSpeed => moveSpeed;

@@ -13,18 +13,35 @@ public class EnemyPathAssignment : NetworkBehaviour
         writePerm: NetworkVariableWritePermission.Server
     );
 
-    public TeamType TargetMap => _targetMap.Value;
+    private TeamType _pendingMap;
+    private bool _hasPending;
+
+    public TeamType TargetMap => _hasPending ? _pendingMap : _targetMap.Value;
 
     /// <summary>
     /// Called by ServerWaveManager before Spawn() to set which map this enemy belongs to.
     /// </summary>
     public void SetTargetMap(TeamType map)
     {
-        _targetMap.Value = map;
+        if (IsSpawned)
+        {
+            _targetMap.Value = map;
+        }
+        else
+        {
+            _pendingMap = map;
+            _hasPending = true;
+        }
     }
 
     public override void OnNetworkSpawn()
     {
+        if (IsServer && _hasPending)
+        {
+            _targetMap.Value = _pendingMap;
+            _hasPending = false;
+        }
+
         if (!IsServer)
             StartCoroutine(InitializeClientPath());
     }

@@ -2,9 +2,9 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CardDeployer : NetworkBehaviour
+public class CardTowerDeployer : NetworkBehaviour
 {
-    public static CardDeployer Instance { get; private set; }
+    public static CardTowerDeployer Instance { get; private set; }
 
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private TowerDataListSO towerDataListSO;
@@ -37,7 +37,7 @@ public class CardDeployer : NetworkBehaviour
         }
         
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
-        if (cardData == null)
+        if (cardData is not TowerCardDataSO towerCardData)
         {
             PlaceResultRpc(new PlaceResult
             {
@@ -49,9 +49,9 @@ public class CardDeployer : NetworkBehaviour
         }
 
         var hit = FindClosestValidPlaceable(placePosition, team);
-        
-        if (hit.placeable == null || !ServerManaManager.Instance.TrySpendMana(team, cardData.Cost)
-            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != GameUtils.GetTowerTypeByCardType(cardType)))
+
+        if (hit.placeable == null || !ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost)
+            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != towerCardData.TowerType))
         {
             PlaceResultRpc(new PlaceResult
             {
@@ -89,7 +89,7 @@ public class CardDeployer : NetworkBehaviour
         else
         {
             // Spawn server-authoritative
-            GameObject newTower = Instantiate(cardData.CardPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
+            GameObject newTower = Instantiate(towerCardData.TowerPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
             TowerManager towerManager = newTower.GetComponent<TowerManager>();
             hit.placeable.Occupy(towerManager);
 

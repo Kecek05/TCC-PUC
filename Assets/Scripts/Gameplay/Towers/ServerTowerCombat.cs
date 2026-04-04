@@ -77,11 +77,15 @@ public class ServerTowerCombat : NetworkBehaviour
             EnemyManager enemy = _activeEnemies[i];
 
             // Clean up destroyed/despawned enemies
-            if (enemy == null || !enemy.NetworkObject.IsSpawned || enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
+            if (enemy == null || !enemy.NetworkObject.IsSpawned)
             {
                 _activeEnemies.RemoveAt(i);
                 continue;
             }
+
+            // Skip enemies that belong to a different team
+            if (enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
+                continue;
 
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
             if (dist > _range) continue;
@@ -98,7 +102,6 @@ public class ServerTowerCombat : NetworkBehaviour
             }
         }
 
-        Debug.Log($"Tower {name} found target: {(closestEnemy != null ? closestEnemy.name : "None")}");
         return closestEnemy;
     }
 

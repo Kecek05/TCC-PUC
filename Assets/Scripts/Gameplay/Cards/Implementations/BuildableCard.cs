@@ -1,6 +1,4 @@
-using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class BuildableCard : AbstractCard
 {
@@ -22,26 +20,26 @@ public class BuildableCard : AbstractCard
         return base.CanPlayCard();
     }
 
-    public override CardValidation CanPlayCardAt(RaycastResult target)
+    public override CardValidation CanPlayCardAt(Vector2 worldPosition)
     {
-        var baseCheck = base.CanPlayCardAt(target);
+        var baseCheck = base.CanPlayCardAt(worldPosition);
         if (!baseCheck) return baseCheck;
 
-        if (target.gameObject == null || !HasPlaceableNearby(target.worldPosition))
+        if (!HasPlaceableNearby(worldPosition))
             return CardValidation.Invalid(CardInvalidReason.InvalidTarget);
 
         return CardValidation.Valid;
     }
 
-    public override void ActivateCard(RaycastResult pointerRaycast)
+    public override void ActivateCard(Vector2 worldPosition)
     {
         _waitingResult = true;
-        CardDeployer.Instance.OnPlaceResult += HandlePlaceResult;
+        CardTowerDeployer.Instance.OnPlaceResult += HandlePlaceResult;
         ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
-        ClientVisualEffect(pointerRaycast.worldPosition);
-        Vector2 serverPos = MapTranslator.Instance.LocalToServer(pointerRaycast.worldPosition);
-        CardDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPos);
+        ClientVisualEffect(worldPosition);
+        Vector2 serverPos = MapTranslator.Instance.LocalToServer(worldPosition);
+        CardTowerDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPos);
     }
 
     private void HandlePlaceResult(PlaceResult result)
@@ -49,7 +47,7 @@ public class BuildableCard : AbstractCard
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
         
         _waitingResult = false;
-        CardDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
+        CardTowerDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position, TeamManager.Instance.GetLocalTeam());
 

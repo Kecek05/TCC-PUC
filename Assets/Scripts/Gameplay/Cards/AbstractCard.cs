@@ -46,9 +46,10 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        var raycast = eventData.pointerCurrentRaycast;
-        if (CanPlayCardAt(raycast))
-            ActivateCard(raycast);
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
+
+        if (CanPlayCardAt(worldPos))
+            ActivateCard(worldPos);
 
         selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(originalParent);
@@ -64,10 +65,10 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         return CardValidation.Valid;
     }
 
-    public virtual CardValidation CanPlayCardAt(RaycastResult target)
+    public virtual CardValidation CanPlayCardAt(Vector2 worldPosition)
     {
         return CanPlayCard();
     }
 
-    public abstract void ActivateCard(RaycastResult target);
+    public abstract void ActivateCard(Vector2 worldPosition);
 }

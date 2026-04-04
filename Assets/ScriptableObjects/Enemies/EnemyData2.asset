@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: EnemyData1
+  m_Name: EnemyData2
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  enemyType: 1
-  enemyName: Enemy 1
-  maxHealth: 100
-  moveSpeed: 2
-  enemySprite: {fileID: 0}
-  enemyPrefab: {fileID: 721806592549603216, guid: 76b6f6ebd34d8404eb2643228dfa56ba, type: 3}
+  enemyType: 2
+  enemyName: Enemy 2
+  maxHealth: 50
+  moveSpeed: 3
+  enemySprite: {fileID: 2125737359283935466, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
+  enemyPrefab: {fileID: 721806592549603216, guid: 2e6f9e26592b43446944f0bab73c7133, type: 3}

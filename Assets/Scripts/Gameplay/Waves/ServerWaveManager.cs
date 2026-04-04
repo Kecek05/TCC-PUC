@@ -15,6 +15,8 @@ public class ServerWaveManager : NetworkBehaviour
 
     [Title("Wave Configuration")]
     [SerializeField] private WaveDataSO waveData;
+    [SerializeField, Required] 
+    private EnemyDataListSO enemyDataListSO;
 
     [Title("Paths (one per map)")]
     [SerializeField] private WaypointPath blueMapPath;
@@ -108,11 +110,9 @@ public class ServerWaveManager : NetworkBehaviour
         EnemyManager enemyManager = enemyObj.GetComponent<EnemyManager>();
 
         enemyManager.ServerMovement.Initialize(path, reversed);
-        
         enemyManager.PathAssignment.SetTargetMap(targetTeam);
-        
         enemyManager.Team.SetTeamType(targetTeam);
-        
+
         enemyManager.NetworkObject.Spawn();
 
     }
@@ -121,17 +121,15 @@ public class ServerWaveManager : NetworkBehaviour
     /// PvP: player requests to send an enemy to their opponent's map.
     /// Server validates and spawns on the opponent's map.
     /// </summary>
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void RequestSendEnemyServerRpc(int enemyId, RpcParams rpcParams = default)
+    public void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId)
     {
-        ulong clientId = rpcParams.Receive.SenderClientId;
         TeamType senderTeam = TeamManager.Instance.GetTeam(clientId);
 
         // Send enemy to the OPPONENT's map
         TeamType targetMap = senderTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
 
         // TODO: Validate cost/cooldown for sending enemies
-        EnemyDataSO enemyData = FindEnemyDataById(enemyId);
+        EnemyDataSO enemyData = enemyDataListSO.GetEnemyDataByType(enemyType);
         if (enemyData == null) return;
 
         SpawnEnemy(enemyData, targetMap, true);
@@ -156,16 +154,5 @@ public class ServerWaveManager : NetworkBehaviour
             _blueWaveTimer.Value = time;
         else
             _redWaveTimer.Value = time;
-    }
-
-    private EnemyDataSO FindEnemyDataById(int id)
-    {
-        // Search through wave data for matching enemy
-        foreach (var wave in waveData.Waves)
-        {
-            if (wave.enemyData != null && wave.enemyData.EnemyId == id)
-                return wave.enemyData;
-        }
-        return null;
     }
 }

@@ -17,5 +17,6 @@ public enum CardType
     None,
     TowerCircle,
     TowerSquare,
-    SpellFireball
+    SpellFireball,
+    SpawnEnemy1
 }

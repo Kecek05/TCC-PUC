@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 922a90239be3b7640b57fe35bba888c4, type: 3}
+  m_Name: CircleTowerCardData
+  m_EditorClassIdentifier: Assembly-CSharp::TowerCardDataSO
+  cardType: 1
+  cardName: Tower Circle
+  description: Spawns a Tower Circle
+  cardImage: {fileID: 5524590292671962877, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
+  cost: 5
+  towerType: 1
+  towerPrefab: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
