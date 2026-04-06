@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -5,9 +6,14 @@ public class BuildableCard : AbstractCard
 {
     [Header("Buildable Settings")]
     [SerializeField] private GhostTowerCard ghostTowerCard;
-
+    [Space(5f)]
+    
     [Header("GFXs")] 
-    [SerializeField] private GameObject cardGFX;
+    [SerializeField] private MMF_Player fadeOutFeedback;
+    [SerializeField] private MMF_Player fadeInFeedback;
+    [Space(5f)]
+    
+    [Header("Particles")]
     [SerializeField] private ParticleSystem loadingPlaceEffectPrefab;
     [SerializeField] private ParticleSystem validPlaceEffectPrefab;
     [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
@@ -33,6 +39,7 @@ public class BuildableCard : AbstractCard
             return;
         }
         
+        AnimateFadeOut();
         EnableGhostTowerGFX(worldPosition);
     }
 
@@ -42,9 +49,18 @@ public class BuildableCard : AbstractCard
         DisableGhostTowerGFX();
     }
 
-    private void AnimateTowerGFX()
+    private void AnimateFadeOut()
     {
-        // TODO: Animate Card GFX and Tower GFX Ghost 
+        if (_enabledTowerGFX) return;
+        fadeInFeedback?.StopFeedbacks();
+        fadeOutFeedback?.PlayFeedbacks();
+    }
+
+    private void AnimateFadeIn()
+    {
+        if (!_enabledTowerGFX) return;
+        fadeOutFeedback?.StopFeedbacks();
+        fadeInFeedback?.PlayFeedbacks();
     }
     
     private void EnableGhostTowerGFX(Vector2 worldPosition)
@@ -55,7 +71,6 @@ public class BuildableCard : AbstractCard
         
         if (closestPlaceable == null) return;
         _currentPlaceable = closestPlaceable;
-        cardGFX.SetActive(false);
 
         if (cardDataSo is not TowerCardDataSO towerCardData)
         {
@@ -98,10 +113,10 @@ public class BuildableCard : AbstractCard
     private void DisableGhostTowerGFX()
     {
         if (!_enabledTowerGFX) return;
+        AnimateFadeIn();
         _enabledTowerGFX = false;
         _currentPlaceable = null;
         ghostTowerCard.SetVisible(false);
-        cardGFX.SetActive(true);
     }
 
     public override CardValidation CanPlayCardAt(Vector2 worldPosition)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,11 +11,12 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     [Header("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;
     [SerializeField] protected LayersSettingsSO layersSettings;
-
+    [Space(5f)]
+    
     [SerializeField] private RectTransform rectTransform;
+    [SerializeField] private CanvasGroup selfCanvasGroup;
     [SerializeField] private Canvas canvasArea;
     [SerializeField] private Transform safeArea;
-    [SerializeField] private CanvasGroup selfCanvasGroup;
     [SerializeField] private GraphicRaycaster blockingRaycaster;
 
     private readonly List<RaycastResult> _blockingRaycastResults = new();
@@ -38,7 +40,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         rectTransform.DOKill();
         transform.SetParent(safeArea.transform);
         transform.SetAsLastSibling();
-        transform.DOScale(1.15f, 0.4f).SetEase(Ease.OutCirc);
+        // transform.DOScale(1.15f, 0.4f).SetEase(Ease.OutCirc);
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasArea.transform as RectTransform, eventData.position, canvasArea.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
@@ -64,7 +66,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(_originalParent);
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
-        transform.DOScale(_originalScale, 0.4f).SetEase(Ease.OutQuint);
+        // transform.DOScale(_originalScale, 0.4f).SetEase(Ease.OutQuint);
     }
 
     protected Vector2 GetWorldPosition(PointerEventData eventData)
