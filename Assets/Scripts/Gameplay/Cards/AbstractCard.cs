@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using DG.Tweening;
-using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +24,9 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     private Vector3 _originalScale;
     protected bool _waitingResult;
     protected Camera _cameraMain;
+
+    private static int uniqueID;
+    public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
     private void Start()
     {

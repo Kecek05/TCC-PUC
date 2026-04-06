@@ -12,11 +12,6 @@ public class BuildableCard : AbstractCard
     [SerializeField] private MMF_Player fadeOutFeedback;
     [SerializeField] private MMF_Player fadeInFeedback;
     [Space(5f)]
-    
-    [Header("Particles")]
-    [SerializeField] private ParticleSystem loadingPlaceEffectPrefab;
-    [SerializeField] private ParticleSystem validPlaceEffectPrefab;
-    [SerializeField] private ParticleSystem invalidPlaceEffectPrefab;
 
     private bool _enabledTowerGFX = false;
     private IPlaceable _currentPlaceable;
@@ -41,6 +36,11 @@ public class BuildableCard : AbstractCard
         
         AnimateFadeOut();
         EnableGhostTowerGFX(worldPosition);
+        
+        if (!IsPlaceableAvailable(worldPosition))
+        {
+            ghostTowerCard.SetVisible(false);
+        }
     }
 
     public override void OnEndDrag(PointerEventData eventData)
@@ -72,11 +72,7 @@ public class BuildableCard : AbstractCard
         if (closestPlaceable == null) return;
         _currentPlaceable = closestPlaceable;
 
-        if (cardDataSo is not TowerCardDataSO towerCardData)
-        {
-            Debug.LogError($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
-            return;
-        }
+        TowerCardDataSO towerCardData = GetTowerCardDataSO();
         
         ghostTowerCard.SetSprite(towerCardData.TowerGhostSprite);
         
@@ -145,7 +141,7 @@ public class BuildableCard : AbstractCard
             position = _currentPlaceable.PlaceablePoint.position;
         }
         
-        ClientVisualEffect(position);
+        TowerPlacementFeedbackManager.Instance.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
         
         Vector2 serverPosition = MapTranslator.Instance.LocalToServer(position);
         CardTowerDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPosition);
@@ -161,11 +157,14 @@ public class BuildableCard : AbstractCard
 
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position, TeamManager.Instance.GetLocalTeam());
 
+        OccupyPlaceable(localPos);
+        TowerPlacementFeedbackManager.Instance.StopPredictSpawn(uniqueRuntimeId);
+        
         switch (result.Validation.Reason)
         {
             case TowerReason.Success:
                 ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
-                Instantiate(validPlaceEffectPrefab, localPos, Quaternion.identity);
+                OccupyPlaceable(localPos);
                 // Destroy(gameObject);
                 break;
             case TowerReason.LevelUp:
@@ -174,7 +173,6 @@ public class BuildableCard : AbstractCard
                 break;
             case TowerReason.NotSuccess:
                 ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
-                Instantiate(invalidPlaceEffectPrefab, localPos, Quaternion.identity);
                 break;
             case TowerReason.NotSuccessMaxLevel:
                 ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
@@ -182,14 +180,15 @@ public class BuildableCard : AbstractCard
             default:
                 Debug.LogError("UnHandled tower reason: " + result.Validation.Reason);
                 ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
-                Instantiate(invalidPlaceEffectPrefab, localPos, Quaternion.identity);
                 break;
         }
     }
 
-    private void ClientVisualEffect(Vector3 position)
+    private void OccupyPlaceable(Vector2 worldPosition)
     {
-        Instantiate(loadingPlaceEffectPrefab, position, Quaternion.identity);
+        IPlaceable closestPlaceable = GetClosestPlaceable(worldPosition);
+        if (closestPlaceable == null) return;
+        closestPlaceable.Occupy(null);
     }
     
     private bool HasPlaceableNearby(Vector2 origin)
@@ -203,10 +202,30 @@ public class BuildableCard : AbstractCard
         return false;
     }
     
+    private bool IsPlaceableAvailable(Vector2 origin)
+    {
+        IPlaceable closestPlaceable = GetClosestPlaceable(origin);
+        
+        if (closestPlaceable == null) return false;
+        
+        return !closestPlaceable.Occupied;
+    }
+    
     private bool IsEnemyMap(Vector2 position)
     {
         RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.EnemyMapLayer);
         return hits.Length > 0;
+    }
+
+    private TowerCardDataSO GetTowerCardDataSO()
+    {
+        if (cardDataSo is not TowerCardDataSO towerCardData)
+        {
+            Debug.LogError($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
+            return null;
+        }
+
+        return towerCardData;
     }
     
     #if UNITY_EDITOR
