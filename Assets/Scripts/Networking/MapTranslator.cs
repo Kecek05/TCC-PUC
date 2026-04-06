@@ -35,7 +35,7 @@ public class MapTranslator : MonoBehaviour
             TeamManager.Instance.HasLocalTeamBeenAssigned());
 
         _needsTranslation = TeamManager.Instance.GetLocalTeam() == TeamType.Blue;
-
+        Debug.Log($"MapTranslator Initialized | NeedsTranslation: {_needsTranslation} | Team: {TeamManager.Instance.GetLocalTeam()}");
         if (_needsTranslation)
             RepositionSceneObjects();
 

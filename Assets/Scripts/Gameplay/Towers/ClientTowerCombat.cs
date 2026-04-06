@@ -34,7 +34,7 @@ public class ClientTowerCombat : NetworkBehaviour
     /// Called by the server (via ServerTowerCombat) to notify clients of a shot.
     /// Spawns a local-only CosmeticBullet that lerps from tower to target.
     /// </summary>
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     public void FireBulletRpc(Vector3 originServerPos, float bulletSpeed, NetworkObjectReference targetRef)
     {
         if (CosmeticBulletPool.Instance == null) return;

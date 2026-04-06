@@ -7,7 +7,7 @@ public class NetworkMapPosition : NetworkBehaviour
     [SerializeField] private EntityTeam entityTeam;
     public override void OnNetworkSpawn()
     {
-        if (!IsServer)
+        if (IsClient)
             StartCoroutine(ApplyLocalPosition());
     }
 

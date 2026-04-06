@@ -19,9 +19,8 @@ public class TeamManager : NetworkBehaviour
         {
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
 
-            if (!IsHost)
-                foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
-                    OnClientConnected(clientId);
+            foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
+                OnClientConnected(clientId);
         }
     }
 
@@ -36,8 +35,16 @@ public class TeamManager : NetworkBehaviour
         }
     }
 
+    private bool HasTeam(ulong clientId)
+    {
+        return (_redPlayer.Value.Team != TeamType.None && _redPlayer.Value.ClientId == clientId) ||
+               (_bluePlayer.Value.Team != TeamType.None && _bluePlayer.Value.ClientId == clientId);
+    }
+
     private void OnClientConnected(ulong clientId)
     {
+        if (HasTeam(clientId)) return;
+
         if (_redPlayer.Value.Team == TeamType.None)
         {
             _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
@@ -80,8 +87,8 @@ public class TeamManager : NetworkBehaviour
     public TeamType GetLocalTeam()
     {
         ulong localId = NetworkManager.LocalClientId;
-        if (_bluePlayer.Value.ClientId == localId) return TeamType.Blue;
-        if  (_redPlayer.Value.ClientId == localId) return TeamType.Red;
+        if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return TeamType.Red;
+        if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return TeamType.Blue;
         Debug.LogError($"LocalId {localId} dont have team! Returning None");
         return TeamType.None;
     }

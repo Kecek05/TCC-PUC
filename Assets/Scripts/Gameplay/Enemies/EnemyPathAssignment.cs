@@ -42,7 +42,7 @@ public class EnemyPathAssignment : NetworkBehaviour
             _hasPending = false;
         }
 
-        if (!IsServer)
+        if (IsClient)
             StartCoroutine(InitializeClientPath());
     }
 
@@ -52,7 +52,7 @@ public class EnemyPathAssignment : NetworkBehaviour
         yield return new WaitUntil(() => ServerWaveManager.Instance != null);
 
         WaypointPath path = ServerWaveManager.Instance.GetPath(_targetMap.Value);
-        var clientMovement = GetComponent<ClientEnemyMovement>();
+        ClientEnemyMovement clientMovement = GetComponent<ClientEnemyMovement>();
         if (clientMovement != null)
             clientMovement.Initialize(path);
     }
