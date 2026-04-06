@@ -18,3 +18,4 @@ MonoBehaviour:
   EnemyMapLayer:
     serializedVersion: 2
     m_Bits: 32768
+  PlaceableRadius: 0.4

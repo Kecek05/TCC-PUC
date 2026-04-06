@@ -9,7 +9,6 @@ public class CardTowerDeployer : NetworkBehaviour
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private TowerDataListSO towerDataListSO;
     [SerializeField] private LayersSettingsSO layersSettingsSO;
-    [SerializeField] private float castRadius = 0.5f;
 
     public event Action<PlaceResult> OnPlaceResult;
     
@@ -116,7 +115,7 @@ public class CardTowerDeployer : NetworkBehaviour
     /// <returns> Closest Placeable and the Team of the Placeable</returns>
     private (IPlaceable placeable, TeamIdentifier team) FindClosestValidPlaceable(Vector2 origin, TeamType requiredTeam)
     {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, layersSettingsSO.PlaceableLayer);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, layersSettingsSO.PlaceableRadius, Vector2.zero, 10f, layersSettingsSO.PlaceableLayer);
 
         IPlaceable closest = null;
         TeamIdentifier closestTeam = null;

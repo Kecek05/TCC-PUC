@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 public class BuildableCard : AbstractCard
 {
     [Header("Buildable Settings")]
-    [SerializeField] private float castRadius = 0.5f;
     [SerializeField] private GhostTowerCard ghostTowerCard;
 
     [Header("GFXs")] 
@@ -72,7 +71,7 @@ public class BuildableCard : AbstractCard
 
     private IPlaceable GetClosestPlaceable(Vector2 worldPosition)
     {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(worldPosition, castRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(worldPosition, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
 
         IPlaceable closest = null;
         float closestDist = float.MaxValue;
@@ -180,7 +179,7 @@ public class BuildableCard : AbstractCard
     
     private bool HasPlaceableNearby(Vector2 origin)
     {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
         foreach (RaycastHit2D hit in hits)
         {
             if (hit.collider.GetComponentInParent<IPlaceable>() != null)
@@ -191,7 +190,7 @@ public class BuildableCard : AbstractCard
     
     private bool IsEnemyMap(Vector2 position)
     {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, castRadius, Vector2.zero, 10f, layersSettings.EnemyMapLayer);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.EnemyMapLayer);
         return hits.Length > 0;
     }
     
@@ -199,7 +198,7 @@ public class BuildableCard : AbstractCard
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, castRadius);
+        Gizmos.DrawWireSphere(transform.position, layersSettings.PlaceableRadius);
     }
     #endif
 }

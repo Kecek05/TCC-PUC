@@ -128,19 +128,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableCard
   ShowTopMostFoldoutHeaderGroup: 1
   cardDataSo: {fileID: 11400000, guid: 8028b93dd24cb374cb0190514f55b5ef, type: 2}
+  layersSettings: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
   rectTransform: {fileID: 8799390510399860675}
   canvasArea: {fileID: 0}
   safeArea: {fileID: 0}
   selfCanvasGroup: {fileID: 5721716253553007878}
-  castRadius: 0.2
-  placeableLayer:
-    serializedVersion: 2
-    m_Bits: 2048
-  enemyMapLayer:
-    serializedVersion: 2
-    m_Bits: 32768
+  blockingRaycaster: {fileID: 0}
+  ghostTowerCard: {fileID: 0}
   cardGFX: {fileID: 8182026807673129193}
-  towerGFX: {fileID: 2442992390221723684}
   loadingPlaceEffectPrefab: {fileID: 3275672215258515806, guid: 2e6a7167ae7beee489eaf3420150ce48, type: 3}
   validPlaceEffectPrefab: {fileID: 5092719701620609228, guid: 1542f199e8543af4d92d238ed50ac04e, type: 3}
   invalidPlaceEffectPrefab: {fileID: 6804060310860674005, guid: 0312b88f723e19e4d9a822cc0103914c, type: 3}

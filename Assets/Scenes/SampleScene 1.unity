@@ -2118,7 +2118,6 @@ MonoBehaviour:
   cardDataListSO: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
   towerDataListSO: {fileID: 11400000, guid: 8f6e53a69a2869245886c2ed5aeaa014, type: 2}
   layersSettingsSO: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
-  castRadius: 0.2
 --- !u!4 &226931339
 Transform:
   m_ObjectHideFlags: 0
