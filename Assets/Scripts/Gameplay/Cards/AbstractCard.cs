@@ -40,7 +40,6 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         rectTransform.DOKill();
         transform.SetParent(safeArea.transform);
         transform.SetAsLastSibling();
-        // transform.DOScale(1.15f, 0.4f).SetEase(Ease.OutCirc);
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasArea.transform as RectTransform, eventData.position, canvasArea.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
@@ -66,7 +65,6 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(_originalParent);
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
-        // transform.DOScale(_originalScale, 0.4f).SetEase(Ease.OutQuint);
     }
 
     protected Vector2 GetWorldPosition(PointerEventData eventData)

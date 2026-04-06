@@ -5,6 +5,7 @@ using System.Text;
 using SingularityGroup.HotReload.Newtonsoft.Json;
 using UnityEngine;
 using System;
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Localization;
 
 namespace SingularityGroup.HotReload.Editor.Cli {
