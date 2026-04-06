@@ -12,30 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeb74f416f63b7141a3428bd4f700bd8, type: 3}
   m_Name: WaveData1
   m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
-  waves:
+  InitialDelay: 7
+  DelayBetweenWaves: 3
+  Waves:
   - waveEnemies:
     - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
-    spawnInterval: 5
-  - waveEnemies:
-    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
-    spawnInterval: 4
-  - waveEnemies:
-    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
-    spawnInterval: 4
-  - waveEnemies:
-    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
-    spawnInterval: 3.5
-  - waveEnemies:
-    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
+      count: 9
     spawnInterval: 3
   - waveEnemies:
     - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 10
+      count: 9
     spawnInterval: 2
-  initialDelay: 7
-  delayBetweenWaves: 4
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 2.5
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1

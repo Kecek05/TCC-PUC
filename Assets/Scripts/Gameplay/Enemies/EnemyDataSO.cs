@@ -5,24 +5,16 @@ using UnityEngine;
 public class EnemyDataSO : ScriptableObject
 {
     [Title("Enemy Properties")]
-    [SerializeField] private EnemyType enemyType;
-    [SerializeField] private string enemyName;
-    [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float moveSpeed = 2f;
-    [SerializeField, Tooltip("Duration of spawn invincibility (frozen + untargetable).")]
-    private float spawnDuration = 1f;
+    public EnemyType EnemyType;
+    public string EnemyName;
+    public float MaxHealth = 100f;
+    public float MoveSpeed = 2f;
+    [Tooltip("Duration of spawn invincibility (frozen + untargetable).")]
+    public float SpawnDuration = 1f;
 
     [Title("Visuals")]
-    [SerializeField] private Sprite enemySprite;
+    public Sprite EnemySprite;
 
     [Title("References")]
-    [SerializeField] private GameObject enemyPrefab;
-
-    public EnemyType EnemyType => enemyType;
-    public string EnemyName => enemyName;
-    public float MaxHealth => maxHealth;
-    public float MoveSpeed => moveSpeed;
-    public float SpawnDuration => spawnDuration;
-    public Sprite EnemySprite => enemySprite;
-    public GameObject EnemyPrefab => enemyPrefab;
+    public GameObject EnemyPrefab;
 }

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0969694664af6944994d212aaad09909, type: 3}
   m_Name: EnemyDataListSO
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataListSO
-  enemyDataList:
+  EnemyDataList:
   - {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
   - {fileID: 11400000, guid: af9d0fd50a89a4c4bbaf7b646d8d70bd, type: 2}

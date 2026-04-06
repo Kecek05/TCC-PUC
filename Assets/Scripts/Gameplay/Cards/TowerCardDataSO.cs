@@ -5,10 +5,9 @@ using UnityEngine;
 public class TowerCardDataSO : CardDataSO
 {
     [Title("Tower Data")]
-    [SerializeField] private TowerType towerType;
-    [SerializeField] private GameObject towerPrefab;
-
-    public TowerType TowerType => towerType;
+    public TowerType TowerType;
+    [Tooltip("Sprite that will be used in the GhostTowerCard")] 
+    public Sprite TowerGhostSprite;
+    public GameObject TowerPrefab;
     
-    public GameObject TowerPrefab => towerPrefab;
 }

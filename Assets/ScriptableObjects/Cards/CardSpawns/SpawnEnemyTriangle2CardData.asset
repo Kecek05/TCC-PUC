@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00d4cef7c2e6c434fb0059fd41a16228, type: 3}
   m_Name: SpawnEnemyTriangle2CardData
   m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCardDataSO
-  cardType: 4
-  cardName: Spawn Enemy 1
-  description: Spawn Enemy 1 in Oponent's field
-  cardImage: {fileID: -3168733581550749585, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
-  cost: 7
-  cardPrefab: {fileID: 0}
-  enemyType: 2
+  CardType: 4
+  CardName: Triangle Player
+  Description: Spawned From Other Player
+  CardImage: {fileID: 2125737359283935466, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
+  Cost: 7
+  EnemyType: 2

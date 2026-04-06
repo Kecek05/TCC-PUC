@@ -4,11 +4,11 @@ using UnityEngine;
 // [CreateAssetMenu(fileName = "TowerDataListSO", menuName = "Scriptable Objects/TowerDataListSO")]
 public class TowerDataListSO : ScriptableObject
 {
-    [SerializeField] private List<TowerDataSO> towerDataList;
+    public List<TowerDataSO> TowerDataList;
     
     public TowerDataSO GetTowerDataByType(TowerType towerType)
     {
-        return towerDataList.Find(towerData => towerData.TowerType == towerType);
+        return TowerDataList.Find(towerData => towerData.TowerType == towerType);
     }
 }
 

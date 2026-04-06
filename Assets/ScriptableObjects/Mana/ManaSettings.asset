@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ManaSettings
   m_EditorClassIdentifier: Assembly-CSharp::ManaSettingsSO
   maxMana: 10
-  startingMana: 5
+  startingMana: 3
   regenPerSecond: 0.357

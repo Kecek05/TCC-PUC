@@ -27,6 +27,10 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-1283655129-0
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-2037421701-0
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-2029298189-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-876738153-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-79718728-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-2003937523-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-648114634-0
         values:
         - colorIndex: 1
           iconNameOrGuid: Folder Icon
@@ -58,6 +62,22 @@ MonoBehaviour:
           isColorRecursive: 0
         - colorIndex: 3
           iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: StandaloneInputModule Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
           isIconRecursive: 0
           isColorRecursive: 0
     - goDatas_byGlobalId:

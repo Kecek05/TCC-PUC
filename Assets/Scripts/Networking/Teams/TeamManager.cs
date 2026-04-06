@@ -18,6 +18,10 @@ public class TeamManager : NetworkBehaviour
         if (IsServer)
         {
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
+
+            if (!IsHost)
+                foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
+                    OnClientConnected(clientId);
         }
     }
 
@@ -34,15 +38,19 @@ public class TeamManager : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        if (clientId == 1)
+        if (_redPlayer.Value.Team == TeamType.None)
         {
             _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
             Debug.Log($"TeamManager: Client {clientId} connected to Team RED");
         }
-        else
+        else if (_bluePlayer.Value.Team == TeamType.None)
         {
             _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
             Debug.Log($"TeamManager: Client {clientId} connected to Team BLUE");
+        }
+        else
+        {
+            Debug.LogWarning($"TeamManager: Client {clientId} connected but both teams are full!");
         }
     }
 

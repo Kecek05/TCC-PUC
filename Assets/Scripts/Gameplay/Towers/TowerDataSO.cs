@@ -5,55 +5,38 @@ using UnityEngine;
 public class TowerDataSO : ScriptableObject
 {
     [Title("General")]
-    [SerializeField] private TowerType towerType;
+    [SerializeField] public TowerType TowerType;
 
-    [SerializeField] private int maxLevel = 3;
+    [SerializeField] public int MaxLevel = 3;
     
     [Title("Level 1")]
-    [SerializeField] private float damageLevel1 = 15f;
-    [SerializeField] private float rangeLevel1 = 4f;
-    [SerializeField] private float shootCooldownLevel1 = 1f;
-    [SerializeField] private float bulletSpeedLevel1 = 15f;
+    [SerializeField] public float DamageLevel1 = 15f;
+    [SerializeField] public float RangeLevel1 = 4f;
+    [SerializeField] public float ShootCooldownLevel1 = 1f;
+    [SerializeField] public float BulletSpeedLevel1 = 15f;
     
     [Title("Level 2")]
-    [SerializeField] private float damageLevel2 = 20f;
-    [SerializeField] private float rangeLevel2 = 5f;
-    [SerializeField] private float shootCooldownLevel2 = 0.9f;
-    [SerializeField] private float bulletSpeedLevel2 = 20f;
+    [SerializeField] public float DamageLevel2 = 20f;
+    [SerializeField] public float RangeLevel2 = 5f;
+    [SerializeField] public float ShootCooldownLevel2 = 0.9f;
+    [SerializeField] public float BulletSpeedLevel2 = 20f;
     
     [Title("Level 3")]
-    [SerializeField] private float damageLevel3 = 25f;
-    [SerializeField] private float rangeLevel3 = 5.5f;
-    [SerializeField] private float shootCooldownLevel3 = 0.8f;
-    [SerializeField] private float bulletSpeedLevel3 = 25f;
-    
-    public TowerType TowerType => towerType;
-    public int MaxLevel => maxLevel;
-    public float DamageLevel1 => damageLevel1;
-    public float RangeLevel1 => rangeLevel1;
-    public float ShootCooldownLevel1 => shootCooldownLevel1;
-    public float BulletSpeedLevel1 => bulletSpeedLevel1;
-    
-    public float DamageLevel2 => damageLevel2;
-    public float RangeLevel2 => rangeLevel2;
-    public float ShootCooldownLevel2 => shootCooldownLevel2;
-    public float BulletSpeedLevel2 => bulletSpeedLevel2;
-    
-    public float DamageLevel3 => damageLevel3;
-    public float RangeLevel3 => rangeLevel3;
-    public float ShootCooldownLevel3 => shootCooldownLevel3;
-    public float BulletSpeedLevel3 => bulletSpeedLevel3;
+    [SerializeField] public float DamageLevel3 = 25f;
+    [SerializeField] public float RangeLevel3 = 5.5f;
+    [SerializeField] public float ShootCooldownLevel3 = 0.8f;
+    [SerializeField] public float BulletSpeedLevel3 = 25f;
 
     public float GetDamageByLevel(int level)
     {
         switch (level)
         {  
-            case 1: return damageLevel1;
-            case 2: return damageLevel2;
-            case 3: return damageLevel3;
+            case 1: return DamageLevel1;
+            case 2: return DamageLevel2;
+            case 3: return DamageLevel3;
             default: 
                 Debug.LogWarning($"Invalid tower level {level}. Returning level 1 damage.");
-                return damageLevel1;
+                return DamageLevel1;
         }
     }
 
@@ -61,12 +44,12 @@ public class TowerDataSO : ScriptableObject
     {
         switch (level)
         {
-            case 1: return rangeLevel1;
-            case 2: return rangeLevel2;
-            case 3: return rangeLevel3;
+            case 1: return RangeLevel1;
+            case 2: return RangeLevel2;
+            case 3: return RangeLevel3;
             default: 
                 Debug.LogWarning($"Invalid tower level {level}. Returning level 1 range.");
-                return rangeLevel1;
+                return RangeLevel1;
         }
     }
 
@@ -74,12 +57,12 @@ public class TowerDataSO : ScriptableObject
     {
         switch (level)
         {
-            case 1: return shootCooldownLevel1;
-            case 2: return shootCooldownLevel2;
-            case 3: return shootCooldownLevel3;
+            case 1: return ShootCooldownLevel1;
+            case 2: return ShootCooldownLevel2;
+            case 3: return ShootCooldownLevel3;
             default: 
                 Debug.LogWarning($"Invalid tower level {level}. Returning level 1 shoot cooldown.");
-                return shootCooldownLevel1;
+                return ShootCooldownLevel1;
         }
     }
 
@@ -87,12 +70,12 @@ public class TowerDataSO : ScriptableObject
     {
         switch (level)
         {
-            case 1: return bulletSpeedLevel1;
-            case 2: return bulletSpeedLevel2;
-            case 3: return bulletSpeedLevel3;
+            case 1: return BulletSpeedLevel1;
+            case 2: return BulletSpeedLevel2;
+            case 3: return BulletSpeedLevel3;
             default: 
                 Debug.LogWarning($"Invalid tower level {level}. Returning level 1 bullet speed.");
-                return bulletSpeedLevel1;
+                return BulletSpeedLevel1;
         }
     }
 }

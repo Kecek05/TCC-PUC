@@ -27,7 +27,7 @@ RectTransform:
   m_GameObject: {fileID: 2442992390221723684}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8799390510399860675}
@@ -139,6 +139,8 @@ MonoBehaviour:
   enemyMapLayer:
     serializedVersion: 2
     m_Bits: 32768
+  cardGFX: {fileID: 8182026807673129193}
+  towerGFX: {fileID: 2442992390221723684}
   loadingPlaceEffectPrefab: {fileID: 3275672215258515806, guid: 2e6a7167ae7beee489eaf3420150ce48, type: 3}
   validPlaceEffectPrefab: {fileID: 5092719701620609228, guid: 1542f199e8543af4d92d238ed50ac04e, type: 3}
   invalidPlaceEffectPrefab: {fileID: 6804060310860674005, guid: 0312b88f723e19e4d9a822cc0103914c, type: 3}

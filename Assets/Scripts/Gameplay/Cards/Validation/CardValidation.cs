@@ -7,7 +7,9 @@ public enum CardInvalidReason
     InvalidTarget,
     WaitingForServer,
     NoTeam,
-    Cooldown
+    Cooldown,
+    BlockedByUI,
+    EnemyMap
 }
 
 public struct CardValidation : INetworkSerializable

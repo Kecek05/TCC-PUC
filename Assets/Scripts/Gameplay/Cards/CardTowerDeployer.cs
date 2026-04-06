@@ -8,8 +8,8 @@ public class CardTowerDeployer : NetworkBehaviour
 
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private TowerDataListSO towerDataListSO;
+    [SerializeField] private LayersSettingsSO layersSettingsSO;
     [SerializeField] private float castRadius = 0.5f;
-    [SerializeField] private LayerMask placeableLayerMask;
 
     public event Action<PlaceResult> OnPlaceResult;
     
@@ -116,18 +116,18 @@ public class CardTowerDeployer : NetworkBehaviour
     /// <returns> Closest Placeable and the Team of the Placeable</returns>
     private (IPlaceable placeable, TeamIdentifier team) FindClosestValidPlaceable(Vector2 origin, TeamType requiredTeam)
     {
-        var hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, placeableLayerMask);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(origin, castRadius, Vector2.zero, 10f, layersSettingsSO.PlaceableLayer);
 
         IPlaceable closest = null;
         TeamIdentifier closestTeam = null;
         float closestDist = float.MaxValue;
 
-        foreach (var hit in hits)
+        foreach (RaycastHit2D hit in hits)
         {
-            var team = hit.collider.GetComponentInParent<TeamIdentifier>();
+            TeamIdentifier team = hit.collider.GetComponentInParent<TeamIdentifier>();
             if (team == null || team.TeamType != requiredTeam) continue;
 
-            var placeable = hit.collider.GetComponentInParent<IPlaceable>();
+            IPlaceable placeable = hit.collider.GetComponentInParent<IPlaceable>();
             if (placeable == null) continue;
 
             float dist = Vector2.Distance(origin, hit.collider.transform.position);

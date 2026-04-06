@@ -7,7 +7,6 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
     public static CardSpawnEnemyDeployer Instance { get; private set; }
     
     [SerializeField] private CardDataListSO cardDataListSO;
-    [SerializeField] private LayerMask placeableLayerMask;
     
     public event Action<SpawnEnemyResult> OnSpawnResult;
     

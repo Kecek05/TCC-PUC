@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
   m_Name: EnemyData2
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  enemyType: 2
-  enemyName: Enemy 2
-  maxHealth: 50
-  moveSpeed: 3
-  enemySprite: {fileID: 2125737359283935466, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
-  enemyPrefab: {fileID: 721806592549603216, guid: 2e6f9e26592b43446944f0bab73c7133, type: 3}
+  EnemyType: 2
+  EnemyName: Triangle 2
+  MaxHealth: 50
+  MoveSpeed: 6
+  SpawnDuration: 1
+  EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
+  EnemyPrefab: {fileID: 721806592549603216, guid: 2e6f9e26592b43446944f0bab73c7133, type: 3}

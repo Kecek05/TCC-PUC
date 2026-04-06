@@ -8,24 +8,20 @@ public class WaveDataSO : ScriptableObject
 {
     [Title("Timing")]
     [Tooltip("Seconds before the first wave starts")]
-    [SerializeField, Unit(Units.Second)] 
-    private float initialDelay = 5f;
+    [Unit(Units.Second)] 
+    public float InitialDelay = 5f;
 
     [Tooltip("Seconds between waves (after all enemies in a wave are dead)")]
-    [SerializeField, Unit(Units.Second)] 
-    private float delayBetweenWaves = 10f;
+    [Unit(Units.Second)] 
+    public float DelayBetweenWaves = 10f;
     
     [Title("Wave Sequence")]
-    [SerializeField] private List<WaveEntry> waves = new();
-
-    public IReadOnlyList<WaveEntry> Waves => waves;
-    public float InitialDelay => initialDelay;
-    public float DelayBetweenWaves => delayBetweenWaves;
+    public List<WaveEntry> Waves = new();
     
     public List<GameObject> GetAllEnemyPrefabs()
     {
         List<GameObject> prefabs = new();
-        foreach (WaveEntry wave in waves)
+        foreach (WaveEntry wave in Waves)
         {
             foreach (WaveEnemy waveEnemy in wave.waveEnemies)
             {

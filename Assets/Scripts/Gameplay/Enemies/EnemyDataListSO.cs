@@ -4,11 +4,11 @@ using UnityEngine;
 // [CreateAssetMenu(fileName = "EnemyDataListSO", menuName = "Scriptable Objects/EnemyDataListSO")]
 public class EnemyDataListSO : ScriptableObject
 {
-    [SerializeField] private List<EnemyDataSO> enemyDataList;
+    public List<EnemyDataSO> EnemyDataList;
     
     public EnemyDataSO GetEnemyDataByType(EnemyType enemyType)
     {
-        return enemyDataList.Find(enemyData => enemyData.EnemyType == enemyType);
+        return EnemyDataList.Find(enemyData => enemyData.EnemyType == enemyType);
     }
 }
 

@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79aa1b8b3d09e14c826bad2e5538876, type: 3}
   m_Name: TowerData1
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
-  towerType: 1
-  maxLevel: 3
-  damageLevel1: 15
-  rangeLevel1: 3
-  shootCooldownLevel1: 1
-  bulletSpeedLevel1: 15
-  damageLevel2: 25
-  rangeLevel2: 5
-  shootCooldownLevel2: 0.85
-  bulletSpeedLevel2: 20
-  damageLevel3: 35
-  rangeLevel3: 5.5
-  shootCooldownLevel3: 0.7
-  bulletSpeedLevel3: 30
+  TowerType: 1
+  MaxLevel: 3
+  DamageLevel1: 15
+  RangeLevel1: 3
+  ShootCooldownLevel1: 1
+  BulletSpeedLevel1: 15
+  DamageLevel2: 20
+  RangeLevel2: 4
+  ShootCooldownLevel2: 0.9
+  BulletSpeedLevel2: 20
+  DamageLevel3: 30
+  RangeLevel3: 5
+  ShootCooldownLevel3: 0.7
+  BulletSpeedLevel3: 25

@@ -5,7 +5,5 @@ using UnityEngine;
 public class SpawnEnemyCardDataSO : CardDataSO
 {
     [Title("Spawn Data")]
-    [SerializeField] private EnemyType enemyType;
-
-    public EnemyType EnemyType => enemyType;
+    public EnemyType EnemyType;
 }

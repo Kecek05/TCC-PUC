@@ -1,31 +1,38 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;
+    [SerializeField] protected LayersSettingsSO layersSettings;
 
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private Canvas canvasArea;
     [SerializeField] private Transform safeArea;
     [SerializeField] private CanvasGroup selfCanvasGroup;
-    
+    [SerializeField] private GraphicRaycaster blockingRaycaster;
+
+    private readonly List<RaycastResult> _blockingRaycastResults = new();
     private Vector2 originalPosition;
-    private Transform originalParent;
-    private Vector3 originalScale;
+    private Transform _originalParent;
+    private Vector3 _originalScale;
     protected bool _waitingResult;
+    protected Camera _cameraMain;
 
     private void Start()
     {
         originalPosition = rectTransform.anchoredPosition;
-        originalParent = transform.parent;
-        originalScale = transform.localScale;
+        _originalParent = transform.parent;
+        _originalScale = transform.localScale;
+        _cameraMain = Camera.main;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public virtual void OnBeginDrag(PointerEventData eventData)
     {
         transform.DOKill();
         rectTransform.DOKill();
@@ -39,25 +46,30 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         selfCanvasGroup.blocksRaycasts = false;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public virtual void OnDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition += eventData.delta / canvasArea.scaleFactor;
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public virtual void OnEndDrag(PointerEventData eventData)
     {
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
+        Vector2 worldPos = GetWorldPosition(eventData);
 
-        if (CanPlayCardAt(worldPos))
+        if (CanPlayCardAt(worldPos) && CanPlayCardAtCanvas(eventData.position))
         {
             _waitingResult = true;
             ActivateCard(worldPos);
         }
 
         selfCanvasGroup.blocksRaycasts = true;
-        transform.SetParent(originalParent);
+        transform.SetParent(_originalParent);
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
-        transform.DOScale(originalScale, 0.4f).SetEase(Ease.OutQuint);
+        transform.DOScale(_originalScale, 0.4f).SetEase(Ease.OutQuint);
+    }
+
+    protected Vector2 GetWorldPosition(PointerEventData eventData)
+    {
+        return _cameraMain.ScreenToWorldPoint(eventData.position);
     }
 
     public virtual CardValidation CanPlayCard()
@@ -73,6 +85,18 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     public virtual CardValidation CanPlayCardAt(Vector2 worldPosition)
     {
         return CanPlayCard();
+    }
+
+    public virtual CardValidation CanPlayCardAtCanvas(Vector2 screenPosition)
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = screenPosition };
+        _blockingRaycastResults.Clear();
+        blockingRaycaster.Raycast(pointerData, _blockingRaycastResults);
+
+        if (_blockingRaycastResults.Count > 0)
+            return CardValidation.Invalid(CardInvalidReason.BlockedByUI);
+
+        return CardValidation.Valid;
     }
 
     public abstract void ActivateCard(Vector2 worldPosition);
