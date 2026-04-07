@@ -43,3 +43,31 @@ MonoBehaviour:
     - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
       count: 9
     spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1
+  - waveEnemies:
+    - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
+      count: 9
+    spawnInterval: 1

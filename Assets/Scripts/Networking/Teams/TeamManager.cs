@@ -61,6 +61,17 @@ public class TeamManager : NetworkBehaviour
         }
     }
 
+    public bool BothTeamsAssigned()
+    {
+        if (_redPlayer.Value.Team != TeamType.None && _bluePlayer.Value.Team != TeamType.None)
+        {
+            Debug.Log("TeamManager: Both teams are now full!");
+            return true;
+        }
+
+        return false;
+    }
+
     private void OnTeamAssigned(PlayerTeamPair previousValue, PlayerTeamPair newValue)
     {
         Debug.Log($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");

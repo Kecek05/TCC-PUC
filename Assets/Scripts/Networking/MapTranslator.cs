@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class MapTranslator : MonoBehaviour
+public class MapTranslator : NetworkBehaviour
 {
     public static MapTranslator Instance { get; private set; }
 
@@ -10,36 +10,55 @@ public class MapTranslator : MonoBehaviour
     [SerializeField] private Transform player1Map;
     [SerializeField] private Transform player2Map;
 
+    private bool _playerRedInitialized = false;
+    private bool _playerBlueInitialized = false;
+    
     private bool _isInitialized = false;
     
     private bool _needsTranslation;
     public bool IsInitialized =>  _isInitialized;
+    
+    public bool BothPlayersInitialized => _playerRedInitialized && _playerBlueInitialized;
 
     private void Awake() => Instance = this;
 
-    private IEnumerator Start()
+    public override void OnNetworkSpawn()
     {
-        yield return new WaitUntil(() =>
-            NetworkManager.Singleton != null &&
-            (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsConnectedClient));
+        StartCoroutine(HandleSpawn());
+    }
 
+    private IEnumerator HandleSpawn()
+    {
         // Dedicated server never translates
-        if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient)
+        yield return new WaitUntil(() => 
+            GameFlowManager.Instance != null &&
+            GameFlowManager.CurrentGameState.Value == GameState.InMatch);
+        
+        if (IsServer && !IsClient)
         {
             _isInitialized = true;
             yield break;
         }
 
-        yield return new WaitUntil(() =>
-            TeamManager.Instance != null &&
-            TeamManager.Instance.HasLocalTeamBeenAssigned());
-
         _needsTranslation = TeamManager.Instance.GetLocalTeam() == TeamType.Blue;
-        Debug.Log($"MapTranslator Initialized | NeedsTranslation: {_needsTranslation} | Team: {TeamManager.Instance.GetLocalTeam()}");
+        
         if (_needsTranslation)
             RepositionSceneObjects();
 
         _isInitialized = true;
+        
+        InitializeTeamServerRpc(TeamManager.Instance.GetLocalTeam());
+    }
+
+    [Rpc(SendTo.Server)]
+    private void InitializeTeamServerRpc(TeamType teamType)
+    {
+        if  (teamType == TeamType.Blue)
+            _playerBlueInitialized = true;
+        else if   (teamType == TeamType.Red)
+            _playerRedInitialized = true;
+        else 
+            Debug.LogError("Team Type not supported");
     }
 
     public Vector3 LocalToServer(Vector3 localPos)

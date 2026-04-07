@@ -69,6 +69,10 @@ public class ServerWaveManager : NetworkBehaviour
 
     private IEnumerator RunWaves(TeamType teamType)
     {
+        yield return new WaitUntil(() => 
+            GameFlowManager.Instance != null &&
+            GameFlowManager.CurrentGameState.Value == GameState.InMatch);
+        
         yield return new WaitForSeconds(waveData.InitialDelay);
 
         for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
