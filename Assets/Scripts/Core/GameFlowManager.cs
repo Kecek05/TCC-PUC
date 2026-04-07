@@ -17,7 +17,7 @@ public class GameFlowManager : NetworkBehaviour
 {
     public static GameFlowManager Instance { get; private set; }
     
-    public static NetworkVariable<GameState> CurrentGameState = new NetworkVariable<GameState>(writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<GameState> CurrentGameState = new NetworkVariable<GameState>(writePerm: NetworkVariableWritePermission.Server);
     
     private void Awake()
     {

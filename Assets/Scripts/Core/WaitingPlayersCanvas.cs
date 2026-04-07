@@ -13,8 +13,8 @@ public class WaitingPlayersCanvas : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        GameFlowManager.CurrentGameState.OnValueChanged += OnGameStateChanged;
-        UpdateCanvasVisibility(GameFlowManager.CurrentGameState.Value);
+        GameFlowManager.Instance.CurrentGameState.OnValueChanged += OnGameStateChanged;
+        UpdateCanvasVisibility(GameFlowManager.Instance.CurrentGameState.Value);
     }
 
     private void OnGameStateChanged(GameState oldState, GameState newState)

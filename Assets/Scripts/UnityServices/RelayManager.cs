@@ -14,6 +14,7 @@ public class RelayManager : MonoBehaviour
     [Header("Join")]
     [SerializeField] private TMP_InputField joinCodeInput;
     [SerializeField] private Button joinButton;
+    [SerializeField] private TextMeshProUGUI joinCodeText;
 
     private void Start()
     {
@@ -31,6 +32,7 @@ public class RelayManager : MonoBehaviour
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
             Debug.Log($"Relay created. Join code: {joinCode}");
+            joinCodeText.text = joinCode;
 
             NetworkManager.Singleton.GetComponent<UnityTransport>()
                 .SetRelayServerData(allocation.ToRelayServerData("dtls"));

@@ -40,7 +40,7 @@ public class ServerManaManager : NetworkBehaviour
     {
         if (!IsServer) return;
         
-        if (GameFlowManager.Instance == null || GameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
+        if (GameFlowManager.Instance == null || GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
         
         RegenerateMana();
     }

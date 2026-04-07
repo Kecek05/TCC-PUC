@@ -32,7 +32,7 @@ public class MapTranslator : NetworkBehaviour
         // Dedicated server never translates
         yield return new WaitUntil(() => 
             GameFlowManager.Instance != null &&
-            GameFlowManager.CurrentGameState.Value == GameState.InMatch);
+            GameFlowManager.Instance.CurrentGameState.Value == GameState.InMatch);
         
         if (IsServer && !IsClient)
         {

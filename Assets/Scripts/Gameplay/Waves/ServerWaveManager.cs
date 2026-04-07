@@ -71,7 +71,7 @@ public class ServerWaveManager : NetworkBehaviour
     {
         yield return new WaitUntil(() => 
             GameFlowManager.Instance != null &&
-            GameFlowManager.CurrentGameState.Value == GameState.InMatch);
+            GameFlowManager.Instance.CurrentGameState.Value == GameState.InMatch);
         
         yield return new WaitForSeconds(waveData.InitialDelay);
 
