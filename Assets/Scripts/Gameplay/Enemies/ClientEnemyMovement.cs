@@ -11,7 +11,8 @@ public class ClientEnemyMovement : NetworkBehaviour
 {
     [SerializeField] private float interpolationSpeed = 10f;
     [SerializeField] private EntityTeam entityTeam;
-
+    [SerializeField] private GameObject GFXObject;
+    
     private ServerEnemyMovement _serverMovement;
     private WaypointPath _path;
     private bool _initialized;
@@ -61,6 +62,14 @@ public class ClientEnemyMovement : NetworkBehaviour
         float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
         Vector3 serverPos = _path.SamplePosition(sampleT);
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
+
+        // Rotate to face movement direction
+        Vector3 direction = localPos - transform.position;
+        if (direction.sqrMagnitude > 0.0001f)
+        {
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            GFXObject.transform.rotation = Quaternion.Euler(0f, 0f, angle + 90f);
+        }
 
         // Smooth interpolation to avoid snapping between network updates
         transform.position = Vector3.Lerp(

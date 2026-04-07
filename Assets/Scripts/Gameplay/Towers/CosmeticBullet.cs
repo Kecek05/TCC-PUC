@@ -31,11 +31,12 @@ public class CosmeticBullet : MonoBehaviour
         _journeyLength = Vector3.Distance(_origin, _lastTargetPos);
         _distanceTraveled = 0f;
         _lastSpeed =  bulletSpeed;
-        _active = true;
 
         transform.position = origin;
         LookAtTarget();
+        
         gameObject.SetActive(true);
+        _active = true;
     }
 
     private void Update()
