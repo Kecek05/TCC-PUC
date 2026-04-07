@@ -10,6 +10,7 @@ public class AuthServiceManager : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = -1;
         relayObject.SetActive(false);
     }
 
