@@ -157,7 +157,6 @@ public class BuildableCard : AbstractCard
 
         Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position, TeamManager.Instance.GetLocalTeam());
 
-        OccupyPlaceable(localPos);
         TowerPlacementFeedbackManager.Instance.StopPredictSpawn(uniqueRuntimeId);
         
         switch (result.Validation.Reason)
@@ -186,6 +185,8 @@ public class BuildableCard : AbstractCard
 
     private void OccupyPlaceable(Vector2 worldPosition)
     {
+        if (IsHost) return;
+        
         IPlaceable closestPlaceable = GetClosestPlaceable(worldPosition);
         if (closestPlaceable == null) return;
         closestPlaceable.Occupy(null);

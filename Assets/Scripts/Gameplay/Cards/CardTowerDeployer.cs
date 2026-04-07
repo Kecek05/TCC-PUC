@@ -49,8 +49,7 @@ public class CardTowerDeployer : NetworkBehaviour
 
         var hit = FindClosestValidPlaceable(placePosition, team);
 
-        if (hit.placeable == null || !ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost)
-            || (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != towerCardData.TowerType))
+        if (hit.placeable == null)
         {
             PlaceResultRpc(new PlaceResult
             {
@@ -60,7 +59,29 @@ public class CardTowerDeployer : NetworkBehaviour
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
-
+        
+        if (!ServerManaManager.Instance.CanAfford(team, towerCardData.Cost))
+        {
+            PlaceResultRpc(new PlaceResult
+            {
+                CardType = cardType,
+                Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
+                Position = placePosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            return;
+        }
+        
+        if (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != towerCardData.TowerType)
+        {
+            PlaceResultRpc(new PlaceResult
+            {
+                CardType = cardType,
+                Validation = TowerValidation.Invalid(TowerReason.AlreadyOccupied),
+                Position = placePosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            return;
+        }
+        
         if (hit.placeable.IsOccupied())
         {
             //Level Up
@@ -72,6 +93,17 @@ public class CardTowerDeployer : NetworkBehaviour
                 {
                     CardType = cardType,
                     Validation = TowerValidation.Invalid(TowerReason.NotSuccessMaxLevel),
+                    Position = placePosition
+                }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+                return;
+            }
+
+            if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
+            {
+                PlaceResultRpc(new PlaceResult
+                {
+                    CardType = cardType,
+                    Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
                     Position = placePosition
                 }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
                 return;
@@ -92,6 +124,17 @@ public class CardTowerDeployer : NetworkBehaviour
             GameObject newTower = Instantiate(towerCardData.TowerPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
             TowerManager towerManager = newTower.GetComponent<TowerManager>();
             hit.placeable.Occupy(towerManager);
+            
+            if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
+            {
+                PlaceResultRpc(new PlaceResult
+                {
+                    CardType = cardType,
+                    Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
+                    Position = placePosition
+                }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+                return;
+            }
 
             if (towerManager.Team != null)
                 towerManager.Team.SetTeamType(team);

@@ -8,7 +8,9 @@ public enum TowerReason
     Success,
     LevelUp,
     NotSuccessMaxLevel,
-    NotSuccess
+    NotSuccess,
+    AlreadyOccupied,
+    NotEnoughMana,
 }
 
 public struct TowerValidation : INetworkSerializable 

@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
   TowerType: 1
   MaxLevel: 3
-  DamageLevel1: 15
+  DamageLevel1: 25
   RangeLevel1: 3
   ShootCooldownLevel1: 1
   BulletSpeedLevel1: 15
-  DamageLevel2: 20
+  DamageLevel2: 30
   RangeLevel2: 4
   ShootCooldownLevel2: 0.9
   BulletSpeedLevel2: 20
-  DamageLevel3: 30
+  DamageLevel3: 25
   RangeLevel3: 5
   ShootCooldownLevel3: 0.7
   BulletSpeedLevel3: 25
