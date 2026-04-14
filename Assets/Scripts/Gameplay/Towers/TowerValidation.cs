@@ -1,17 +1,4 @@
-
-
 using Unity.Netcode;
-
-public enum TowerReason
-{
-    None,
-    Success,
-    LevelUp,
-    NotSuccessMaxLevel,
-    NotSuccess,
-    AlreadyOccupied,
-    NotEnoughMana,
-}
 
 public struct TowerValidation : INetworkSerializable 
 {

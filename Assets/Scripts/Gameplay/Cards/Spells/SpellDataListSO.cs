@@ -11,10 +11,3 @@ public class SpellDataListSO : ScriptableObject
         return SpellDataList.Find(spellData => spellData.SpellType == spellType);
     }
 }
-
-public enum SpellType
-{
-    None,
-    Fireball,
-    Freeze
-}

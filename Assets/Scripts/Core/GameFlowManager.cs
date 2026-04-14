@@ -1,17 +1,6 @@
-using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-
-public enum GameState
-{
-    None,
-    WaitingForPlayers,
-    LoadingMatch,
-    MatchReady,
-    InMatch,
-    EndMatch
-}
 
 public class GameFlowManager : NetworkBehaviour
 {

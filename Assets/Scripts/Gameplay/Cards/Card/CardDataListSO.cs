@@ -12,11 +12,3 @@ public class CardDataListSO : ScriptableObject
     }
 }
 
-public enum CardType
-{
-    None,
-    TowerCircle,
-    TowerSquare,
-    SpellFireball,
-    SpawnEnemy1
-}

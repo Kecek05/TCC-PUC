@@ -11,10 +11,3 @@ public class EnemyDataListSO : ScriptableObject
         return EnemyDataList.Find(enemyData => enemyData.EnemyType == enemyType);
     }
 }
-
-public enum EnemyType
-{
-    None,
-    Triangle1,
-    Triangle2
-}

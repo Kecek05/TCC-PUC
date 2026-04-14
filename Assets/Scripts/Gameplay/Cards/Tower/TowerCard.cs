@@ -2,9 +2,9 @@ using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BuildableCard : AbstractCard
+public class TowerCard : AbstractCard
 {
-    [Header("Buildable Settings")]
+    [Header("Tower Settings")]
     [SerializeField] private GhostTowerCard ghostTowerCard;
     [Space(5f)]
     

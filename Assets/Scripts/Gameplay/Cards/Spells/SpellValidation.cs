@@ -1,17 +1,5 @@
 using Unity.Netcode;
 
-public enum SpellInvalidReason
-{
-    None,
-    NotEnoughMana,
-    InvalidTarget,
-    WaitingForServer,
-    NoTeam,
-    Cooldown,
-    BlockedByUI,
-    NotSuccess
-}
-
 public struct SpellValidation : INetworkSerializable
 {
     public bool IsValid;

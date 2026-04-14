@@ -11,10 +11,3 @@ public class TowerDataListSO : ScriptableObject
         return TowerDataList.Find(towerData => towerData.TowerType == towerType);
     }
 }
-
-public enum TowerType
-{
-    None,
-    Circle,
-    Square
-}

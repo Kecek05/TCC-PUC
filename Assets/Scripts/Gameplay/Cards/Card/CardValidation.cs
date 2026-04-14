@@ -1,17 +1,4 @@
 using Unity.Netcode;
-
-public enum CardInvalidReason
-{
-    None,
-    NotEnoughMana,
-    InvalidTarget,
-    WaitingForServer,
-    NoTeam,
-    Cooldown,
-    BlockedByUI,
-    EnemyMap
-}
-
 public struct CardValidation : INetworkSerializable
 {
     public bool IsValid;
