@@ -24,7 +24,16 @@ public class ClientManaManager : MonoBehaviour
 
     public float PredictedMana => _predictedMana;
 
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of ClientManaManager detected. This is not allowed.");
+            Destroy(this);
+        }
+    }
 
     private void Start()
     {

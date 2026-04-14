@@ -147,7 +147,7 @@ public class BuildableCard : AbstractCard
         CardTowerDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPosition);
     }
 
-    private void HandlePlaceResult(PlaceResult result)
+    private void HandlePlaceResult(TowerPlaceResult result)
     {
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
         Debug.Log($"Received place result for {cardDataSo.CardType}: Valid: {result.Validation.IsValid} - {result.Validation.Reason}");

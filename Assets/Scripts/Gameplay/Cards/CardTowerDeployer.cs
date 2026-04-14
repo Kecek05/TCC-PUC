@@ -10,11 +10,17 @@ public class CardTowerDeployer : NetworkBehaviour
     [SerializeField] private TowerDataListSO towerDataListSO;
     [SerializeField] private LayersSettingsSO layersSettingsSO;
 
-    public event Action<PlaceResult> OnPlaceResult;
+    public event Action<TowerPlaceResult> OnPlaceResult;
     
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of CardTowerDeployer detected. This is not allowed.");
+            Destroy(this);
+        }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -26,7 +32,7 @@ public class CardTowerDeployer : NetworkBehaviour
         if (team == TeamType.None)
         {
             Debug.LogError($"Client {clientId} does not have a team.");
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
@@ -38,7 +44,7 @@ public class CardTowerDeployer : NetworkBehaviour
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not TowerCardDataSO towerCardData)
         {
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
@@ -51,7 +57,7 @@ public class CardTowerDeployer : NetworkBehaviour
 
         if (hit.placeable == null)
         {
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Invalid(TowerReason.NotSuccess),
@@ -62,7 +68,7 @@ public class CardTowerDeployer : NetworkBehaviour
         
         if (!ServerManaManager.Instance.CanAfford(team, towerCardData.Cost))
         {
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
@@ -73,7 +79,7 @@ public class CardTowerDeployer : NetworkBehaviour
         
         if (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != towerCardData.TowerType)
         {
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Invalid(TowerReason.AlreadyOccupied),
@@ -89,7 +95,7 @@ public class CardTowerDeployer : NetworkBehaviour
 
             if (!towerManager.ServerCombat.CanUpgradeTower())
             {
-                PlaceResultRpc(new PlaceResult
+                PlaceResultRpc(new TowerPlaceResult
                 {
                     CardType = cardType,
                     Validation = TowerValidation.Invalid(TowerReason.NotSuccessMaxLevel),
@@ -100,7 +106,7 @@ public class CardTowerDeployer : NetworkBehaviour
 
             if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
             {
-                PlaceResultRpc(new PlaceResult
+                PlaceResultRpc(new TowerPlaceResult
                 {
                     CardType = cardType,
                     Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
@@ -111,7 +117,7 @@ public class CardTowerDeployer : NetworkBehaviour
             
             towerManager.ServerCombat.UpgradeTower(1);
             
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.LevelUp,
@@ -127,7 +133,7 @@ public class CardTowerDeployer : NetworkBehaviour
             
             if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
             {
-                PlaceResultRpc(new PlaceResult
+                PlaceResultRpc(new TowerPlaceResult
                 {
                     CardType = cardType,
                     Validation = TowerValidation.Invalid(TowerReason.NotEnoughMana),
@@ -141,7 +147,7 @@ public class CardTowerDeployer : NetworkBehaviour
 
             towerManager.NetworkObject.SpawnWithOwnership(clientId);
         
-            PlaceResultRpc(new PlaceResult
+            PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Success,
@@ -185,14 +191,14 @@ public class CardTowerDeployer : NetworkBehaviour
     }
     
     [Rpc(SendTo.SpecifiedInParams)]
-    private void PlaceResultRpc(PlaceResult result, RpcParams rpcParams = default)
+    private void PlaceResultRpc(TowerPlaceResult result, RpcParams rpcParams = default)
     {
         OnPlaceResult?.Invoke(result);
     }
 
 }
 
-public struct PlaceResult : INetworkSerializable
+public struct TowerPlaceResult : INetworkSerializable
 {
     public CardType CardType;
     public TowerValidation Validation;

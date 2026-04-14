@@ -21,7 +21,13 @@ public class GameFlowManager : NetworkBehaviour
     
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of GameFlowManager detected. This is not allowed.");
+            Destroy(this);
+        }
     }
 
     public override void OnNetworkSpawn()

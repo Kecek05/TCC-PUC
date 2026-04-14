@@ -19,7 +19,13 @@ public class ServerManaManager : NetworkBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of ServerManaManager detected. This is not allowed.");
+            Destroy(this);
+        }
     }
 
     public override void OnNetworkSpawn()

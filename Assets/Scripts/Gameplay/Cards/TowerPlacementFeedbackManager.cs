@@ -14,7 +14,13 @@ public class TowerPlacementFeedbackManager : MonoBehaviour
    
    private void Awake()
    {
-      Instance = this;
+      if (Instance == null)
+         Instance = this;
+      else
+      {
+         Debug.LogError("Multiple instances of TowerPlacementFeedbackManager detected. This is not allowed.");
+         Destroy(this);
+      }
    }
 
    public void PredictSpawn(Sprite spawnSprite, Vector2 spawnPosition, int cardUniqueId)

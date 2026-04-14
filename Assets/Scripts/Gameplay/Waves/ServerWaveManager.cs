@@ -32,8 +32,17 @@ public class ServerWaveManager : NetworkBehaviour
 
     private List<EnemyManager> _redActiveEnemies = new();
     private List<EnemyManager> _blueActiveEnemies = new() ;
-    
-    private void Awake() => Instance = this;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of ServeWaveManager detected. This is not allowed.");
+            Destroy(this);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {

@@ -2,13 +2,16 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CardSpawnEnemyDeployer : NetworkBehaviour
+
+public class CardSpellDeployer : NetworkBehaviour
 {
-    public static CardSpawnEnemyDeployer Instance { get; private set; }
-    
+    public static CardSpellDeployer Instance { get; private set; }
+
     [SerializeField] private CardDataListSO cardDataListSO;
-    
-    public event Action<SpawnEnemyResult> OnSpawnResult;
+    [SerializeField] private SpellDataListSO spellDataListSO;
+    [SerializeField] private LayersSettingsSO layersSettingsSO;
+
+    public event Action<SpellPlaceResult> OnPlaceResult;
     
     private void Awake()
     {
@@ -16,11 +19,11 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
             Instance = this;
         else
         {
-            Debug.LogError("Multiple instances of CardSpawnEnemyDeployer detected. This is not allowed.");
+            Debug.LogError("Multiple instances of CardSpellDeployer detected. This is not allowed.");
             Destroy(this);
         }
     }
-    
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RequestSpawnEnemyCardServerRpc(CardType cardType, RpcParams rpcParams = default)
     {
@@ -30,10 +33,10 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
         if (team == TeamType.None)
         {
             Debug.LogError($"Client {clientId} does not have a team.");
-            SpawnResultRpc(new SpawnEnemyResult
+            PlaceResultRpc(new SpellPlaceResult
             {
                 CardType = cardType,
-                Validation = CardValidation.Invalid(CardInvalidReason.NoTeam),
+                Validation = SpellValidation.Invalid(SpellInvalidReason.NoTeam),
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
@@ -41,47 +44,51 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpawnEnemyCardDataSO spawnCardData)
         {
-            SpawnResultRpc(new SpawnEnemyResult
+            PlaceResultRpc(new SpellPlaceResult
             {
                 CardType = cardType,
-                Validation = CardValidation.Invalid(CardInvalidReason.None),
+                Validation = SpellValidation.Invalid(SpellInvalidReason.NotSuccess),
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
 
         if (!ServerManaManager.Instance.TrySpendMana(team, spawnCardData.Cost))
         {
-            SpawnResultRpc(new SpawnEnemyResult
+            PlaceResultRpc(new SpellPlaceResult
             {
                 CardType = cardType,
-                Validation = CardValidation.Invalid(CardInvalidReason.NotEnoughMana),
+                Validation = SpellValidation.Invalid(SpellInvalidReason.NotEnoughMana),
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
             return;
         }
 
         ServerWaveManager.Instance.SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
         
-        SpawnResultRpc(new SpawnEnemyResult
+        PlaceResultRpc(new SpellPlaceResult
         {
             CardType = cardType,
-            Validation = CardValidation.Valid,
+            Validation = SpellValidation.Valid,
         }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
     }
     
     [Rpc(SendTo.SpecifiedInParams)]
-    private void SpawnResultRpc(SpawnEnemyResult result, RpcParams rpcParams = default)
+    private void PlaceResultRpc(SpellPlaceResult result, RpcParams rpcParams = default)
     {
-        OnSpawnResult?.Invoke(result);
+        OnPlaceResult?.Invoke(result);
     }
+
 }
-public struct SpawnEnemyResult : INetworkSerializable
+
+public struct SpellPlaceResult : INetworkSerializable
 {
     public CardType CardType;
-    public CardValidation Validation;
+    public SpellValidation Validation;
+    public Vector2 Position;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref CardType);
         serializer.SerializeValue(ref Validation);
+        serializer.SerializeValue(ref Position);
     }
 }

@@ -18,7 +18,16 @@ public class EnemyNetworkPool : MonoBehaviour
 
     private readonly Dictionary<uint, PooledPrefabHandler> _handlers = new();
 
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of EnemyNetworkPool detected. This is not allowed.");
+            Destroy(this);
+        }
+    }
 
     /// <summary>
     /// Registers an enemy prefab for pooling. Call once per prefab type.

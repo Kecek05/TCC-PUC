@@ -8,7 +8,16 @@ public class TeamManager : NetworkBehaviour
     private NetworkVariable<PlayerTeamPair> _bluePlayer = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<PlayerTeamPair> _redPlayer = new(writePerm: NetworkVariableWritePermission.Server);
 
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of TeamManager detected. This is not allowed.");
+            Destroy(this);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {

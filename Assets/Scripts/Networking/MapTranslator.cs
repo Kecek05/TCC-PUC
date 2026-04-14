@@ -20,7 +20,16 @@ public class MapTranslator : NetworkBehaviour
     
     public bool BothPlayersInitialized => _playerRedInitialized && _playerBlueInitialized;
 
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("Multiple instances of MapTranslator detected. This is not allowed.");
+            Destroy(this);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {
