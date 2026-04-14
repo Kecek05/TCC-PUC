@@ -11,7 +11,7 @@ public class CardSpellDeployer : NetworkBehaviour
     [SerializeField] private SpellDataListSO spellDataListSO;
     [SerializeField] private LayersSettingsSO layersSettingsSO;
 
-    public event Action<SpellPlaceResult> OnPlaceResult;
+    public event Action<SpellSpawnResult> OnSpellResult;
     
     private void Awake()
     {
@@ -25,7 +25,7 @@ public class CardSpellDeployer : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void RequestSpawnEnemyCardServerRpc(CardType cardType, RpcParams rpcParams = default)
+    public void RequestSpellCardServerRpc(CardType cardType, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
         TeamType team = TeamManager.Instance.GetTeam(clientId);
@@ -33,7 +33,7 @@ public class CardSpellDeployer : NetworkBehaviour
         if (team == TeamType.None)
         {
             Debug.LogError($"Client {clientId} does not have a team.");
-            PlaceResultRpc(new SpellPlaceResult
+            PlaceResultRpc(new SpellSpawnResult
             {
                 CardType = cardType,
                 Validation = SpellValidation.Invalid(SpellInvalidReason.NoTeam),
@@ -42,9 +42,9 @@ public class CardSpellDeployer : NetworkBehaviour
         }
         
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
-        if (cardData is not SpawnEnemyCardDataSO spawnCardData)
+        if (cardData is not SpellCardDataSO  spellCardData)
         {
-            PlaceResultRpc(new SpellPlaceResult
+            PlaceResultRpc(new SpellSpawnResult
             {
                 CardType = cardType,
                 Validation = SpellValidation.Invalid(SpellInvalidReason.NotSuccess),
@@ -52,9 +52,9 @@ public class CardSpellDeployer : NetworkBehaviour
             return;
         }
 
-        if (!ServerManaManager.Instance.TrySpendMana(team, spawnCardData.Cost))
+        if (!ServerManaManager.Instance.TrySpendMana(team, spellCardData.Cost))
         {
-            PlaceResultRpc(new SpellPlaceResult
+            PlaceResultRpc(new SpellSpawnResult
             {
                 CardType = cardType,
                 Validation = SpellValidation.Invalid(SpellInvalidReason.NotEnoughMana),
@@ -62,9 +62,9 @@ public class CardSpellDeployer : NetworkBehaviour
             return;
         }
 
-        ServerWaveManager.Instance.SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
+        // ServerWaveManager.Instance.SendEnemyFromPlayer(spellCardData.EnemyType, clientId);
         
-        PlaceResultRpc(new SpellPlaceResult
+        PlaceResultRpc(new SpellSpawnResult
         {
             CardType = cardType,
             Validation = SpellValidation.Valid,
@@ -72,14 +72,14 @@ public class CardSpellDeployer : NetworkBehaviour
     }
     
     [Rpc(SendTo.SpecifiedInParams)]
-    private void PlaceResultRpc(SpellPlaceResult result, RpcParams rpcParams = default)
+    private void PlaceResultRpc(SpellSpawnResult result, RpcParams rpcParams = default)
     {
-        OnPlaceResult?.Invoke(result);
+        OnSpellResult?.Invoke(result);
     }
 
 }
 
-public struct SpellPlaceResult : INetworkSerializable
+public struct SpellSpawnResult : INetworkSerializable
 {
     public CardType CardType;
     public SpellValidation Validation;

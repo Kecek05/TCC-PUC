@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd2cd51819e40be4284052d39bd7c471, type: 3}
-  m_Name: SpellDataListSO
-  m_EditorClassIdentifier: Assembly-CSharp::SpellDataListSO
-  SpellDataList:
-  - {fileID: 11400000, guid: a501c122b3fc6ff468c013f1314725de, type: 2}
+  m_Script: {fileID: 11500000, guid: e3546392859d3fb40b6a78c8c1f5e37e, type: 3}
+  m_Name: SpellFireballData
+  m_EditorClassIdentifier: Assembly-CSharp::SpellOffensiveDataSO
+  SpellType: 1
+  Range: 2
+  Damage: 5

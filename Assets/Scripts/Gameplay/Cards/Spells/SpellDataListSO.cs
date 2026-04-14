@@ -15,6 +15,6 @@ public class SpellDataListSO : ScriptableObject
 public enum SpellType
 {
     None,
-    Damage,
+    Fireball,
     Freeze
 }
