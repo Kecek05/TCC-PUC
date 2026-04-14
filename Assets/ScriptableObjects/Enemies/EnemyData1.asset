@@ -17,5 +17,6 @@ MonoBehaviour:
   MaxHealth: 100
   MoveSpeed: 2
   SpawnDuration: 1
+  Damage: 10
   EnemySprite: {fileID: 21300012, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
   EnemyPrefab: {fileID: 721806592549603216, guid: 76b6f6ebd34d8404eb2643228dfa56ba, type: 3}

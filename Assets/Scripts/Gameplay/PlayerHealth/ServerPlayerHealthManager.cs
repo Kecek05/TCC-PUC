@@ -33,6 +33,9 @@ public class ServerPlayerHealthManager : NetworkBehaviour
             enabled = false;
             return;
         }
+        
+        _blueHealth.Value = _healthSettings.StartingHealth;
+        _redHealth.Value = _healthSettings.StartingHealth;
     }
 
     public void DamageBase(float damage,  TeamType teamType)
