@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WaveData", menuName = "Scriptable Objects/WaveData")]
+[CreateAssetMenu(fileName = "WaveData", menuName = "Scriptable Objects/Data/WaveData")]
 public class WaveDataSO : ScriptableObject
 {
     [Title("Timing")]

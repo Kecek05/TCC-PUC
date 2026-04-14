@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/EnemyData")]
+[CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/Data/EnemyData")]
 public class EnemyDataSO : ScriptableObject
 {
     [Title("Enemy Properties")]
@@ -11,6 +11,7 @@ public class EnemyDataSO : ScriptableObject
     public float MoveSpeed = 2f;
     [Tooltip("Duration of spawn invincibility (frozen + untargetable).")]
     public float SpawnDuration = 1f;
+    public float Damage = 10f;
 
     [Title("Visuals")]
     public Sprite EnemySprite;

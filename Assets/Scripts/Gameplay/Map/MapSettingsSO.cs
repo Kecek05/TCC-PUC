@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "MapSettingsSO", menuName = "Scriptable Objects/MapSettingsSO")]
+[CreateAssetMenu(fileName = "MapSettingsSO", menuName = "Scriptable Objects/Settings/MapSettingsSO")]
 public class MapSettingsSO : ScriptableObject
 {
     [Title("Map Positions")]

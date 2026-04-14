@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ManaSettings", menuName = "Scriptable Objects/ManaSettings")]
+[CreateAssetMenu(fileName = "ManaSettings", menuName = "Scriptable Objects/Settings/ManaSettings")]
 public class ManaSettingsSO : ScriptableObject
 {
     [Title("Mana Pool")]

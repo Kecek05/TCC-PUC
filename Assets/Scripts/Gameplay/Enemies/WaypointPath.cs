@@ -125,12 +125,28 @@ public class WaypointPath : MonoBehaviour
             if (waypoints[i] == null || waypoints[i + 1] == null) continue;
             Gizmos.DrawLine(waypoints[i].position, waypoints[i + 1].position);
         }
-
-        Gizmos.color = Color.green;
+        
         for (int i = 0; i < waypoints.Count; i++)
         {
             if (waypoints[i] == null) continue;
-            Gizmos.DrawSphere(waypoints[i].position, 0.15f);
+            
+            if (i == 0)
+            {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawSphere(waypoints[i].position, 0.15f);
+                continue;
+            } else if (i == waypoints.Count - 1)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(waypoints[i].position, 0.15f);
+                continue;
+            }
+            else
+            {
+                Gizmos.color = Color.green;
+            }
+            
+            Gizmos.DrawWireSphere(waypoints[i].position, 0.15f);
         }
     }
 #endif

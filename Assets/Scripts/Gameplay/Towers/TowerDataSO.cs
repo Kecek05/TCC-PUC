@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TowerData", menuName = "Scriptable Objects/TowerData")]
+[CreateAssetMenu(fileName = "TowerData", menuName = "Scriptable Objects/Data/TowerData")]
 public class TowerDataSO : ScriptableObject
 {
     [Title("General")]
