@@ -26,14 +26,14 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         _maxHealth = enemyManager.Data.MaxHealth;
         _currentHealth.Value = _maxHealth;
 
-        ServerTowerCombat.RegisterEnemy(enemyManager);
+        EnemyRegistry.Register(enemyManager);
     }
 
     public override void OnNetworkDespawn()
     {
         if (IsServer)
         {
-            ServerTowerCombat.UnregisterEnemy(enemyManager);
+            EnemyRegistry.Unregister(enemyManager);
             OnDeath?.Invoke(enemyManager);
         }
     }

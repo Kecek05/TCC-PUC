@@ -9,4 +9,7 @@ public class SpellDataSO : ScriptableObject
 
     public float Range = 2f;
 
+    [Title("Visual")]
+    public float TravelTime = 0.5f;
+    public GameObject VisualPrefab;
 }

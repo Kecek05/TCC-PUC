@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -22,9 +21,6 @@ public class ServerTowerCombat : NetworkBehaviour
     private float _bulletSpeed;
     private float _cooldownTimer;
 
-
-    // Cached list to avoid allocations during targeting
-    private static readonly List<EnemyManager> _activeEnemies = new();
 
     public NetworkVariable<int> TowerLevel => _towerLevel;
     
@@ -68,20 +64,17 @@ public class ServerTowerCombat : NetworkBehaviour
 
     private EnemyManager FindClosestEnemy()
     {
-        RefreshEnemyList();
+        EnemyRegistry.Cleanup();
 
         EnemyManager closestEnemy = null;
+        var activeEnemies = EnemyRegistry.ActiveEnemies;
 
-        for (int i = _activeEnemies.Count - 1; i >= 0; i--)
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
-            EnemyManager enemy = _activeEnemies[i];
+            EnemyManager enemy = activeEnemies[i];
 
-            // Clean up destroyed/despawned enemies
             if (enemy == null || !enemy.NetworkObject.IsSpawned)
-            {
-                _activeEnemies.RemoveAt(i);
                 continue;
-            }
 
             // Skip enemies that belong to a different team
             if (enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
@@ -109,26 +102,6 @@ public class ServerTowerCombat : NetworkBehaviour
         return closestEnemy;
     }
 
-    /// <summary>
-    /// Registers an enemy so towers can find it via distance checks.
-    /// Called by ServerEnemyHealth.OnNetworkSpawn().
-    /// </summary>
-    public static void RegisterEnemy(EnemyManager enemy)
-    {
-        if (!_activeEnemies.Contains(enemy))
-        {
-            _activeEnemies.Add(enemy);
-        }
-    }
-
-    /// <summary>
-    /// Unregisters an enemy when it is despawned or destroyed.
-    /// Called by ServerEnemyHealth.OnNetworkDespawn().
-    /// </summary>
-    public static void UnregisterEnemy(EnemyManager enemy)
-    {
-        _activeEnemies.Remove(enemy);
-    }
 
     private IEnumerator ApplyDamageAfterDelay(EnemyManager target, float damage, float delay)
     {
@@ -168,9 +141,4 @@ public class ServerTowerCombat : NetworkBehaviour
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
     }
     
-    private static void RefreshEnemyList()
-    {
-        // Remove any null entries that slipped through
-        _activeEnemies.RemoveAll(enemy => enemy == null);
-    }
 }

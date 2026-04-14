@@ -7,7 +7,8 @@ public class SpellCard : AbstractCard
         CardSpellDeployer.Instance.OnSpellResult += HandleSpellResult;
         ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
 
-        CardSpellDeployer.Instance.RequestSpellCardServerRpc(cardDataSo.CardType);
+        Vector2 serverPosition = MapTranslator.Instance.LocalToServer(worldPosition);
+        CardSpellDeployer.Instance.RequestSpellCardServerRpc(cardDataSo.CardType, serverPosition);
     }   
     
     private void HandleSpellResult(SpellSpawnResult result)
