@@ -105,6 +105,7 @@ public class ClientManaManager : MonoBehaviour
     public void ConfirmSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
+        _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
     }
 
     /// <summary>
@@ -113,7 +114,7 @@ public class ClientManaManager : MonoBehaviour
     public void RevertSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
-        _predictedMana += cost;
+        _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
     }
 
     private void UpdateUI()

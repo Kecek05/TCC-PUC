@@ -101,7 +101,7 @@ public class CardSpellDeployer : NetworkBehaviour
 
         if (visual.TryGetComponent(out CosmeticSpellProjectile projectile))
         {
-            projectile.Initialize(localPos, spellData.TravelTime);
+            projectile.Initialize(localPos, spellData.TravelTime, spellData.Range);
         }
     }
 }

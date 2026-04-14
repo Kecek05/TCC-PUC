@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpellFireballData
   m_EditorClassIdentifier: Assembly-CSharp::SpellOffensiveDataSO
   SpellType: 1
-  Range: 2
+  Range: 0.75
   TravelTime: 1
   VisualPrefab: {fileID: 3892989022356757515, guid: 37fe1fb1e350fee46bf26213f5ad9d6d, type: 3}
-  Damage: 5
+  Damage: 50

@@ -5,8 +5,14 @@ public class CosmeticSpellProjectile : MonoBehaviour
 {
     [SerializeField] private float spawnHeight = 5f;
 
-    public void Initialize(Vector2 targetPosition, float travelTime)
+    private Vector2 _targetPosition;
+    private float _range;
+
+    public void Initialize(Vector2 targetPosition, float travelTime, float range)
     {
+        _targetPosition = targetPosition;
+        _range = range;
+
         Vector3 startPos = new Vector3(targetPosition.x, targetPosition.y + spawnHeight, 0f);
         transform.position = startPos;
 
@@ -20,4 +26,12 @@ public class CosmeticSpellProjectile : MonoBehaviour
         // TODO: Play explosion VFX / particle system here
         Destroy(gameObject);
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(_targetPosition, _range);
+    }
+#endif
 }
