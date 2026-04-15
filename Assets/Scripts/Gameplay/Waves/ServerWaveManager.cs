@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -27,6 +28,8 @@ public class ServerWaveManager : NetworkBehaviour
     private NetworkVariable<int> _blueCurrentWave = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<int> _redCurrentWave = new(writePerm: NetworkVariableWritePermission.Server);
 
+    private BaseGameFlowManager _gameFlowManager;
+    
     public NetworkVariable<int> BlueCurrentWave => _blueCurrentWave;
     public NetworkVariable<int> RedCurrentWave => _redCurrentWave;
 
@@ -44,6 +47,11 @@ public class ServerWaveManager : NetworkBehaviour
         }
     }
 
+    private void Start()
+    {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -58,7 +66,7 @@ public class ServerWaveManager : NetworkBehaviour
         }
         
         ServerEnemyHealth.OnDeath += ServerEnemyHealthOnOnDeath;
-        GameFlowManager.Instance.CurrentGameState.OnValueChanged += GameFlowManager_OnCurrentGameStateValueChanged;
+        _gameFlowManager.CurrentGameState.OnValueChanged += GameFlowManager_OnCurrentGameStateValueChanged;
         
         StartCoroutine(RunWaves(TeamType.Blue));
         StartCoroutine(RunWaves(TeamType.Red));
@@ -69,7 +77,7 @@ public class ServerWaveManager : NetworkBehaviour
         if (!IsServer) return;
         
         ServerEnemyHealth.OnDeath -= ServerEnemyHealthOnOnDeath;
-        GameFlowManager.Instance.CurrentGameState.OnValueChanged -= GameFlowManager_OnCurrentGameStateValueChanged;
+        _gameFlowManager.CurrentGameState.OnValueChanged -= GameFlowManager_OnCurrentGameStateValueChanged;
         StopAllCoroutines();
     }
 
@@ -89,8 +97,8 @@ public class ServerWaveManager : NetworkBehaviour
     private IEnumerator RunWaves(TeamType teamType)
     {
         yield return new WaitUntil(() => 
-            GameFlowManager.Instance != null &&
-            GameFlowManager.Instance.CurrentGameState.Value == GameState.InMatch);
+            _gameFlowManager != null &&
+            _gameFlowManager.CurrentGameState.Value == GameState.InMatch);
         
         yield return new WaitForSeconds(waveData.InitialDelay);
 

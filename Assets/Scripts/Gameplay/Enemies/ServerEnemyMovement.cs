@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ public class ServerEnemyMovement : NetworkBehaviour
     private NetworkVariable<bool> _reversed = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> _invincible = new(writePerm: NetworkVariableWritePermission.Server);
 
+    private BaseGameFlowManager _gameFlowManager;
+    
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
     public NetworkVariable<bool> Reversed => _reversed;
@@ -41,6 +44,11 @@ public class ServerEnemyMovement : NetworkBehaviour
         _reversedLocal = reversed;
     }
 
+    private void Start()
+    {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -63,7 +71,7 @@ public class ServerEnemyMovement : NetworkBehaviour
     {
         if (!IsServer || _path == null || _reachedEnd) return;
         
-        if (GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
+        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
 
         if (_invincible.Value)
         {

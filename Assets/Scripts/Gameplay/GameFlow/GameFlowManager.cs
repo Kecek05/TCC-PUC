@@ -2,23 +2,9 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameFlowManager : NetworkBehaviour
+public class GameFlowManager : BaseGameFlowManager
 {
-    public static GameFlowManager Instance { get; private set; }
     
-    public NetworkVariable<GameState> CurrentGameState = new NetworkVariable<GameState>(writePerm: NetworkVariableWritePermission.Server);
-    
-    private void Awake()
-    {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of GameFlowManager detected. This is not allowed.");
-            Destroy(this);
-        }
-    }
-
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -28,7 +14,7 @@ public class GameFlowManager : NetworkBehaviour
         }
     }
 
-    private IEnumerator HandleGameFlow()
+    protected override IEnumerator HandleGameFlow()
     {
         yield return new WaitUntil(() => 
             TeamManager.Instance != null && 
@@ -47,7 +33,7 @@ public class GameFlowManager : NetworkBehaviour
         SetGameState(GameState.InMatch);
     }
     
-    public void SetGameState(GameState newState)
+    public override void SetGameState(GameState newState)
     {
         if (!IsServer) return;
         CurrentGameState.Value = newState;

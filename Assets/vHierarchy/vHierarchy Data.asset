@@ -16,6 +16,9 @@ MonoBehaviour:
     keys:
     - 3d0b4f561421d4d409f00af1e3d20c78
     - 359166c415588524ba1ae08c9d8f7e10
+    - 813e38b29e7cc3c45a123f7e83088b6d
+    - 74ef9f4e1c69c924b9ba3fde703d696d
+    - 4d18cff683a18094b8b1cbce3ebdb20a
     values:
     - goDatas_byGlobalId:
         keys:
@@ -113,7 +116,47 @@ MonoBehaviour:
     - goDatas_byGlobalId:
         keys: []
         values: []
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-813e38b29e7cc3c45a123f7e83088b6d-958219599-0
+        - globalObjectIdString: GlobalObjectId_V1-2-813e38b29e7cc3c45a123f7e83088b6d-2066333636-0
+        values:
+        - colorIndex: 4
+          iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-74ef9f4e1c69c924b9ba3fde703d696d-958219599-0
+        - globalObjectIdString: GlobalObjectId_V1-2-74ef9f4e1c69c924b9ba3fde703d696d-2066333636-0
+        values:
+        - colorIndex: 4
+          iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-958219599-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-2066333636-0
+        values:
+        - colorIndex: 4
+          iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/SampleScene 1.unity
   - Assets/Scenes/ArtScene.unity
+  - Assets/Scenes/MainMenu.unity

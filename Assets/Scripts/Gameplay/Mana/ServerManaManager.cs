@@ -11,6 +11,8 @@ public class ServerManaManager : NetworkBehaviour
     private NetworkVariable<float> _blueMana = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<float> _redMana = new(writePerm: NetworkVariableWritePermission.Server);
 
+    private BaseGameFlowManager _gameFlowManager;
+    
     public NetworkVariable<float> BlueMana => _blueMana;
     public NetworkVariable<float> RedMana => _redMana;
 
@@ -26,6 +28,11 @@ public class ServerManaManager : NetworkBehaviour
             Debug.LogError("Multiple instances of ServerManaManager detected. This is not allowed.");
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
     }
 
     public override void OnNetworkSpawn()
@@ -46,7 +53,7 @@ public class ServerManaManager : NetworkBehaviour
     {
         if (!IsServer) return;
         
-        if (GameFlowManager.Instance == null || GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
+        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
         
         RegenerateMana();
     }

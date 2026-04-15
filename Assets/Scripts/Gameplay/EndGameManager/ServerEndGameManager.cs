@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,6 +8,8 @@ public class ServerEndGameManager : NetworkBehaviour
     public static ServerEndGameManager Instance { get; private set; }
     
     private NetworkVariable<TeamType> _winnerTeam = new(writePerm: NetworkVariableWritePermission.Server);
+    
+    private BaseGameFlowManager _gameFlowManager;
     
     public NetworkVariable<TeamType> WinnerTeam => _winnerTeam;
     
@@ -20,7 +23,12 @@ public class ServerEndGameManager : NetworkBehaviour
             Destroy(this);
         }
     }
-    
+
+    private void Start()
+    {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -51,6 +59,6 @@ public class ServerEndGameManager : NetworkBehaviour
         // Handle Trophies and rewards
         // Stop the Game and the Spawning. Stop Everything.
         
-        GameFlowManager.Instance.SetGameState(GameState.EndMatch);
+        _gameFlowManager.SetGameState(GameState.EndMatch);
     }
 }
