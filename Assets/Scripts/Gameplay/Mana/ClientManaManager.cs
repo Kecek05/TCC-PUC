@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
@@ -38,6 +39,15 @@ public class ClientManaManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(WaitForInitialization());
+    }
+
+    private void OnDestroy()
+    {
+        NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
+            ? ServerManaManager.Instance.BlueMana
+            : ServerManaManager.Instance.RedMana;
+
+        manaVar.OnValueChanged -= OnServerManaChanged;
     }
 
     private IEnumerator WaitForInitialization()

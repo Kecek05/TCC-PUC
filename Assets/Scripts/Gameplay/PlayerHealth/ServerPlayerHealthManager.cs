@@ -1,4 +1,6 @@
+using System;
 using Sirenix.OdinInspector;
+using Unity.Android.Gradle.Manifest;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,6 +16,7 @@ public class ServerPlayerHealthManager : NetworkBehaviour
     
     public NetworkVariable<float> BlueHealth => _blueHealth;
     public NetworkVariable<float> RedHealth => _redHealth;
+    public event Action<TeamType> OnPlayerDeath;
     
     private void Awake()
     {
@@ -45,9 +48,23 @@ public class ServerPlayerHealthManager : NetworkBehaviour
         {
             case TeamType.Blue:
                 _blueHealth.Value = Mathf.Max(_blueHealth.Value - damage, 0f);
+
+                if (_blueHealth.Value <= 0)
+                {
+                    Debug.Log($"Blue team has been defeated!");
+                    OnPlayerDeath?.Invoke(teamType);
+                }
+                
                 break;
             case TeamType.Red:
                 _redHealth.Value = Mathf.Max(_redHealth.Value - damage, 0f);
+
+                if (_redHealth.Value <= 0)
+                {
+                    Debug.Log($"Red team has been defeated!");
+                    OnPlayerDeath?.Invoke(teamType);
+                }
+                
                 break;
             default:
                 Debug.LogWarning($"Invalid team type: {teamType}");
