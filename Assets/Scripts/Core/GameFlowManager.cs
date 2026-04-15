@@ -47,7 +47,7 @@ public class GameFlowManager : NetworkBehaviour
         SetGameState(GameState.InMatch);
     }
     
-    private void SetGameState(GameState newState)
+    public void SetGameState(GameState newState)
     {
         if (!IsServer) return;
         CurrentGameState.Value = newState;

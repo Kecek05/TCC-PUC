@@ -62,6 +62,8 @@ public class ServerEnemyMovement : NetworkBehaviour
     private void Update()
     {
         if (!IsServer || _path == null || _reachedEnd) return;
+        
+        if (GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
 
         if (_invincible.Value)
         {

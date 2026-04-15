@@ -58,6 +58,7 @@ public class ServerWaveManager : NetworkBehaviour
         }
         
         ServerEnemyHealth.OnDeath += ServerEnemyHealthOnOnDeath;
+        GameFlowManager.Instance.CurrentGameState.OnValueChanged += GameFlowManager_OnCurrentGameStateValueChanged;
         
         StartCoroutine(RunWaves(TeamType.Blue));
         StartCoroutine(RunWaves(TeamType.Red));
@@ -68,12 +69,21 @@ public class ServerWaveManager : NetworkBehaviour
         if (!IsServer) return;
         
         ServerEnemyHealth.OnDeath -= ServerEnemyHealthOnOnDeath;
+        GameFlowManager.Instance.CurrentGameState.OnValueChanged -= GameFlowManager_OnCurrentGameStateValueChanged;
         StopAllCoroutines();
     }
 
     private void ServerEnemyHealthOnOnDeath(EnemyManager enemyManager)
     {
         RemoveEnemyFromList(enemyManager.Team.GetTeamType(), enemyManager);
+    }
+    
+    private void GameFlowManager_OnCurrentGameStateValueChanged(GameState previousValue, GameState newValue)
+    {
+        if (newValue == GameState.EndMatch)
+        {
+            StopAllCoroutines();
+        }
     }
 
     private IEnumerator RunWaves(TeamType teamType)

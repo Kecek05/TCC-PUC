@@ -40,6 +40,8 @@ public class ServerTowerCombat : NetworkBehaviour
     private void Update()
     {
         if (!IsServer) return;
+        
+        if (GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
 
         _cooldownTimer -= Time.deltaTime;
         if (_cooldownTimer > 0f) return;

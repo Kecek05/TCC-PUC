@@ -50,6 +50,7 @@ public class ServerEndGameManager : NetworkBehaviour
         //TODO:
         // Handle Trophies and rewards
         // Stop the Game and the Spawning. Stop Everything.
-        // Change Game State to End Game
+        
+        GameFlowManager.Instance.SetGameState(GameState.EndMatch);
     }
 }

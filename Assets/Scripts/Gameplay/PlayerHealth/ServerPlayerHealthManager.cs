@@ -43,6 +43,8 @@ public class ServerPlayerHealthManager : NetworkBehaviour
 
     public void DamageBase(float damage,  TeamType teamType)
     {
+        if (GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
+        
         Debug.Log($"Enemy reached the end! Dealing {damage} damage to the {teamType} team.");
         switch (teamType)
         {
