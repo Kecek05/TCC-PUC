@@ -21,9 +21,15 @@ public class ServerTowerCombat : NetworkBehaviour
     private float _bulletSpeed;
     private float _cooldownTimer;
 
+    private BaseGameFlowManager _gameFlowManager;
 
     public NetworkVariable<int> TowerLevel => _towerLevel;
-    
+
+    private void Start()
+    {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -40,8 +46,8 @@ public class ServerTowerCombat : NetworkBehaviour
     private void Update()
     {
         if (!IsServer) return;
-        
-        if (GameFlowManager.Instance.CurrentGameState.Value != GameState.InMatch) return;
+
+        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
 
         _cooldownTimer -= Time.deltaTime;
         if (_cooldownTimer > 0f) return;

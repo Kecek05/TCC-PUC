@@ -1,29 +1,27 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class TeamManager : NetworkBehaviour
-{ 
-    public static TeamManager Instance { get; private set; }
-    
+public class TeamManager : BaseTeamManager
+{
     private NetworkVariable<PlayerTeamPair> _bluePlayer = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<PlayerTeamPair> _redPlayer = new(writePerm: NetworkVariableWritePermission.Server);
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of TeamManager detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseTeamManager>(this);
+    }
+
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseTeamManager>();
+        base.OnDestroy();
     }
 
     public override void OnNetworkSpawn()
     {
         _bluePlayer.OnValueChanged += OnTeamAssigned;
-        _redPlayer.OnValueChanged += OnTeamAssigned; 
-          
+        _redPlayer.OnValueChanged += OnTeamAssigned;
+
         if (IsServer)
         {
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
@@ -70,7 +68,7 @@ public class TeamManager : NetworkBehaviour
         }
     }
 
-    public bool BothTeamsAssigned()
+    public override bool BothTeamsAssigned()
     {
         if (_redPlayer.Value.Team != TeamType.None && _bluePlayer.Value.Team != TeamType.None)
         {
@@ -88,23 +86,23 @@ public class TeamManager : NetworkBehaviour
 
     // Server-side
 
-    public TeamType GetTeam(ulong clientId)
-    { 
+    public override TeamType GetTeam(ulong clientId)
+    {
         if (_bluePlayer.Value.ClientId == clientId) return TeamType.Blue;
         if (_redPlayer.Value.ClientId == clientId) return TeamType.Red;
-        
+
         Debug.LogError($"ClientId {clientId} dont have team!");
         return TeamType.None;
     }
 
-    public bool IsOnTeam(ulong clientId, TeamType team)
+    public override bool IsOnTeam(ulong clientId, TeamType team)
     {
         return GetTeam(clientId) == team;
     }
 
-    // Client-side 
+    // Client-side
 
-    public TeamType GetLocalTeam()
+    public override TeamType GetLocalTeam()
     {
         ulong localId = NetworkManager.LocalClientId;
         if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return TeamType.Red;
@@ -113,7 +111,7 @@ public class TeamManager : NetworkBehaviour
         return TeamType.None;
     }
 
-    public bool HasLocalTeamBeenAssigned()
+    public override bool HasLocalTeamBeenAssigned()
     {
         ulong localId = NetworkManager.LocalClientId;
         return (_bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId) && NetworkManager.IsConnectedClient;

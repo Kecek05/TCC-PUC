@@ -9,13 +9,15 @@ public class ClientEndGameCanvas : NetworkBehaviour
     [SerializeField] private GameObject victoryText;
     [SerializeField] private GameObject defeatText;
 
+    private BaseServerEndGameManager _endGameManager;
+
     private void Awake()
     {
         rootCanvas.SetActive(false);
         victoryText.SetActive(false);
         defeatText.SetActive(false);
     }
-    
+
     public override void OnNetworkSpawn()
     {
         if (!IsClient)
@@ -23,26 +25,27 @@ public class ClientEndGameCanvas : NetworkBehaviour
             enabled = false;
             return;
         }
-        
-        ServerEndGameManager.Instance.WinnerTeam.OnValueChanged += ServerEndGameManager_OnWinnerTeamValueChanged;
+
+        _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
+        _endGameManager.WinnerTeam.OnValueChanged += ServerEndGameManager_OnWinnerTeamValueChanged;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsClient && ServerEndGameManager.Instance != null)
-            ServerEndGameManager.Instance.WinnerTeam.OnValueChanged -= ServerEndGameManager_OnWinnerTeamValueChanged;
+        if (IsClient && _endGameManager != null)
+            _endGameManager.WinnerTeam.OnValueChanged -= ServerEndGameManager_OnWinnerTeamValueChanged;
     }
 
     private void ServerEndGameManager_OnWinnerTeamValueChanged(TeamType previousValue, TeamType winnerTeam)
     {
         if (winnerTeam == TeamType.None) return;
-        
+
         rootCanvas.SetActive(true);
-        
-        if (winnerTeam == TeamManager.Instance.GetLocalTeam())
+
+        if (winnerTeam == ServiceLocator.Get<BaseTeamManager>().GetLocalTeam())
             victoryText.SetActive(true);
         else
             defeatText.SetActive(true);
-        
+
     }
 }

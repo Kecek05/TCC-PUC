@@ -27,7 +27,7 @@ public class CardTowerDeployer : NetworkBehaviour
     public void RequestPlaceCardServerRpc(CardType cardType, Vector2 placePosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = TeamManager.Instance.GetTeam(clientId);
+        TeamType team = ServiceLocator.Get<BaseTeamManager>().GetTeam(clientId);
         
         if (team == TeamType.None)
         {
@@ -66,7 +66,7 @@ public class CardTowerDeployer : NetworkBehaviour
             return;
         }
         
-        if (!ServerManaManager.Instance.CanAfford(team, towerCardData.Cost))
+        if (!ServiceLocator.Get<BaseServerManaManager>().CanAfford(team, towerCardData.Cost))
         {
             PlaceResultRpc(new TowerPlaceResult
             {
@@ -104,7 +104,7 @@ public class CardTowerDeployer : NetworkBehaviour
                 return;
             }
 
-            if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
+            if (!ServiceLocator.Get<BaseServerManaManager>().TrySpendMana(team, towerCardData.Cost))
             {
                 PlaceResultRpc(new TowerPlaceResult
                 {
@@ -114,7 +114,7 @@ public class CardTowerDeployer : NetworkBehaviour
                 }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
                 return;
             }
-            
+
             towerManager.ServerCombat.UpgradeTower(1);
             
             PlaceResultRpc(new TowerPlaceResult
@@ -131,7 +131,7 @@ public class CardTowerDeployer : NetworkBehaviour
             TowerManager towerManager = newTower.GetComponent<TowerManager>();
             hit.placeable.Occupy(towerManager);
             
-            if (!ServerManaManager.Instance.TrySpendMana(team, towerCardData.Cost))
+            if (!ServiceLocator.Get<BaseServerManaManager>().TrySpendMana(team, towerCardData.Cost))
             {
                 PlaceResultRpc(new TowerPlaceResult
                 {

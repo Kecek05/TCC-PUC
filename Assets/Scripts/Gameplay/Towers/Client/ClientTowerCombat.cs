@@ -45,8 +45,9 @@ public class ClientTowerCombat : NetworkBehaviour
             targetTransform = targetObj.transform;
 
         // Convert server-space origin to local-space
-        Vector3 localOrigin = MapTranslator.Instance != null && MapTranslator.Instance.IsInitialized
-            ? MapTranslator.Instance.ServerToLocal(originServerPos, entityTeam.GetTeamType())
+        BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+        Vector3 localOrigin = mapTranslator != null && mapTranslator.IsInitialized
+            ? mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType())
             : originServerPos;
 
         CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();

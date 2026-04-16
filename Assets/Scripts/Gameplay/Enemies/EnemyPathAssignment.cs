@@ -49,9 +49,10 @@ public class EnemyPathAssignment : NetworkBehaviour
     private IEnumerator InitializeClientPath()
     {
         // Wait for ServerWaveManager to be available (it holds the path references)
-        yield return new WaitUntil(() => ServerWaveManager.Instance != null);
+        BaseServerWaveManager waveManager = ServiceLocator.Get<BaseServerWaveManager>();
+        yield return new WaitUntil(() => waveManager != null);
 
-        WaypointPath path = ServerWaveManager.Instance.GetPath(_targetMap.Value);
+        WaypointPath path = waveManager.GetPath(_targetMap.Value);
         ClientEnemyMovement clientMovement = GetComponent<ClientEnemyMovement>();
         if (clientMovement != null)
             clientMovement.Initialize(path);

@@ -2,61 +2,65 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class MapTranslator : NetworkBehaviour
+public class MapTranslator : BaseMapTranslator
 {
-    public static MapTranslator Instance { get; private set; }
-
     [SerializeField] private float mapOffset = 10f;
     [SerializeField] private Transform player1Map;
     [SerializeField] private Transform player2Map;
 
     private bool _playerRedInitialized = false;
     private bool _playerBlueInitialized = false;
-    
+
     private bool _isInitialized = false;
-    
+
     private bool _needsTranslation;
-    public bool IsInitialized =>  _isInitialized;
-    
-    public bool BothPlayersInitialized => _playerRedInitialized && _playerBlueInitialized;
+
+    private BaseGameFlowManager _gameFlowManager;
+    private BaseTeamManager _teamManager;
+
+    public override bool IsInitialized => _isInitialized;
+
+    public override bool BothPlayersInitialized => _playerRedInitialized && _playerBlueInitialized;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of MapTranslator detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseMapTranslator>(this);
+    }
+
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseMapTranslator>();
+        base.OnDestroy();
     }
 
     public override void OnNetworkSpawn()
     {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
         StartCoroutine(HandleSpawn());
     }
 
     private IEnumerator HandleSpawn()
     {
         // Dedicated server never translates
-        yield return new WaitUntil(() => 
-            GameFlowManager.Instance != null &&
-            GameFlowManager.Instance.CurrentGameState.Value == GameState.LoadingMatch);
-        
+        yield return new WaitUntil(() =>
+            _gameFlowManager != null &&
+            _gameFlowManager.CurrentGameState.Value == GameState.LoadingMatch);
+
         if (IsServer && !IsClient)
         {
             _isInitialized = true;
             yield break;
         }
 
-        _needsTranslation = TeamManager.Instance.GetLocalTeam() == TeamType.Blue;
-        
+        _needsTranslation = _teamManager.GetLocalTeam() == TeamType.Blue;
+
         if (_needsTranslation)
             RepositionSceneObjects();
 
         _isInitialized = true;
-        
-        InitializeTeamServerRpc(TeamManager.Instance.GetLocalTeam());
+
+        InitializeTeamServerRpc(_teamManager.GetLocalTeam());
     }
 
     [Rpc(SendTo.Server)]
@@ -66,17 +70,17 @@ public class MapTranslator : NetworkBehaviour
             _playerBlueInitialized = true;
         else if   (teamType == TeamType.Red)
             _playerRedInitialized = true;
-        else 
+        else
             Debug.LogError("Team Type not supported");
     }
 
-    public Vector3 LocalToServer(Vector3 localPos)
+    public override Vector3 LocalToServer(Vector3 localPos)
     {
         if (!_needsTranslation) return localPos;
         return new Vector3(localPos.x,  localPos.y + mapOffset, localPos.z);
     }
 
-    public Vector3 ServerToLocal(Vector3 serverPos, TeamType teamType)
+    public override Vector3 ServerToLocal(Vector3 serverPos, TeamType teamType)
     {
         if (!_needsTranslation) return serverPos;
         return new Vector3(serverPos.x, teamType == TeamType.Blue ? serverPos.y - mapOffset : serverPos.y + mapOffset, serverPos.z);

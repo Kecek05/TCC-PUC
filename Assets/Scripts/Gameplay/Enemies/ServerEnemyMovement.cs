@@ -107,7 +107,7 @@ public class ServerEnemyMovement : NetworkBehaviour
     private void OnReachedEnd()
     {
         // TODO: Apply damage to the player's base, then despawn
-        ServerPlayerHealthManager.Instance.DamageBase(enemyManager.Data.Damage, enemyManager.Team.GetTeamType());
+        ServiceLocator.Get<BaseServerPlayerHealthManager>().DamageBase(enemyManager.Data.Damage, enemyManager.Team.GetTeamType());
         NetworkObject.Despawn();
     }
 

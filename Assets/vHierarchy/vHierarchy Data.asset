@@ -157,6 +157,6 @@ MonoBehaviour:
           isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:
-  - Assets/Scenes/SampleScene 1.unity
   - Assets/Scenes/ArtScene.unity
   - Assets/Scenes/MainMenu.unity
+  - Assets/Scenes/GameScene.unity

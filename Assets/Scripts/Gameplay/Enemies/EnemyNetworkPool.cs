@@ -10,30 +10,27 @@ using UnityEngine;
 /// Setup: Call RegisterPrefab() for each enemy prefab during initialization
 /// (e.g. from ServerWaveManager.OnNetworkSpawn).
 /// </summary>
-public class EnemyNetworkPool : MonoBehaviour
+public class EnemyNetworkPool : BaseEnemyNetworkPool
 {
-    public static EnemyNetworkPool Instance { get; private set; }
-
     [SerializeField] private int initialPoolSizePerPrefab = 10;
 
     private readonly Dictionary<uint, PooledPrefabHandler> _handlers = new();
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of EnemyNetworkPool detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseEnemyNetworkPool>(this);
+    }
+
+    private void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseEnemyNetworkPool>();
     }
 
     /// <summary>
     /// Registers an enemy prefab for pooling. Call once per prefab type.
     /// Must be called before any Spawn() calls for that prefab.
     /// </summary>
-    public void RegisterPrefab(GameObject prefab)
+    public override void RegisterPrefab(GameObject prefab)
     {
         var networkObject = prefab.GetComponent<NetworkObject>();
         if (networkObject == null) return;

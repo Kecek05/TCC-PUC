@@ -3029,7 +3029,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00004196167
+      value: 0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6188,6 +6188,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerWaveManager
   ShowTopMostFoldoutHeaderGroup: 1
+  BlueCurrentWave:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  RedCurrentWave:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   waveData: {fileID: 11400000, guid: 64a0398ea897b6040b8b0a6fd7b7e4d2, type: 2}
   enemyDataListSO: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}
   blueMapPath: {fileID: 124211142}
@@ -11594,6 +11604,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerManaManager
   ShowTopMostFoldoutHeaderGroup: 1
+  BlueMana:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  RedMana:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   _manaSettings: {fileID: 11400000, guid: 291e460e65d57074aabbe78e89bb74a0, type: 2}
   _syncThreshold: 0.05
 --- !u!1 &1115869682
@@ -12346,6 +12366,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerEndGameManager
   ShowTopMostFoldoutHeaderGroup: 1
+  WinnerTeam:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!114 &1203351779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18547,6 +18572,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerPlayerHealthManager
   ShowTopMostFoldoutHeaderGroup: 1
+  BlueHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  RedHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   _healthSettings: {fileID: 11400000, guid: b2c09fb08efffc94bbf59d2d7d1cbade, type: 2}
 --- !u!1 &1943932732
 GameObject:

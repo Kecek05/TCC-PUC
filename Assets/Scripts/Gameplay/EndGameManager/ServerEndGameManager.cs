@@ -1,32 +1,25 @@
-using System;
-using System.Collections;
-using Unity.Netcode;
 using UnityEngine;
 
-public class ServerEndGameManager : NetworkBehaviour
+public class ServerEndGameManager : BaseServerEndGameManager
 {
-    public static ServerEndGameManager Instance { get; private set; }
-    
-    private NetworkVariable<TeamType> _winnerTeam = new(writePerm: NetworkVariableWritePermission.Server);
-    
     private BaseGameFlowManager _gameFlowManager;
-    
-    public NetworkVariable<TeamType> WinnerTeam => _winnerTeam;
-    
+    private BaseServerPlayerHealthManager _playerHealthManager;
+
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of ServerEndGameManager detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseServerEndGameManager>(this);
+    }
+
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerEndGameManager>();
+        base.OnDestroy();
     }
 
     private void Start()
     {
         _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
     }
 
     public override void OnNetworkSpawn()
@@ -36,16 +29,19 @@ public class ServerEndGameManager : NetworkBehaviour
             enabled = false;
             return;
         }
-        
-        _winnerTeam.Value = TeamType.None;
-        
-        ServerPlayerHealthManager.Instance.OnPlayerDeath += ServerPlayerHealthManager_OnPlayerDeath;
+
+        WinnerTeam.Value = TeamType.None;
+
+        if (_playerHealthManager == null)
+            _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
+
+        _playerHealthManager.OnPlayerDeath += ServerPlayerHealthManager_OnPlayerDeath;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer && ServerPlayerHealthManager.Instance != null)
-            ServerPlayerHealthManager.Instance.OnPlayerDeath -= ServerPlayerHealthManager_OnPlayerDeath;
+        if (IsServer && _playerHealthManager != null)
+            _playerHealthManager.OnPlayerDeath -= ServerPlayerHealthManager_OnPlayerDeath;
     }
 
     private void ServerPlayerHealthManager_OnPlayerDeath(TeamType deathTeam)
@@ -53,12 +49,12 @@ public class ServerEndGameManager : NetworkBehaviour
         Debug.Log($"Player from {deathTeam} team has died. Ending the game.");
 
         TeamType winningTeam = deathTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
-        _winnerTeam.Value = winningTeam;
-        
+        WinnerTeam.Value = winningTeam;
+
         //TODO:
         // Handle Trophies and rewards
         // Stop the Game and the Spawning. Stop Everything.
-        
+
         _gameFlowManager.SetGameState(GameState.EndMatch);
     }
 }

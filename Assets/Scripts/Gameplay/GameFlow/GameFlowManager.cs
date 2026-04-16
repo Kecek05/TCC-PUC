@@ -1,10 +1,13 @@
 using System.Collections;
-using Unity.Netcode;
 using UnityEngine;
 
 public class GameFlowManager : BaseGameFlowManager
 {
-    
+    private void Awake()
+    {
+        ServiceLocator.Register<BaseGameFlowManager>(this);
+    }
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -16,20 +19,24 @@ public class GameFlowManager : BaseGameFlowManager
 
     protected override IEnumerator HandleGameFlow()
     {
-        yield return new WaitUntil(() => 
-            TeamManager.Instance != null && 
-            TeamManager.Instance.BothTeamsAssigned());
-        
+        BaseTeamManager teamManager = ServiceLocator.Get<BaseTeamManager>();
+
+        yield return new WaitUntil(() =>
+            teamManager != null &&
+            teamManager.BothTeamsAssigned());
+
         SetGameState(GameState.LoadingMatch);
-        
-        yield return new WaitUntil(() => 
-            MapTranslator.Instance != null && 
-            MapTranslator.Instance.BothPlayersInitialized);
-        
+
+        BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+
+        yield return new WaitUntil(() =>
+            mapTranslator != null &&
+            mapTranslator.BothPlayersInitialized);
+
         SetGameState(GameState.MatchReady);
-        
+
         yield return new WaitForSeconds(2f); // Short delay before starting the match
-        
+
         SetGameState(GameState.InMatch);
     }
     

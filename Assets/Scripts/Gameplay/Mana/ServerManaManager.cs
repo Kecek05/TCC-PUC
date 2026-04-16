@@ -1,33 +1,24 @@
-using Unity.Netcode;
 using UnityEngine;
 
-public class ServerManaManager : NetworkBehaviour
+public class ServerManaManager : BaseServerManaManager
 {
-    public static ServerManaManager Instance { get; private set; }
-    
     [SerializeField] private ManaSettingsSO _manaSettings;
     [SerializeField] private float _syncThreshold = 0.1f;
-    
-    private NetworkVariable<float> _blueMana = new(writePerm: NetworkVariableWritePermission.Server);
-    private NetworkVariable<float> _redMana = new(writePerm: NetworkVariableWritePermission.Server);
 
     private BaseGameFlowManager _gameFlowManager;
-    
-    public NetworkVariable<float> BlueMana => _blueMana;
-    public NetworkVariable<float> RedMana => _redMana;
 
     private float _blueLocalMana;
     private float _redLocalMana;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of ServerManaManager detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseServerManaManager>(this);
+    }
+
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerManaManager>();
+        base.OnDestroy();
     }
 
     private void Start()
@@ -45,19 +36,19 @@ public class ServerManaManager : NetworkBehaviour
 
         _blueLocalMana = _manaSettings.StartingMana;
         _redLocalMana = _manaSettings.StartingMana;
-        _blueMana.Value = _manaSettings.StartingMana;
-        _redMana.Value = _manaSettings.StartingMana;
+        BlueMana.Value = _manaSettings.StartingMana;
+        RedMana.Value = _manaSettings.StartingMana;
     }
 
     private void Update()
     {
         if (!IsServer) return;
-        
+
         if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
-        
+
         RegenerateMana();
     }
-    
+
     private void RegenerateMana()
     {
         float regen = _manaSettings.RegenPerSecond * Time.deltaTime;
@@ -65,14 +56,14 @@ public class ServerManaManager : NetworkBehaviour
         _blueLocalMana = Mathf.Min(_blueLocalMana + regen, _manaSettings.MaxMana);
         _redLocalMana = Mathf.Min(_redLocalMana + regen, _manaSettings.MaxMana);
 
-        if (Mathf.Abs(_blueLocalMana - _blueMana.Value) >= _syncThreshold)
-            _blueMana.Value = _blueLocalMana;
+        if (Mathf.Abs(_blueLocalMana - BlueMana.Value) >= _syncThreshold)
+            BlueMana.Value = _blueLocalMana;
 
-        if (Mathf.Abs(_redLocalMana - _redMana.Value) >= _syncThreshold)
-            _redMana.Value = _redLocalMana;
+        if (Mathf.Abs(_redLocalMana - RedMana.Value) >= _syncThreshold)
+            RedMana.Value = _redLocalMana;
     }
 
-    public float GetMana(TeamType team)
+    public override float GetMana(TeamType team)
     {
         switch (team)
         {
@@ -86,12 +77,12 @@ public class ServerManaManager : NetworkBehaviour
         }
     }
 
-    public bool CanAfford(TeamType team, int cost)
+    public override bool CanAfford(TeamType team, int cost)
     {
         return Mathf.FloorToInt(GetMana(team)) >= cost;
     }
 
-    public bool TrySpendMana(TeamType team, int cost)
+    public override bool TrySpendMana(TeamType team, int cost)
     {
         if (!CanAfford(team, cost)) return false;
 
@@ -99,7 +90,7 @@ public class ServerManaManager : NetworkBehaviour
             _blueLocalMana -= cost;
         else if  (team == TeamType.Red)
             _redLocalMana -= cost;
-        else 
+        else
             return false;
 
         SyncMana(team);
@@ -111,10 +102,10 @@ public class ServerManaManager : NetworkBehaviour
         switch (team)
         {
             case TeamType.Blue:
-                _blueMana.Value = _blueLocalMana;
+                BlueMana.Value = _blueLocalMana;
                 break;
             case TeamType.Red:
-                _redMana.Value = _redLocalMana;
+                RedMana.Value = _redLocalMana;
                 break;
             default:
                 Debug.LogError($"Invalid team: {team}");

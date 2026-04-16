@@ -23,6 +23,9 @@ public class ClientManaManager : MonoBehaviour
     private bool _initialized;
     private TeamType _localTeam;
 
+    private BaseTeamManager _teamManager;
+    private BaseServerManaManager _serverManaManager;
+
     public float PredictedMana => _predictedMana;
 
     private void Awake()
@@ -43,25 +46,30 @@ public class ClientManaManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_serverManaManager == null) return;
+
         NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
-            ? ServerManaManager.Instance.BlueMana
-            : ServerManaManager.Instance.RedMana;
+            ? _serverManaManager.BlueMana
+            : _serverManaManager.RedMana;
 
         manaVar.OnValueChanged -= OnServerManaChanged;
     }
 
     private IEnumerator WaitForInitialization()
     {
-        yield return new WaitUntil(() =>
-            TeamManager.Instance != null &&
-            TeamManager.Instance.HasLocalTeamBeenAssigned() &&
-            ServerManaManager.Instance != null);
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
 
-        _localTeam = TeamManager.Instance.GetLocalTeam();
-        
+        yield return new WaitUntil(() =>
+            _teamManager != null &&
+            _teamManager.HasLocalTeamBeenAssigned() &&
+            _serverManaManager != null);
+
+        _localTeam = _teamManager.GetLocalTeam();
+
         NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
-            ? ServerManaManager.Instance.BlueMana
-            : ServerManaManager.Instance.RedMana;
+            ? _serverManaManager.BlueMana
+            : _serverManaManager.RedMana;
 
         _serverMana = manaVar.Value;
         _predictedMana = _serverMana;

@@ -14,6 +14,9 @@ public class ClientWaveUI : NetworkBehaviour
     private bool _initialized;
     private TeamType _localTeam;
 
+    private BaseTeamManager _teamManager;
+    private BaseServerWaveManager _waveManager;
+
     public override void OnNetworkSpawn()
     {
         if (IsServer && !IsClient)
@@ -27,12 +30,15 @@ public class ClientWaveUI : NetworkBehaviour
 
     private IEnumerator WaitForInitialization()
     {
-        yield return new WaitUntil(() =>
-            TeamManager.Instance != null &&
-            TeamManager.Instance.HasLocalTeamBeenAssigned() &&
-            ServerWaveManager.Instance != null);
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
 
-        _localTeam = TeamManager.Instance.GetLocalTeam();
+        yield return new WaitUntil(() =>
+            _teamManager != null &&
+            _teamManager.HasLocalTeamBeenAssigned() &&
+            _waveManager != null);
+
+        _localTeam = _teamManager.GetLocalTeam();
         _initialized = true;
     }
 
@@ -40,7 +46,7 @@ public class ClientWaveUI : NetworkBehaviour
     {
         if (!_initialized) return;
 
-        var waveManager = ServerWaveManager.Instance;
+        var waveManager = _waveManager;
         if (waveManager == null) return;
 
         int wave;

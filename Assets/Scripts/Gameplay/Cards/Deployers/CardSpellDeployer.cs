@@ -26,7 +26,7 @@ public class CardSpellDeployer : NetworkBehaviour
     public void RequestSpellCardServerRpc(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = TeamManager.Instance.GetTeam(clientId);
+        TeamType team = ServiceLocator.Get<BaseTeamManager>().GetTeam(clientId);
 
         if (team == TeamType.None)
         {
@@ -50,7 +50,7 @@ public class CardSpellDeployer : NetworkBehaviour
             return;
         }
 
-        if (!ServerManaManager.Instance.TrySpendMana(team, spellCardData.Cost))
+        if (!ServiceLocator.Get<BaseServerManaManager>().TrySpendMana(team, spellCardData.Cost))
         {
             SendFailure(clientId, cardType, SpellInvalidReason.NotEnoughMana);
             return;
@@ -95,7 +95,7 @@ public class CardSpellDeployer : NetworkBehaviour
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellType);
         if (spellData == null || spellData.VisualPrefab == null) return;
 
-        Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPosition, casterTeam);
+        Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(serverPosition, casterTeam);
 
         GameObject visual = Instantiate(spellData.VisualPrefab, localPos, Quaternion.identity);
 

@@ -90,7 +90,7 @@ public class TowerCard : AbstractCard
         foreach (RaycastHit2D hit in hits)
         {
             TeamIdentifier team = hit.collider.GetComponentInParent<TeamIdentifier>();
-            if (team == null || team.TeamType != TeamManager.Instance.GetLocalTeam()) continue;
+            if (team == null || team.TeamType != ServiceLocator.Get<BaseTeamManager>().GetLocalTeam()) continue;
 
             IPlaceable placeable = hit.collider.GetComponentInParent<IPlaceable>();
             if (placeable == null) continue;
@@ -143,7 +143,7 @@ public class TowerCard : AbstractCard
         
         TowerPlacementFeedbackManager.Instance.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
         
-        Vector2 serverPosition = MapTranslator.Instance.LocalToServer(position);
+        Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(position);
         CardTowerDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPosition);
     }
 
@@ -155,7 +155,7 @@ public class TowerCard : AbstractCard
         _waitingResult = false;
         CardTowerDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
 
-        Vector3 localPos = MapTranslator.Instance.ServerToLocal(result.Position, TeamManager.Instance.GetLocalTeam());
+        Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(result.Position, ServiceLocator.Get<BaseTeamManager>().GetLocalTeam());
 
         TowerPlacementFeedbackManager.Instance.StopPredictSpawn(uniqueRuntimeId);
         

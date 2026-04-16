@@ -17,6 +17,8 @@ public class ClientEnemyMovement : NetworkBehaviour
     private WaypointPath _path;
     private bool _initialized;
 
+    private BaseMapTranslator _mapTranslator;
+
     /// <summary>
     /// Called after spawn to assign the path reference on the client.
     /// The path must be the same WaypointPath instance the server uses.
@@ -40,17 +42,19 @@ public class ClientEnemyMovement : NetworkBehaviour
 
     private IEnumerator WaitForInitialization()
     {
+        _mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+
         // Wait until the path has been assigned and MapTranslator is ready
         yield return new WaitUntil(() =>
             _path != null &&
-            MapTranslator.Instance != null &&
-            MapTranslator.Instance.IsInitialized);
+            _mapTranslator != null &&
+            _mapTranslator.IsInitialized);
 
         // Snap to initial position
         float progress = _serverMovement.PathProgress.Value;
         float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
         Vector3 serverPos = _path.SamplePosition(sampleT);
-        transform.position = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
+        transform.position = _mapTranslator.ServerToLocal(serverPos, entityTeam.GetTeamType());
         _initialized = true;
     }
 
@@ -61,7 +65,7 @@ public class ClientEnemyMovement : NetworkBehaviour
         float progress = _serverMovement.PathProgress.Value;
         float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
         Vector3 serverPos = _path.SamplePosition(sampleT);
-        Vector3 localPos = MapTranslator.Instance.ServerToLocal(serverPos, entityTeam.GetTeamType());
+        Vector3 localPos = _mapTranslator.ServerToLocal(serverPos, entityTeam.GetTeamType());
 
         // Rotate to face movement direction
         Vector3 direction = localPos - transform.position;

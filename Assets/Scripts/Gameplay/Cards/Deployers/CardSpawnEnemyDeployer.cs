@@ -25,7 +25,7 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
     public void RequestSpawnEnemyCardServerRpc(CardType cardType, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = TeamManager.Instance.GetTeam(clientId);
+        TeamType team = ServiceLocator.Get<BaseTeamManager>().GetTeam(clientId);
         
         if (team == TeamType.None)
         {
@@ -49,7 +49,7 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
             return;
         }
 
-        if (!ServerManaManager.Instance.TrySpendMana(team, spawnCardData.Cost))
+        if (!ServiceLocator.Get<BaseServerManaManager>().TrySpendMana(team, spawnCardData.Cost))
         {
             SpawnResultRpc(new SpawnEnemyResult
             {
@@ -59,7 +59,7 @@ public class CardSpawnEnemyDeployer : NetworkBehaviour
             return;
         }
 
-        ServerWaveManager.Instance.SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
+        ServiceLocator.Get<BaseServerWaveManager>().SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
         
         SpawnResultRpc(new SpawnEnemyResult
         {

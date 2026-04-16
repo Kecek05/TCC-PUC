@@ -40,8 +40,10 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private IEnumerator Start()
     {
+        BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+
         yield return new WaitUntil(() =>
-            MapTranslator.Instance != null && MapTranslator.Instance.IsInitialized);
+            mapTranslator != null && mapTranslator.IsInitialized);
 
         _initialized = true;
     }
