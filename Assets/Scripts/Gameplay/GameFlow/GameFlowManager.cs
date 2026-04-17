@@ -17,7 +17,7 @@ public class GameFlowManager : BaseGameFlowManager
         }
     }
 
-    protected override IEnumerator HandleGameFlow()
+    private IEnumerator HandleGameFlow()
     {
         BaseTeamManager teamManager = ServiceLocator.Get<BaseTeamManager>();
 

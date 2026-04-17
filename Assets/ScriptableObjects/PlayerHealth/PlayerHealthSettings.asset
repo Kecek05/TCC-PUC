@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cd5953820d777144aadc385eb24a0ad, type: 3}
   m_Name: PlayerHealthSettings
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthSettingsSO
-  StartingHealth: 10
+  StartingHealth: 100

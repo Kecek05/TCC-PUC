@@ -150,7 +150,6 @@ public class TowerCard : AbstractCard
     private void HandlePlaceResult(TowerPlaceResult result)
     {
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
-        Debug.Log($"Received place result for {cardDataSo.CardType}: Valid: {result.Validation.IsValid} - {result.Validation.Reason}");
         
         _waitingResult = false;
         CardTowerDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
