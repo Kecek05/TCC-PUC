@@ -3,6 +3,4 @@ using Unity.Netcode;
 public abstract class BaseGameFlowManager : NetworkBehaviour
 {
     public NetworkVariable<GameState> CurrentGameState = new NetworkVariable<GameState>(writePerm: NetworkVariableWritePermission.Server);
-
-    public abstract void SetGameState(GameState newState);
 }

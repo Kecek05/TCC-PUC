@@ -75,6 +75,17 @@ public class ServerWaveManager : BaseServerWaveManager
     private void ServerEnemyHealthOnOnDeath(EnemyManager enemyManager)
     {
         RemoveEnemyFromList(enemyManager.Team.GetTeamType(), enemyManager);
+        CheckLastWaveEnded(enemyManager.Team.GetTeamType());
+    }
+
+    private void CheckLastWaveEnded(TeamType teamType)
+    {
+        bool isWaveEmpty = GetEnemyList(teamType).Count <= 0;
+        bool isLastWave = GetCurrentWaveNetworkVariable(teamType).Value >= waveData.Waves.Count;
+        if (isLastWave && isWaveEmpty)
+        {
+            TriggerOnTeamDefeatLastWave(teamType);
+        }
     }
 
     private void GameFlowManager_OnCurrentGameStateValueChanged(GameState previousValue, GameState newValue)

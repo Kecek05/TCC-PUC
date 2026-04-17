@@ -48,7 +48,7 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
                 if (BlueHealth.Value <= 0)
                 {
                     Debug.Log($"Blue team has been defeated!");
-                    RaisePlayerDeath(teamType);
+                    TriggerOnTeamDeath(teamType);
                 }
 
                 break;
@@ -58,7 +58,7 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
                 if (RedHealth.Value <= 0)
                 {
                     Debug.Log($"Red team has been defeated!");
-                    RaisePlayerDeath(teamType);
+                    TriggerOnTeamDeath(teamType);
                 }
 
                 break;

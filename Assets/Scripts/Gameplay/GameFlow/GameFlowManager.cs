@@ -3,18 +3,41 @@ using UnityEngine;
 
 public class GameFlowManager : BaseGameFlowManager
 {
+    private BaseServerEndGameManager  _endGameManager;
+    
     private void Awake()
     {
         ServiceLocator.Register<BaseGameFlowManager>(this);
     }
 
+    private void Start()
+    {
+        _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
+    }
+
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
+        if (!IsServer)
         {
-            CurrentGameState.Value = GameState.WaitingForPlayers;
-            StartCoroutine(HandleGameFlow());
+            enabled = false;
+            return;
         }
+        
+        CurrentGameState.Value = GameState.WaitingForPlayers;
+        StartCoroutine(HandleGameFlow());
+        
+        _endGameManager.WinnerTeam.OnValueChanged += EndGameManager_OnWinnerTeamChanged;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+        
+        if (_endGameManager != null)
+            _endGameManager.WinnerTeam.OnValueChanged -= EndGameManager_OnWinnerTeamChanged;
     }
 
     private IEnumerator HandleGameFlow()
@@ -40,10 +63,17 @@ public class GameFlowManager : BaseGameFlowManager
         SetGameState(GameState.InMatch);
     }
     
-    public override void SetGameState(GameState newState)
+    private void SetGameState(GameState newState)
     {
         if (!IsServer) return;
         CurrentGameState.Value = newState;
         Debug.Log($"GameFlowManager: Game state changed to {newState}");
+    }
+    
+    private void EndGameManager_OnWinnerTeamChanged(TeamType previousValue, TeamType newValue)
+    {
+        if (newValue == TeamType.None) return;
+        
+        SetGameState(GameState.EndMatch);
     }
 }

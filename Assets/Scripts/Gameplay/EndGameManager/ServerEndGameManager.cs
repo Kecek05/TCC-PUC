@@ -4,6 +4,7 @@ public class ServerEndGameManager : BaseServerEndGameManager
 {
     private BaseGameFlowManager _gameFlowManager;
     private BaseServerPlayerHealthManager _playerHealthManager;
+    private BaseServerWaveManager _waveManager;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class ServerEndGameManager : BaseServerEndGameManager
     {
         _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
         _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
+        _waveManager  = ServiceLocator.Get<BaseServerWaveManager>();
     }
 
     public override void OnNetworkSpawn()
@@ -32,29 +34,38 @@ public class ServerEndGameManager : BaseServerEndGameManager
 
         WinnerTeam.Value = TeamType.None;
 
-        if (_playerHealthManager == null)
-            _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
-
-        _playerHealthManager.OnPlayerDeath += ServerPlayerHealthManager_OnPlayerDeath;
+        _playerHealthManager.OnTeamDeath += TeamHealthManagerOnTeamDeath;
+        _waveManager.OnTeamDefeatLastWave += WaveManager_OnTeamDefeatedLastWave;
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer && _playerHealthManager != null)
-            _playerHealthManager.OnPlayerDeath -= ServerPlayerHealthManager_OnPlayerDeath;
+        if (!IsServer)
+        {
+            return;
+        }
+        
+        if (_playerHealthManager != null)
+            _playerHealthManager.OnTeamDeath -= TeamHealthManagerOnTeamDeath;
+        
+        if (_waveManager != null) 
+            _waveManager.OnTeamDefeatLastWave -= WaveManager_OnTeamDefeatedLastWave;
     }
 
-    private void ServerPlayerHealthManager_OnPlayerDeath(TeamType deathTeam)
+    private void TeamHealthManagerOnTeamDeath(TeamType deathTeam)
     {
         Debug.Log($"Player from {deathTeam} team has died. Ending the game.");
 
-        TeamType winningTeam = deathTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
-        WinnerTeam.Value = winningTeam;
+        TeamType winnerTeam = deathTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
+        WinnerTeam.Value = winnerTeam;
 
         //TODO:
         // Handle Trophies and rewards
         // Stop the Game and the Spawning. Stop Everything.
-
-        _gameFlowManager.SetGameState(GameState.EndMatch);
+    }
+    
+    private void WaveManager_OnTeamDefeatedLastWave(TeamType winnerTeam)
+    {
+        WinnerTeam.Value = winnerTeam;
     }
 }
