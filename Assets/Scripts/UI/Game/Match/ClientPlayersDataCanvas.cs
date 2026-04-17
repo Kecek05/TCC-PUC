@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -12,8 +13,14 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] playersHealth;
     [SerializeField] private TextMeshProUGUI[] playersWaves;
     [SerializeField] private Slider[] playersWaveSliders;
+    [Space(5f)]
+    
+    [Title("Tween Settings")]
+    [SerializeField] private float sliderTweenDuration = 0.5f;
+    [SerializeField] private Ease tweenEase = Ease.OutBack;
 
     private BaseServerPlayerHealthManager _playerHealthManager;
+    private Tween[] _sliderTweens = new Tween[2];
     private BaseTeamManager  _teamManager;
     private BaseServerWaveManager  _waveManager;
     
@@ -103,7 +110,8 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     
     private void ChangeWaveProgress(float newProgress, bool isLocal)
     {
-        Debug.Log($"Updating wave progress for {(isLocal ? "local" : "enemy")} player to {newProgress}");
-        playersWaveSliders[isLocal ? 0 : 1].value = newProgress;
+        int index = isLocal ? 0 : 1;
+        _sliderTweens[index]?.Kill();
+        _sliderTweens[index] = playersWaveSliders[index].DOValue(newProgress, sliderTweenDuration).SetEase(tweenEase);
     }
 }

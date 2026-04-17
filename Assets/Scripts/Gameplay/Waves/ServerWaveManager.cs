@@ -22,6 +22,7 @@ public class ServerWaveManager : BaseServerWaveManager
     private List<EnemyManager> _blueActiveEnemiesFromWave = new();
     
     private Dictionary<TeamType, WaveEntry> _currentWaves = new();
+    private Dictionary<TeamType, int> _remainingEnemiesOfWave = new();
 
     private void Awake()
     {
@@ -94,12 +95,10 @@ public class ServerWaveManager : BaseServerWaveManager
 
         for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
         {
-            SetCurrentWave(teamType, waveIndex + 1);
+            WaveEntry currentWave = waveData.Waves[waveIndex];
+            SetCurrentWave(teamType, waveIndex + 1, currentWave);
             if (waveIndex > 0)
                 yield return new WaitForSeconds(waveData.DelayBetweenWaves);
-
-            WaveEntry currentWave = waveData.Waves[waveIndex];
-            _currentWaves[teamType] = currentWave;
 
             // Spawn all enemies of this wave
             foreach (WaveEnemy waveEnemy in currentWave.waveEnemies)
@@ -136,7 +135,6 @@ public class ServerWaveManager : BaseServerWaveManager
             AddEnemyToList(targetTeam, enemyManager);
 
         enemyManager.NetworkObject.Spawn();
-
     }
 
     public override void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId)
@@ -157,72 +155,62 @@ public class ServerWaveManager : BaseServerWaveManager
         return map == TeamType.Blue ? blueMapPath : redMapPath;
     }
 
-    private void SetCurrentWave(TeamType map, int wave)
+    private void SetCurrentWave(TeamType teamType, int wave, WaveEntry waveEntry)
     {
-        if (map == TeamType.Blue)
-        {
-            BlueCurrentWave.Value = wave;
-            BlueCurrentWaveProgress.Value = 0f;
-        }
-        else
-        {
-            RedCurrentWave.Value = wave;
-            RedCurrentWaveProgress.Value = 0f;
-        }
+        _currentWaves[teamType] = waveEntry;
+        _remainingEnemiesOfWave[teamType] = waveEntry.GetTotalEnemiesCount();
+        
+        GetCurrentWaveProgressNetworkVariable(teamType).Value = 0f;
+        GetCurrentWaveNetworkVariable(teamType).Value = wave;
     }
 
     private void AddEnemyToList(TeamType team, EnemyManager enemy)
     {
-        if (team == TeamType.Blue)
-            _blueActiveEnemiesFromWave.Add(enemy);
-        else
-            _redActiveEnemiesFromWave.Add(enemy);
-    }
-
-
-    private List<EnemyManager> GetEnemyList(TeamType team)
-    {
-        return team == TeamType.Blue ? _blueActiveEnemiesFromWave : _redActiveEnemiesFromWave;
+        GetEnemyList(team).Add(enemy);
     }
 
     private void RemoveEnemyFromList(TeamType teamType, EnemyManager enemy)
     {
-        if (teamType == TeamType.Blue)
+        if (teamType == TeamType.None)
         {
-            if (_blueActiveEnemiesFromWave.Remove(enemy))
-            {
-                //Enemy was from wave, update Progress
-                UpdateWaveProgress(teamType);
-            }
-        }
-        else if (teamType == TeamType.Red)
-        {
-            if (_redActiveEnemiesFromWave.Remove(enemy))
-            {
-                //Enemy was from wave, update Progress
-                UpdateWaveProgress(teamType);
-            }
-        }
-        else
             Debug.LogError($"Trying to remove enemy from list with invalid team {teamType}");
+            return;
+        }
+        
+        if (GetEnemyList(teamType).Remove(enemy))
+        {
+            //Enemy is from Wave
+            UpdateWaveProgress(teamType);
+        }
     }
-
+    
     private void UpdateWaveProgress(TeamType teamType)
     {
-        int enemiesInWave = 0;
-        foreach (WaveEnemy waveEnemy in _currentWaves[teamType].waveEnemies)
+        if (!_remainingEnemiesOfWave.ContainsKey(teamType))
         {
-            enemiesInWave += waveEnemy.count;
+            Debug.LogError($"Trying to update wave progress for team {teamType} that  doesn't exist");
+            return;
         }
-            
-        int remainingEnemies = GetEnemyList(teamType).Count;
-        int killedEnemies = enemiesInWave - remainingEnemies;
+        
+        _remainingEnemiesOfWave[teamType]--;
 
-        GetCurrentWaveProgressNetworkVariable(teamType).Value = (float)killedEnemies / enemiesInWave;
+        int total = _currentWaves[teamType].GetTotalEnemiesCount();
+        int killed = total - _remainingEnemiesOfWave[teamType];
+        GetCurrentWaveProgressNetworkVariable(teamType).Value = (float)killed / total;
+    }
+    
+    private List<EnemyManager> GetEnemyList(TeamType team)
+    {
+        return team == TeamType.Blue ? _blueActiveEnemiesFromWave : _redActiveEnemiesFromWave;
     }
     
     private NetworkVariable<float> GetCurrentWaveProgressNetworkVariable(TeamType teamType)
     {
         return teamType == TeamType.Blue ? BlueCurrentWaveProgress : RedCurrentWaveProgress;
+    }
+    
+    private NetworkVariable<int> GetCurrentWaveNetworkVariable(TeamType teamType)
+    {
+        return teamType == TeamType.Blue ? BlueCurrentWave : RedCurrentWave;
     }
 }
