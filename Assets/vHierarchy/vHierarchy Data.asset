@@ -41,6 +41,9 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-1188246445-0
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-905975917-0
         - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-1837297739-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-191137165-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-106547837-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3d0b4f561421d4d409f00af1e3d20c78-396404246-0
         values:
         - colorIndex: 1
           iconNameOrGuid: Folder Icon
@@ -116,6 +119,18 @@ MonoBehaviour:
           isColorRecursive: 0
         - colorIndex: 0
           iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Favorite
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Favorite
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Favorite
           isIconRecursive: 0
           isColorRecursive: 0
     - goDatas_byGlobalId:
