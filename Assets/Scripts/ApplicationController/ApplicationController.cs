@@ -5,7 +5,7 @@ using UnityEngine;
 public class ApplicationController : MonoBehaviour
 {
     [Title("Singletons")]
-    [SerializeField] private ClientSingleton clientPrefab;
+    [SerializeField] private ClientManager clientPrefab;
 
     private void Start()
     {

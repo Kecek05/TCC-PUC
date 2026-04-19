@@ -16,6 +16,7 @@ public static class Loader
         GameScene,
         MainMenu,
         StartScene,
+        NoNetwork
     }
     
     /// <summary>

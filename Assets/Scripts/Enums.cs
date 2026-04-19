@@ -90,3 +90,21 @@ public enum AuthState
     Error,
     TimeOut,
 }
+
+public enum Arena
+{
+    Arena1,
+    Arena2,
+    Arena3,
+}
+
+public enum GameMode
+{
+    Default,
+}
+
+public enum GameQueue
+{
+    Ranked,
+    UnRanked,
+}

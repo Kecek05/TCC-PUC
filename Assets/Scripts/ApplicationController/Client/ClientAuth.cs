@@ -26,9 +26,11 @@ public class ClientAuth : IDisposable
 
             Loader.Load(Loader.Scene.GameScene);
 
+            Debug.Log($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
             return true;
         }
 
+        Debug.Log($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
         return false;
     }
 
