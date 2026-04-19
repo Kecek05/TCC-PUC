@@ -104,6 +104,12 @@ public class TeamManager : BaseTeamManager
 
     public override TeamType GetLocalTeam()
     {
+        if (IsServer && !IsClient)
+        {
+            Debug.LogWarning("Trying to get local team on a dedicated server, returning None");
+            return TeamType.None;
+        }
+        
         ulong localId = NetworkManager.LocalClientId;
         if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return TeamType.Red;
         if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return TeamType.Blue;
@@ -113,6 +119,12 @@ public class TeamManager : BaseTeamManager
 
     public override bool HasLocalTeamBeenAssigned()
     {
+        if (IsServer && !IsClient)
+        {
+            Debug.LogWarning("Trying to check local team assignment on a dedicated server, returning false");
+            return false;
+        }
+        
         ulong localId = NetworkManager.LocalClientId;
         return (_bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId) && NetworkManager.IsConnectedClient;
     }

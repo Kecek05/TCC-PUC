@@ -17,6 +17,7 @@ public class ServerWaveManager : BaseServerWaveManager
 
     private BaseGameFlowManager _gameFlowManager;
     private BaseEnemyNetworkPool _enemyNetworkPool;
+    private BaseTeamManager _teamManager;
 
     private List<EnemyManager> _redActiveEnemiesFromWave = new();
     private List<EnemyManager> _blueActiveEnemiesFromWave = new();
@@ -34,12 +35,6 @@ public class ServerWaveManager : BaseServerWaveManager
         ServiceLocator.Unregister<BaseServerWaveManager>();
     }
 
-    private void Start()
-    {
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
-        _enemyNetworkPool = ServiceLocator.Get<BaseEnemyNetworkPool>();
-    }
-
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -47,9 +42,10 @@ public class ServerWaveManager : BaseServerWaveManager
             enabled = false;
             return;
         }
-
-        if (_enemyNetworkPool == null)
-            _enemyNetworkPool = ServiceLocator.Get<BaseEnemyNetworkPool>();
+        
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        _enemyNetworkPool = ServiceLocator.Get<BaseEnemyNetworkPool>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
 
         foreach (GameObject enemy in waveData.GetAllEnemyPrefabs())
         {
@@ -164,6 +160,16 @@ public class ServerWaveManager : BaseServerWaveManager
     public override WaypointPath GetPath(TeamType map)
     {
         return map == TeamType.Blue ? blueMapPath : redMapPath;
+    }
+
+    public override NetworkVariable<int> GetLocalCurrentWave()
+    {
+        return _teamManager.GetLocalTeam() == TeamType.Blue ? BlueCurrentWave : RedCurrentWave;
+    }
+
+    public override NetworkVariable<int> GetEnemyCurrentWave()
+    {
+        return _teamManager.GetLocalTeam() == TeamType.Blue ? RedCurrentWave : BlueCurrentWave;
     }
 
     private void SetCurrentWave(TeamType teamType, int wave, WaveEntry waveEntry)

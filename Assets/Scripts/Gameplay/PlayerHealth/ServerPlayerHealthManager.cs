@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
@@ -7,6 +8,7 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
     [SerializeField] private PlayerHealthSettingsSO _healthSettings;
 
     private BaseGameFlowManager _gameFlowManager;
+    private BaseTeamManager _teamManager;
 
     private void Awake()
     {
@@ -19,11 +21,6 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
         base.OnDestroy();
     }
 
-    private void Start()
-    {
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
-    }
-
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -32,6 +29,9 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
             return;
         }
 
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        
         BlueHealth.Value = _healthSettings.StartingHealth;
         RedHealth.Value = _healthSettings.StartingHealth;
     }
@@ -66,5 +66,15 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
                 Debug.LogWarning($"Invalid team type: {teamType}");
                 break;
         }
+    }
+
+    public override NetworkVariable<float> GetLocalHealth()
+    {
+        return _teamManager.GetLocalTeam() == TeamType.Blue ? BlueHealth : RedHealth;
+    }
+
+    public override NetworkVariable<float> GetEnemyHealth()
+    {
+        return _teamManager.GetLocalTeam() == TeamType.Blue ? RedHealth : BlueHealth;
     }
 }

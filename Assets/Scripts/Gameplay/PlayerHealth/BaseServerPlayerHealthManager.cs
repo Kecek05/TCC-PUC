@@ -9,6 +9,9 @@ public abstract class BaseServerPlayerHealthManager : NetworkBehaviour
     public NetworkVariable<float> RedHealth = new(writePerm: NetworkVariableWritePermission.Server);
     
     public abstract void DamageBase(float damage, TeamType teamType);
+
+    public abstract NetworkVariable<float> GetLocalHealth();
+    public abstract NetworkVariable<float> GetEnemyHealth();
     
     protected void TriggerOnTeamDeath(TeamType team) => OnTeamDeath?.Invoke(team);
 }

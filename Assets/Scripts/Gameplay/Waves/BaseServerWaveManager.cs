@@ -12,6 +12,7 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     public abstract void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false);
     public abstract void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId);
     public abstract WaypointPath GetPath(TeamType map);
-    
+    public abstract NetworkVariable<int> GetLocalCurrentWave();
+    public abstract NetworkVariable<int> GetEnemyCurrentWave();
     protected void TriggerOnTeamDefeatLastWave(TeamType teamType) => OnTeamDefeatLastWave?.Invoke(teamType);
 }
