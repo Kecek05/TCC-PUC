@@ -19,6 +19,8 @@ MonoBehaviour:
     - 813e38b29e7cc3c45a123f7e83088b6d
     - 74ef9f4e1c69c924b9ba3fde703d696d
     - 4d18cff683a18094b8b1cbce3ebdb20a
+    - 2be69f9cd5dfb0647a5bdb409439971a
+    - 5e12c15f5d6988640a1644335b8c833d
     values:
     - goDatas_byGlobalId:
         keys:
@@ -166,6 +168,32 @@ MonoBehaviour:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-958219599-0
         - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-2066333636-0
+        values:
+        - colorIndex: 4
+          iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-2be69f9cd5dfb0647a5bdb409439971a-958219599-0
+        - globalObjectIdString: GlobalObjectId_V1-2-2be69f9cd5dfb0647a5bdb409439971a-2066333636-0
+        values:
+        - colorIndex: 4
+          iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-5e12c15f5d6988640a1644335b8c833d-958219599-0
+        - globalObjectIdString: GlobalObjectId_V1-2-5e12c15f5d6988640a1644335b8c833d-2066333636-0
         values:
         - colorIndex: 4
           iconNameOrGuid: Folder Icon

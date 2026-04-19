@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/StartScene.unity
     guid: 4d18cff683a18094b8b1cbce3ebdb20a
   - enabled: 1
-    path: Assets/Scenes/AuthScene.unity
+    path: Assets/Scenes/AuthBootstrap.unity
     guid: 74ef9f4e1c69c924b9ba3fde703d696d
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
