@@ -1,7 +1,6 @@
 using System;
 using Sirenix.OdinInspector;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 
 [Serializable]
@@ -10,12 +9,16 @@ public class PlayerEndGameCanvasData
     [SerializeField] private TextMeshProUGUI playerUsername;
     [SerializeField] private TextMeshProUGUI playerHealth;
     [SerializeField] private TextMeshProUGUI playerWave;
-    [SerializeField] private bool isLocalPlayer;
-    
-    public TextMeshProUGUI PlayerUsername => playerUsername;
-    public TextMeshProUGUI PlayerHealth => playerHealth;
-    public TextMeshProUGUI PlayerWave => playerWave;
-    public bool IsLocalPlayer => isLocalPlayer;
+
+    public void ChangePlayerHealthText(float newHealth)
+    {
+        playerHealth.text = $"Health: {newHealth}";
+    }
+
+    public void ChangePlayerWaveText(int newWave)
+    {
+        playerWave.text = $"Wave: {newWave}";
+    }
 }
 
 public class ClientEndGameCanvas : MonoBehaviour
@@ -60,13 +63,9 @@ public class ClientEndGameCanvas : MonoBehaviour
     {
         SetupLabelsData(endgameSnapshot);
         
-        victoryLabel.SetActive(false);
-        defeatLabel.SetActive(false);
-        
-        if (endgameSnapshot.WinnerTeam == _teamManager.GetLocalTeam())
-            victoryLabel.SetActive(true);
-        else
-            defeatLabel.SetActive(true);
+        bool localWon = endgameSnapshot.WinnerTeam == _teamManager.GetLocalTeam();
+        victoryLabel.SetActive(localWon);
+        defeatLabel.SetActive(!localWon);
     }
 
     private void SetupLabelsData(EndGameSnapshot endgameSnapshot)
@@ -83,17 +82,19 @@ public class ClientEndGameCanvas : MonoBehaviour
         
         if (localTeam == TeamType.Blue)
         {
-            localPlayerData.PlayerHealth.text = endgameSnapshot.BluePlayer.Health.ToString();
-            localPlayerData.PlayerWave.text = endgameSnapshot.BluePlayer.Wave.ToString();
-            enemyPlayerData.PlayerHealth.text = endgameSnapshot.RedPlayer.Health.ToString();
-            enemyPlayerData.PlayerWave.text = endgameSnapshot.RedPlayer.Wave.ToString();
+            localPlayerData.ChangePlayerHealthText(endgameSnapshot.BluePlayer.Health);
+            localPlayerData.ChangePlayerWaveText(endgameSnapshot.BluePlayer.Wave);
+            
+            enemyPlayerData.ChangePlayerHealthText(endgameSnapshot.RedPlayer.Health);
+            enemyPlayerData.ChangePlayerWaveText(endgameSnapshot.RedPlayer.Wave);
         }
         else
         {
-            localPlayerData.PlayerHealth.text = endgameSnapshot.RedPlayer.Health.ToString();
-            localPlayerData.PlayerWave.text = endgameSnapshot.RedPlayer.Wave.ToString();
-            enemyPlayerData.PlayerHealth.text = endgameSnapshot.BluePlayer.Health.ToString();
-            enemyPlayerData.PlayerWave.text = endgameSnapshot.BluePlayer.Wave.ToString();
+            localPlayerData.ChangePlayerHealthText(endgameSnapshot.RedPlayer.Health);
+            localPlayerData.ChangePlayerWaveText(endgameSnapshot.RedPlayer.Wave);
+            
+            enemyPlayerData.ChangePlayerHealthText(endgameSnapshot.BluePlayer.Health);
+            enemyPlayerData.ChangePlayerWaveText(endgameSnapshot.BluePlayer.Wave);
         }
     }
 }
