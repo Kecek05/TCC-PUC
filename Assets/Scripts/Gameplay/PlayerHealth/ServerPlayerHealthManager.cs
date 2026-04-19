@@ -15,25 +15,25 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
         ServiceLocator.Register<BaseServerPlayerHealthManager>(this);
     }
 
-    public override void OnDestroy()
-    {
-        ServiceLocator.Unregister<BaseServerPlayerHealthManager>();
-        base.OnDestroy();
-    }
-
     public override void OnNetworkSpawn()
     {
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        
         if (!IsServer)
         {
             enabled = false;
             return;
         }
-
-        _teamManager = ServiceLocator.Get<BaseTeamManager>();
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
         
         BlueHealth.Value = _healthSettings.StartingHealth;
         RedHealth.Value = _healthSettings.StartingHealth;
+    }
+    
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerPlayerHealthManager>();
+        base.OnDestroy();
     }
 
     public override void DamageBase(float damage, TeamType teamType)

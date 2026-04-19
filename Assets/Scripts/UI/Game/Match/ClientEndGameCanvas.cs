@@ -10,7 +10,7 @@ public class PlayerEndGameCanvasData
     [SerializeField] private TextMeshProUGUI playerUsername;
     [SerializeField] private TextMeshProUGUI playerHealth;
     [SerializeField] private TextMeshProUGUI playerWave;
-    [SerializeField] private bool isLocalPlayer = false;
+    [SerializeField] private bool isLocalPlayer;
     
     public TextMeshProUGUI PlayerUsername => playerUsername;
     public TextMeshProUGUI PlayerHealth => playerHealth;
@@ -18,117 +18,82 @@ public class PlayerEndGameCanvasData
     public bool IsLocalPlayer => isLocalPlayer;
 }
 
-public class ClientEndGameCanvas : NetworkBehaviour
+public class ClientEndGameCanvas : MonoBehaviour
 {
     [Title("References")]
     [SerializeField] private GameObject rootCanvas;
-    [SerializeField] private PlayerEndGameCanvasData[] playersData;
+    [SerializeField] private PlayerEndGameCanvasData localPlayerData;
+    [SerializeField] private PlayerEndGameCanvasData enemyPlayerData;
     [SerializeField] private GameObject victoryLabel;
     [SerializeField] private GameObject defeatLabel;
 
     private BaseServerEndGameManager _endGameManager;
     private BaseTeamManager _teamManager;
-    private BaseServerPlayerHealthManager _playerHealthManager;
-    private BaseServerWaveManager _waveManager;
 
     private void Awake()
     {
         rootCanvas.SetActive(false);
     }
 
-    public override void OnNetworkSpawn()
+    private void Start()
     {
-        if (!IsClient)
-        {
-            enabled = false;
-            return;
-        }
-
-        _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
         _teamManager = ServiceLocator.Get<BaseTeamManager>();
         _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
-        _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
-        _endGameManager.WinnerTeam.OnValueChanged += ServerEndGameManager_OnWinnerTeamValueChanged;
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        if (IsClient && _endGameManager != null)
-            _endGameManager.WinnerTeam.OnValueChanged -= ServerEndGameManager_OnWinnerTeamValueChanged;
-    }
-
-    private void ServerEndGameManager_OnWinnerTeamValueChanged(TeamType previousValue, TeamType winnerTeam)
-    {
-        if (winnerTeam == TeamType.None) return;
         
-        SetupEndGameUI(winnerTeam);
+        _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
+    }
+
+    private void OnDestroy()
+    {
+        if (_endGameManager != null)
+            _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
+    }
+    
+    private void EndGameManager_OnGameEnded(EndGameSnapshot endgameSnapshot)
+    {
+        SetupEndGameUI(endgameSnapshot);
 
         rootCanvas.SetActive(true);
     }
 
-    private void SetupEndGameUI(TeamType winnerTeam)
+    private void SetupEndGameUI(EndGameSnapshot endgameSnapshot)
     {
-        //TODO: Setup Usernames
-        
-        
-        //Setup Healths
-        SetupHealths();
-        
-        //Setup Waves
-        SetupWaves();
+        SetupLabelsData(endgameSnapshot);
         
         victoryLabel.SetActive(false);
         defeatLabel.SetActive(false);
         
-        if (winnerTeam == _teamManager.GetLocalTeam())
+        if (endgameSnapshot.WinnerTeam == _teamManager.GetLocalTeam())
             victoryLabel.SetActive(true);
         else
             defeatLabel.SetActive(true);
     }
 
-    private void SetupHealths()
+    private void SetupLabelsData(EndGameSnapshot endgameSnapshot)
     {
-        foreach (PlayerEndGameCanvasData playerData in playersData)
-        {
-            if (playerData.IsLocalPlayer)
-            {
-                _playerHealthManager.GetLocalHealth().OnValueChanged += (previousValue, currentValue) =>
-                {
-                    playerData.PlayerHealth.text = currentValue.ToString();
-                };
-                playerData.PlayerHealth.text = _playerHealthManager.GetLocalHealth().Value.ToString();
-            }
-            else
-            {
-                _playerHealthManager.GetEnemyHealth().OnValueChanged += (previousValue, currentValue) =>
-                {
-                    playerData.PlayerHealth.text = currentValue.ToString();
-                };
-                playerData.PlayerHealth.text = _playerHealthManager.GetEnemyHealth().Value.ToString();
-            }
-        }
-    }
+        //TODO: Setup Usernames
+        
+        TeamType localTeam = _teamManager.GetLocalTeam();
 
-    private void SetupWaves()
-    {
-        foreach (PlayerEndGameCanvasData playerData in playersData)
+        if (localTeam == TeamType.None)
         {
-            if (playerData.IsLocalPlayer)
-            {
-                _waveManager.GetLocalCurrentWave().OnValueChanged += (previousValue, currentValue) =>
-                {
-                    playerData.PlayerWave.text = currentValue.ToString();
-                };
-                playerData.PlayerWave.text = _waveManager.GetLocalCurrentWave().Value.ToString();
-            }
-            else
-            {
-                _waveManager.GetEnemyCurrentWave().OnValueChanged += (previousValue, currentValue) =>
-                {
-                    playerData.PlayerWave.text = currentValue.ToString();
-                };
-                playerData.PlayerWave.text = _waveManager.GetEnemyCurrentWave().Value.ToString();
-            }
+            Debug.LogWarning("ClientEndGameCanvas: Local team is None. Cannot setup end game UI data.");
+            return;
+        }
+        
+        if (localTeam == TeamType.Blue)
+        {
+            localPlayerData.PlayerHealth.text = endgameSnapshot.BluePlayer.Health.ToString();
+            localPlayerData.PlayerWave.text = endgameSnapshot.BluePlayer.Wave.ToString();
+            enemyPlayerData.PlayerHealth.text = endgameSnapshot.RedPlayer.Health.ToString();
+            enemyPlayerData.PlayerWave.text = endgameSnapshot.RedPlayer.Wave.ToString();
+        }
+        else
+        {
+            localPlayerData.PlayerHealth.text = endgameSnapshot.RedPlayer.Health.ToString();
+            localPlayerData.PlayerWave.text = endgameSnapshot.RedPlayer.Wave.ToString();
+            enemyPlayerData.PlayerHealth.text = endgameSnapshot.BluePlayer.Health.ToString();
+            enemyPlayerData.PlayerWave.text = endgameSnapshot.BluePlayer.Wave.ToString();
         }
     }
 }

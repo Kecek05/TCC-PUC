@@ -11,12 +11,6 @@ public class TeamManager : BaseTeamManager
         ServiceLocator.Register<BaseTeamManager>(this);
     }
 
-    public override void OnDestroy()
-    {
-        ServiceLocator.Unregister<BaseTeamManager>();
-        base.OnDestroy();
-    }
-
     public override void OnNetworkSpawn()
     {
         _bluePlayer.OnValueChanged += OnTeamAssigned;
@@ -40,6 +34,11 @@ public class TeamManager : BaseTeamManager
         {
             NetworkManager.OnClientConnectedCallback -= OnClientConnected;
         }
+    }
+    
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseTeamManager>();
     }
 
     private bool HasTeam(ulong clientId)
@@ -102,7 +101,12 @@ public class TeamManager : BaseTeamManager
 
     // Client-side
 
-    public override TeamType GetLocalTeam()
+    public override TeamType GetEnemyTeam()
+    {
+        return GetLocalTeam(false);
+    }
+    
+    public override TeamType GetLocalTeam(bool isLocal = true)
     {
         if (IsServer && !IsClient)
         {
@@ -111,8 +115,8 @@ public class TeamManager : BaseTeamManager
         }
         
         ulong localId = NetworkManager.LocalClientId;
-        if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return TeamType.Red;
-        if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return TeamType.Blue;
+        if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Red : TeamType.Blue;
+        if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Blue  : TeamType.Red;
         Debug.LogError($"LocalId {localId} dont have team! Returning None");
         return TeamType.None;
     }

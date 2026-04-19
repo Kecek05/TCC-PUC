@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -30,22 +31,17 @@ public class ServerWaveManager : BaseServerWaveManager
         ServiceLocator.Register<BaseServerWaveManager>(this);
     }
 
-    public override void OnDestroy()
-    {
-        ServiceLocator.Unregister<BaseServerWaveManager>();
-    }
-
     public override void OnNetworkSpawn()
     {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        _enemyNetworkPool = ServiceLocator.Get<BaseEnemyNetworkPool>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        
         if (!IsServer)
         {
             enabled = false;
             return;
         }
-        
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
-        _enemyNetworkPool = ServiceLocator.Get<BaseEnemyNetworkPool>();
-        _teamManager = ServiceLocator.Get<BaseTeamManager>();
 
         foreach (GameObject enemy in waveData.GetAllEnemyPrefabs())
         {
@@ -57,6 +53,11 @@ public class ServerWaveManager : BaseServerWaveManager
 
         StartCoroutine(RunWaves(TeamType.Blue));
         StartCoroutine(RunWaves(TeamType.Red));
+    }
+    
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerWaveManager>();
     }
 
     public override void OnNetworkDespawn()

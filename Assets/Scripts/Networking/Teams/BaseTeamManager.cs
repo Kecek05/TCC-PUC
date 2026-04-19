@@ -10,6 +10,7 @@ public abstract class BaseTeamManager : NetworkBehaviour
     /// Don't use this to check if a Local Team Has Been Assigned, use <see cref="HasLocalTeamBeenAssigned"/> insted.
     /// </summary>
     /// <returns></returns>
-    public abstract TeamType GetLocalTeam();
+    public abstract TeamType GetLocalTeam(bool isLocal = true);
+    public abstract TeamType GetEnemyTeam();
     public abstract bool HasLocalTeamBeenAssigned();
 }

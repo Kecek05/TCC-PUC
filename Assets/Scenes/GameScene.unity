@@ -3302,7 +3302,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000038146973
+      value: 0.0000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -13879,6 +13879,7 @@ GameObject:
   - component: {fileID: 1188246448}
   - component: {fileID: 1188246450}
   - component: {fileID: 1188246451}
+  - component: {fileID: 1188246452}
   m_Layer: 5
   m_Name: EndGameCanvas
   m_TagString: Untagged
@@ -13987,11 +13988,9 @@ MonoBehaviour:
   - playerUsername: {fileID: 912987509}
     playerHealth: {fileID: 478459632}
     playerWave: {fileID: 582764073}
-    isLocalPlayer: 1
   - playerUsername: {fileID: 26976987}
     playerHealth: {fileID: 349072865}
     playerWave: {fileID: 1861350077}
-    isLocalPlayer: 0
   victoryLabel: {fileID: 1649909751}
   defeatLabel: {fileID: 1501830318}
 --- !u!114 &1188246451
@@ -14019,6 +14018,15 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!1652712579 &1188246452
+MultiplayerRolesData:
+  m_ObjectHideFlags: 2
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188246445}
+  m_GameObjectRolesMask: 1
+  m_ComponentsRolesMasks: []
 --- !u!1001 &1188814388
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14187,11 +14195,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ServerEndGameManager
   ShowTopMostFoldoutHeaderGroup: 1
-  WinnerTeam:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 0
 --- !u!114 &1203351779
 MonoBehaviour:
   m_ObjectHideFlags: 0

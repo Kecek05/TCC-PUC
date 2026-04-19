@@ -1,8 +1,12 @@
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ServerEndGameManager : BaseServerEndGameManager
 {
-    private BaseGameFlowManager _gameFlowManager;
+    private bool _winnerAlreadySetted = false;
+    private EndGameSnapshot _endGameSnapshot;
+    
     private BaseServerPlayerHealthManager _playerHealthManager;
     private BaseServerWaveManager _waveManager;
 
@@ -11,28 +15,16 @@ public class ServerEndGameManager : BaseServerEndGameManager
         ServiceLocator.Register<BaseServerEndGameManager>(this);
     }
 
-    public override void OnDestroy()
-    {
-        ServiceLocator.Unregister<BaseServerEndGameManager>();
-        base.OnDestroy();
-    }
-
-    private void Start()
-    {
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
-        _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
-        _waveManager  = ServiceLocator.Get<BaseServerWaveManager>();
-    }
-
     public override void OnNetworkSpawn()
     {
+        _playerHealthManager = ServiceLocator.Get<BaseServerPlayerHealthManager>();
+        _waveManager  = ServiceLocator.Get<BaseServerWaveManager>();
+        
         if (!IsServer)
         {
             enabled = false;
             return;
         }
-
-        WinnerTeam.Value = TeamType.None;
 
         _playerHealthManager.OnTeamDeath += TeamHealthManagerOnTeamDeath;
         _waveManager.OnTeamDefeatLastWave += WaveManager_OnTeamDefeatedLastWave;
@@ -51,21 +43,66 @@ public class ServerEndGameManager : BaseServerEndGameManager
         if (_waveManager != null) 
             _waveManager.OnTeamDefeatLastWave -= WaveManager_OnTeamDefeatedLastWave;
     }
+    
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerEndGameManager>();
+    }
 
     private void TeamHealthManagerOnTeamDeath(TeamType deathTeam)
     {
         Debug.Log($"Player from {deathTeam} team has died. Ending the game.");
 
         TeamType winnerTeam = deathTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
-        WinnerTeam.Value = winnerTeam;
-
-        //TODO:
-        // Handle Trophies and rewards
-        // Stop the Game and the Spawning. Stop Everything.
+        SetWinner(winnerTeam);
     }
     
     private void WaveManager_OnTeamDefeatedLastWave(TeamType winnerTeam)
     {
-        WinnerTeam.Value = winnerTeam;
+        SetWinner(winnerTeam);
+    }
+
+    private void SetWinner(TeamType winnerTeam)
+    {
+        if (winnerTeam == TeamType.None)
+        {
+            Debug.LogError("Setting winner to NONE. This shouldn't happen.");
+            return;
+        }
+        
+        if (_winnerAlreadySetted)
+        {
+            Debug.LogError($"Winner has already been set. Calling SetWinner twice, this shouldn't happen");
+            return;
+        }
+        _winnerAlreadySetted = true;
+        
+        _endGameSnapshot = new EndGameSnapshot()
+        {
+            WinnerTeam = winnerTeam,
+            RedPlayer = new PlayerEndGameData()
+            {
+                Health = _playerHealthManager.RedHealth.Value,
+                Wave = _waveManager.RedCurrentWave.Value
+            },
+            BluePlayer = new PlayerEndGameData()
+            {
+                Health = _playerHealthManager.BlueHealth.Value,
+                Wave = _waveManager.BlueCurrentWave.Value
+            }
+        };
+        
+        TriggerOnGameEnded(_endGameSnapshot);
+        TriggerOnGameEndedToClientRpc(_endGameSnapshot);
+        
+        //TODO:
+        // Handle Trophies and rewards
+        // Stop the Game and the Spawning. Stop Everything.
+    }
+
+    [Rpc(SendTo.NotServer)]
+    private void TriggerOnGameEndedToClientRpc(EndGameSnapshot snapshot)
+    {
+        TriggerOnGameEnded(snapshot);
     }
 }

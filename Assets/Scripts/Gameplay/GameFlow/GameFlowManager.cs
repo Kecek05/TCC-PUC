@@ -10,13 +10,10 @@ public class GameFlowManager : BaseGameFlowManager
         ServiceLocator.Register<BaseGameFlowManager>(this);
     }
 
-    private void Start()
-    {
-        _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
-    }
-
     public override void OnNetworkSpawn()
     {
+        _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
+        
         if (!IsServer)
         {
             enabled = false;
@@ -26,7 +23,7 @@ public class GameFlowManager : BaseGameFlowManager
         CurrentGameState.Value = GameState.WaitingForPlayers;
         StartCoroutine(HandleGameFlow());
         
-        _endGameManager.WinnerTeam.OnValueChanged += EndGameManager_OnWinnerTeamChanged;
+        _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
     }
 
     public override void OnNetworkDespawn()
@@ -37,7 +34,7 @@ public class GameFlowManager : BaseGameFlowManager
         }
         
         if (_endGameManager != null)
-            _endGameManager.WinnerTeam.OnValueChanged -= EndGameManager_OnWinnerTeamChanged;
+            _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
     }
 
     private IEnumerator HandleGameFlow()
@@ -70,10 +67,8 @@ public class GameFlowManager : BaseGameFlowManager
         Debug.Log($"GameFlowManager: Game state changed to {newState}");
     }
     
-    private void EndGameManager_OnWinnerTeamChanged(TeamType previousValue, TeamType newValue)
+    private void EndGameManager_OnGameEnded(EndGameSnapshot endGameSnapshot)
     {
-        if (newValue == TeamType.None) return;
-        
         SetGameState(GameState.EndMatch);
     }
 }
