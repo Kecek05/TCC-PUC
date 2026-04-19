@@ -7,6 +7,8 @@ public class AuthServiceManager : MonoBehaviour
 {
     [SerializeField] private GameObject backgroundObject;
     [SerializeField] private GameObject relayObject;
+    
+    [SerializeField] private DebugSettingsSO  debugSettings;
 
     private void Awake()
     {
@@ -17,6 +19,13 @@ public class AuthServiceManager : MonoBehaviour
 
     private async void Start()
     {
+        if (!debugSettings.isDebug)
+        {
+            Destroy(backgroundObject);
+            relayObject.SetActive(true);
+            return;
+        }
+        
         await UnityServices.InitializeAsync();
         AuthenticationService.Instance.SignedIn += () => Debug.Log($"Signed in as {AuthenticationService.Instance.PlayerId}");
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
