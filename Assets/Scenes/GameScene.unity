@@ -3301,7 +3301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000038146973
+      value: -0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -10229,6 +10229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AuthServiceManager
   backgroundObject: {fileID: 1868422757}
   relayObject: {fileID: 953025463}
+  debugSettings: {fileID: 11400000, guid: 1589856a467d57b488bf21e7408a6545, type: 2}
 --- !u!114 &869369994
 MonoBehaviour:
   m_ObjectHideFlags: 0
