@@ -168,6 +168,7 @@ MonoBehaviour:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-958219599-0
         - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-2066333636-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4d18cff683a18094b8b1cbce3ebdb20a-653643968-0
         values:
         - colorIndex: 4
           iconNameOrGuid: Folder Icon
@@ -175,6 +176,10 @@ MonoBehaviour:
           isColorRecursive: 0
         - colorIndex: 0
           iconNameOrGuid: Canvas Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Settings Icon
           isIconRecursive: 0
           isColorRecursive: 0
     - goDatas_byGlobalId:
@@ -205,6 +210,6 @@ MonoBehaviour:
           isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:
-  - Assets/Scenes/ArtScene.unity
   - Assets/Scenes/MainMenu.unity
   - Assets/Scenes/GameScene.unity
+  - Assets/Scenes/StartScene.unity

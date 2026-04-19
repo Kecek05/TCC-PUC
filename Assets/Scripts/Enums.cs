@@ -81,3 +81,12 @@ public enum TowerReason
     AlreadyOccupied,
     NotEnoughMana,
 }
+
+public enum AuthState
+{
+    NotAuthenticated,
+    Authenticating,
+    Authenticated,
+    Error,
+    TimeOut,
+}
