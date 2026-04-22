@@ -6,5 +6,7 @@ public class SpellCardDataSO : CardDataSO
 {
     [Title("Spell Data")]
     public SpellType SpellType;
+    [Tooltip("Sprite that will be used in the GhostSpellCard")]
+    public Sprite SpellGhostSprite;
 
 }

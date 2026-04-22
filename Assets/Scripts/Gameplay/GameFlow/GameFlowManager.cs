@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameFlowManager : BaseGameFlowManager
 {
     private BaseServerEndGameManager  _endGameManager;
+    [SerializeField] private DebugSettingsSO  _debugSettings;
     
     private void Awake()
     {
@@ -48,7 +49,7 @@ public class GameFlowManager : BaseGameFlowManager
         SetGameState(GameState.LoadingMatch);
 
         BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
-
+        
         yield return new WaitUntil(() =>
             mapTranslator != null &&
             mapTranslator.BothPlayersInitialized);

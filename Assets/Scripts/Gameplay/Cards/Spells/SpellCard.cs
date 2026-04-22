@@ -1,7 +1,48 @@
+using MoreMountains.Feedbacks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class SpellCard : AbstractCard
 {
+    [Header("Spell Settings")]
+    [SerializeField] private GhostSpellCard ghostSpellCard;
+    [Space(5f)]
+    
+    [Header("GFXs")] 
+    [SerializeField] private MMF_Player fadeOutFeedback;
+    [SerializeField] private MMF_Player fadeInFeedback;
+
+    private bool _enabledTowerGFX = false;
+    
+    public override void OnBeginDrag(PointerEventData eventData)
+    {
+        base.OnBeginDrag(eventData);
+        DisableGhostSpellGFX();
+        ghostSpellCard.SetSprite(GetSpellCardDataSO().SpellGhostSprite);
+    }
+
+    public override void OnDrag(PointerEventData eventData)
+    {
+        base.OnDrag(eventData);
+
+        if (!CanPlayCardAtCanvas(eventData.position))
+        {
+            DisableGhostSpellGFX();
+            return;
+        }
+        
+        AnimateFadeOut();
+
+        Vector2 worldPosition = GetWorldPosition(eventData);
+        EnableGhostSpellGFX(worldPosition);
+    }
+
+    public override void OnEndDrag(PointerEventData eventData)
+    {
+        base.OnEndDrag(eventData);
+        DisableGhostSpellGFX();
+    }
+
     public override void ActivateCard(Vector2 worldPosition)
     {
         CardSpellDeployer.Instance.OnSpellResult += HandleSpellResult;
@@ -9,12 +50,53 @@ public class SpellCard : AbstractCard
 
         Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(worldPosition);
         CardSpellDeployer.Instance.RequestSpellCardServerRpc(cardDataSo.CardType, serverPosition);
-    }   
+    }
     
+    private void EnableGhostSpellGFX(Vector2 worldPosition)
+    {
+        _enabledTowerGFX = true;
+        
+        ghostSpellCard.SetPosition(worldPosition);
+        ghostSpellCard.SetVisible(true);
+    }
+
+    private void DisableGhostSpellGFX()
+    {
+        if (!_enabledTowerGFX) return;
+        AnimateFadeIn();
+        _enabledTowerGFX = false;
+        ghostSpellCard.SetVisible(false);
+    }
+    
+    private void AnimateFadeOut()
+    {
+        if (_enabledTowerGFX) return;
+        fadeInFeedback?.StopFeedbacks();
+        fadeOutFeedback?.PlayFeedbacks();
+    }
+
+    private void AnimateFadeIn()
+    {
+        if (!_enabledTowerGFX) return;
+        fadeOutFeedback?.StopFeedbacks();
+        fadeInFeedback?.PlayFeedbacks();
+    }
+    
+    private SpellCardDataSO GetSpellCardDataSO()
+    {
+        if (cardDataSo is not SpellCardDataSO spellCardData)
+        {
+            Debug.LogError($"CardDataSO: {cardDataSo.CardType} is not SpellCardDataSO");
+            return null;
+        }
+
+        return spellCardData;
+    }
+
     private void HandleSpellResult(SpellSpawnResult result)
     {
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
-        
+
         _waitingResult = false;
         CardSpellDeployer.Instance.OnSpellResult -= HandleSpellResult;
 
@@ -25,7 +107,7 @@ public class SpellCard : AbstractCard
             // Destroy(gameObject);
             return;
         }
-        
+
         switch (result.Validation.Reason)
         {
             case SpellInvalidReason.None:

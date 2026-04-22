@@ -23,14 +23,15 @@ public enum CardType
     TowerCircle,
     TowerSquare,
     SpellFireball,
-    SpawnEnemy1
+    SpawnEnemy1,
+    SpellIce
 }
 
 public enum SpellType
 {
     None,
     Fireball,
-    Freeze
+    Ice
 }
 
 public enum TowerType

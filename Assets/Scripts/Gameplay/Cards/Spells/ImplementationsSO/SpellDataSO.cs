@@ -7,7 +7,7 @@ public class SpellDataSO : ScriptableObject
     [Title("General")]
     public SpellType SpellType;
 
-    public float Range = 2f;
+    public float Range = 1f;
 
     [Title("Visual")]
     public float TravelTime = 0.5f;

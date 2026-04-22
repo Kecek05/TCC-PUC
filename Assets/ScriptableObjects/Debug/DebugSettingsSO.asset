@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d55a8d54eb7021444ae024ae1736b480, type: 3}
   m_Name: DebugSettingsSO
   m_EditorClassIdentifier: Assembly-CSharp::DebugSettingsSO
-  isDebug: 0
+  isDebug: 1

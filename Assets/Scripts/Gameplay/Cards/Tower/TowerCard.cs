@@ -20,6 +20,7 @@ public class TowerCard : AbstractCard
     {
         base.OnBeginDrag(eventData);
         DisableGhostTowerGFX();
+        ghostTowerCard.SetSprite(GetTowerCardDataSO().TowerGhostSprite);
     }
 
     public override void OnDrag(PointerEventData eventData)
@@ -73,8 +74,6 @@ public class TowerCard : AbstractCard
         _currentPlaceable = closestPlaceable;
 
         TowerCardDataSO towerCardData = GetTowerCardDataSO();
-        
-        ghostTowerCard.SetSprite(towerCardData.TowerGhostSprite);
         
         ghostTowerCard.SetVisible(true);
         ghostTowerCard.SetPosition(closestPlaceable.PlaceablePoint.position);
