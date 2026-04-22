@@ -11,6 +11,9 @@ public class CardSpellDeployer : NetworkBehaviour
 
     public event Action<SpellSpawnResult> OnSpellResult;
 
+    private BaseMapTranslator _mapTranslator;
+    private BaseTeamManager _teamManager;
+    
     private void Awake()
     {
         if (Instance == null)
@@ -22,11 +25,17 @@ public class CardSpellDeployer : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        _teamManager = GetComponent<BaseTeamManager>();
+        _mapTranslator = GetComponent<BaseMapTranslator>();
+    }
+
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RequestSpellCardServerRpc(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = ServiceLocator.Get<BaseTeamManager>().GetTeam(clientId);
+        TeamType team = _teamManager.GetTeam(clientId);
 
         if (team == TeamType.None)
         {
@@ -95,7 +104,7 @@ public class CardSpellDeployer : NetworkBehaviour
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellType);
         if (spellData == null || spellData.VisualPrefab == null) return;
 
-        Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(serverPosition, casterTeam);
+        Vector3 localPos = _mapTranslator.ServerToLocal(serverPosition, casterTeam);
 
         GameObject visual = Instantiate(spellData.VisualPrefab, localPos, Quaternion.identity);
 

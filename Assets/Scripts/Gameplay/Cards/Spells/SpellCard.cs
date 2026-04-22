@@ -6,6 +6,7 @@ public class SpellCard : AbstractCard
 {
     [Header("Spell Settings")]
     [SerializeField] private GhostSpellCard ghostSpellCard;
+    [SerializeField] private bool canUseInEnemyMap = false;
     [Space(5f)]
     
     [Header("GFXs")] 
@@ -18,14 +19,19 @@ public class SpellCard : AbstractCard
     {
         base.OnBeginDrag(eventData);
         DisableGhostSpellGFX();
-        ghostSpellCard.SetSprite(GetSpellCardDataSO().SpellGhostSprite);
+
+        SpellCardDataSO spellCardData = GetSpellCardDataSO();
+        ghostSpellCard.SetSprite(spellCardData.SpellGhostSprite);
+        
+        ghostSpellCard.SetScale(spellCardData.SpellData.Range * 2f);
     }
 
     public override void OnDrag(PointerEventData eventData)
     {
         base.OnDrag(eventData);
 
-        if (!CanPlayCardAtCanvas(eventData.position))
+        Vector2 worldPosition = GetWorldPosition(eventData);
+        if ((IsEnemyMap(worldPosition) && !canUseInEnemyMap) || !CanPlayCardAtCanvas(eventData.position))
         {
             DisableGhostSpellGFX();
             return;
@@ -33,7 +39,6 @@ public class SpellCard : AbstractCard
         
         AnimateFadeOut();
 
-        Vector2 worldPosition = GetWorldPosition(eventData);
         EnableGhostSpellGFX(worldPosition);
     }
 
@@ -41,6 +46,17 @@ public class SpellCard : AbstractCard
     {
         base.OnEndDrag(eventData);
         DisableGhostSpellGFX();
+    }
+    
+    public override CardValidation CanPlayCardAt(Vector2 worldPosition)
+    {
+        var baseCheck = base.CanPlayCardAt(worldPosition);
+        if (!baseCheck) return baseCheck;
+
+        if (IsEnemyMap(worldPosition) && !canUseInEnemyMap)
+            return CardValidation.Invalid(CardInvalidReason.EnemyMap);
+        
+        return CardValidation.Valid;
     }
 
     public override void ActivateCard(Vector2 worldPosition)

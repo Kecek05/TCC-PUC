@@ -26,4 +26,9 @@ public class GhostSpellCard : MonoBehaviour
     {
         gfxSprite.sprite = sprite;
     }
+
+    public void SetScale(float diameter)
+    {
+        gfxObject.transform.localScale = new Vector3(diameter, diameter, 1f);
+    }
 }

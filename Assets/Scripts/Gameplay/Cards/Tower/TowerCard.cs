@@ -209,12 +209,6 @@ public class TowerCard : AbstractCard
         
         return !closestPlaceable.Occupied;
     }
-    
-    private bool IsEnemyMap(Vector2 position)
-    {
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.EnemyMapLayer);
-        return hits.Length > 0;
-    }
 
     private TowerCardDataSO GetTowerCardDataSO()
     {

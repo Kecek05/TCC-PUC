@@ -73,6 +73,12 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     {
         return _cameraMain.ScreenToWorldPoint(eventData.position);
     }
+    
+    protected bool IsEnemyMap(Vector2 position)
+    {
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.EnemyMapLayer);
+        return hits.Length > 0;
+    }
 
     public virtual CardValidation CanPlayCard()
     {

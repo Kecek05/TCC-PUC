@@ -19,3 +19,4 @@ MonoBehaviour:
   Cost: 4
   SpellType: 2
   SpellGhostSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  SpellData: {fileID: 11400000, guid: b37d0d5374504aa4980f19a2815b6ef1, type: 2}
