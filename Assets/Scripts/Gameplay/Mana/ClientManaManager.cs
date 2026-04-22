@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
@@ -9,9 +8,8 @@ using UnityEngine.UI;
 /// Client-only: predicted mana display with optimistic spend visuals.
 /// Reads from <see cref="ServerManaManager"/>'s NetworkVariables.
 /// </summary>
-public class ClientManaManager : MonoBehaviour
+public class ClientManaManager : BaseClientManaManager
 {
-    public static ClientManaManager Instance { get; private set; }
 
     [SerializeField] private ManaSettingsSO manaSettings;
     [SerializeField] private Image manaBarFill;
@@ -26,17 +24,9 @@ public class ClientManaManager : MonoBehaviour
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
 
-    public float PredictedMana => _predictedMana;
-
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of ClientManaManager detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseClientManaManager>(this);
     }
 
     private void Start()
@@ -46,6 +36,8 @@ public class ClientManaManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        ServiceLocator.Unregister<BaseClientManaManager>();
+        
         if (_serverManaManager == null) return;
 
         NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
@@ -106,12 +98,12 @@ public class ClientManaManager : MonoBehaviour
         UpdateUI();
     }
 
-    public bool CanAffordLocally(int cost)
+    public override bool CanAffordLocally(int cost)
     {
         return Mathf.FloorToInt(_predictedMana) >= cost;
     }
 
-    public void PredictSpend(int cost)
+    public override void PredictSpend(int cost)
     {
         _pendingSpendTotal += cost;
         _predictedMana -= cost;
@@ -120,7 +112,7 @@ public class ClientManaManager : MonoBehaviour
     /// <summary>
     /// Called from the client when received the result from the server, when predicted cost is true.
     /// </summary>
-    public void ConfirmSpend(int cost)
+    public override void ConfirmSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
         _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
@@ -129,7 +121,7 @@ public class ClientManaManager : MonoBehaviour
     /// <summary>
     /// Called from the client when received the result from the server, when predicted cost is false.
     /// </summary>
-    public void RevertSpend(int cost)
+    public override void RevertSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
         _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);

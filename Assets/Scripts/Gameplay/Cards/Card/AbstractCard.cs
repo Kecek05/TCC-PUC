@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Unity.Netcode;
@@ -21,19 +22,21 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     private readonly List<RaycastResult> _blockingRaycastResults = new();
     private Vector2 originalPosition;
     private Transform _originalParent;
-    private Vector3 _originalScale;
     protected bool _waitingResult;
     protected Camera _cameraMain;
+    
+    protected BaseClientManaManager  _clientManaManager;
 
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
-    private void Start()
+    protected virtual void Start()
     {
         originalPosition = rectTransform.anchoredPosition;
         _originalParent = transform.parent;
-        _originalScale = transform.localScale;
         _cameraMain = Camera.main;
+        
+        _clientManaManager = ServiceLocator.Get<ClientManaManager>();
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData)
@@ -82,7 +85,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
 
     public virtual CardValidation CanPlayCard()
     {
-        if (!ClientManaManager.Instance.CanAffordLocally(cardDataSo.Cost))
+        if (!_clientManaManager.CanAffordLocally(cardDataSo.Cost))
             return CardValidation.Invalid(CardInvalidReason.NotEnoughMana);
 
         if (_waitingResult) return CardValidation.Invalid(CardInvalidReason.WaitingForServer);

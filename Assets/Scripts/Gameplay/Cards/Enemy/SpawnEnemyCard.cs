@@ -2,12 +2,20 @@ using UnityEngine;
 
 public class SpawnEnemyCard : AbstractCard
 {
+    private BaseCardSpawnEnemyDeployer _cardSpawnEnemyDeployer;
+
+    protected override void Start()
+    {
+        base.Start();
+        _cardSpawnEnemyDeployer = ServiceLocator.Get<BaseCardSpawnEnemyDeployer>();
+    }
+
     public override void ActivateCard(Vector2 worldPosition)
     {
-        CardSpawnEnemyDeployer.Instance.OnSpawnResult += HandleSpawnResult;
-        ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
+        _cardSpawnEnemyDeployer.OnSpawnResult += HandleSpawnResult;
+        _clientManaManager.PredictSpend(cardDataSo.Cost);
 
-        CardSpawnEnemyDeployer.Instance.RequestSpawnEnemyCardServerRpc(cardDataSo.CardType);
+        _cardSpawnEnemyDeployer.RequestSpawnEnemyCardServer(cardDataSo.CardType);
     }   
     
     private void HandleSpawnResult(SpawnEnemyResult result)
@@ -15,12 +23,12 @@ public class SpawnEnemyCard : AbstractCard
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
         
         _waitingResult = false;
-        CardSpawnEnemyDeployer.Instance.OnSpawnResult -= HandleSpawnResult;
+        _cardSpawnEnemyDeployer.OnSpawnResult -= HandleSpawnResult;
 
         if (result.Validation.IsValid)
         {
             Debug.Log("Spawn result successful!");
-            ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
+            _clientManaManager.ConfirmSpend(cardDataSo.Cost);
             // Destroy(gameObject);
             return;
         }
@@ -29,19 +37,19 @@ public class SpawnEnemyCard : AbstractCard
         {
             case CardInvalidReason.None:
                 Debug.LogError("Spawn failed for unknown reason.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case CardInvalidReason.NotEnoughMana:
                 Debug.Log("Not enough mana to spawn enemy.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case CardInvalidReason.NoTeam:
                 Debug.LogError("Spawn failed because client has no team.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
                 Debug.LogError("Unhandled spawn invalid reason: " + result.Validation.Reason);
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
     }

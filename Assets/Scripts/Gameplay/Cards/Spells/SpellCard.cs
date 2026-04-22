@@ -14,7 +14,15 @@ public class SpellCard : AbstractCard
     [SerializeField] private MMF_Player fadeInFeedback;
 
     private bool _enabledTowerGFX = false;
-    
+
+    private BaseCardSpellDeployer _cardSpellDeployer;
+
+    protected override void Start()
+    {
+        base.Start();
+        _cardSpellDeployer = ServiceLocator.Get<BaseCardSpellDeployer>();
+    }
+
     public override void OnBeginDrag(PointerEventData eventData)
     {
         base.OnBeginDrag(eventData);
@@ -61,11 +69,11 @@ public class SpellCard : AbstractCard
 
     public override void ActivateCard(Vector2 worldPosition)
     {
-        CardSpellDeployer.Instance.OnSpellResult += HandleSpellResult;
-        ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
+        _cardSpellDeployer.OnSpellResult += HandleSpellResult;
+        _clientManaManager.PredictSpend(cardDataSo.Cost);
 
         Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(worldPosition);
-        CardSpellDeployer.Instance.RequestSpellCardServerRpc(cardDataSo.CardType, serverPosition);
+        _cardSpellDeployer.RequestSpellCardServer(cardDataSo.CardType, serverPosition);
     }
     
     private void EnableGhostSpellGFX(Vector2 worldPosition)
@@ -114,12 +122,12 @@ public class SpellCard : AbstractCard
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
 
         _waitingResult = false;
-        CardSpellDeployer.Instance.OnSpellResult -= HandleSpellResult;
+        _cardSpellDeployer.OnSpellResult -= HandleSpellResult;
 
         if (result.Validation.IsValid)
         {
             Debug.Log("Spell result successful!");
-            ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
+            _clientManaManager.ConfirmSpend(cardDataSo.Cost);
             // Destroy(gameObject);
             return;
         }
@@ -128,19 +136,19 @@ public class SpellCard : AbstractCard
         {
             case SpellInvalidReason.None:
                 Debug.LogError("Spell failed for unknown reason.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case SpellInvalidReason.NotEnoughMana:
                 Debug.Log("Not enough mana to use a spell.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case SpellInvalidReason.NoTeam:
                 Debug.LogError("Spell failed because client has no team.");
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
                 Debug.LogError("Unhandled spell invalid reason: " + result.Validation.Reason);
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
     }

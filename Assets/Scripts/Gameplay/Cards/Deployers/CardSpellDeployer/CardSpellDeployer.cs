@@ -1,38 +1,41 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CardSpellDeployer : NetworkBehaviour
+public class CardSpellDeployer : BaseCardSpellDeployer
 {
-    public static CardSpellDeployer Instance { get; private set; }
-
+    
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private SpellDataListSO spellDataListSO;
-
-    public event Action<SpellSpawnResult> OnSpellResult;
-
+    
     private BaseMapTranslator _mapTranslator;
     private BaseTeamManager _teamManager;
+    private BaseServerManaManager _serverManaManager;
     
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Debug.LogError("Multiple instances of CardSpellDeployer detected. This is not allowed.");
-            Destroy(this);
-        }
+        ServiceLocator.Register<BaseCardSpellDeployer>(this);
     }
-
+    
     public override void OnNetworkSpawn()
     {
-        _teamManager = GetComponent<BaseTeamManager>();
-        _mapTranslator = GetComponent<BaseMapTranslator>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
+        _mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+        _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
+    }
+
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseCardSpellDeployer>();
+        base.OnDestroy();
+    }
+
+    public override void RequestSpellCardServer(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
+    {
+        SendRequestToServerRpc(cardType, serverPosition, rpcParams);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void RequestSpellCardServerRpc(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
+    private void SendRequestToServerRpc(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
         TeamType team = _teamManager.GetTeam(clientId);
@@ -59,7 +62,7 @@ public class CardSpellDeployer : NetworkBehaviour
             return;
         }
 
-        if (!ServiceLocator.Get<BaseServerManaManager>().TrySpendMana(team, spellCardData.Cost))
+        if (!_serverManaManager.TrySpendMana(team, spellCardData.Cost))
         {
             SendFailure(clientId, cardType, SpellInvalidReason.NotEnoughMana);
             return;
@@ -95,7 +98,7 @@ public class CardSpellDeployer : NetworkBehaviour
     [Rpc(SendTo.SpecifiedInParams)]
     private void PlaceResultRpc(SpellSpawnResult result, RpcParams rpcParams = default)
     {
-        OnSpellResult?.Invoke(result);
+        TriggerOnSpellResult(result);
     }
 
     [Rpc(SendTo.ClientsAndHost)]

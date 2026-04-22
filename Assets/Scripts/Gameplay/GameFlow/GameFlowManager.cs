@@ -27,6 +27,12 @@ public class GameFlowManager : BaseGameFlowManager
         _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
     }
 
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseGameFlowManager>();
+        base.OnDestroy();
+    }
+
     public override void OnNetworkDespawn()
     {
         if (!IsServer)

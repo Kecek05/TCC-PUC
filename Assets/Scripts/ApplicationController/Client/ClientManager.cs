@@ -36,5 +36,6 @@ public class ClientManager : BaseClientManager
     private void OnDestroy()
     {
         clientAuth?.Dispose();
+        ServiceLocator.Unregister<BaseClientManager>();
     }
 }

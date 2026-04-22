@@ -1,3 +1,4 @@
+using System;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,6 +17,14 @@ public class TowerCard : AbstractCard
     private bool _enabledTowerGFX = false;
     private IPlaceable _currentPlaceable;
     
+    private BaseCardTowerDeployer _cardTowerDeployer;
+
+    protected override void Start()
+    {
+        base.Start();
+        _cardTowerDeployer = ServiceLocator.Get<BaseCardTowerDeployer>();
+    }
+
     public override void OnBeginDrag(PointerEventData eventData)
     {
         base.OnBeginDrag(eventData);
@@ -130,8 +139,8 @@ public class TowerCard : AbstractCard
 
     public override void ActivateCard(Vector2 worldPosition)
     {
-        CardTowerDeployer.Instance.OnPlaceResult += HandlePlaceResult;
-        ClientManaManager.Instance.PredictSpend(cardDataSo.Cost);
+        _cardTowerDeployer.OnPlaceResult += HandlePlaceResult;
+        _clientManaManager.PredictSpend(cardDataSo.Cost);
 
         Vector2 position = worldPosition;
         
@@ -143,7 +152,7 @@ public class TowerCard : AbstractCard
         TowerPlacementFeedbackManager.Instance.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
         
         Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(position);
-        CardTowerDeployer.Instance.RequestPlaceCardServerRpc(cardDataSo.CardType, serverPosition);
+        _cardTowerDeployer.RequestPlaceCardServer(cardDataSo.CardType, serverPosition);
     }
 
     private void HandlePlaceResult(TowerPlaceResult result)
@@ -151,7 +160,7 @@ public class TowerCard : AbstractCard
         if (!_waitingResult || result.CardType != cardDataSo.CardType) return;
         
         _waitingResult = false;
-        CardTowerDeployer.Instance.OnPlaceResult -= HandlePlaceResult;
+        _cardTowerDeployer.OnPlaceResult -= HandlePlaceResult;
 
         Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(result.Position, ServiceLocator.Get<BaseTeamManager>().GetLocalTeam());
 
@@ -160,23 +169,23 @@ public class TowerCard : AbstractCard
         switch (result.Validation.Reason)
         {
             case TowerReason.Success:
-                ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
+                _clientManaManager.ConfirmSpend(cardDataSo.Cost);
                 OccupyPlaceable(localPos);
                 // Destroy(gameObject);
                 break;
             case TowerReason.LevelUp:
-                ClientManaManager.Instance.ConfirmSpend(cardDataSo.Cost);
+                _clientManaManager.ConfirmSpend(cardDataSo.Cost);
                 // Destroy(gameObject);
                 break;
             case TowerReason.NotSuccess:
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case TowerReason.NotSuccessMaxLevel:
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
                 Debug.LogError("UnHandled tower reason: " + result.Validation.Reason);
-                ClientManaManager.Instance.RevertSpend(cardDataSo.Cost);
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
     }
