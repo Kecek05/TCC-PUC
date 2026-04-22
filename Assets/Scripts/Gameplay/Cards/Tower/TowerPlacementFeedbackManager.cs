@@ -7,8 +7,6 @@ public class TowerPlacementFeedbackManager : MonoBehaviour
    [Title("References")]
    [SerializeField] private TowerPlacementFeedback placementPrefab;
 
-   public static TowerPlacementFeedbackManager Instance { get; private set; }
-
    private readonly Dictionary<int, TowerPlacementFeedback> _feedbackById = new();  
    
    private void Awake()
