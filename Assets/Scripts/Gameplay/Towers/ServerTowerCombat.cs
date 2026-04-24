@@ -128,7 +128,7 @@ public class ServerTowerCombat : NetworkBehaviour
         return true;
     }
 
-    public void UpgradeTower(int newAmount)
+    public void IncrementTowerLevel(int newAmount)
     {
         int newLevel = _towerLevel.Value + newAmount;
         if (newLevel < 1 || newLevel > 3)

@@ -19,9 +19,11 @@ public class ServerManaManager : BaseServerManaManager
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
         _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
-        
+
         if (!IsServer)
         {
             enabled = false;
@@ -44,6 +46,8 @@ public class ServerManaManager : BaseServerManaManager
 
     public override void OnNetworkDespawn()
     {
+        base.OnNetworkDespawn();
+
         if (_waveManager != null)
             _waveManager.OnNewWave -= WaveManager_OnNewWave;
     }

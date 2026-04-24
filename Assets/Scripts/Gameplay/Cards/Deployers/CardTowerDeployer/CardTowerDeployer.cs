@@ -90,7 +90,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
                 return;
             }
 
-            towerManager.ServerCombat.UpgradeTower(1);
+            towerManager.ServerCombat.IncrementTowerLevel(1);
             
             PlaceResultRpc(new TowerPlaceResult
             {
