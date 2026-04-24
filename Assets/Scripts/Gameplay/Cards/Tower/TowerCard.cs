@@ -149,7 +149,7 @@ public class TowerCard : AbstractCard
             position = _currentPlaceable.PlaceablePoint.position;
         }
         
-        TowerPlacementFeedbackManager.Instance.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
+        _towerPlacementFeedbackManager.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
         
         Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(position);
         _cardTowerDeployer.RequestPlaceCardServer(cardDataSo.CardType, serverPosition);
@@ -164,7 +164,7 @@ public class TowerCard : AbstractCard
 
         Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(result.Position, ServiceLocator.Get<BaseTeamManager>().GetLocalTeam());
 
-        TowerPlacementFeedbackManager.Instance.StopPredictSpawn(uniqueRuntimeId);
+        _towerPlacementFeedbackManager.StopPredictSpawn(uniqueRuntimeId);
         
         switch (result.Validation.Reason)
         {

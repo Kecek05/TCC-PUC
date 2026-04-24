@@ -26,6 +26,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     protected Camera _cameraMain;
     
     protected BaseClientManaManager  _clientManaManager;
+    protected BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
 
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
@@ -37,6 +38,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         _cameraMain = Camera.main;
         
         _clientManaManager = ServiceLocator.Get<ClientManaManager>();
+        _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData)

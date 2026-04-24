@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class TowerPlacementFeedbackManager : MonoBehaviour
+public class TowerPlacementFeedbackManager : BaseTowerPlacementFeedbackManager
 {
    [Title("References")]
    [SerializeField] private TowerPlacementFeedback placementPrefab;
@@ -11,16 +12,15 @@ public class TowerPlacementFeedbackManager : MonoBehaviour
    
    private void Awake()
    {
-      if (Instance == null)
-         Instance = this;
-      else
-      {
-         Debug.LogError("Multiple instances of TowerPlacementFeedbackManager detected. This is not allowed.");
-         Destroy(this);
-      }
+      ServiceLocator.Register<BaseTowerPlacementFeedbackManager>(this);
    }
 
-   public void PredictSpawn(Sprite spawnSprite, Vector2 spawnPosition, int cardUniqueId)
+   private void OnDestroy()
+   {
+      ServiceLocator.Unregister<BaseTowerPlacementFeedbackManager>();
+   }
+
+   public override void PredictSpawn(Sprite spawnSprite, Vector2 spawnPosition, int cardUniqueId)
    {
       if (_feedbackById.ContainsKey(cardUniqueId))
       {
@@ -36,7 +36,7 @@ public class TowerPlacementFeedbackManager : MonoBehaviour
       _feedbackById.Add(cardUniqueId, placement);
    }
 
-   public void StopPredictSpawn(int cardUniqueId)
+   public override void StopPredictSpawn(int cardUniqueId)
    {
       if (!_feedbackById.ContainsKey(cardUniqueId))
       {

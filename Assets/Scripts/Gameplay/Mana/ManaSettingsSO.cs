@@ -1,3 +1,4 @@
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ public class ManaSettingsSO : ScriptableObject
     [Title("Mana Pool")]
     [Tooltip("Maximum mana a player can hold")]
     [SerializeField] private float maxMana = 10f;
+    
+    [SerializeField] [ListDrawerSettings(ListElementLabelName = "WaveNumber")]
+    private WaveManaMax[] waveManaMaxes;
 
     [Tooltip("Mana each player starts with at match begin")]
     [SerializeField] private float startingMana = 5f;
@@ -18,4 +22,11 @@ public class ManaSettingsSO : ScriptableObject
     public float MaxMana => maxMana;
     public float StartingMana => startingMana;
     public float RegenPerSecond => regenPerSecond;
+}
+
+[Serializable]
+public class WaveManaMax
+{
+    public int WaveNumber;
+    public float MaxMana;
 }

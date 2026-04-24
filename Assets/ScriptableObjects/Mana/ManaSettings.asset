@@ -13,5 +13,26 @@ MonoBehaviour:
   m_Name: ManaSettings
   m_EditorClassIdentifier: Assembly-CSharp::ManaSettingsSO
   maxMana: 10
+  waveManaMaxes:
+  - WaveNumber: 1
+    MaxMana: 4
+  - WaveNumber: 2
+    MaxMana: 4
+  - WaveNumber: 3
+    MaxMana: 5
+  - WaveNumber: 4
+    MaxMana: 5
+  - WaveNumber: 5
+    MaxMana: 6
+  - WaveNumber: 6
+    MaxMana: 7
+  - WaveNumber: 7
+    MaxMana: 8
+  - WaveNumber: 8
+    MaxMana: 9
+  - WaveNumber: 9
+    MaxMana: 10
+  - WaveNumber: 10
+    MaxMana: 10
   startingMana: 3
   regenPerSecond: 0.357

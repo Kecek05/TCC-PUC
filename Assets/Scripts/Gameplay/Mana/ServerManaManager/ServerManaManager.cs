@@ -15,12 +15,6 @@ public class ServerManaManager : BaseServerManaManager
         ServiceLocator.Register<BaseServerManaManager>(this);
     }
 
-    public override void OnDestroy()
-    {
-        ServiceLocator.Unregister<BaseServerManaManager>();
-        base.OnDestroy();
-    }
-
     private void Start()
     {
         _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
@@ -38,6 +32,12 @@ public class ServerManaManager : BaseServerManaManager
         _redLocalMana = _manaSettings.StartingMana;
         BlueMana.Value = _manaSettings.StartingMana;
         RedMana.Value = _manaSettings.StartingMana;
+    }
+    
+    public override void OnDestroy()
+    {
+        ServiceLocator.Unregister<BaseServerManaManager>();
+        base.OnDestroy();
     }
 
     private void Update()
