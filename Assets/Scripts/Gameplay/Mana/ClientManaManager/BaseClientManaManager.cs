@@ -3,6 +3,7 @@ using UnityEngine;
 public abstract class BaseClientManaManager : MonoBehaviour
 {
     public float PredictedMana { get; protected set; }
+    public float CurrentMaxMana { get; protected set; }
 
     public abstract bool CanAffordLocally(int cost);
 

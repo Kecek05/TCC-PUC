@@ -37,7 +37,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         _originalParent = transform.parent;
         _cameraMain = Camera.main;
         
-        _clientManaManager = ServiceLocator.Get<ClientManaManager>();
+        _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
         _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
     }
 

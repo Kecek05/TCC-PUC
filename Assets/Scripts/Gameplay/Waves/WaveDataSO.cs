@@ -15,7 +15,7 @@ public class WaveDataSO : ScriptableObject
     [Unit(Units.Second)] 
     public float DelayBetweenWaves = 10f;
     
-    [Title("Wave Sequence")]
+    [Title("Wave Sequence")] [ListDrawerSettings(DraggableItems = false, ShowIndexLabels = true, ShowPaging = false)]
     public List<WaveEntry> Waves = new();
     
     public List<GameObject> GetAllEnemyPrefabs()

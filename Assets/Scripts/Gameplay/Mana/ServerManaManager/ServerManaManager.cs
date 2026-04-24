@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class ServerManaManager : BaseServerManaManager
@@ -6,6 +7,7 @@ public class ServerManaManager : BaseServerManaManager
     [SerializeField] private float _syncThreshold = 0.1f;
 
     private BaseGameFlowManager _gameFlowManager;
+    private BaseServerWaveManager _waveManager;
 
     private float _blueLocalMana;
     private float _redLocalMana;
@@ -15,13 +17,11 @@ public class ServerManaManager : BaseServerManaManager
         ServiceLocator.Register<BaseServerManaManager>(this);
     }
 
-    private void Start()
-    {
-        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
-    }
-
     public override void OnNetworkSpawn()
     {
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+        _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
+        
         if (!IsServer)
         {
             enabled = false;
@@ -32,8 +32,22 @@ public class ServerManaManager : BaseServerManaManager
         _redLocalMana = _manaSettings.StartingMana;
         BlueMana.Value = _manaSettings.StartingMana;
         RedMana.Value = _manaSettings.StartingMana;
+
+        BlueMaxMana.Value = _manaSettings.StartingMaxMana;
+        RedMaxMana.Value = _manaSettings.StartingMaxMana;
+
+        if (_waveManager == null)
+            _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
+
+        _waveManager.OnNewWave += WaveManager_OnNewWave;
     }
-    
+
+    public override void OnNetworkDespawn()
+    {
+        if (_waveManager != null)
+            _waveManager.OnNewWave -= WaveManager_OnNewWave;
+    }
+
     public override void OnDestroy()
     {
         ServiceLocator.Unregister<BaseServerManaManager>();
@@ -53,14 +67,42 @@ public class ServerManaManager : BaseServerManaManager
     {
         float regen = _manaSettings.RegenPerSecond * Time.deltaTime;
 
-        _blueLocalMana = Mathf.Min(_blueLocalMana + regen, _manaSettings.MaxMana);
-        _redLocalMana = Mathf.Min(_redLocalMana + regen, _manaSettings.MaxMana);
+        _blueLocalMana = Mathf.Min(_blueLocalMana + regen, BlueMaxMana.Value);
+        _redLocalMana = Mathf.Min(_redLocalMana + regen, RedMaxMana.Value);
 
         if (Mathf.Abs(_blueLocalMana - BlueMana.Value) >= _syncThreshold)
             BlueMana.Value = _blueLocalMana;
 
         if (Mathf.Abs(_redLocalMana - RedMana.Value) >= _syncThreshold)
             RedMana.Value = _redLocalMana;
+    }
+
+    private void WaveManager_OnNewWave(TeamType team, int waveNumber)
+    {
+        if (!_manaSettings.TryGetMaxManaForWave(waveNumber, out float newMax))
+            return;
+
+        NetworkVariable<float> maxVar = GetMaxManaNetworkVariable(team);
+        if (Mathf.Approximately(maxVar.Value, newMax))
+            return;
+
+        maxVar.Value = newMax;
+
+        ClampLocalManaToMax(team, newMax);
+    }
+
+    private void ClampLocalManaToMax(TeamType team, float newMax)
+    {
+        if (team == TeamType.Blue && _blueLocalMana > newMax)
+        {
+            _blueLocalMana = newMax;
+            BlueMana.Value = _blueLocalMana;
+        }
+        else if (team == TeamType.Red && _redLocalMana > newMax)
+        {
+            _redLocalMana = newMax;
+            RedMana.Value = _redLocalMana;
+        }
     }
 
     public override float GetMana(TeamType team)
@@ -74,6 +116,34 @@ public class ServerManaManager : BaseServerManaManager
             default:
                 Debug.LogError($"Invalid team: {team}");
                 return 0f;
+        }
+    }
+
+    public override float GetMaxMana(TeamType team)
+    {
+        switch (team)
+        {
+            case TeamType.Blue:
+                return BlueMaxMana.Value;
+            case TeamType.Red:
+                return RedMaxMana.Value;
+            default:
+                Debug.LogError($"Invalid team: {team}");
+                return 0f;
+        }
+    }
+
+    public override NetworkVariable<float> GetMaxManaNetworkVariable(TeamType team)
+    {
+        switch (team)
+        {
+            case TeamType.Blue:
+                return BlueMaxMana;
+            case TeamType.Red:
+                return RedMaxMana;
+            default:
+                Debug.LogError($"Invalid team: {team}");
+                return null;
         }
     }
 

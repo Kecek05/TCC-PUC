@@ -23,6 +23,8 @@ public class ClientManaManager : BaseClientManaManager
 
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
+    private NetworkVariable<float> _currentMana;
+    private NetworkVariable<float> _maxMana;
 
     private void Awake()
     {
@@ -37,14 +39,12 @@ public class ClientManaManager : BaseClientManaManager
     private void OnDestroy()
     {
         ServiceLocator.Unregister<BaseClientManaManager>();
-        
-        if (_serverManaManager == null) return;
 
-        NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
-            ? _serverManaManager.BlueMana
-            : _serverManaManager.RedMana;
+        if (_currentMana != null)
+            _currentMana.OnValueChanged -= OnServerManaChanged;
 
-        manaVar.OnValueChanged -= OnServerManaChanged;
+        if (_maxMana != null)
+            _maxMana.OnValueChanged -= OnServerMaxManaChanged;
     }
 
     private IEnumerator WaitForInitialization()
@@ -59,14 +59,19 @@ public class ClientManaManager : BaseClientManaManager
 
         _localTeam = _teamManager.GetLocalTeam();
 
-        NetworkVariable<float> manaVar = _localTeam == TeamType.Blue
+        _currentMana = _localTeam == TeamType.Blue
             ? _serverManaManager.BlueMana
             : _serverManaManager.RedMana;
 
-        _serverMana = manaVar.Value;
-        _predictedMana = _serverMana;
+        _maxMana = _serverManaManager.GetMaxManaNetworkVariable(_localTeam);
 
-        manaVar.OnValueChanged += OnServerManaChanged;
+        _serverMana = _currentMana.Value;
+        _predictedMana = _serverMana;
+        CurrentMaxMana = _maxMana.Value;
+
+        _currentMana.OnValueChanged += OnServerManaChanged;
+        _maxMana.OnValueChanged += OnServerMaxManaChanged;
+
         _initialized = true;
     }
 
@@ -85,6 +90,14 @@ public class ClientManaManager : BaseClientManaManager
         }
     }
 
+    private void OnServerMaxManaChanged(float previousValue, float newValue)
+    {
+        CurrentMaxMana = newValue;
+
+        if (_predictedMana > CurrentMaxMana)
+            _predictedMana = CurrentMaxMana;
+    }
+
     private void Update()
     {
         if (!_initialized) return;
@@ -92,7 +105,7 @@ public class ClientManaManager : BaseClientManaManager
         // Local regen prediction for smooth bar between network ticks
         _predictedMana = Mathf.Min(
             _predictedMana + manaSettings.RegenPerSecond * Time.deltaTime,
-            manaSettings.MaxMana
+            CurrentMaxMana
         );
 
         UpdateUI();
@@ -130,7 +143,7 @@ public class ClientManaManager : BaseClientManaManager
     private void UpdateUI()
     {
         if (manaBarFill != null)
-            manaBarFill.fillAmount = _predictedMana / manaSettings.MaxMana;
+            manaBarFill.fillAmount = CurrentMaxMana > 0f ? _predictedMana / CurrentMaxMana : 0f;
 
         if (manaText != null)
             manaText.text = Mathf.FloorToInt(_predictedMana).ToString();

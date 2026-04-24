@@ -177,9 +177,11 @@ public class ServerWaveManager : BaseServerWaveManager
     {
         _currentWaves[teamType] = waveEntry;
         _remainingEnemiesOfWave[teamType] = waveEntry.GetTotalEnemiesCount();
-        
+
         GetCurrentWaveProgressNetworkVariable(teamType).Value = 0f;
         GetCurrentWaveNetworkVariable(teamType).Value = wave;
+
+        TriggerOnNewWave(teamType, wave);
     }
 
     private void AddEnemyToList(TeamType team, EnemyManager enemy)
