@@ -54,16 +54,16 @@ public class TeamManager : BaseTeamManager
         if (_redPlayer.Value.Team == TeamType.None)
         {
             _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
-            Debug.Log($"TeamManager: Client {clientId} connected to Team RED");
+            GameLog.Info($"TeamManager: Client {clientId} connected to Team RED");
         }
         else if (_bluePlayer.Value.Team == TeamType.None)
         {
             _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
-            Debug.Log($"TeamManager: Client {clientId} connected to Team BLUE");
+            GameLog.Info($"TeamManager: Client {clientId} connected to Team BLUE");
         }
         else
         {
-            Debug.LogWarning($"TeamManager: Client {clientId} connected but both teams are full!");
+            GameLog.Warn($"TeamManager: Client {clientId} connected but both teams are full!");
         }
     }
 
@@ -71,7 +71,7 @@ public class TeamManager : BaseTeamManager
     {
         if (_redPlayer.Value.Team != TeamType.None && _bluePlayer.Value.Team != TeamType.None)
         {
-            Debug.Log("TeamManager: Both teams are now full!");
+            GameLog.Info("TeamManager: Both teams are now full!");
             return true;
         }
 
@@ -80,7 +80,7 @@ public class TeamManager : BaseTeamManager
 
     private void OnTeamAssigned(PlayerTeamPair previousValue, PlayerTeamPair newValue)
     {
-        Debug.Log($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");
+        GameLog.Info($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");
     }
 
     // Server-side
@@ -90,7 +90,7 @@ public class TeamManager : BaseTeamManager
         if (_bluePlayer.Value.ClientId == clientId) return TeamType.Blue;
         if (_redPlayer.Value.ClientId == clientId) return TeamType.Red;
 
-        Debug.LogError($"ClientId {clientId} dont have team!");
+        GameLog.Error($"ClientId {clientId} dont have team!");
         return TeamType.None;
     }
 
@@ -110,14 +110,14 @@ public class TeamManager : BaseTeamManager
     {
         if (IsServer && !IsClient)
         {
-            Debug.LogWarning("Trying to get local team on a dedicated server, returning None");
+            GameLog.Warn("Trying to get local team on a dedicated server, returning None");
             return TeamType.None;
         }
         
         ulong localId = NetworkManager.LocalClientId;
         if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Red : TeamType.Blue;
         if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Blue  : TeamType.Red;
-        Debug.LogError($"LocalId {localId} dont have team! Returning None");
+        GameLog.Error($"LocalId {localId} dont have team! Returning None");
         return TeamType.None;
     }
 
@@ -125,7 +125,7 @@ public class TeamManager : BaseTeamManager
     {
         if (IsServer && !IsClient)
         {
-            Debug.LogWarning("Trying to check local team assignment on a dedicated server, returning false");
+            GameLog.Warn("Trying to check local team assignment on a dedicated server, returning false");
             return false;
         }
         

@@ -51,7 +51,7 @@ public class ServerEndGameManager : BaseServerEndGameManager
 
     private void TeamHealthManagerOnTeamDeath(TeamType deathTeam)
     {
-        Debug.Log($"Player from {deathTeam} team has died. Ending the game.");
+        GameLog.Info($"Player from {deathTeam} team has died. Ending the game.");
 
         TeamType winnerTeam = deathTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
         SetWinner(winnerTeam);
@@ -66,13 +66,13 @@ public class ServerEndGameManager : BaseServerEndGameManager
     {
         if (winnerTeam == TeamType.None)
         {
-            Debug.LogError("Setting winner to NONE. This shouldn't happen.");
+            GameLog.Error("Setting winner to NONE. This shouldn't happen.");
             return;
         }
         
         if (_winnerAlreadySetted)
         {
-            Debug.LogError($"Winner has already been set. Calling SetWinner twice, this shouldn't happen");
+            GameLog.Error($"Winner has already been set. Calling SetWinner twice, this shouldn't happen");
             return;
         }
         _winnerAlreadySetted = true;

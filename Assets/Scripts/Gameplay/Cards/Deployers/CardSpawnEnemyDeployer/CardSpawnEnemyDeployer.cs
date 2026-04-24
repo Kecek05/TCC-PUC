@@ -41,7 +41,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         
         if (team == TeamType.None)
         {
-            Debug.LogError($"Client {clientId} does not have a team.");
+            GameLog.Error($"Client {clientId} does not have a team.");
             SendFailure(clientId, cardType, CardInvalidReason.NoTeam);
             return;
         }

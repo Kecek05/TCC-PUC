@@ -27,7 +27,7 @@ public class SpawnEnemyCard : AbstractCard
 
         if (result.Validation.IsValid)
         {
-            Debug.Log("Spawn result successful!");
+            GameLog.Info("Spawn result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
             // Destroy(gameObject);
             return;
@@ -36,19 +36,19 @@ public class SpawnEnemyCard : AbstractCard
         switch (result.Validation.Reason)
         {
             case CardInvalidReason.None:
-                Debug.LogError("Spawn failed for unknown reason.");
+                GameLog.Error("Spawn failed for unknown reason.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case CardInvalidReason.NotEnoughMana:
-                Debug.Log("Not enough mana to spawn enemy.");
+                GameLog.Info("Not enough mana to spawn enemy.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case CardInvalidReason.NoTeam:
-                Debug.LogError("Spawn failed because client has no team.");
+                GameLog.Error("Spawn failed because client has no team.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
-                Debug.LogError("Unhandled spawn invalid reason: " + result.Validation.Reason);
+                GameLog.Error("Unhandled spawn invalid reason: " + result.Validation.Reason);
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }

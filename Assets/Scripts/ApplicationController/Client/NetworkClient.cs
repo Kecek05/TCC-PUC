@@ -19,17 +19,17 @@ public class NetworkClient : IDisposable
 
     private void NetworkManager_OnClientStarted()
     {
-        Debug.Log("Client started");
+        GameLog.Info("Client started");
     }
     
     private void NetworkManager_OnClientConnectedCallback(ulong clientId)
     {
-        Debug.Log($"Client connected: {clientId}");
+        GameLog.Info($"Client connected: {clientId}");
     }
     
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
     {
-        Debug.Log($"Client disconnected: {clientId}");
+        GameLog.Info($"Client disconnected: {clientId}");
     }
 
     public async void JoinRelay(string joinCode)
@@ -42,15 +42,15 @@ public class NetworkClient : IDisposable
         string payload = JsonUtility.ToJson(_clientManager.UserData); //serialize the payload to json
         byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); //serialize the payload to bytes
 
-        // Debug.Log($"ConnectClient, UserData: {userData.userName}, Pearls: {userData.userPearls}, AuthId: {userData.userAuthId} ");
+        // GameLog.Info($"ConnectClient, UserData: {userData.userName}, Pearls: {userData.userPearls}, AuthId: {userData.userAuthId} ");
 
         NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
-        // Debug.Log($"Setted Payload - Start Connection");
+        // GameLog.Info($"Setted Payload - Start Connection");
         
         bool result = NetworkManager.Singleton.StartClient();
         if (!result)
         {
-            Debug.LogError("Failed to start client: StartClient returned false.");
+            GameLog.Error("Failed to start client: StartClient returned false.");
             Loader.Load(Loader.Scene.NoNetwork);
         }
     }

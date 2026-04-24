@@ -20,7 +20,7 @@ public class CosmeticBulletPool : MonoBehaviour
             Instance = this;
         else
         {
-            Debug.LogError("Multiple instances of CosmeticBulletPool detected. This is not allowed.");
+            GameLog.Error("Multiple instances of CosmeticBulletPool detected. This is not allowed.");
             Destroy(this);
             return;
         }

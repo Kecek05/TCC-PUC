@@ -35,7 +35,7 @@ public class TowerDataSO : ScriptableObject
             case 2: return DamageLevel2;
             case 3: return DamageLevel3;
             default: 
-                Debug.LogWarning($"Invalid tower level {level}. Returning level 1 damage.");
+                GameLog.Warn($"Invalid tower level {level}. Returning level 1 damage.");
                 return DamageLevel1;
         }
     }
@@ -48,7 +48,7 @@ public class TowerDataSO : ScriptableObject
             case 2: return RangeLevel2;
             case 3: return RangeLevel3;
             default: 
-                Debug.LogWarning($"Invalid tower level {level}. Returning level 1 range.");
+                GameLog.Warn($"Invalid tower level {level}. Returning level 1 range.");
                 return RangeLevel1;
         }
     }
@@ -61,7 +61,7 @@ public class TowerDataSO : ScriptableObject
             case 2: return ShootCooldownLevel2;
             case 3: return ShootCooldownLevel3;
             default: 
-                Debug.LogWarning($"Invalid tower level {level}. Returning level 1 shoot cooldown.");
+                GameLog.Warn($"Invalid tower level {level}. Returning level 1 shoot cooldown.");
                 return ShootCooldownLevel1;
         }
     }
@@ -74,7 +74,7 @@ public class TowerDataSO : ScriptableObject
             case 2: return BulletSpeedLevel2;
             case 3: return BulletSpeedLevel3;
             default: 
-                Debug.LogWarning($"Invalid tower level {level}. Returning level 1 bullet speed.");
+                GameLog.Warn($"Invalid tower level {level}. Returning level 1 bullet speed.");
                 return BulletSpeedLevel1;
         }
     }

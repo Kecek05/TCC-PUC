@@ -22,13 +22,13 @@ public class ClientAuth : IDisposable
         
         if (authState == AuthState.Authenticated)
         {
-            Debug.Log($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
+            GameLog.Info($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
 
             Loader.Load(Loader.Scene.GameScene);
             return true;
         }
 
-        Debug.Log($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
+        GameLog.Info($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
         return false;
     }
 
@@ -38,7 +38,7 @@ public class ClientAuth : IDisposable
 
         if (authState == AuthState.Authenticating)
         {
-            Debug.LogWarning("Already authenticating.");
+            GameLog.Warn("Already authenticating.");
             await Authenticating();
             return authState;
         }
@@ -72,12 +72,12 @@ public class ClientAuth : IDisposable
             }
             catch (AuthenticationException authEx)
             {
-                Debug.LogError(authEx);
+                GameLog.Error(authEx);
                 authState = AuthState.Error;
             }
             catch (RequestFailedException requestEx)
             {
-                Debug.LogError(requestEx);
+                GameLog.Error(requestEx);
                 authState = AuthState.Error;
             }
 
@@ -89,7 +89,7 @@ public class ClientAuth : IDisposable
 
         if (authState != AuthState.Authenticated)
         {
-            Debug.LogWarning($"Player could not authenticate after {tries} tries.");
+            GameLog.Warn($"Player could not authenticate after {tries} tries.");
             authState = AuthState.TimeOut;
             // OnSignInFail?.Invoke();
         }

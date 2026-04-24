@@ -27,7 +27,7 @@ public class AuthServiceManager : MonoBehaviour
         }
         
         await UnityServices.InitializeAsync();
-        AuthenticationService.Instance.SignedIn += () => Debug.Log($"Signed in as {AuthenticationService.Instance.PlayerId}");
+        AuthenticationService.Instance.SignedIn += () => GameLog.Info($"Signed in as {AuthenticationService.Instance.PlayerId}");
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
         Destroy(backgroundObject);
         relayObject.SetActive(true);

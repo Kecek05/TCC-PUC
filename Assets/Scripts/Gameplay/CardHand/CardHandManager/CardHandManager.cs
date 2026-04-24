@@ -61,13 +61,13 @@ public class CardHandManager : BaseCardHandManager
     {
         if (!IsServer)
         {
-            Debug.LogError("[CardHandManager] SetHandForPlayer must be called on the server.");
+            GameLog.Error("[CardHandManager] SetHandForPlayer must be called on the server.");
             return;
         }
 
         if (cardsInDeck == null || cardsInDeck.Count == 0)
         {
-            Debug.LogError($"[CardHandManager] SetHandForPlayer called for {teamType} with empty deck.");
+            GameLog.Error($"[CardHandManager] SetHandForPlayer called for {teamType} with empty deck.");
             return;
         }
 
@@ -82,20 +82,20 @@ public class CardHandManager : BaseCardHandManager
     {
         if (!IsServer)
         {
-            Debug.LogError("[CardHandManager] NotifyCardPlayed must be called on the server.");
+            GameLog.Error("[CardHandManager] NotifyCardPlayed must be called on the server.");
             return;
         }
 
         HandData handData = GetServerHandData(teamType);
         if (handData == null)
         {
-            Debug.LogError($"[CardHandManager] NotifyCardPlayed for {teamType} before hand was set.");
+            GameLog.Error($"[CardHandManager] NotifyCardPlayed for {teamType} before hand was set.");
             return;
         }
 
         if (!handData.Play(cardType))
         {
-            Debug.LogWarning($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
+            GameLog.Warn($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
             return;
         }
 
@@ -135,6 +135,6 @@ public class CardHandManager : BaseCardHandManager
         else if (teamType == TeamType.Red)
             _redHandData = data;
         else
-            Debug.LogError($"[CardHandManager] Invalid team: {teamType}");
+            GameLog.Error($"[CardHandManager] Invalid team: {teamType}");
     }
 }

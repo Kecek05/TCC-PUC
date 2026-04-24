@@ -8,11 +8,11 @@ public class FireballExecutor : ISpellExecutor
     {
         if (context.SpellData is not SpellOffensiveDataSO offensiveData)
         {
-            Debug.LogError("FireballExecutor: SpellData is not SpellOffensiveDataSO");
+            GameLog.Error("FireballExecutor: SpellData is not SpellOffensiveDataSO");
             return;
         }
     
-        Debug.Log("FireballExecutor: Execute");
+        GameLog.Info("FireballExecutor: Execute");
         context.CoroutineRunner.StartCoroutine(
             ApplyAoEDamageAfterDelay(context.ServerPosition, context.CasterTeam, offensiveData)
         );
@@ -35,7 +35,7 @@ public class FireballExecutor : ISpellExecutor
             if (dist <= data.Range)
             {
                 enemy.ServerHealth.TakeDamage(data.Damage);
-                Debug.Log($"FireballExecutor: ApplyAoEDamageAfterDelay to enemy: {enemy.name}, damage: {data.Damage}");
+                GameLog.Info($"FireballExecutor: ApplyAoEDamageAfterDelay to enemy: {enemy.name}, damage: {data.Damage}");
             }
         }
     }

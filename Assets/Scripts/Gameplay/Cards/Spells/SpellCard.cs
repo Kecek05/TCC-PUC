@@ -110,7 +110,7 @@ public class SpellCard : AbstractCard
     {
         if (cardDataSo is not SpellCardDataSO spellCardData)
         {
-            Debug.LogError($"CardDataSO: {cardDataSo.CardType} is not SpellCardDataSO");
+            GameLog.Error($"CardDataSO: {cardDataSo.CardType} is not SpellCardDataSO");
             return null;
         }
 
@@ -126,7 +126,7 @@ public class SpellCard : AbstractCard
 
         if (result.Validation.IsValid)
         {
-            Debug.Log("Spell result successful!");
+            GameLog.Info("Spell result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
             // Destroy(gameObject);
             return;
@@ -135,19 +135,19 @@ public class SpellCard : AbstractCard
         switch (result.Validation.Reason)
         {
             case SpellInvalidReason.None:
-                Debug.LogError("Spell failed for unknown reason.");
+                GameLog.Error("Spell failed for unknown reason.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case SpellInvalidReason.NotEnoughMana:
-                Debug.Log("Not enough mana to use a spell.");
+                GameLog.Info("Not enough mana to use a spell.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             case SpellInvalidReason.NoTeam:
-                Debug.LogError("Spell failed because client has no team.");
+                GameLog.Error("Spell failed because client has no team.");
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
-                Debug.LogError("Unhandled spell invalid reason: " + result.Validation.Reason);
+                GameLog.Error("Unhandled spell invalid reason: " + result.Validation.Reason);
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }

@@ -184,7 +184,7 @@ public class TowerCard : AbstractCard
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
             default:
-                Debug.LogError("UnHandled tower reason: " + result.Validation.Reason);
+                GameLog.Error("UnHandled tower reason: " + result.Validation.Reason);
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
@@ -223,7 +223,7 @@ public class TowerCard : AbstractCard
     {
         if (cardDataSo is not TowerCardDataSO towerCardData)
         {
-            Debug.LogError($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
+            GameLog.Error($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
             return null;
         }
 

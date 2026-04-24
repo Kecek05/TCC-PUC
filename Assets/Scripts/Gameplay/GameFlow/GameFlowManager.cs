@@ -71,7 +71,7 @@ public class GameFlowManager : BaseGameFlowManager
     {
         if (!IsServer) return;
         CurrentGameState.Value = newState;
-        Debug.Log($"GameFlowManager: Game state changed to {newState}");
+        GameLog.Info($"GameFlowManager: Game state changed to {newState}");
     }
     
     private void EndGameManager_OnGameEnded(EndGameSnapshot endGameSnapshot)

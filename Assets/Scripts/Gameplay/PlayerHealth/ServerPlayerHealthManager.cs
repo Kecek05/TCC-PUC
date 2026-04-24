@@ -47,7 +47,7 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
 
                 if (BlueHealth.Value <= 0)
                 {
-                    Debug.Log($"Blue team has been defeated!");
+                    GameLog.Info($"Blue team has been defeated!");
                     TriggerOnTeamDeath(teamType);
                 }
 
@@ -57,13 +57,13 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
 
                 if (RedHealth.Value <= 0)
                 {
-                    Debug.Log($"Red team has been defeated!");
+                    GameLog.Info($"Red team has been defeated!");
                     TriggerOnTeamDeath(teamType);
                 }
 
                 break;
             default:
-                Debug.LogWarning($"Invalid team type: {teamType}");
+                GameLog.Warn($"Invalid team type: {teamType}");
                 break;
         }
     }

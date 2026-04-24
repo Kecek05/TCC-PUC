@@ -24,7 +24,7 @@ public class TowerPlacementFeedbackManager : BaseTowerPlacementFeedbackManager
    {
       if (_feedbackById.ContainsKey(cardUniqueId))
       {
-         Debug.LogWarning($"{cardUniqueId} is already predicted");
+         GameLog.Warn($"{cardUniqueId} is already predicted");
          return;
       }
       
@@ -40,7 +40,7 @@ public class TowerPlacementFeedbackManager : BaseTowerPlacementFeedbackManager
    {
       if (!_feedbackById.ContainsKey(cardUniqueId))
       {
-         Debug.LogWarning($"{cardUniqueId} is not predicted");
+         GameLog.Warn($"{cardUniqueId} is not predicted");
          return;
       }
       

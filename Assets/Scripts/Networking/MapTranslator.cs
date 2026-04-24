@@ -71,7 +71,7 @@ public class MapTranslator : BaseMapTranslator
         else if   (teamType == TeamType.Red)
             _playerRedInitialized = true;
         else
-            Debug.LogError("Team Type not supported");
+            GameLog.Error("Team Type not supported");
     }
 
     public override Vector3 LocalToServer(Vector3 localPos)

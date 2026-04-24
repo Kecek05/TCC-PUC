@@ -118,7 +118,7 @@ public class ServerManaManager : BaseServerManaManager
             case TeamType.Red:
                 return _redLocalMana;
             default:
-                Debug.LogError($"Invalid team: {team}");
+                GameLog.Error($"Invalid team: {team}");
                 return 0f;
         }
     }
@@ -132,7 +132,7 @@ public class ServerManaManager : BaseServerManaManager
             case TeamType.Red:
                 return RedMaxMana.Value;
             default:
-                Debug.LogError($"Invalid team: {team}");
+                GameLog.Error($"Invalid team: {team}");
                 return 0f;
         }
     }
@@ -146,7 +146,7 @@ public class ServerManaManager : BaseServerManaManager
             case TeamType.Red:
                 return RedMaxMana;
             default:
-                Debug.LogError($"Invalid team: {team}");
+                GameLog.Error($"Invalid team: {team}");
                 return null;
         }
     }
@@ -182,7 +182,7 @@ public class ServerManaManager : BaseServerManaManager
                 RedMana.Value = _redLocalMana;
                 break;
             default:
-                Debug.LogError($"Invalid team: {team}");
+                GameLog.Error($"Invalid team: {team}");
                 break;
         }
     }

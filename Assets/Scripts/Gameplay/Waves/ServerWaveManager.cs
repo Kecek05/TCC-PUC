@@ -193,7 +193,7 @@ public class ServerWaveManager : BaseServerWaveManager
     {
         if (teamType == TeamType.None)
         {
-            Debug.LogError($"Trying to remove enemy from list with invalid team {teamType}");
+            GameLog.Error($"Trying to remove enemy from list with invalid team {teamType}");
             return;
         }
         
@@ -208,7 +208,7 @@ public class ServerWaveManager : BaseServerWaveManager
     {
         if (!_remainingEnemiesOfWave.ContainsKey(teamType))
         {
-            Debug.LogError($"Trying to update wave progress for team {teamType} that  doesn't exist");
+            GameLog.Error($"Trying to update wave progress for team {teamType} that  doesn't exist");
             return;
         }
         

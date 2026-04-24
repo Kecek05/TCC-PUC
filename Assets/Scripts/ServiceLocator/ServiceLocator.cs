@@ -9,7 +9,7 @@ public static class ServiceLocator
     public static void Register<T>(T service) where T : class
     {
         services[typeof(T)] = service;
-        Debug.Log($"Registered: {service}");
+        GameLog.Info($"Registered: {service}");
     }
     
 

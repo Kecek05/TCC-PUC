@@ -76,7 +76,7 @@ public class ClientEndGameCanvas : MonoBehaviour
 
         if (localTeam == TeamType.None)
         {
-            Debug.LogWarning("ClientEndGameCanvas: Local team is None. Cannot setup end game UI data.");
+            GameLog.Warn("ClientEndGameCanvas: Local team is None. Cannot setup end game UI data.");
             return;
         }
         

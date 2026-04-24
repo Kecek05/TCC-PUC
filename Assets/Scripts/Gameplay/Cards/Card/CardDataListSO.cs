@@ -16,7 +16,7 @@ public class CardDataListSO : ScriptableObject, ICardCostProvider
         CardDataSO data = GetCardDataByType(cardType);
         if (data == null)
         {
-            Debug.LogError($"[CardDataListSO] CardDataSO not found for {cardType}");
+            GameLog.Error($"[CardDataListSO] CardDataSO not found for {cardType}");
             return int.MaxValue;
         }
         return data.Cost;

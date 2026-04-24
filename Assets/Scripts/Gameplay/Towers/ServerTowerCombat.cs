@@ -133,7 +133,7 @@ public class ServerTowerCombat : NetworkBehaviour
         int newLevel = _towerLevel.Value + newAmount;
         if (newLevel < 1 || newLevel > 3)
         {
-            Debug.LogError("UpgradeTower: Level must be between 1 and 3");
+            GameLog.Error("UpgradeTower: Level must be between 1 and 3");
             return;
         }
 

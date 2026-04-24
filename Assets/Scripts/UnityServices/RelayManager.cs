@@ -31,7 +31,7 @@ public class RelayManager : MonoBehaviour
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1);
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            Debug.Log($"Relay created. Join code: {joinCode}");
+            GameLog.Info($"Relay created. Join code: {joinCode}");
             joinCodeText.text = joinCode;
 
             NetworkManager.Singleton.GetComponent<UnityTransport>()
@@ -42,7 +42,7 @@ public class RelayManager : MonoBehaviour
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError($"Failed to create relay: {e.Message}");
+            GameLog.Error($"Failed to create relay: {e.Message}");
             createRelayButton.interactable = true;
         }
     }
@@ -66,7 +66,7 @@ public class RelayManager : MonoBehaviour
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError($"Failed to join relay: {e.Message}");
+            GameLog.Error($"Failed to join relay: {e.Message}");
             joinButton.interactable = true;
         }
     }
