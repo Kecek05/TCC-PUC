@@ -10,7 +10,7 @@ using UnityEngine;
 /// (hand + next card) onto the synced NetworkList / NetworkVariable for clients.
 /// Clients read the synced state and subscribe to <see cref="BaseCardHandManager.OnHandChanged"/>.
 /// </summary>
-public class CardHandManager : BaseCardHandManager
+public class ServerCardHandManager : BaseCardHandManager
 {
     [Title("Config")]
     [SerializeField, MinValue(1)] private int _handSize = 4;
@@ -21,6 +21,7 @@ public class CardHandManager : BaseCardHandManager
 
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
+    private CardDeploymentBus _deploymentBus;
 
     protected override void Awake()
     {
@@ -33,14 +34,19 @@ public class CardHandManager : BaseCardHandManager
     {
         base.OnNetworkSpawn();
         if (IsServer)
-            StartCoroutine(WaitForManaProvider());
+            StartCoroutine(WaitForReady());
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (IsServer && _maxManaProvider != null)
+        if (!IsServer) return;
+
+        if (_maxManaProvider != null)
             _maxManaProvider.OnMaxManaChanged -= OnMaxManaChanged;
+
+        if (_deploymentBus != null)
+            _deploymentBus.OnAnyCardDeployed -= OnAnyCardDeployed;
     }
 
     public override void OnDestroy()
@@ -49,13 +55,21 @@ public class CardHandManager : BaseCardHandManager
         base.OnDestroy();
     }
 
-    private IEnumerator WaitForManaProvider()
+    private IEnumerator WaitForReady()
     {
-        yield return new WaitUntil(() => ServiceLocator.Get<BaseServerManaManager>() != null);
+        yield return new WaitUntil(
+            () => ServiceLocator.Get<BaseServerManaManager>() != null
+               && ServiceLocator.Get<CardDeploymentBus>() != null);
 
         _maxManaProvider = ServiceLocator.Get<BaseServerManaManager>();
         _maxManaProvider.OnMaxManaChanged += OnMaxManaChanged;
+
+        _deploymentBus = ServiceLocator.Get<CardDeploymentBus>();
+        _deploymentBus.OnAnyCardDeployed += OnAnyCardDeployed;
     }
+
+    private void OnAnyCardDeployed(CardDeployedEventArgs args)
+        => NotifyCardPlayed(args.TeamDeployed, args.CardDeployed);
 
     public override void SetHandForPlayer(TeamType teamType, List<CardType> cardsInDeck)
     {
@@ -80,6 +94,7 @@ public class CardHandManager : BaseCardHandManager
 
     public override void NotifyCardPlayed(TeamType teamType, CardType cardType)
     {
+        GameLog.Info($"[CardHandManager] NotifyCardPlayed: {teamType} played {cardType}");
         if (!IsServer)
         {
             GameLog.Error("[CardHandManager] NotifyCardPlayed must be called on the server.");

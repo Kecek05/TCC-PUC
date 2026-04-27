@@ -20,8 +20,18 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     {
         _teamManager  = ServiceLocator.Get<BaseTeamManager>();
         _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
+
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
     }
-    
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        base.OnNetworkDespawn();
+    }
+
     public override void OnDestroy()
     {
         ServiceLocator.Unregister<BaseCardTowerDeployer>();
@@ -72,7 +82,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             SendFailure(clientId, cardType, TowerReason.AlreadyOccupied, placePosition);
             return;
         }
-        
+
         if (hit.placeable.IsOccupied())
         {
             //Level Up
@@ -91,13 +101,19 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             }
 
             towerManager.ServerCombat.IncrementTowerLevel(1);
-            
+
             PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.LevelUp,
                 Position = hit.placeable.PlaceablePoint.position
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
+            TriggerOnCardDeployed(new CardDeployedEventArgs()
+            {
+                TeamDeployed = team,
+                CardDeployed = cardType
+            });
         }
         else
         {
@@ -116,13 +132,19 @@ public class CardTowerDeployer : BaseCardTowerDeployer
                 towerManager.Team.SetTeamType(team);
 
             towerManager.NetworkObject.SpawnWithOwnership(clientId);
-        
+
             PlaceResultRpc(new TowerPlaceResult
             {
                 CardType = cardType,
                 Validation = TowerValidation.Success,
                 Position = hit.placeable.PlaceablePoint.position
             }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
+            TriggerOnCardDeployed(new CardDeployedEventArgs()
+            {
+                TeamDeployed = team,
+                CardDeployed = cardType
+            });
         }
     }
     

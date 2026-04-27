@@ -21,6 +21,16 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         _teamManager = ServiceLocator.Get<BaseTeamManager>();
         _mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
         _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
+
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        base.OnNetworkDespawn();
     }
 
     public override void OnDestroy()
@@ -77,13 +87,19 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         });
 
         SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, team);
-        
+
         PlaceResultRpc(new SpellSpawnResult
         {
             CardType = cardType,
             Validation = SpellValidation.Valid,
             Position = serverPosition,
         }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
+        TriggerOnCardDeployed(new CardDeployedEventArgs
+        {
+            TeamDeployed = team,
+            CardDeployed = cardType
+        });
     }
 
     private void SendFailure(ulong clientId, CardType cardType, SpellInvalidReason reason)

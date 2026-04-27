@@ -20,6 +20,16 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         _teamManager = ServiceLocator.Get<BaseTeamManager>();
         _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
         _serverWaveManager = ServiceLocator.Get<BaseServerWaveManager>();
+
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        base.OnNetworkDespawn();
     }
 
     public override void OnDestroy()
@@ -60,12 +70,18 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         }
 
         _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
-        
+
         SpawnResultRpc(new SpawnEnemyResult
         {
             CardType = cardType,
             Validation = CardValidation.Valid,
         }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
+        TriggerOnCardDeployed(new CardDeployedEventArgs
+        {
+            TeamDeployed = team,
+            CardDeployed = cardType
+        });
     }
 
     private void SendFailure(ulong clientId, CardType cardType, CardInvalidReason reason)
