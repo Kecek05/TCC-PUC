@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -16,8 +17,14 @@ public class RelayManager : MonoBehaviour
     [SerializeField] private Button joinButton;
     [SerializeField] private TextMeshProUGUI joinCodeText;
 
+    private BaseHostManager _hostManager;
+    private BaseClientManager _clientManager;
+    
     private void Start()
     {
+        _hostManager = ServiceLocator.Get<BaseHostManager>();
+        _clientManager = ServiceLocator.Get<BaseClientManager>();
+        
         createRelayButton.onClick.AddListener(CreateRelay);
         joinButton.onClick.AddListener(JoinRelay);
     }
@@ -28,23 +35,16 @@ public class RelayManager : MonoBehaviour
 
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1);
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
-            GameLog.Info($"Relay created. Join code: {joinCode}");
-            joinCodeText.text = joinCode;
-
-            NetworkManager.Singleton.GetComponent<UnityTransport>()
-                .SetRelayServerData(allocation.ToRelayServerData("dtls"));
-            NetworkManager.Singleton.StartHost();
-
-            gameObject.SetActive(false);
-        }
-        catch (RelayServiceException e)
+            await _hostManager.StartHostAsync();
+        } catch (System.Exception e)
         {
-            GameLog.Error($"Failed to create relay: {e.Message}");
+            GameLog.Exception(e);
             createRelayButton.interactable = true;
+            return;
         }
+        
+        joinCodeText.text = _hostManager.JoinCode;
+        gameObject.SetActive(false);
     }
 
     private async void JoinRelay()
@@ -56,18 +56,15 @@ public class RelayManager : MonoBehaviour
 
         try
         {
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(code);
-
-            NetworkManager.Singleton.GetComponent<UnityTransport>()
-                .SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
-            NetworkManager.Singleton.StartClient();
-
+            await _clientManager.JoinHost(code);
+            
             gameObject.SetActive(false);
         }
-        catch (RelayServiceException e)
+        catch (Exception e)
         {
             GameLog.Error($"Failed to join relay: {e.Message}");
             joinButton.interactable = true;
+            return;
         }
     }
 }

@@ -1,11 +1,18 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Server-side host for the game-flow FSM. The FSM owns all transition logic;
+/// this manager only ticks it and mirrors the active <see cref="GameState"/>
+/// onto <see cref="BaseGameFlowManager.CurrentGameState"/> so existing readers
+/// (UI, ServerWaveManager, towers, etc.) keep working unchanged.
+/// </summary>
 public class GameFlowManager : BaseGameFlowManager
 {
-    private BaseServerEndGameManager  _endGameManager;
-    [SerializeField] private DebugSettingsSO  _debugSettings;
-    
+    [SerializeField] private DebugSettingsSO _debugSettings;
+
+    private GameFlowFsm _fsm;
+
     private void Awake()
     {
         ServiceLocator.Register<BaseGameFlowManager>(this);
@@ -13,18 +20,22 @@ public class GameFlowManager : BaseGameFlowManager
 
     public override void OnNetworkSpawn()
     {
-        _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
-        
         if (!IsServer)
         {
             enabled = false;
             return;
         }
-        
+
         CurrentGameState.Value = GameState.WaitingForPlayers;
-        StartCoroutine(HandleGameFlow());
-        
-        _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
+        StartCoroutine(WaitForReadyThenStart());
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer) return;
+
+        if (_fsm != null)
+            _fsm.OnStateChanged -= PublishState;
     }
 
     public override void OnDestroy()
@@ -33,49 +44,40 @@ public class GameFlowManager : BaseGameFlowManager
         base.OnDestroy();
     }
 
-    public override void OnNetworkDespawn()
-    {
-        if (!IsServer)
-        {
-            return;
-        }
-        
-        if (_endGameManager != null)
-            _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
-    }
-
-    private IEnumerator HandleGameFlow()
-    {
-        BaseTeamManager teamManager = ServiceLocator.Get<BaseTeamManager>();
-
-        yield return new WaitUntil(() =>
-            teamManager != null &&
-            teamManager.BothTeamsAssigned());
-
-        SetGameState(GameState.LoadingMatch);
-
-        BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
-        
-        yield return new WaitUntil(() =>
-            mapTranslator != null &&
-            mapTranslator.BothPlayersInitialized);
-
-        SetGameState(GameState.MatchReady);
-
-        yield return new WaitForSeconds(2f); // Short delay before starting the match
-
-        SetGameState(GameState.InMatch);
-    }
-    
-    private void SetGameState(GameState newState)
+    private void Update()
     {
         if (!IsServer) return;
-        CurrentGameState.Value = newState;
-        GameLog.Info($"GameFlowManager: Game state changed to {newState}");
+        _fsm?.Tick();
     }
-    
-    private void EndGameManager_OnGameEnded(EndGameSnapshot endGameSnapshot)
+
+    private IEnumerator WaitForReadyThenStart()
     {
-        SetGameState(GameState.EndMatch);
+        yield return new WaitUntil(() =>
+            ServiceLocator.Get<BaseTeamManager>() != null &&
+            ServiceLocator.Get<BaseMapTranslator>() != null &&
+            ServiceLocator.Get<BaseServerEndGameManager>() != null);
+
+        GameFlowContext ctx = new GameFlowContext
+        {
+            TeamManager = ServiceLocator.Get<BaseTeamManager>(),
+            MapTranslator = ServiceLocator.Get<BaseMapTranslator>(),
+            EndGameManager = ServiceLocator.Get<BaseServerEndGameManager>(),
+        };
+
+        _fsm = new GameFlowFsm(ctx,
+            new WaitingForPlayersState(),
+            new LoadingMatchState(),
+            new MatchReadyState(),
+            new InMatchState(),
+            new EndMatchState());
+
+        _fsm.OnStateChanged += PublishState;
+        _fsm.Start(GameState.WaitingForPlayers);
+    }
+
+    private void PublishState(GameState state)
+    {
+        CurrentGameState.Value = state;
+        GameLog.Info($"GameFlowManager: Game state changed to {state}");
     }
 }

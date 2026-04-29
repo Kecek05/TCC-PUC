@@ -6,14 +6,13 @@ public class UserData
 {
     //need to be public for the Json payload
 
-    public string playerName;
-    public string playerAuthId;
+    public string PlayerName;
+    public string PlayerAuthId;
+    public int UserTrophies; 
 
-    public int userTrophies; 
+    public void SetUserTrophies(int userTrophies) => this.UserTrophies = userTrophies;
 
-    public void SetUserTrophies(int userTrophies) => this.userTrophies = userTrophies;
-
-    public void SetPlayerName(string playerName) => this.playerName = playerName;
+    public void SetPlayerName(string playerName) => this.PlayerName = playerName;
 
     public GameInfo userGamePreferences = new();
 }

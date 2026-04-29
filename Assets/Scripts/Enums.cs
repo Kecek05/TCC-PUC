@@ -7,7 +7,8 @@ public enum GameState
     LoadingMatch,
     MatchReady,
     InMatch,
-    EndMatch
+    EndMatch,
+    DrawingCards
 }
 
 public enum TeamType

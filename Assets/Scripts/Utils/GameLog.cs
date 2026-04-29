@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using UnityObject = UnityEngine.Object;
 using UnityDebug = UnityEngine.Debug;
@@ -6,8 +7,8 @@ using UnityDebug = UnityEngine.Debug;
 /// Build-time-conditional logging facade. <see cref="Info"/> and <see cref="Warn"/>
 /// calls (including their argument evaluation, e.g. string interpolation) are stripped
 /// by the compiler in release Player builds — no runtime cost.
-/// <see cref="Error"/> is intentionally NOT conditional: real errors should still reach
-/// logs/crash analytics in shipped builds.
+/// <see cref="Error"/> and <see cref="Exception"/> are intentionally NOT conditional:
+/// real errors and unhandled exceptions should still reach logs/crash analytics in shipped builds.
 /// </summary>
 public static class GameLog
 {
@@ -26,4 +27,8 @@ public static class GameLog
     public static void Error(object message) => UnityDebug.LogError(message);
 
     public static void Error(object message, UnityObject context) => UnityDebug.LogError(message, context);
+
+    public static void Exception(Exception exception) => UnityDebug.LogException(exception);
+
+    public static void Exception(Exception exception, UnityObject context) => UnityDebug.LogException(exception, context);
 }
