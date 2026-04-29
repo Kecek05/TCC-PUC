@@ -60,7 +60,7 @@ public class ServerCardHandManager : BaseCardHandManager
         yield return new WaitUntil(
             () => ServiceLocator.Get<BaseServerManaManager>() != null
                && ServiceLocator.Get<CardDeploymentBus>() != null);
-
+        
         _maxManaProvider = ServiceLocator.Get<BaseServerManaManager>();
         _maxManaProvider.OnMaxManaChanged += OnMaxManaChanged;
 

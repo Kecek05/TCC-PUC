@@ -4,15 +4,29 @@ using Random = UnityEngine.Random;
 
 public class HandData
 {
-    // List of Instance Cards in the players hand (populated by UI layer)
+    /// <summary>
+    ///  List of Instance Cards in the players hand (populated by UI layer)
+    /// </summary>
     public List<AbstractCard> CardsInHand;
-    // Cards currently displayed in the player's hand (data, source of truth for draw cycle)
+    
+    /// <summary>
+    /// Cards currently displayed in the player's hand (data, source of truth for draw cycle)
+    /// </summary>
     public List<CardType> HandCards;
-    // List of all Cards in the player's deck (full set, unchanged after distribution)
+    
+    /// <summary>
+    /// List of all Cards in the player's deck (full set, unchanged after distribution)
+    /// </summary>
     public List<CardType> CardsInDeck;
-    // List of cards that the Cost is higher than the current maximum mana
+    
+    /// <summary>
+    /// List of cards that the Cost is higher than the current maximum mana
+    /// </summary>
     public List<CardType> LockedCards;
-    // Queue of the next cards available to be drawn, based on the current deck, hand and maximum mana
+    
+    /// <summary>
+    /// Queue of the next cards available to be drawn, based on the current deck, hand and maximum mana
+    /// </summary>
     public Queue<CardType> QueuedCards;
 
     /// <summary>
