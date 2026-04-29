@@ -17,6 +17,14 @@ public class UserData
     public void SetPlayerAuthId(string playerAuthId) => this.PlayerAuthId = playerAuthId;
 
     public GameInfo userGamePreferences = new();
+
+    public byte[] TranslateToBytes()
+    {
+        string payload = JsonUtility.ToJson(this); //serialize the payload to json
+        Debug.Log(payload);
+        byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); // serialize the payload to bytes
+        return payloadBytes;
+    }
 }
 
 [Serializable]
