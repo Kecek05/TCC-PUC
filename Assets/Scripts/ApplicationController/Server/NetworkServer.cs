@@ -24,16 +24,31 @@ public class NetworkServer : IDisposable
 
     private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        string payload = System.Text.Encoding.UTF8.GetString(request.Payload); //Deserialize the payload to jason
+        if (request.Payload == null || request.Payload.Length == 0)
+        {
+            GameLog.Error($"ApprovalCheck: empty payload from client {request.ClientNetworkId}. Rejecting.");
+            response.Approved = false;
+            response.Reason = "Empty connection payload";
+            return;
+        }
 
-        UserData userData = JsonUtility.FromJson<UserData>(payload); //Deserialize the payload to UserData
+        string payload = System.Text.Encoding.UTF8.GetString(request.Payload);
+        UserData userData = JsonUtility.FromJson<UserData>(payload);
 
-        Debug.Log($"ApprovalCheck, Name: {userData.PlayerName}, Trophies: {userData.UserTrophies}, AuthId: {userData.PlayerAuthId} ");
+        if (userData == null)
+        {
+            GameLog.Error($"ApprovalCheck: payload from client {request.ClientNetworkId} deserialized to null UserData. Payload='{payload}'. Rejecting.");
+            response.Approved = false;
+            response.Reason = "Invalid connection payload";
+            return;
+        }
+
+        GameLog.Info($"ApprovalCheck, Name: {userData.PlayerName}, Trophies: {userData.UserTrophies}, AuthId: {userData.PlayerAuthId}");
 
         serverAuthenticationService.RegisterUserData(userData, request.ClientNetworkId);
-        
-        response.Approved = true; //Connection is approved
+
         response.CreatePlayerObject = false;
+        response.Approved = true;
     }
 
     private void SceneManager_OnLoadComplete(ulong clientId, string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode)

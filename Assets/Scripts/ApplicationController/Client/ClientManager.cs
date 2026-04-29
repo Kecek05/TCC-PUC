@@ -7,77 +7,61 @@ using Unity.Services.Authentication;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
-using Random = System.Random;
 
 public class ClientManager : BaseClientManager
 {
-    private ClientAuth clientAuth;
     private NetworkClient networkClient;
 
-    public ClientAuth ClientAuth => clientAuth;
-    
-    private UserData userData;
-    public UserData UserData => userData;
-
-    private async void Awake()
+    private void Awake()
     {
         ServiceLocator.Register<BaseClientManager>(this);
         DontDestroyOnLoad(gameObject);
-        
-        clientAuth = new ClientAuth();
+
+        UserData = new UserData();
+
+        ClientAuth = new ClientAuth();
         networkClient = new NetworkClient(NetworkManager.Singleton);
 
-        if (await clientAuth.TryInitAsync())
-        {
-            userData = new UserData
-            {
-                PlayerName = AuthenticationService.Instance.PlayerName, //Temp
-                PlayerAuthId = AuthenticationService.Instance.PlayerId,
-            };
-            
-            userData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
-        }
+        DoAuth();
     }
-    
-    public override async Task<bool> JoinHost(string joinCode)
+
+    private async void DoAuth()
     {
         try
         {
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-
-            UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            
-            transport.SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
+            if (await ClientAuth.TryInitAsync())
+            {
+                UserData.SetPlayerName(AuthenticationService.Instance.PlayerName); //Temp
+                UserData.SetPlayerAuthId(AuthenticationService.Instance.PlayerId);
+                UserData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
+                GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {AuthenticationService.Instance.PlayerName}");
+            }
         }
         catch (Exception e)
         {
             GameLog.Exception(e);
-            return false;
+            return;
         }
-        
-        Loader.LoadClient();
-        return true;
     }
-    
+
+    public override async Task<bool> JoinHost(string joinCode)
+    {
+        return await networkClient.JoinRelay(joinCode);
+    }
+
     public override void ConnectClient()
     {
-        string payload = JsonUtility.ToJson(userData); //serialize the payload to json
-        byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); //serialize the payload to bytes
+        networkClient.ConnectClient(UserData);
+    }
 
-        NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
-        Debug.Log($"Setted Payload - Start Connection");
-        
-        bool result = NetworkManager.Singleton.StartClient();
-        if (!result)
-        {
-            Debug.LogError("Failed to start client: StartClient returned false.");
-            Loader.Load(Loader.Scene.NoNetwork);
-        }
+    public override void DisconnectClient()
+    {
+        networkClient.Disconnect();
     }
 
     private void OnDestroy()
     {
-        clientAuth?.Dispose();
+        ClientAuth?.Dispose();
         networkClient?.Dispose();
         ServiceLocator.Unregister<BaseClientManager>();
     }

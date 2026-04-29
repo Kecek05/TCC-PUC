@@ -92,12 +92,17 @@ public class HostManager : BaseHostManager
             networkServer = new NetworkServer(NetworkManager.Singleton);
             
             string payload = JsonUtility.ToJson(ServiceLocator.Get<BaseClientManager>().UserData); //serialize the payload to json
+            Debug.Log(payload);
             byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); // serialize the payload to bytes
 
             NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
             
-            
-            NetworkManager.Singleton.StartHost();
+            if (!NetworkManager.Singleton.StartHost())
+            {
+                GameLog.Error("HostManager: StartHost() returned false. Aborting load.");
+                // OnFailToStartHost?.Invoke();
+                return;
+            }
 
             Loader.LoadHostNetwork(Loader.Scene.GameScene);
             

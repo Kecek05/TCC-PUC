@@ -1,6 +1,11 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NetworkClient : IDisposable
 {
@@ -32,26 +37,57 @@ public class NetworkClient : IDisposable
         GameLog.Info($"Client disconnected: {clientId}");
     }
 
-    public async void JoinRelay(string joinCode)
+    public async Task<bool> JoinRelay(string joinCode)
     {
+        try
+        {
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+
+            UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            
+            transport.SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
+        }
+        catch (Exception e)
+        {
+            GameLog.Exception(e);
+            return false;
+        }
         
+        Loader.LoadClient();
+        return true;
     }
 
-    private void ConnectClient()
+    public void ConnectClient(UserData userData)
     {
-        string payload = JsonUtility.ToJson(_clientManager.UserData); //serialize the payload to json
+        string payload = JsonUtility.ToJson(userData); //serialize the payload to json
         byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); //serialize the payload to bytes
 
-        // GameLog.Info($"ConnectClient, UserData: {userData.userName}, Pearls: {userData.userPearls}, AuthId: {userData.userAuthId} ");
-
         NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
-        // GameLog.Info($"Setted Payload - Start Connection");
+        Debug.Log($"Setted Payload - Start Connection");
         
         bool result = NetworkManager.Singleton.StartClient();
         if (!result)
         {
-            GameLog.Error("Failed to start client: StartClient returned false.");
+            Debug.LogError("Failed to start client: StartClient returned false.");
             Loader.Load(Loader.Scene.NoNetwork);
+        }
+    }
+
+    public void Disconnect()
+    {
+        Debug.Log("Client Disconnect");
+        //Check if is host first
+        if (networkManager != null && ServiceLocator.Get<BaseHostManager>() != null && networkManager.IsHost)
+        {
+            ServiceLocator.Get<BaseHostManager>().ShutdownHostAsync();
+        }
+
+        if(networkManager.IsConnectedClient)
+            networkManager.Shutdown();
+
+        if (SceneManager.GetActiveScene().name != Loader.Scene.MainMenu.ToString())
+        {
+            Loader.Load(Loader.Scene.MainMenu);
         }
     }
 

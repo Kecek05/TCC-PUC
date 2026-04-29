@@ -52,6 +52,13 @@ public static class Loader
         targetScene = scene;
         currentScene = Scene.Loading;
 
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null)
+        {
+            GameLog.Error("Loader.LoadHostNetwork called before NetworkManager.SceneManager was ready. " +
+                          "Make sure NetworkManager.StartHost() succeeded before calling this.");
+            return;
+        }
+
         NetworkManager.Singleton.SceneManager.LoadScene(Scene.Loading.ToString(), LoadSceneMode.Single);
     }
     

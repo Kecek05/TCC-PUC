@@ -9,5 +9,7 @@ public abstract class BaseClientManager : MonoBehaviour
     
     public abstract void ConnectClient();
     
+    public abstract void DisconnectClient();
+    
     public abstract Task<bool> JoinHost(string joinCode);
 }

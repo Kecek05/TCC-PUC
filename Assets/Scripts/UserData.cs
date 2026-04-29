@@ -8,11 +8,13 @@ public class UserData
 
     public string PlayerName;
     public string PlayerAuthId;
-    public int UserTrophies; 
+    public int UserTrophies;
 
     public void SetUserTrophies(int userTrophies) => this.UserTrophies = userTrophies;
 
     public void SetPlayerName(string playerName) => this.PlayerName = playerName;
+    
+    public void SetPlayerAuthId(string playerAuthId) => this.PlayerAuthId = playerAuthId;
 
     public GameInfo userGamePreferences = new();
 }
