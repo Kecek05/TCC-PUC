@@ -3,14 +3,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RelayManagerUI : MonoBehaviour
+public class ConnectionManagerUI : MonoBehaviour
 {
-    [Header("Host")]
+    [Header("Create")]
     [SerializeField] private Button createRelayButton;
-
+    [SerializeField] private Button createDedicatedServerButton;
+    
     [Header("Join")]
     [SerializeField] private TMP_InputField joinCodeInput;
     [SerializeField] private Button joinButton;
+    [SerializeField] private Button joinDedicatedServerButton;
 
     private BaseHostManager _hostManager;
     private BaseClientManager _clientManager;
@@ -22,6 +24,9 @@ public class RelayManagerUI : MonoBehaviour
         
         createRelayButton.onClick.AddListener(CreateRelay);
         joinButton.onClick.AddListener(JoinRelay);
+        
+        createDedicatedServerButton.onClick.AddListener(CreateDedicatedServer);
+        joinDedicatedServerButton.onClick.AddListener(JoinDedicatedServer);
     }
 
     private async void CreateRelay()
@@ -56,5 +61,15 @@ public class RelayManagerUI : MonoBehaviour
             joinButton.interactable = true;
             return;
         }
+    }
+
+    private async void CreateDedicatedServer()
+    {
+        
+    }
+
+    private async void JoinDedicatedServer()
+    {
+        
     }
 }

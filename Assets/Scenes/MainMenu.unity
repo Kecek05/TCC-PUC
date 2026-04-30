@@ -554,9 +554,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RelayManager
   createRelayButton: {fileID: 1137407562}
+  createDedicatedServerButton: {fileID: 1012175129}
   joinCodeInput: {fileID: 656738890}
   joinButton: {fileID: 1267415842}
-  joinCodeText: {fileID: 0}
+  joinDedicatedServerButton: {fileID: 146425357}
 --- !u!114 &348477584
 MonoBehaviour:
   m_ObjectHideFlags: 0
