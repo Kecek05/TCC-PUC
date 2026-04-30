@@ -23,6 +23,7 @@ public class HostConnectionData : IDisposable
         _allocation = allocation;
         _joinCode = joinCode;
         _lobbyId = lobbyId;
+        _networkServer = networkServer;
     }
     
     public Allocation Allocation => _allocation;
@@ -44,8 +45,6 @@ public class HostManager : BaseHostManager
     public event Action OnHostInGameScene;
     public event Action OnHostShutdown;
     
-    private HostConnectionData _currentHostConnectionData;
-    
     private BaseClientManager _clientManager;
     
     private void Awake()
@@ -61,9 +60,9 @@ public class HostManager : BaseHostManager
 
     public override async Task StartHostAsync()
     {
-        if (_currentHostConnectionData != null)
+        if (CurrentHostConnectionData != null)
         {
-            GameLog.Error("HostManager: Tryed to StartHostAsync but it's already hosting. Aborting load.");
+            GameLog.Error("HostManager: Tried to StartHostAsync but it's already hosting. Aborting load.");
             OnFailToStartHost?.Invoke();
             return;
         }
@@ -99,7 +98,7 @@ public class HostManager : BaseHostManager
         
         NetworkServer networkServer = new NetworkServer(NetworkManager.Singleton);
         
-        _currentHostConnectionData = new HostConnectionData(allocation, joinCode, lobby.Id, networkServer);
+        CurrentHostConnectionData = new HostConnectionData(allocation, joinCode, lobby.Id, networkServer);
         
         if (!NetworkManager.Singleton.StartHost())
         {
@@ -184,21 +183,21 @@ public class HostManager : BaseHostManager
     /// </summary>
     public override async void ShutdownHostAsync()
     {
-        if (_currentHostConnectionData == null) return;
+        if (CurrentHostConnectionData == null) return;
         
         StopCoroutine(nameof(HeartbeatLobby));
 
         try
         {
-            await LobbyService.Instance.DeleteLobbyAsync(_currentHostConnectionData.LobbyId);
+            await LobbyService.Instance.DeleteLobbyAsync(CurrentHostConnectionData.LobbyId);
         }
         catch (LobbyServiceException lobbyEx)
         {
             GameLog.Exception(lobbyEx);
         }
 
-        _currentHostConnectionData.Dispose();
-        _currentHostConnectionData = null;
+        CurrentHostConnectionData.Dispose();
+        CurrentHostConnectionData = null;
         Debug.Log("NETMANAGER - Call network dispose on Host game manager");
         OnHostShutdown?.Invoke();
     }
@@ -217,7 +216,7 @@ public class HostManager : BaseHostManager
     
     private void OnDestroy()
     {
-        _currentHostConnectionData?.Dispose();
+        CurrentHostConnectionData?.Dispose();
         ServiceLocator.Unregister<BaseHostManager>();
     }
 }

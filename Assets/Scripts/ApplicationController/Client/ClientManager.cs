@@ -20,6 +20,7 @@ public class ClientManager : BaseClientManager
         UserData = new UserData();
 
         ClientAuth = new ClientAuth();
+        //TODO: Refactor the creation of NetworkClient too.
         networkClient = new NetworkClient(NetworkManager.Singleton, this);
 
         DoAuth();
@@ -35,6 +36,7 @@ public class ClientManager : BaseClientManager
                 UserData.SetPlayerAuthId(AuthenticationService.Instance.PlayerId);
                 UserData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
                 GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {AuthenticationService.Instance.PlayerName}");
+                Loader.Load(Loader.Scene.MainMenu);
             }
         }
         catch (Exception e)

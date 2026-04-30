@@ -1,13 +1,9 @@
 using System;
 using TMPro;
-using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RelayManager : MonoBehaviour
+public class RelayManagerUI : MonoBehaviour
 {
     [Header("Host")]
     [SerializeField] private Button createRelayButton;
@@ -15,7 +11,6 @@ public class RelayManager : MonoBehaviour
     [Header("Join")]
     [SerializeField] private TMP_InputField joinCodeInput;
     [SerializeField] private Button joinButton;
-    [SerializeField] private TextMeshProUGUI joinCodeText;
 
     private BaseHostManager _hostManager;
     private BaseClientManager _clientManager;
@@ -42,9 +37,6 @@ public class RelayManager : MonoBehaviour
             createRelayButton.interactable = true;
             return;
         }
-        
-        joinCodeText.text = _hostManager.HostConnectionData.JoinCode;
-        gameObject.SetActive(false);
     }
 
     private async void JoinRelay()
@@ -57,8 +49,6 @@ public class RelayManager : MonoBehaviour
         try
         {
             await _clientManager.JoinHost(code);
-            
-            gameObject.SetActive(false);
         }
         catch (Exception e)
         {

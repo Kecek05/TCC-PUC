@@ -143,9 +143,14 @@ MonoBehaviour:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-813e38b29e7cc3c45a123f7e83088b6d-958219599-0
         - globalObjectIdString: GlobalObjectId_V1-2-813e38b29e7cc3c45a123f7e83088b6d-2066333636-0
+        - globalObjectIdString: GlobalObjectId_V1-2-813e38b29e7cc3c45a123f7e83088b6d-348477579-0
         values:
         - colorIndex: 4
           iconNameOrGuid: Folder Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
           isIconRecursive: 0
           isColorRecursive: 0
         - colorIndex: 0

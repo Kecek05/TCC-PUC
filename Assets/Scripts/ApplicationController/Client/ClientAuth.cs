@@ -23,8 +23,6 @@ public class ClientAuth : IDisposable
         if (authState == AuthState.Authenticated)
         {
             GameLog.Info($"Player - {authState} - {AuthenticationService.Instance.PlayerId}");
-
-            Loader.Load(Loader.Scene.GameScene);
             return true;
         }
 
