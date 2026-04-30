@@ -5,12 +5,12 @@ using UnityEngine;
 public class NetworkServer : IDisposable
 {
     private NetworkManager networkManager;
-    private ServerAuthenticationService serverAuthenticationService;
+    private PlayersDataManager _playersDataManager;
     
     public NetworkServer(NetworkManager _networkManager)
     {
         networkManager  = _networkManager;
-        serverAuthenticationService = new ServerAuthenticationService();
+        _playersDataManager = new PlayersDataManager();
         
         networkManager.ConnectionApprovalCallback += ApprovalCheck;
         
@@ -45,7 +45,7 @@ public class NetworkServer : IDisposable
 
         GameLog.Info($"ApprovalCheck, Name: {userData.PlayerName}, Trophies: {userData.UserTrophies}, AuthId: {userData.PlayerAuthId}");
 
-        serverAuthenticationService.RegisterUserData(userData, request.ClientNetworkId);
+        _playersDataManager.RegisterUserData(userData, request.ClientNetworkId);
 
         response.CreatePlayerObject = false;
         response.Approved = true;
@@ -55,17 +55,17 @@ public class NetworkServer : IDisposable
     {
         if(sceneName != Loader.Scene.GameScene.ToString()) return; //Only Spawn players in Game Scene
 
-        Debug.Log($"Client {clientId} / AuthId {serverAuthenticationService.GetAuthIdByClientId(clientId)} loaded scene {sceneName}");
+        Debug.Log($"Client {clientId} / AuthId {_playersDataManager.GetAuthIdByClientId(clientId)} loaded scene {sceneName}");
         
         //New client
 
         PlayerData newPlayerData = new PlayerData()
         {
-            UserData = serverAuthenticationService.ClientIdToUserData[clientId],
+            UserData = _playersDataManager.ClientIdToUserData[clientId],
             ClientId = clientId,
         };
 
-        serverAuthenticationService.RegisterClient(newPlayerData);
+        _playersDataManager.RegisterClient(newPlayerData);
 
         Debug.Log($"SceneManager_OnLoadComplete, New client - Player Data - userData Auth Id {newPlayerData.UserData.PlayerAuthId} - clientId {newPlayerData.ClientId} ");
     }

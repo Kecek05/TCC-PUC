@@ -4,8 +4,7 @@ using UnityEngine;
 
 public abstract class BaseHostManager : MonoBehaviour
 {
-    
-    public ConnectionData ConnectionData { get; protected set; }
+    public HostConnectionData HostConnectionData { get; protected set; }
     
     public abstract Task StartHostAsync();
     

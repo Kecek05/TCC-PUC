@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerAuthenticationService
+public class PlayersDataManager
 {
     private Dictionary<string, ulong> _authToClientId = new(); 
 

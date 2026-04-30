@@ -12,9 +12,9 @@ public class NetworkClient : IDisposable
     private NetworkManager networkManager;
     private BaseClientManager _clientManager;
 
-    public NetworkClient(NetworkManager networkManager)
+    public NetworkClient(NetworkManager networkManager, BaseClientManager clientManager)
     {
-        _clientManager = ServiceLocator.Get<BaseClientManager>();
+        _clientManager = clientManager;
         this.networkManager = networkManager;
         
         networkManager.OnClientStarted += NetworkManager_OnClientStarted;
@@ -59,14 +59,10 @@ public class NetworkClient : IDisposable
 
     public void ConnectClient(UserData userData)
     {
-        string payload = JsonUtility.ToJson(userData); //serialize the payload to json
-        byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); //serialize the payload to bytes
-
-        NetworkManager.Singleton.NetworkConfig.ConnectionData = payloadBytes;
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = userData.TranslateToBytes();
         Debug.Log($"Setted Payload - Start Connection");
         
-        bool result = NetworkManager.Singleton.StartClient();
-        if (!result)
+        if (!NetworkManager.Singleton.StartClient())
         {
             Debug.LogError("Failed to start client: StartClient returned false.");
             Loader.Load(Loader.Scene.NoNetwork);

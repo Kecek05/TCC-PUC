@@ -20,7 +20,7 @@ public class ClientManager : BaseClientManager
         UserData = new UserData();
 
         ClientAuth = new ClientAuth();
-        networkClient = new NetworkClient(NetworkManager.Singleton);
+        networkClient = new NetworkClient(NetworkManager.Singleton, this);
 
         DoAuth();
     }

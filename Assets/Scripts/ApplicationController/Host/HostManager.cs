@@ -11,14 +11,14 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ConnectionData : IDisposable
+public class HostConnectionData : IDisposable
 {
     private Allocation _allocation;
     private string _joinCode;
     private string _lobbyId;
     private NetworkServer _networkServer;
 
-    public ConnectionData(Allocation allocation, string joinCode, string lobbyId,  NetworkServer networkServer)
+    public HostConnectionData(Allocation allocation, string joinCode, string lobbyId,  NetworkServer networkServer)
     {
         _allocation = allocation;
         _joinCode = joinCode;
@@ -40,7 +40,11 @@ public class HostManager : BaseHostManager
 {
     private const int MAX_CONNECTIONS = 1;
 
-    private ConnectionData _currentConnectionData;
+    public event Action OnFailToStartHost;
+    public event Action OnHostInGameScene;
+    public event Action OnHostShutdown;
+    
+    private HostConnectionData _currentHostConnectionData;
     
     private BaseClientManager _clientManager;
     
@@ -57,9 +61,10 @@ public class HostManager : BaseHostManager
 
     public override async Task StartHostAsync()
     {
-        if (_currentConnectionData != null)
+        if (_currentHostConnectionData != null)
         {
             GameLog.Error("HostManager: Tryed to StartHostAsync but it's already hosting. Aborting load.");
+            OnFailToStartHost?.Invoke();
             return;
         }
         
@@ -67,6 +72,7 @@ public class HostManager : BaseHostManager
         if (allocation == null)
         {
             GameLog.Error("HostManager: Failed to create Relay allocation. Aborting load.");
+            OnFailToStartHost?.Invoke();
             return;
         }
         
@@ -74,6 +80,7 @@ public class HostManager : BaseHostManager
         if (joinCode == null)
         {
             GameLog.Error("HostManager: Failed to get Join Code. Aborting load.");
+            OnFailToStartHost?.Invoke();
             return;
         };
         
@@ -82,6 +89,7 @@ public class HostManager : BaseHostManager
         if (lobby == null)
         {
             GameLog.Error("HostManager: Failed to create Lobby. Aborting load.");
+            OnFailToStartHost?.Invoke();
             return;
         }
         
@@ -91,12 +99,12 @@ public class HostManager : BaseHostManager
         
         NetworkServer networkServer = new NetworkServer(NetworkManager.Singleton);
         
-        _currentConnectionData = new ConnectionData(allocation, joinCode, lobby.Id, networkServer);
+        _currentHostConnectionData = new HostConnectionData(allocation, joinCode, lobby.Id, networkServer);
         
         if (!NetworkManager.Singleton.StartHost())
         {
             GameLog.Error("HostManager: StartHost() returned false. Aborting load.");
-            // OnFailToStartHost?.Invoke();
+            OnFailToStartHost?.Invoke();
             return;
         }
 
@@ -111,6 +119,7 @@ public class HostManager : BaseHostManager
         }
         
         Debug.Log("In game scene");
+        OnHostInGameScene?.Invoke();
     }
 
     private async Task<Allocation> CreateAllocation()
@@ -123,7 +132,7 @@ public class HostManager : BaseHostManager
         catch (Exception e)
         {
             GameLog.Exception(e);
-            // OnFailToStartHost?.Invoke();
+            OnFailToStartHost?.Invoke();
             return null;
         }
     }
@@ -139,7 +148,7 @@ public class HostManager : BaseHostManager
         catch (Exception e)
         {
             GameLog.Exception(e);
-            // OnFailToStartHost?.Invoke();
+            OnFailToStartHost?.Invoke();
             return null;
         }
     }
@@ -165,7 +174,7 @@ public class HostManager : BaseHostManager
         } catch (LobbyServiceException lobbyEx)
         {
             GameLog.Exception(lobbyEx);
-            // OnFailToStartHost?.Invoke();
+            OnFailToStartHost?.Invoke();
             return null;
         }
     }
@@ -175,22 +184,23 @@ public class HostManager : BaseHostManager
     /// </summary>
     public override async void ShutdownHostAsync()
     {
-        if (_currentConnectionData == null) return;
+        if (_currentHostConnectionData == null) return;
         
         StopCoroutine(nameof(HeartbeatLobby));
 
         try
         {
-            await LobbyService.Instance.DeleteLobbyAsync(_currentConnectionData.LobbyId);
+            await LobbyService.Instance.DeleteLobbyAsync(_currentHostConnectionData.LobbyId);
         }
         catch (LobbyServiceException lobbyEx)
         {
             GameLog.Exception(lobbyEx);
         }
 
-        _currentConnectionData.Dispose();
-        _currentConnectionData = null;
+        _currentHostConnectionData.Dispose();
+        _currentHostConnectionData = null;
         Debug.Log("NETMANAGER - Call network dispose on Host game manager");
+        OnHostShutdown?.Invoke();
     }
     
     private IEnumerator HeartbeatLobby(float delayHeartbeatSeconds, string lobbyId)
@@ -207,7 +217,7 @@ public class HostManager : BaseHostManager
     
     private void OnDestroy()
     {
-        _currentConnectionData?.Dispose();
+        _currentHostConnectionData?.Dispose();
         ServiceLocator.Unregister<BaseHostManager>();
     }
 }

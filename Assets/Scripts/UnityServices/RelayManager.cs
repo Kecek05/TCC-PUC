@@ -43,7 +43,7 @@ public class RelayManager : MonoBehaviour
             return;
         }
         
-        joinCodeText.text = _hostManager.JoinCode;
+        joinCodeText.text = _hostManager.HostConnectionData.JoinCode;
         gameObject.SetActive(false);
     }
 
