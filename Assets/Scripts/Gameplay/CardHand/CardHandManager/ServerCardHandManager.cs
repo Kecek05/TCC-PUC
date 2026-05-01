@@ -18,7 +18,7 @@ public class ServerCardHandManager : BaseCardHandManager
 
     private HandData _blueHandData;
     private HandData _redHandData;
-
+    
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
     private CardDeploymentBus _deploymentBus;
