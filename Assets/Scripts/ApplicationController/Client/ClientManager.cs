@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Sirenix.OdinInspector;
 using Unity.Mathematics;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -11,6 +12,10 @@ using UnityEngine;
 public class ClientManager : BaseClientManager
 {
     private NetworkClient networkClient;
+
+    [Title("Debug")]
+    [SerializeField] private bool useDebugHand = false;
+    [SerializeField] private DebugHand debugHand;
 
     private void Awake()
     {
@@ -35,6 +40,11 @@ public class ClientManager : BaseClientManager
                 UserData.SetPlayerName(AuthenticationService.Instance.PlayerName); //Temp
                 UserData.SetPlayerAuthId(AuthenticationService.Instance.PlayerId);
                 UserData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
+                if (useDebugHand)
+                {
+                    UserData.SetDeckCards(debugHand.Deck);
+                }
+                
                 GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {AuthenticationService.Instance.PlayerName}");
                 Loader.Load(Loader.Scene.MainMenu);
             }

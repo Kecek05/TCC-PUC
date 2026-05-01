@@ -14,6 +14,6 @@ public class MatchReadyState : IGameFlowState
     public void Tick(GameFlowContext ctx)
     {
         if (Time.time - _enterTime >= DelayBeforeMatchSeconds)
-            ctx.RequestTransition(GameState.InMatch);
+            ctx.RequestTransition(GameState.DrawingCards);
     }
 }

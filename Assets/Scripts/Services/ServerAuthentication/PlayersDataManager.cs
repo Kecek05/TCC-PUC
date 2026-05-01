@@ -8,6 +8,8 @@ public class PlayersDataManager
     private Dictionary<ulong, string> _clientIdToAuth = new(); 
     
     private Dictionary<string, PlayerData> _authIdToPlayerData = new();
+
+    public Dictionary<string, PlayerData> AuthIdToPlayerData => _authIdToPlayerData;
     
     public void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
     {

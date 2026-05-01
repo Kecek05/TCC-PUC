@@ -73,6 +73,7 @@ public class ServerCardHandManager : BaseCardHandManager
 
     public override void SetHandForPlayer(TeamType teamType, List<CardType> cardsInDeck)
     {
+        GameLog.Info($"[CardHandManager] SetHandForPlayer: Setting hand for {teamType} with deck of {cardsInDeck.Count} cards.");
         if (!IsServer)
         {
             GameLog.Error("[CardHandManager] SetHandForPlayer must be called on the server.");

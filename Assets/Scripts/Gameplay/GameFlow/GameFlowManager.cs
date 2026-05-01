@@ -69,7 +69,8 @@ public class GameFlowManager : BaseGameFlowManager
             new LoadingMatchState(),
             new MatchReadyState(),
             new InMatchState(),
-            new EndMatchState());
+            new EndMatchState(),
+            new DrawingCardsState());
 
         _fsm.OnStateChanged += PublishState;
         _fsm.Start(GameState.WaitingForPlayers);
