@@ -145,9 +145,9 @@ public class ServerWaveManager : BaseServerWaveManager
         enemyManager.NetworkObject.Spawn();
     }
 
-    public override void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId)
+    public override void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId)
     {
-        TeamType senderTeam = ServiceLocator.Get<BaseTeamManager>().GetTeam(clientId);
+        TeamType senderTeam = _teamManager.GetTeam(senderAuthId);
 
         // Send enemy to the OPPONENT's map
         TeamType targetMap = senderTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;

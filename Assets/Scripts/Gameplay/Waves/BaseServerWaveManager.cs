@@ -15,7 +15,7 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     public NetworkVariable<float> BlueCurrentWaveProgress =  new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<float> RedCurrentWaveProgress =  new(writePerm: NetworkVariableWritePermission.Server);
     public abstract void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false);
-    public abstract void SendEnemyFromPlayer(EnemyType enemyType, ulong clientId);
+    public abstract void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId);
     public abstract WaypointPath GetPath(TeamType map);
     public abstract NetworkVariable<int> GetLocalCurrentWave();
     public abstract NetworkVariable<int> GetEnemyCurrentWave();

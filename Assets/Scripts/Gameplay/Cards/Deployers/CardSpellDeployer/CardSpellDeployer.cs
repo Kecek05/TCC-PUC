@@ -10,12 +10,13 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     private BaseMapTranslator _mapTranslator;
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
-    
+    private PlayersDataManager _playersDataManager;
+
     private void Awake()
     {
         ServiceLocator.Register<BaseCardSpellDeployer>(this);
     }
-    
+
     public override void OnNetworkSpawn()
     {
         _teamManager = ServiceLocator.Get<BaseTeamManager>();
@@ -23,7 +24,10 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
 
         if (IsServer)
+        {
+            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -48,7 +52,8 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     private void SendRequestToServerRpc(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = _teamManager.GetTeam(clientId);
+        string authId = _playersDataManager.GetAuthIdByClientId(clientId);
+        TeamType team = _teamManager.GetTeam(authId);
 
         if (team == TeamType.None)
         {

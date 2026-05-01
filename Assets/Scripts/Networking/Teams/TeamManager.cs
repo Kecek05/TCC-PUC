@@ -1,10 +1,12 @@
+using Unity.Collections;
 using Unity.Netcode;
-using UnityEngine;
 
 public class TeamManager : BaseTeamManager
 {
     private NetworkVariable<PlayerTeamPair> _bluePlayer = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<PlayerTeamPair> _redPlayer = new(writePerm: NetworkVariableWritePermission.Server);
+
+    private IOnPlayerLoaded _connectionEvents;
 
     private void Awake()
     {
@@ -18,10 +20,8 @@ public class TeamManager : BaseTeamManager
 
         if (IsServer)
         {
-            NetworkManager.OnClientConnectedCallback += OnClientConnected;
-
-            foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
-                OnClientConnected(clientId);
+            _connectionEvents = ServiceLocator.Get<IOnPlayerLoaded>();
+            _connectionEvents.OnPlayerLoaded += AssignTeam;
         }
     }
 
@@ -30,40 +30,48 @@ public class TeamManager : BaseTeamManager
         _bluePlayer.OnValueChanged -= OnTeamAssigned;
         _redPlayer.OnValueChanged -= OnTeamAssigned;
 
-        if (IsServer)
+        if (IsServer && _connectionEvents != null)
         {
-            NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+            _connectionEvents.OnPlayerLoaded -= AssignTeam;
         }
     }
-    
+
     public override void OnDestroy()
     {
         ServiceLocator.Unregister<BaseTeamManager>();
     }
 
-    private bool HasTeam(ulong clientId)
+    private bool HasTeam(FixedString64Bytes authId)
     {
-        return (_redPlayer.Value.Team != TeamType.None && _redPlayer.Value.ClientId == clientId) ||
-               (_bluePlayer.Value.Team != TeamType.None && _bluePlayer.Value.ClientId == clientId);
+        return (_redPlayer.Value.Team != TeamType.None && _redPlayer.Value.AuthId == authId) ||
+               (_bluePlayer.Value.Team != TeamType.None && _bluePlayer.Value.AuthId == authId);
     }
 
-    private void OnClientConnected(ulong clientId)
+    private void AssignTeam(string authId)
     {
-        if (HasTeam(clientId)) return;
+        if (string.IsNullOrEmpty(authId))
+        {
+            GameLog.Error("TeamManager: AssignTeam received null/empty authId");
+            return;
+        }
+
+        FixedString64Bytes authIdFs = authId;
+
+        if (HasTeam(authIdFs)) return;
 
         if (_redPlayer.Value.Team == TeamType.None)
         {
-            _redPlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Red };
-            GameLog.Info($"TeamManager: Client {clientId} connected to Team RED");
+            _redPlayer.Value = new PlayerTeamPair { AuthId = authIdFs, Team = TeamType.Red };
+            GameLog.Info($"TeamManager: AuthId {authId} assigned to Team RED");
         }
         else if (_bluePlayer.Value.Team == TeamType.None)
         {
-            _bluePlayer.Value = new PlayerTeamPair { ClientId = clientId, Team = TeamType.Blue };
-            GameLog.Info($"TeamManager: Client {clientId} connected to Team BLUE");
+            _bluePlayer.Value = new PlayerTeamPair { AuthId = authIdFs, Team = TeamType.Blue };
+            GameLog.Info($"TeamManager: AuthId {authId} assigned to Team BLUE");
         }
         else
         {
-            GameLog.Warn($"TeamManager: Client {clientId} connected but both teams are full!");
+            GameLog.Warn($"TeamManager: AuthId {authId} loaded but both teams are full!");
         }
     }
 
@@ -80,23 +88,24 @@ public class TeamManager : BaseTeamManager
 
     private void OnTeamAssigned(PlayerTeamPair previousValue, PlayerTeamPair newValue)
     {
-        GameLog.Info($"Team Assigned: Client {newValue.ClientId} -> {newValue.Team}");
+        GameLog.Info($"Team Assigned: AuthId {newValue.AuthId} -> {newValue.Team}");
     }
 
     // Server-side
 
-    public override TeamType GetTeam(ulong clientId)
+    public override TeamType GetTeam(string authId)
     {
-        if (_bluePlayer.Value.ClientId == clientId) return TeamType.Blue;
-        if (_redPlayer.Value.ClientId == clientId) return TeamType.Red;
+        FixedString64Bytes authIdFs = authId;
+        if (_bluePlayer.Value.AuthId == authIdFs) return TeamType.Blue;
+        if (_redPlayer.Value.AuthId == authIdFs) return TeamType.Red;
 
-        GameLog.Error($"ClientId {clientId} dont have team!");
+        GameLog.Error($"AuthId {authId} dont have team!");
         return TeamType.None;
     }
 
-    public override bool IsOnTeam(ulong clientId, TeamType team)
+    public override bool IsOnTeam(string authId, TeamType team)
     {
-        return GetTeam(clientId) == team;
+        return GetTeam(authId) == team;
     }
 
     // Client-side
@@ -105,7 +114,7 @@ public class TeamManager : BaseTeamManager
     {
         return GetLocalTeam(false);
     }
-    
+
     public override TeamType GetLocalTeam(bool isLocal = true)
     {
         if (IsServer && !IsClient)
@@ -113,11 +122,11 @@ public class TeamManager : BaseTeamManager
             GameLog.Warn("Trying to get local team on a dedicated server, returning None");
             return TeamType.None;
         }
-        
-        ulong localId = NetworkManager.LocalClientId;
-        if  (_redPlayer.Value.ClientId == localId && _redPlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Red : TeamType.Blue;
-        if (_bluePlayer.Value.ClientId == localId && _bluePlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Blue  : TeamType.Red;
-        GameLog.Error($"LocalId {localId} dont have team! Returning None");
+
+        FixedString64Bytes localAuthId = ServiceLocator.Get<BaseClientManager>().UserData.PlayerAuthId;
+        if (_redPlayer.Value.AuthId == localAuthId && _redPlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Red : TeamType.Blue;
+        if (_bluePlayer.Value.AuthId == localAuthId && _bluePlayer.Value.Team != TeamType.None) return isLocal ? TeamType.Blue : TeamType.Red;
+        GameLog.Error($"Local AuthId {localAuthId} dont have team! Returning None");
         return TeamType.None;
     }
 
@@ -128,23 +137,23 @@ public class TeamManager : BaseTeamManager
             GameLog.Warn("Trying to check local team assignment on a dedicated server, returning false");
             return false;
         }
-        
-        ulong localId = NetworkManager.LocalClientId;
-        return (_bluePlayer.Value.ClientId == localId || _redPlayer.Value.ClientId == localId) && NetworkManager.IsConnectedClient;
+
+        FixedString64Bytes localAuthId = ServiceLocator.Get<BaseClientManager>().UserData.PlayerAuthId;
+        return (_bluePlayer.Value.AuthId == localAuthId || _redPlayer.Value.AuthId == localAuthId) && NetworkManager.IsConnectedClient;
     }
 }
 
 public struct PlayerTeamPair : INetworkSerializable, System.IEquatable<PlayerTeamPair>
 {
-    public ulong ClientId;
+    public FixedString64Bytes AuthId;
     public TeamType Team;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref ClientId);
+        serializer.SerializeValue(ref AuthId);
         serializer.SerializeValue(ref Team);
     }
 
     public bool Equals(PlayerTeamPair other) =>
-        ClientId == other.ClientId && Team == other.Team;
+        AuthId.Equals(other.AuthId) && Team == other.Team;
 }

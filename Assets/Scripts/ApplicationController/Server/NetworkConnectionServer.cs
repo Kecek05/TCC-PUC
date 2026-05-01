@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class NetworkConnectionServer : IDisposable, IOnPlayerConnected
+public class NetworkConnectionServer : IDisposable, IOnPlayerConnected, IOnPlayerLoaded
 {
     /// <summary>
     /// Arg: AuthId

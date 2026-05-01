@@ -10,7 +10,8 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     
     private BaseTeamManager _teamManager;
     private BaseServerManaManager  _serverManaManager;
-    
+    private PlayersDataManager _playersDataManager;
+
     private void Awake()
     {
         ServiceLocator.Register<BaseCardTowerDeployer>(this);
@@ -22,7 +23,10 @@ public class CardTowerDeployer : BaseCardTowerDeployer
         _serverManaManager = ServiceLocator.Get<BaseServerManaManager>();
 
         if (IsServer)
+        {
+            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -47,11 +51,12 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     private void SendRequestToServerRpc(CardType cardType, Vector2 placePosition, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = _teamManager.GetTeam(clientId);
-        
+        string authId = _playersDataManager.GetAuthIdByClientId(clientId);
+        TeamType team = _teamManager.GetTeam(authId);
+
         if (team == TeamType.None)
         {
-            GameLog.Error($"Client {clientId} does not have a team.");
+            GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
             SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
             return;
         }

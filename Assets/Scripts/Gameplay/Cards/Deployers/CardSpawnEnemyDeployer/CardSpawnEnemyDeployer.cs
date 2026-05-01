@@ -9,7 +9,8 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
     private BaseServerWaveManager _serverWaveManager;
-    
+    private PlayersDataManager _playersDataManager;
+
     public void Awake()
     {
         ServiceLocator.Register<BaseCardSpawnEnemyDeployer>(this);
@@ -22,7 +23,10 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         _serverWaveManager = ServiceLocator.Get<BaseServerWaveManager>();
 
         if (IsServer)
+        {
+            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -47,15 +51,16 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private void SendRequestToServerRpc(CardType cardType, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
-        TeamType team = _teamManager.GetTeam(clientId);
-        
+        string authId = _playersDataManager.GetAuthIdByClientId(clientId);
+        TeamType team = _teamManager.GetTeam(authId);
+
         if (team == TeamType.None)
         {
-            GameLog.Error($"Client {clientId} does not have a team.");
+            GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
             SendFailure(clientId, cardType, CardInvalidReason.NoTeam);
             return;
         }
-        
+
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpawnEnemyCardDataSO spawnCardData)
         {
@@ -69,7 +74,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
             return;
         }
 
-        _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, clientId);
+        _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId);
 
         SpawnResultRpc(new SpawnEnemyResult
         {

@@ -12,6 +12,9 @@ public class MatchServerControllers : IDisposable
         _networkConnectionServer = new NetworkConnectionServer(networkManager, _playersDataManager);
 
         _networkConnectionServer.OnPlayerConnected += _playersDataManager.Handle_OnPlayerConnected;
+
+        ServiceLocator.Register<IOnPlayerLoaded>(_networkConnectionServer);
+        ServiceLocator.Register<PlayersDataManager>(_playersDataManager);
     }
 
     public void Dispose()
@@ -21,5 +24,8 @@ public class MatchServerControllers : IDisposable
             _networkConnectionServer.OnPlayerConnected -= _playersDataManager.Handle_OnPlayerConnected;
             _networkConnectionServer.Dispose();
         }
+
+        ServiceLocator.Unregister<IOnPlayerLoaded>();
+        ServiceLocator.Unregister<PlayersDataManager>();
     }
 }
