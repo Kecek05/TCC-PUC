@@ -25,6 +25,13 @@ public class UserData
         byte[] payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload); // serialize the payload to bytes
         return payloadBytes;
     }
+    
+    public static UserData TranslateFromBytes(byte[] payloadBytes)
+    {
+        string payload = System.Text.Encoding.UTF8.GetString(payloadBytes);
+        UserData userData = JsonUtility.FromJson<UserData>(payload);
+        return userData;
+    }
 }
 
 [Serializable]

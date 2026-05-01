@@ -16,24 +16,21 @@ public class HostConnectionData : IDisposable
     private Allocation _allocation;
     private string _joinCode;
     private string _lobbyId;
-    private NetworkServer _networkServer;
+    private MatchServerControllers _controllers;
 
-    public HostConnectionData(Allocation allocation, string joinCode, string lobbyId,  NetworkServer networkServer)
+    public HostConnectionData(Allocation allocation, string joinCode, string lobbyId, NetworkManager networkManager)
     {
         _allocation = allocation;
         _joinCode = joinCode;
         _lobbyId = lobbyId;
-        _networkServer = networkServer;
+        _controllers = new MatchServerControllers(networkManager);
     }
-    
-    public Allocation Allocation => _allocation;
     public string JoinCode => _joinCode;
     public string LobbyId => _lobbyId;
-    public NetworkServer NetworkServer => _networkServer;
 
     public void Dispose()
     {
-        _networkServer?.Dispose();
+        _controllers?.Dispose();
     }
 }
 
@@ -96,9 +93,7 @@ public class HostManager : BaseHostManager
         transport.SetRelayServerData(allocation.ToRelayServerData("dtls"));
         NetworkManager.Singleton.NetworkConfig.ConnectionData = _clientManager.UserData.TranslateToBytes();
         
-        NetworkServer networkServer = new NetworkServer(NetworkManager.Singleton);
-        
-        CurrentHostConnectionData = new HostConnectionData(allocation, joinCode, lobby.Id, networkServer);
+        CurrentHostConnectionData = new HostConnectionData(allocation, joinCode, lobby.Id, NetworkManager.Singleton);
         
         if (!NetworkManager.Singleton.StartHost())
         {

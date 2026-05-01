@@ -8,14 +8,16 @@ public class PlayersDataManager
     private Dictionary<ulong, string> _clientIdToAuth = new(); 
     
     private Dictionary<string, PlayerData> _authIdToPlayerData = new();
-
-    private Dictionary<ulong, UserData> _clientIdToUserData = new();
     
-    public Dictionary<ulong, UserData> ClientIdToUserData => _clientIdToUserData;
-    
-    public void RegisterUserData(UserData userData, ulong clientId)
+    public void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
     {
-        _clientIdToUserData[clientId] = userData;
+        PlayerData newPlayerData = new PlayerData()
+        {
+            UserData = args.UserData,
+            ClientId = args.ClientId,
+        };
+
+        RegisterClient(newPlayerData);
     }
     
     public void RegisterClient(PlayerData playerData)
@@ -24,7 +26,7 @@ public class PlayersDataManager
         _authIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
         _clientIdToAuth[playerData.ClientId] = playerData.UserData.PlayerAuthId;
 
-        Debug.Log($"RegisterClient, AuthId: {playerData.UserData.PlayerAuthId} ClientId: {playerData.ClientId} ");
+        GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");
     }
     
     public string GetAuthIdByClientId(ulong clientId)
@@ -32,6 +34,16 @@ public class PlayersDataManager
         if (_clientIdToAuth.TryGetValue(clientId, out string authId))
         {
             return authId;
+        }
+        GameLog.Warn("Trying to get auth id for client ID: " + clientId);
+        return null;
+    }
+    
+    public PlayerData GetPlayerDataByAuthId(string authId)
+    {
+        if (_authIdToPlayerData.TryGetValue(authId, out PlayerData playerData))
+        {
+            return playerData;
         }
         return null;
     }
