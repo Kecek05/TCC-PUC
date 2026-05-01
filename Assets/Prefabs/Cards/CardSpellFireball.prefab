@@ -1154,10 +1154,8 @@ MonoBehaviour:
   layersSettings: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
   rectTransform: {fileID: 4769146289969050022}
   selfCanvasGroup: {fileID: 4170124164598181938}
-  canvasArea: {fileID: 0}
-  safeArea: {fileID: 0}
-  blockingRaycaster: {fileID: 0}
   ghostSpellCard: {fileID: 0}
+  canUseInEnemyMap: 1
   fadeOutFeedback: {fileID: 5840574710605235749}
   fadeInFeedback: {fileID: 8759511578978136600}
 --- !u!114 &5644965870029990498 stripped

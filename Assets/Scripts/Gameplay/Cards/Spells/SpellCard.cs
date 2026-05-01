@@ -1,12 +1,13 @@
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SpellCard : AbstractCard
 {
     [Header("Spell Settings")]
-    [SerializeField] private GhostSpellCard ghostSpellCard;
     [SerializeField] private bool canUseInEnemyMap = false;
+    private GhostSpellCard _ghostSpellCard;
     [Space(5f)]
     
     [Header("GFXs")] 
@@ -22,6 +23,12 @@ public class SpellCard : AbstractCard
         base.Start();
         _cardSpellDeployer = ServiceLocator.Get<BaseCardSpellDeployer>();
     }
+    
+    public void Initialize(CardUIFactoryData factoryData, GhostSpellCard ghostSpellCard)
+    {
+        base.Initialize(factoryData);
+        _ghostSpellCard = ghostSpellCard;
+    }
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
@@ -29,9 +36,9 @@ public class SpellCard : AbstractCard
         DisableGhostSpellGFX();
 
         SpellCardDataSO spellCardData = GetSpellCardDataSO();
-        ghostSpellCard.SetSprite(spellCardData.SpellGhostSprite);
+        _ghostSpellCard.SetSprite(spellCardData.SpellGhostSprite);
         
-        ghostSpellCard.SetScale(spellCardData.SpellData.Range * 2f);
+        _ghostSpellCard.SetScale(spellCardData.SpellData.Range * 2f);
     }
 
     public override void OnDrag(PointerEventData eventData)
@@ -80,8 +87,8 @@ public class SpellCard : AbstractCard
     {
         _enabledTowerGFX = true;
         
-        ghostSpellCard.SetPosition(worldPosition);
-        ghostSpellCard.SetVisible(true);
+        _ghostSpellCard.SetPosition(worldPosition);
+        _ghostSpellCard.SetVisible(true);
     }
 
     private void DisableGhostSpellGFX()
@@ -89,7 +96,7 @@ public class SpellCard : AbstractCard
         if (!_enabledTowerGFX) return;
         AnimateFadeIn();
         _enabledTowerGFX = false;
-        ghostSpellCard.SetVisible(false);
+        _ghostSpellCard.SetVisible(false);
     }
     
     private void AnimateFadeOut()

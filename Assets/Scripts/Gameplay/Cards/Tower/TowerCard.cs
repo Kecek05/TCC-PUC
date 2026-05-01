@@ -25,9 +25,9 @@ public class TowerCard : AbstractCard
         _cardTowerDeployer = ServiceLocator.Get<BaseCardTowerDeployer>();
     }
 
-    public void Initialize(Canvas canvasParent, Transform safeAreaParent, GraphicRaycaster blockingRaycaster, GhostTowerCard ghostTowerCard)
+    public void Initialize(CardUIFactoryData factoryData, GhostTowerCard ghostTowerCard)
     {
-        base.Initialize(canvasParent, safeAreaParent, blockingRaycaster);
+        base.Initialize(factoryData);
         _ghostTowerCard = ghostTowerCard;
     }
 

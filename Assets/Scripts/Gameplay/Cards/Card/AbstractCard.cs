@@ -41,11 +41,11 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
     }
 
-    public void Initialize(Canvas canvasParent, Transform safeAreaParent, GraphicRaycaster blockingRaycaster)
+    public void Initialize(CardUIFactoryData factoryData)
     {
-        _canvasArea = canvasParent;
-        _safeArea = safeAreaParent;
-        _blockingRaycaster = blockingRaycaster;
+        _canvasArea = factoryData.CardsCanvas;
+        _safeArea = factoryData.SafeAreaParent;
+        _blockingRaycaster = factoryData.BlockCardsCanvas;
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData)
