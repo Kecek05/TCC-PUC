@@ -10,15 +10,17 @@ using UnityEngine;
 /// (hand + next card) onto the synced NetworkList / NetworkVariable for clients.
 /// Clients read the synced state and subscribe to <see cref="BaseCardHandManager.OnHandChanged"/>.
 /// </summary>
-public class ServerCardHandManager : BaseCardHandManager
+public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
 {
     [Title("Config")]
     [SerializeField, MinValue(1)] private int _handSize = 4;
     [SerializeField] private CardDataListSO _cardDataListSO;
 
+    public event System.Action<CardType> OnDrawACard;
+
     private HandData _blueHandData;
     private HandData _redHandData;
-    
+
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
     private CardDeploymentBus _deploymentBus;
@@ -27,6 +29,7 @@ public class ServerCardHandManager : BaseCardHandManager
     {
         base.Awake();
         ServiceLocator.Register<BaseCardHandManager>(this);
+        ServiceLocator.Register<IOnDrawACard>(this);
         _costs = _cardDataListSO;
     }
 
@@ -52,6 +55,7 @@ public class ServerCardHandManager : BaseCardHandManager
     public override void OnDestroy()
     {
         ServiceLocator.Unregister<BaseCardHandManager>();
+        ServiceLocator.Unregister<IOnDrawACard>();
         base.OnDestroy();
     }
 
@@ -87,9 +91,16 @@ public class ServerCardHandManager : BaseCardHandManager
         }
 
         float maxMana = _maxManaProvider != null ? _maxManaProvider.GetMaxMana(teamType) : float.MaxValue;
-        HandData handData = HandData.Distribute(cardsInDeck, _handSize, maxMana, _costs);
+        HandData handData = HandData.Distribute(cardsInDeck, maxMana, _costs);
 
         SetServerHandData(teamType, handData);
+
+        for (int i = 0; i < _handSize; i++)
+        {
+            if (!handData.Draw(out CardType drawnCard)) break;
+            OnDrawACard?.Invoke(drawnCard);
+        }
+
         PushSyncedState(teamType, handData);
     }
 
@@ -109,12 +120,13 @@ public class ServerCardHandManager : BaseCardHandManager
             return;
         }
 
-        if (!handData.Play(cardType))
+        if (!handData.Play(cardType, out CardType drawnCard))
         {
             GameLog.Warn($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
             return;
         }
 
+        OnDrawACard?.Invoke(drawnCard);
         PushSyncedState(teamType, handData);
     }
 

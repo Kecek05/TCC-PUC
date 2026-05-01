@@ -1,14 +1,36 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ServerCardUIFactory : BaseCardUIFactory
 {
     [Title("References")]
-    [SerializeField] private AbstractCard cardPrefab;
-    [SerializeField] private Transform cardParent;
-    
+    [SerializeField] private CardDataListSO cardDataListSO;
+    [SerializeField] private Canvas cardsCanvas;
+    [SerializeField] private Transform safeAreaParent;
+    [SerializeField] private GraphicRaycaster graphicRaycaster;
+
+    private IOnDrawACard _drawEvents;
+
+    private void Start()
+    {
+        _drawEvents = ServiceLocator.Get<IOnDrawACard>();
+        _drawEvents.OnDrawACard += CreateCardUI;
+    }
+
+    private void OnDestroy()
+    {
+        if (_drawEvents != null)
+            _drawEvents.OnDrawACard -= CreateCardUI;
+    }
+
     public override void CreateCardUI(CardType cardType)
     {
-        //TODO: Instance a new object, initialize it and move it to the parent.
+        CardDataSO cardDataSO = cardDataListSO.GetCardDataByType(cardType);
+
+        if (cardDataSO == null) return;
+        
+        cardDataSO.CardPrefab.Initialize(cardsCanvas, safeAreaParent, graphicRaycaster);
+        
     }
 }

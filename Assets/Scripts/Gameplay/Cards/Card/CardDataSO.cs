@@ -6,6 +6,7 @@ public class CardDataSO : ScriptableObject
 {
     [Title("Card Properties")]
     public CardType CardType;
+    public AbstractCard CardPrefab;
     public string CardName;
     public string Description;
     public Sprite CardImage;

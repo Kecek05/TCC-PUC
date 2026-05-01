@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SpellFireballCardData
   m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
   CardType: 3
+  CardPrefab: {fileID: 2383729291938179494, guid: 2dd5fee0fd2b978478ae8c7aa7185fe0, type: 3}
   CardName: Fireball
   Description: MEGA FIREBALL
   CardImage: {fileID: 21300000, guid: cd807e3eb5122524d9a1783af6375956, type: 3}

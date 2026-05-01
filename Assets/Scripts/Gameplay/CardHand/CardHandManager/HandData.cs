@@ -30,16 +30,16 @@ public class HandData
     public Queue<CardType> QueuedCards;
 
     /// <summary>
-    /// Builds a fresh <see cref="HandData"/>: starts with every card unlocked, locks
-    /// those above <paramref name="maxMana"/>, shuffles the remainder, then draws the
-    /// first <paramref name="handSize"/> into the hand with the rest forming the queue.
+    /// Builds a fresh <see cref="HandData"/>: locks cards above <paramref name="maxMana"/>,
+    /// shuffles the remainder, and enqueues all of them. The hand starts empty — call
+    /// <see cref="Draw"/> N times to populate it (each draw is observable to listeners).
     /// </summary>
-    public static HandData Distribute(List<CardType> deck, int handSize, float maxMana, ICardCostProvider costs)
+    public static HandData Distribute(List<CardType> deck, float maxMana, ICardCostProvider costs)
     {
         HandData data = new HandData
         {
-            CardsInHand = new List<AbstractCard>(handSize),
-            HandCards = new List<CardType>(handSize),
+            CardsInHand = new List<AbstractCard>(),
+            HandCards = new List<CardType>(),
             CardsInDeck = new List<CardType>(deck),
             LockedCards = new List<CardType>(),
             QueuedCards = new Queue<CardType>(),
@@ -56,13 +56,23 @@ public class HandData
 
         Shuffle(unlockedPool);
 
-        int drawCount = Mathf.Min(handSize, unlockedPool.Count);
-        for (int i = 0; i < drawCount; i++)
-            data.HandCards.Add(unlockedPool[i]);
-        for (int i = drawCount; i < unlockedPool.Count; i++)
+        for (int i = 0; i < unlockedPool.Count; i++)
             data.QueuedCards.Enqueue(unlockedPool[i]);
 
         return data;
+    }
+
+    /// <summary>
+    /// Dequeues the front of the queue into the hand. Returns false if the queue is empty.
+    /// </summary>
+    public bool Draw(out CardType drawnCard)
+    {
+        drawnCard = CardType.None;
+        if (QueuedCards.Count == 0) return false;
+
+        drawnCard = QueuedCards.Dequeue();
+        HandCards.Add(drawnCard);
+        return true;
     }
 
     /// <summary>
@@ -70,15 +80,15 @@ public class HandData
     /// then draws the front of the queue into the hand. Returns false if the played
     /// card wasn't actually in the hand.
     /// </summary>
-    public bool Play(CardType cardType)
+    public bool Play(CardType cardType, out CardType drawnCard)
     {
+        drawnCard = CardType.None;
         if (!HandCards.Remove(cardType)) return false;
 
         // Played -> back of queue -> then draw the front. Guarantees a draw even in
         // the degenerate case where the played card is the only drawable one.
         QueuedCards.Enqueue(cardType);
-        HandCards.Add(QueuedCards.Dequeue());
-        return true;
+        return Draw(out drawnCard);
     }
 
     /// <summary>

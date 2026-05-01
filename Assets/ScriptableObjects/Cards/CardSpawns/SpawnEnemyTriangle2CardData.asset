@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SpawnEnemyTriangle2CardData
   m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCardDataSO
   CardType: 4
+  CardPrefab: {fileID: 2770033394772179350, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
   CardName: Triangle Player
   Description: Spawned From Other Player
   CardImage: {fileID: 2125737359283935466, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}

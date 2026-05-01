@@ -15,9 +15,9 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     
     [SerializeField] private RectTransform rectTransform;
     [SerializeField] private CanvasGroup selfCanvasGroup;
-    [SerializeField] private Canvas canvasArea;
-    [SerializeField] private Transform safeArea;
-    [SerializeField] private GraphicRaycaster blockingRaycaster;
+    private Canvas _canvasArea;
+    private Transform _safeArea;
+    private GraphicRaycaster _blockingRaycaster;
 
     private readonly List<RaycastResult> _blockingRaycastResults = new();
     private Vector2 originalPosition;
@@ -41,14 +41,21 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
         _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
     }
 
+    public void Initialize(Canvas canvasParent, Transform safeAreaParent, GraphicRaycaster blockingRaycaster)
+    {
+        _canvasArea = canvasParent;
+        _safeArea = safeAreaParent;
+        _blockingRaycaster = blockingRaycaster;
+    }
+
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
         transform.DOKill();
         rectTransform.DOKill();
-        transform.SetParent(safeArea.transform);
+        transform.SetParent(_safeArea.transform);
         transform.SetAsLastSibling();
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasArea.transform as RectTransform, eventData.position, canvasArea.worldCamera, out Vector2 localPoint);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasArea.transform as RectTransform, eventData.position, _canvasArea.worldCamera, out Vector2 localPoint);
         rectTransform.anchoredPosition = localPoint;
 
         selfCanvasGroup.blocksRaycasts = false;
@@ -56,7 +63,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
 
     public virtual void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition += eventData.delta / canvasArea.scaleFactor;
+        rectTransform.anchoredPosition += eventData.delta / _canvasArea.scaleFactor;
     }
 
     public virtual void OnEndDrag(PointerEventData eventData)
@@ -104,7 +111,7 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = screenPosition };
         _blockingRaycastResults.Clear();
-        blockingRaycaster.Raycast(pointerData, _blockingRaycastResults);
+        _blockingRaycaster.Raycast(pointerData, _blockingRaycastResults);
 
         if (_blockingRaycastResults.Count > 0)
             return CardValidation.Invalid(CardInvalidReason.BlockedByUI);

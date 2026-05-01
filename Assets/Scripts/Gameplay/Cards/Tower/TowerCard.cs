@@ -2,11 +2,11 @@ using System;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TowerCard : AbstractCard
 {
-    [Header("Tower Settings")]
-    [SerializeField] private GhostTowerCard ghostTowerCard;
+    private GhostTowerCard _ghostTowerCard;
     [Space(5f)]
     
     [Header("GFXs")] 
@@ -25,11 +25,17 @@ public class TowerCard : AbstractCard
         _cardTowerDeployer = ServiceLocator.Get<BaseCardTowerDeployer>();
     }
 
+    public void Initialize(Canvas canvasParent, Transform safeAreaParent, GraphicRaycaster blockingRaycaster, GhostTowerCard ghostTowerCard)
+    {
+        base.Initialize(canvasParent, safeAreaParent, blockingRaycaster);
+        _ghostTowerCard = ghostTowerCard;
+    }
+
     public override void OnBeginDrag(PointerEventData eventData)
     {
         base.OnBeginDrag(eventData);
         DisableGhostTowerGFX();
-        ghostTowerCard.SetSprite(GetTowerCardDataSO().TowerGhostSprite);
+        _ghostTowerCard.SetSprite(GetTowerCardDataSO().TowerGhostSprite);
     }
 
     public override void OnDrag(PointerEventData eventData)
@@ -49,7 +55,7 @@ public class TowerCard : AbstractCard
         
         if (!IsPlaceableAvailable(worldPosition))
         {
-            ghostTowerCard.SetVisible(false);
+            _ghostTowerCard.SetVisible(false);
         }
     }
 
@@ -84,8 +90,8 @@ public class TowerCard : AbstractCard
 
         TowerCardDataSO towerCardData = GetTowerCardDataSO();
         
-        ghostTowerCard.SetVisible(true);
-        ghostTowerCard.SetPosition(closestPlaceable.PlaceablePoint.position);
+        _ghostTowerCard.SetVisible(true);
+        _ghostTowerCard.SetPosition(closestPlaceable.PlaceablePoint.position);
     }
 
     private IPlaceable GetClosestPlaceable(Vector2 worldPosition)
@@ -120,7 +126,7 @@ public class TowerCard : AbstractCard
         AnimateFadeIn();
         _enabledTowerGFX = false;
         _currentPlaceable = null;
-        ghostTowerCard.SetVisible(false);
+        _ghostTowerCard.SetVisible(false);
     }
 
     public override CardValidation CanPlayCardAt(Vector2 worldPosition)
