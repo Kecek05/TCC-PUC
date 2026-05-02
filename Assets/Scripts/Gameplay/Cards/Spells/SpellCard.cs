@@ -135,7 +135,7 @@ public class SpellCard : AbstractCard
         {
             GameLog.Info("Spell result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
-            // Destroy(gameObject);
+            DiscardSelfCard();
             return;
         }
 

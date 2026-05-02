@@ -4,11 +4,9 @@ using UnityEngine;
 public class PlayersDataManager
 {
     private Dictionary<string, ulong> _authToClientId = new(); 
-
-    private Dictionary<ulong, string> _clientIdToAuth = new(); 
-    
+    private Dictionary<ulong, string> _clientIdToAuthId = new(); 
     private Dictionary<string, PlayerData> _authIdToPlayerData = new();
-
+    private Dictionary<TeamType, string> _teamDataToAuthId = new();
     public Dictionary<string, PlayerData> AuthIdToPlayerData => _authIdToPlayerData;
     
     public void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
@@ -26,14 +24,24 @@ public class PlayersDataManager
     {
         _authToClientId[playerData.UserData.PlayerAuthId] = playerData.ClientId;
         _authIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
-        _clientIdToAuth[playerData.ClientId] = playerData.UserData.PlayerAuthId;
+        _clientIdToAuthId[playerData.ClientId] = playerData.UserData.PlayerAuthId;
 
         GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");
+    }
+
+    public void RegisterTeam(TeamType teamType, string authId)
+    {
+        if (_teamDataToAuthId.ContainsKey(teamType))
+        {
+            GameLog.Error($"Team {teamType} already registered");
+            return;
+        }
+        _teamDataToAuthId[teamType] = authId;
     }
     
     public string GetAuthIdByClientId(ulong clientId)
     {
-        if (_clientIdToAuth.TryGetValue(clientId, out string authId))
+        if (_clientIdToAuthId.TryGetValue(clientId, out string authId))
         {
             return authId;
         }
@@ -48,5 +56,19 @@ public class PlayersDataManager
             return playerData;
         }
         return null;
+    }
+
+    public ulong GetClientIdByTeamType(TeamType teamType)
+    {
+        if (_teamDataToAuthId.TryGetValue(teamType, out string authId))
+        {
+            if (_authToClientId.TryGetValue(authId, out ulong clientId))
+            {
+                return clientId;
+            }
+        }
+        
+        GameLog.Error("Error Trying to get client ID for team type: " + teamType);
+        return ulong.MaxValue;
     }
 }

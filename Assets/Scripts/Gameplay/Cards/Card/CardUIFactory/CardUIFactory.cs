@@ -13,7 +13,7 @@ public struct CardUIFactoryData
     public Transform CardParent;
 }
 
-public class ServerCardUIFactory : BaseCardUIFactory
+public class CardUIFactory : MonoBehaviour
 {
     [Title("References")]
     [SerializeField] private CardDataListSO cardDataListSO;
@@ -22,21 +22,21 @@ public class ServerCardUIFactory : BaseCardUIFactory
     [Title("Sub-Factories")]
     [SerializeField] private List<BaseCardSubFactory> subFactories = new();
 
-    private IOnDrawACard _drawEvents;
+    private IOnLocalDrawnACard _drawEvents;
 
     private void Start()
     {
-        _drawEvents = ServiceLocator.Get<IOnDrawACard>();
-        _drawEvents.OnDrawACard += CreateCardUI;
+        _drawEvents = ServiceLocator.Get<IOnLocalDrawnACard>();
+        _drawEvents.OnLocalDrawACard += CreateCardUI;
     }
 
     private void OnDestroy()
     {
         if (_drawEvents != null)
-            _drawEvents.OnDrawACard -= CreateCardUI;
+            _drawEvents.OnLocalDrawACard -= CreateCardUI;
     }
 
-    public override void CreateCardUI(CardType cardType)
+    private void CreateCardUI(CardType cardType)
     {
         CardDataSO cardDataSO = cardDataListSO.GetCardDataByType(cardType);
         if (cardDataSO == null)

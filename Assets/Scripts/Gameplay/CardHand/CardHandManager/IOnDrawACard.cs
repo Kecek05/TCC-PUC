@@ -3,7 +3,7 @@ using System;
 public interface IOnDrawACard
 {
     /// <summary>
-    /// Arg: the CardType drawn from the queue into the hand.
+    /// Arg: the CardType drawn from the queue into the hand. Team Drawed
     /// </summary>
-    event Action<CardType> OnDrawACard;
+    event Action<TeamType, CardType> OnDrawACard;
 }

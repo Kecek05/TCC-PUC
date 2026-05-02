@@ -55,13 +55,13 @@ public class HostManager : BaseHostManager
         _clientManager = ServiceLocator.Get<BaseClientManager>();
     }
 
-    public override async Task StartHostAsync()
+    public override async Task<bool> StartHostAsync()
     {
         if (CurrentHostConnectionData != null)
         {
             GameLog.Error("HostManager: Tried to StartHostAsync but it's already hosting. Aborting load.");
             OnFailToStartHost?.Invoke();
-            return;
+            return false;
         }
         
         Allocation allocation = await CreateAllocation();
@@ -69,7 +69,7 @@ public class HostManager : BaseHostManager
         {
             GameLog.Error("HostManager: Failed to create Relay allocation. Aborting load.");
             OnFailToStartHost?.Invoke();
-            return;
+            return false;
         }
         
         string joinCode = await GetJoinCode(allocation);
@@ -77,7 +77,7 @@ public class HostManager : BaseHostManager
         {
             GameLog.Error("HostManager: Failed to get Join Code. Aborting load.");
             OnFailToStartHost?.Invoke();
-            return;
+            return false;
         };
         
         //Create the lobby, before .StartHost an after get joinCode
@@ -86,7 +86,7 @@ public class HostManager : BaseHostManager
         {
             GameLog.Error("HostManager: Failed to create Lobby. Aborting load.");
             OnFailToStartHost?.Invoke();
-            return;
+            return false;
         }
         
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -99,7 +99,7 @@ public class HostManager : BaseHostManager
         {
             GameLog.Error("HostManager: StartHost() returned false. Aborting load.");
             OnFailToStartHost?.Invoke();
-            return;
+            return false;
         }
 
         GameLog.Info($"Relay created. Join code: {joinCode}");
@@ -114,6 +114,7 @@ public class HostManager : BaseHostManager
         
         Debug.Log("In game scene");
         OnHostInGameScene?.Invoke();
+        return true;
     }
 
     private async Task<Allocation> CreateAllocation()

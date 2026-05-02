@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
+public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;
@@ -27,14 +27,13 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     
     protected BaseClientManaManager  _clientManaManager;
     protected BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
-
+    protected CardContainer _cardContainer;
+    
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
     protected virtual void Start()
     {
-        originalPosition = rectTransform.anchoredPosition;
-        _originalParent = transform.parent;
         _cameraMain = Camera.main;
         
         _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
@@ -43,11 +42,21 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
 
     public void Initialize(CardUIFactoryData factoryData)
     {
+        _cardContainer = ServiceLocator.Get<CardContainer>();
+        
         _canvasArea = factoryData.CardsCanvas;
         _safeArea = factoryData.SafeAreaParent;
         _blockingRaycaster = factoryData.BlockCardsCanvas;
+
+        transform.SetParent(factoryData.CardParent);
+        RectTransform slotTransform = (RectTransform)_cardContainer.AddCardToSlot(this);
+        rectTransform.anchoredPosition = slotTransform.anchoredPosition;
+        originalPosition = slotTransform.anchoredPosition;
+        _originalParent = factoryData.CardParent;
     }
 
+    
+    
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
         transform.DOKill();
@@ -120,4 +129,10 @@ public abstract class AbstractCard : NetworkBehaviour, ICardActivatable, IBeginD
     }
 
     public abstract void ActivateCard(Vector2 worldPosition);
+
+    protected virtual void DiscardSelfCard()
+    {
+        _cardContainer.UnoccupySlot(this);
+        Destroy(gameObject);
+    }
 }

@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Netcode;
 
@@ -6,8 +7,9 @@ public class TeamManager : BaseTeamManager
     private NetworkVariable<PlayerTeamPair> _bluePlayer = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<PlayerTeamPair> _redPlayer = new(writePerm: NetworkVariableWritePermission.Server);
 
+    private PlayersDataManager _playersDataManager;
     private IOnPlayerLoaded _connectionEvents;
-
+    
     private void Awake()
     {
         ServiceLocator.Register<BaseTeamManager>(this);
@@ -21,6 +23,7 @@ public class TeamManager : BaseTeamManager
         if (IsServer)
         {
             _connectionEvents = ServiceLocator.Get<IOnPlayerLoaded>();
+            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
             _connectionEvents.OnPlayerLoaded += AssignTeam;
         }
     }
@@ -62,11 +65,13 @@ public class TeamManager : BaseTeamManager
         if (_redPlayer.Value.Team == TeamType.None)
         {
             _redPlayer.Value = new PlayerTeamPair { AuthId = authIdFs, Team = TeamType.Red };
+            _playersDataManager.RegisterTeam(TeamType.Red, authId);
             GameLog.Info($"TeamManager: AuthId {authId} assigned to Team RED");
         }
         else if (_bluePlayer.Value.Team == TeamType.None)
         {
             _bluePlayer.Value = new PlayerTeamPair { AuthId = authIdFs, Team = TeamType.Blue };
+            _playersDataManager.RegisterTeam(TeamType.Blue, authId);
             GameLog.Info($"TeamManager: AuthId {authId} assigned to Team BLUE");
         }
         else

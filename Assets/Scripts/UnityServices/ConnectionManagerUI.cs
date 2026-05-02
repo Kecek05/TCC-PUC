@@ -32,16 +32,15 @@ public class ConnectionManagerUI : MonoBehaviour
     private async void CreateRelay()
     {
         createRelayButton.interactable = false;
-
         try
         {
-            await _hostManager.StartHostAsync();
+            if (await _hostManager.StartHostAsync()) return;
+            
         } catch (System.Exception e)
         {
             GameLog.Exception(e);
-            createRelayButton.interactable = true;
-            return;
         }
+        createRelayButton.interactable = true;
     }
 
     private async void JoinRelay()
@@ -53,14 +52,14 @@ public class ConnectionManagerUI : MonoBehaviour
 
         try
         {
-            await _clientManager.JoinHost(code);
+            if (await _clientManager.JoinHost(code)) return;
         }
         catch (Exception e)
         {
             GameLog.Error($"Failed to join relay: {e.Message}");
-            joinButton.interactable = true;
-            return;
         }
+        
+        joinButton.interactable = true;
     }
 
     private async void CreateDedicatedServer()

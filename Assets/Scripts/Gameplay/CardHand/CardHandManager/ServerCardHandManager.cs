@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -10,13 +11,14 @@ using UnityEngine;
 /// (hand + next card) onto the synced NetworkList / NetworkVariable for clients.
 /// Clients read the synced state and subscribe to <see cref="BaseCardHandManager.OnHandChanged"/>.
 /// </summary>
-public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
+public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocalDrawnACard
 {
     [Title("Config")]
     [SerializeField, MinValue(1)] private int _handSize = 4;
     [SerializeField] private CardDataListSO _cardDataListSO;
 
-    public event System.Action<CardType> OnDrawACard;
+    public event Action<TeamType, CardType> OnDrawACard;
+    public event Action<CardType> OnLocalDrawACard;
 
     private HandData _blueHandData;
     private HandData _redHandData;
@@ -24,12 +26,14 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
     private CardDeploymentBus _deploymentBus;
+    private PlayersDataManager  _playersDataManager;
 
     protected override void Awake()
     {
         base.Awake();
         ServiceLocator.Register<BaseCardHandManager>(this);
         ServiceLocator.Register<IOnDrawACard>(this);
+        ServiceLocator.Register<IOnLocalDrawnACard>(this);
         _costs = _cardDataListSO;
     }
 
@@ -56,6 +60,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
     {
         ServiceLocator.Unregister<BaseCardHandManager>();
         ServiceLocator.Unregister<IOnDrawACard>();
+        ServiceLocator.Unregister<IOnLocalDrawnACard>();
         base.OnDestroy();
     }
 
@@ -64,6 +69,8 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
         yield return new WaitUntil(
             () => ServiceLocator.Get<BaseServerManaManager>() != null
                && ServiceLocator.Get<CardDeploymentBus>() != null);
+
+        _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
         
         _maxManaProvider = ServiceLocator.Get<BaseServerManaManager>();
         _maxManaProvider.OnMaxManaChanged += OnMaxManaChanged;
@@ -98,10 +105,17 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
         for (int i = 0; i < _handSize; i++)
         {
             if (!handData.Draw(out CardType drawnCard)) break;
-            OnDrawACard?.Invoke(drawnCard);
+            OnDrawACard?.Invoke(teamType, drawnCard);
+            SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
         }
 
         PushSyncedState(teamType, handData);
+    }
+
+    [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+    private void SendOnDrawLocalACardRpc(CardType drawnCard, RpcParams rpcParams = default)
+    {
+        OnLocalDrawACard?.Invoke(drawnCard);
     }
 
     public override void NotifyCardPlayed(TeamType teamType, CardType cardType)
@@ -125,8 +139,10 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
             GameLog.Warn($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
             return;
         }
-
-        OnDrawACard?.Invoke(drawnCard);
+        
+        GameLog.Info($"[CardHandManager] {teamType} played {cardType}, drew {drawnCard}");
+        OnDrawACard?.Invoke(teamType, drawnCard);
+        SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
         PushSyncedState(teamType, handData);
     }
 
@@ -165,4 +181,5 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard
         else
             GameLog.Error($"[CardHandManager] Invalid team: {teamType}");
     }
+
 }

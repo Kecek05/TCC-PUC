@@ -1,5 +1,6 @@
 using System;
 using MoreMountains.Feedbacks;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -177,11 +178,11 @@ public class TowerCard : AbstractCard
             case TowerReason.Success:
                 _clientManaManager.ConfirmSpend(cardDataSo.Cost);
                 OccupyPlaceable(localPos);
-                // Destroy(gameObject);
+                DiscardSelfCard();
                 break;
             case TowerReason.LevelUp:
                 _clientManaManager.ConfirmSpend(cardDataSo.Cost);
-                // Destroy(gameObject);
+                DiscardSelfCard();
                 break;
             case TowerReason.NotSuccess:
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
@@ -198,7 +199,7 @@ public class TowerCard : AbstractCard
 
     private void OccupyPlaceable(Vector2 worldPosition)
     {
-        if (IsHost) return;
+        if (NetworkManager.Singleton.IsHost) return;
         
         IPlaceable closestPlaceable = GetClosestPlaceable(worldPosition);
         if (closestPlaceable == null) return;

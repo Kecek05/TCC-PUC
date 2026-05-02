@@ -29,7 +29,7 @@ public class SpawnEnemyCard : AbstractCard
         {
             GameLog.Info("Spawn result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
-            // Destroy(gameObject);
+            DiscardSelfCard();
             return;
         }
         
