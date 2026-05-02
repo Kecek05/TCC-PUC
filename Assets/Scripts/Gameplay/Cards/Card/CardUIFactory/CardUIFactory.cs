@@ -22,18 +22,28 @@ public class CardUIFactory : MonoBehaviour
     [Title("Sub-Factories")]
     [SerializeField] private List<BaseCardSubFactory> subFactories = new();
 
-    private IOnLocalDrawnACard _drawEvents;
+    private IOnLocalDrawnACard _OnLocalDrawnACard;
+    private IOnLocalNextCardChanged _OnLocalNextCardChanged;
+    private CardContainer _cardContainer;
 
     private void Start()
     {
-        _drawEvents = ServiceLocator.Get<IOnLocalDrawnACard>();
-        _drawEvents.OnLocalDrawACard += CreateCardUI;
+        _OnLocalDrawnACard = ServiceLocator.Get<IOnLocalDrawnACard>();
+        _OnLocalDrawnACard.OnLocalDrawACard += CreateCardUI;
+        
+        _OnLocalNextCardChanged  = ServiceLocator.Get<IOnLocalNextCardChanged>();
+        _OnLocalNextCardChanged.OnLocalNextCardChanged += OnNextCardChanged;
+        
+        _cardContainer = ServiceLocator.Get<CardContainer>();
     }
 
     private void OnDestroy()
     {
-        if (_drawEvents != null)
-            _drawEvents.OnLocalDrawACard -= CreateCardUI;
+        if (_OnLocalDrawnACard != null)
+            _OnLocalDrawnACard.OnLocalDrawACard -= CreateCardUI;
+        
+        if (_OnLocalNextCardChanged != null)
+            _OnLocalNextCardChanged.OnLocalNextCardChanged -= CreateCardUI;
     }
 
     private void CreateCardUI(CardType cardType)
@@ -55,5 +65,16 @@ public class CardUIFactory : MonoBehaviour
         }
 
         GameLog.Error($"ServerCardUIFactory: No sub-factory handles {cardDataSO.GetType().Name} for {cardType}");
+    }
+
+    private void OnNextCardChanged(CardType cardType)
+    {
+        if (cardType == CardType.None)
+        {
+            _cardContainer.SetNextCardNone();
+            return;
+        }
+        
+        _cardContainer.SetNextCard(cardDataListSO.GetCardDataByType(cardType).CardImage);
     }
 }

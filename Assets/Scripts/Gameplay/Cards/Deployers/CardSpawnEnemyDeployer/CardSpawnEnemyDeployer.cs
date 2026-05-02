@@ -10,6 +10,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private BaseServerManaManager _serverManaManager;
     private BaseServerWaveManager _serverWaveManager;
     private PlayersDataManager _playersDataManager;
+    private BaseCardHandManager _cardHandManager;
 
     public void Awake()
     {
@@ -25,6 +26,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         if (IsServer)
         {
             _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
         }
     }
@@ -58,6 +60,13 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         {
             GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
             SendFailure(clientId, cardType, CardInvalidReason.NoTeam);
+            return;
+        }
+
+        if (!_cardHandManager.TeamHasCardInHand(team, cardType))
+        {
+            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
+            SendFailure(clientId, cardType, CardInvalidReason.NotInHand);
             return;
         }
 

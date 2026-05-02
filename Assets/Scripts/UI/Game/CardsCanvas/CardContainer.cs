@@ -1,26 +1,28 @@
-using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CardContainer : MonoBehaviour
 {
     [Title("References")]
+    [SerializeField] CardDataListSO cardDataListSO;
+    [SerializeField] private NextCardSlot nextCardSlot;
     [SerializeField] private List<CardSlot> cardSlots;
     
-    private Dictionary<AbstractCard, CardSlot> occupiedSlots = new Dictionary<AbstractCard, CardSlot>();
+    private Dictionary<AbstractCard, CardSlot> occupiedSlots = new();
 
     private void Awake()
     {
         ServiceLocator.Register<CardContainer>(this);
     }
-
+    
     private void OnDestroy()
     {
         ServiceLocator.Unregister<CardContainer>();
     }
 
-    public Transform AddCardToSlot(AbstractCard  card)
+    public Transform AddCardToSlot(AbstractCard card)
     {
         CardSlot occupiedSlot = TryOccupySlot();
 
@@ -34,7 +36,17 @@ public class CardContainer : MonoBehaviour
         return occupiedSlot.SlotTransform;
     }
 
-    public void UnoccupySlot(AbstractCard card)
+    public void SetNextCard(Sprite image)
+    {
+        nextCardSlot.SetNextCardImage(image);
+    }
+
+    public void SetNextCardNone()
+    {
+        nextCardSlot.SetNextCardImage(null);
+    }
+
+    public void Unoccupy(AbstractCard card)
     {
         if (occupiedSlots.Remove(card, out CardSlot slot))
         {

@@ -36,6 +36,21 @@ public abstract class BaseCardHandManager : NetworkBehaviour
     /// <summary>Server-only. Called when a player plays a card — draws a replacement into the hand.</summary>
     public abstract void NotifyCardPlayed(TeamType teamType, CardType cardType);
 
+    /// <summary>
+    /// Returns true if the given card is currently in the team's visible hand.
+    /// Reads the synced NetworkList — safe to call from server (authoritative check)
+    /// and from clients (display logic).
+    /// </summary>
+    public bool TeamHasCardInHand(TeamType teamType, CardType cardType)
+    {
+        NetworkList<CardTypeEntry> handList = teamType == TeamType.Blue ? BlueHandCards : RedHandCards;
+        for (int i = 0; i < handList.Count; i++)
+        {
+            if (handList[i].Value == cardType) return true;
+        }
+        return false;
+    }
+
     protected virtual void Awake()
     {
         BlueHandCards = new NetworkList<CardTypeEntry>();

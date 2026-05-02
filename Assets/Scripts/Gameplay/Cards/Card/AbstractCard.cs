@@ -132,7 +132,7 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
 
     protected virtual void DiscardSelfCard()
     {
-        _cardContainer.UnoccupySlot(this);
+        _cardContainer.Unoccupy(this);
         Destroy(gameObject);
     }
 }

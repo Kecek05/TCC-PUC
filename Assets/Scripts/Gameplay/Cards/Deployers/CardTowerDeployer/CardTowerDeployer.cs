@@ -11,6 +11,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     private BaseTeamManager _teamManager;
     private BaseServerManaManager  _serverManaManager;
     private PlayersDataManager _playersDataManager;
+    private BaseCardHandManager _cardHandManager;
 
     private void Awake()
     {
@@ -25,6 +26,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
         if (IsServer)
         {
             _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
         }
     }
@@ -60,7 +62,14 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
             return;
         }
-        
+
+        if (!_cardHandManager.TeamHasCardInHand(team, cardType))
+        {
+            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
+            SendFailure(clientId, cardType, TowerReason.NotInHand, placePosition);
+            return;
+        }
+
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not TowerCardDataSO towerCardData)
         {

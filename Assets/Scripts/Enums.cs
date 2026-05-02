@@ -58,7 +58,8 @@ public enum CardInvalidReason
     NoTeam,
     Cooldown,
     BlockedByUI,
-    EnemyMap
+    EnemyMap,
+    NotInHand
 }
 
 public enum SpellInvalidReason
@@ -70,7 +71,8 @@ public enum SpellInvalidReason
     NoTeam,
     Cooldown,
     BlockedByUI,
-    NotSuccess
+    NotSuccess,
+    NotInHand
 }
 
 public enum TowerReason
@@ -82,6 +84,7 @@ public enum TowerReason
     NotSuccess,
     AlreadyOccupied,
     NotEnoughMana,
+    NotInHand
 }
 
 public enum AuthState

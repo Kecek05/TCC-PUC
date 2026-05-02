@@ -11,6 +11,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
     private PlayersDataManager _playersDataManager;
+    private BaseCardHandManager _cardHandManager;
 
     private void Awake()
     {
@@ -26,6 +27,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         if (IsServer)
         {
             _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
         }
     }
@@ -58,6 +60,13 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         if (team == TeamType.None)
         {
             SendFailure(clientId, cardType, SpellInvalidReason.NoTeam);
+            return;
+        }
+
+        if (!_cardHandManager.TeamHasCardInHand(team, cardType))
+        {
+            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
+            SendFailure(clientId, cardType, SpellInvalidReason.NotInHand);
             return;
         }
 

@@ -11,7 +11,7 @@ using UnityEngine;
 /// (hand + next card) onto the synced NetworkList / NetworkVariable for clients.
 /// Clients read the synced state and subscribe to <see cref="BaseCardHandManager.OnHandChanged"/>.
 /// </summary>
-public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocalDrawnACard
+public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocalDrawnACard, IOnLocalNextCardChanged
 {
     [Title("Config")]
     [SerializeField, MinValue(1)] private int _handSize = 4;
@@ -19,6 +19,8 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
     public event Action<TeamType, CardType> OnDrawACard;
     public event Action<CardType> OnLocalDrawACard;
+    public event Action<CardType> OnLocalNextCardChanged;
+    
 
     private HandData _blueHandData;
     private HandData _redHandData;
@@ -34,6 +36,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         ServiceLocator.Register<BaseCardHandManager>(this);
         ServiceLocator.Register<IOnDrawACard>(this);
         ServiceLocator.Register<IOnLocalDrawnACard>(this);
+        ServiceLocator.Register<IOnLocalNextCardChanged>(this);
         _costs = _cardDataListSO;
     }
 
@@ -61,6 +64,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         ServiceLocator.Unregister<BaseCardHandManager>();
         ServiceLocator.Unregister<IOnDrawACard>();
         ServiceLocator.Unregister<IOnLocalDrawnACard>();
+        ServiceLocator.Unregister<IOnLocalNextCardChanged>();
         base.OnDestroy();
     }
 
@@ -117,6 +121,12 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
     {
         OnLocalDrawACard?.Invoke(drawnCard);
     }
+    
+    [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+    private void SendOnLocalNextCardChangedRpc(CardType nextCard, RpcParams rpcParams = default)
+    {
+        OnLocalNextCardChanged?.Invoke(nextCard);
+    }
 
     public override void NotifyCardPlayed(TeamType teamType, CardType cardType)
     {
@@ -167,6 +177,8 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             handList.Add(handData.HandCards[i]);
 
         nextVar.Value = handData.QueuedCards.Count > 0 ? handData.QueuedCards.Peek() : CardType.None;
+        
+        SendOnLocalNextCardChangedRpc(nextVar.Value, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
     }
 
     private HandData GetServerHandData(TeamType teamType)
