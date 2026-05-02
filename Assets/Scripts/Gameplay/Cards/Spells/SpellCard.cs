@@ -1,20 +1,15 @@
 using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class SpellCard : AbstractCard
 {
-    [Header("Spell Settings")]
-    [SerializeField] private bool canUseInEnemyMap = false;
-    private GhostSpellCard _ghostSpellCard;
-    [Space(5f)]
-    
-    [Header("GFXs")] 
+    [Header("Spell Card GFXs")] 
     [SerializeField] private MMF_Player fadeOutFeedback;
     [SerializeField] private MMF_Player fadeInFeedback;
 
     private bool _enabledTowerGFX = false;
+    private GhostSpellCard _ghostSpellCard;
 
     private BaseCardSpellDeployer _cardSpellDeployer;
 
@@ -46,7 +41,7 @@ public class SpellCard : AbstractCard
         base.OnDrag(eventData);
 
         Vector2 worldPosition = GetWorldPosition(eventData);
-        if ((IsEnemyMap(worldPosition) && !canUseInEnemyMap) || !CanPlayCardAtCanvas(eventData.position))
+        if ((IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap) || (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap) || !CanPlayCardAtCanvas(eventData.position))
         {
             DisableGhostSpellGFX();
             return;
@@ -68,7 +63,7 @@ public class SpellCard : AbstractCard
         var baseCheck = base.CanPlayCardAt(worldPosition);
         if (!baseCheck) return baseCheck;
 
-        if (IsEnemyMap(worldPosition) && !canUseInEnemyMap)
+        if (IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap || (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap))
             return CardValidation.Invalid(CardInvalidReason.EnemyMap);
         
         return CardValidation.Valid;

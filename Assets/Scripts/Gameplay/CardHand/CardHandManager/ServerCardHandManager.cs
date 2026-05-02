@@ -23,9 +23,8 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
     private CardDeploymentBus _deploymentBus;
     private BasePlayersDataManager  _playersDataManager;
 
-    protected override void Awake()
+    public void Awake()
     {
-        base.Awake();
         ServiceLocator.Register<BaseCardHandManager>(this);
         ServiceLocator.Register<IOnDrawACard>(this);
         ServiceLocator.Register<IOnLocalDrawnACard>(this);
@@ -79,7 +78,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
     private void OnAnyCardDeployed(CardDeployedEventArgs args)
         => NotifyCardPlayed(args.TeamDeployed, args.CardDeployed);
 
-    public override void SetHandForPlayer(TeamType teamType, List<CardType> cardsInDeck)
+    public override void SetDeckForPlayer(TeamType teamType, List<CardType> cardsInDeck)
     {
         GameLog.Info($"[CardHandManager] SetHandForPlayer: Setting hand for {teamType} with deck of {cardsInDeck.Count} cards.");
         if (!IsServer)
@@ -162,16 +161,15 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
     private void PushSyncedState(TeamType teamType, HandData handData)
     {
-        NetworkList<CardTypeEntry> handList = teamType == TeamType.Blue ? BlueHandCards : RedHandCards;
-        NetworkVariable<CardType> nextVar = teamType == TeamType.Blue ? BlueNextCard : RedNextCard;
+        List<CardType> handList = teamType == TeamType.Blue ? BlueHandCards : RedHandCards;
 
         handList.Clear();
         for (int i = 0; i < handData.HandCards.Count; i++)
             handList.Add(handData.HandCards[i]);
 
-        nextVar.Value = handData.QueuedCards.Count > 0 ? handData.QueuedCards.Peek() : CardType.None;
+        CardType nextVar = handData.QueuedCards.Count > 0 ? handData.QueuedCards.Peek() : CardType.None;
         
-        SendOnLocalNextCardChangedRpc(nextVar.Value, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+        SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
     }
 
     private HandData GetServerHandData(TeamType teamType)

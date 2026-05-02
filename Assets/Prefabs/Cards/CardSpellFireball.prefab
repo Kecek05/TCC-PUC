@@ -1149,13 +1149,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38fc49ab3e9bebb4098e3ef0bfe77bfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpellCard
-  ShowTopMostFoldoutHeaderGroup: 1
   cardDataSo: {fileID: 11400000, guid: 0babcd21ba46ebe42808d57eecb8571c, type: 2}
   layersSettings: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
   rectTransform: {fileID: 4769146289969050022}
   selfCanvasGroup: {fileID: 4170124164598181938}
-  ghostSpellCard: {fileID: 0}
-  canUseInEnemyMap: 1
+  canUseInEnemyMap: 0
   fadeOutFeedback: {fileID: 5840574710605235749}
   fadeInFeedback: {fileID: 8759511578978136600}
 --- !u!114 &5644965870029990498 stripped

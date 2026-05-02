@@ -99,6 +99,12 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         return hits.Length > 0;
     }
 
+    protected bool IsLocalMap(Vector2 position)
+    {
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
+        return hits.Length > 0;
+    }
+
     public virtual CardValidation CanPlayCard()
     {
         if (!_clientManaManager.CanAffordLocally(cardDataSo.Cost))

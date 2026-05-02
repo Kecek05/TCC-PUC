@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: SpellIceCardData
   m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
   CardType: 5
+  CardPrefab: {fileID: 0}
   CardName: Ice
   Description: ICE
   CardImage: {fileID: 21300000, guid: c23294d57f74bea4b9a439f033a6bf15, type: 3}
   Cost: 4
   SpellType: 2
+  CanUseInEnemyMap: 1
+  CanUseInLocalMap: 0
   SpellGhostSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   SpellData: {fileID: 11400000, guid: b37d0d5374504aa4980f19a2815b6ef1, type: 2}

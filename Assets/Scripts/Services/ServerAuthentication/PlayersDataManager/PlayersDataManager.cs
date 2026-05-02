@@ -5,9 +5,7 @@ public class PlayersDataManager : BasePlayersDataManager
 {
     private Dictionary<string, ulong> _authToClientId = new(); 
     private Dictionary<ulong, string> _clientIdToAuthId = new(); 
-    private Dictionary<string, PlayerData> _authIdToPlayerData = new();
     private Dictionary<TeamType, string> _teamDataToAuthId = new();
-    public Dictionary<string, PlayerData> AuthIdToPlayerData => _authIdToPlayerData;
     
     public override void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
     {
@@ -23,7 +21,7 @@ public class PlayersDataManager : BasePlayersDataManager
     public override void RegisterClient(PlayerData playerData)
     {
         _authToClientId[playerData.UserData.PlayerAuthId] = playerData.ClientId;
-        _authIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
+        AuthIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
         _clientIdToAuthId[playerData.ClientId] = playerData.UserData.PlayerAuthId;
 
         GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");

@@ -10,7 +10,7 @@ public class DrawingCardsState : IGameFlowState
         foreach (var data in playersDataManager.AuthIdToPlayerData)
         {
             TeamType team = ctx.TeamManager.GetTeam(data.Key);
-            cardHandManager.SetHandForPlayer(team, data.Value.UserData.DeckCards);
+            cardHandManager.SetDeckForPlayer(team, data.Value.UserData.DeckCards);
         }
         
         ctx.RequestTransition(GameState.InMatch);
