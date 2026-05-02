@@ -6,6 +6,7 @@ public class PlayersDataManager : BasePlayersDataManager
     private Dictionary<string, ulong> _authToClientId = new(); 
     private Dictionary<ulong, string> _clientIdToAuthId = new(); 
     private Dictionary<TeamType, string> _teamDataToAuthId = new();
+    private Dictionary<string, PlayerData> _authIdToPlayerData = new();
     
     public override void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
     {
@@ -21,7 +22,7 @@ public class PlayersDataManager : BasePlayersDataManager
     public override void RegisterClient(PlayerData playerData)
     {
         _authToClientId[playerData.UserData.PlayerAuthId] = playerData.ClientId;
-        AuthIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
+        _authIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
         _clientIdToAuthId[playerData.ClientId] = playerData.UserData.PlayerAuthId;
 
         GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");
@@ -60,4 +61,6 @@ public class PlayersDataManager : BasePlayersDataManager
         GameLog.Error("Error Trying to get client ID for team type: " + teamType);
         return ulong.MaxValue;
     }
+
+    public override Dictionary<string, PlayerData> GetAuthIdToPlayerData() => _authIdToPlayerData;
 }

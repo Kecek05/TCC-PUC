@@ -81,6 +81,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
 
         if (hit.placeable == null)
         {
+            GameLog.Warn($"Client {clientId} (Team {team}) tried to place a tower at {placePosition} but no valid placeable was found.");
             SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
             return;
         }

@@ -7,7 +7,7 @@ public class DrawingCardsState : IGameFlowState
         BasePlayersDataManager playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
         BaseCardHandManager cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
 
-        foreach (var data in playersDataManager.AuthIdToPlayerData)
+        foreach (var data in playersDataManager.GetAuthIdToPlayerData())
         {
             TeamType team = ctx.TeamManager.GetTeam(data.Key);
             cardHandManager.SetDeckForPlayer(team, data.Value.UserData.DeckCards);

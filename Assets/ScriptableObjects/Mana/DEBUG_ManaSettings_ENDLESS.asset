@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f96326f5f347b46bb9c27a0cb0b197, type: 3}
+  m_Name: DEBUG_ManaSettings_ENDLESS
+  m_EditorClassIdentifier: Assembly-CSharp::ManaSettingsSO
+  startingMana: 10
+  startingMaxMana: 10
+  waveManaMaxes:
+  - WaveNumber: 1
+    MaxMana: 10
+  - WaveNumber: 2
+    MaxMana: 10
+  - WaveNumber: 3
+    MaxMana: 10
+  - WaveNumber: 4
+    MaxMana: 10
+  - WaveNumber: 5
+    MaxMana: 10
+  - WaveNumber: 6
+    MaxMana: 10
+  - WaveNumber: 7
+    MaxMana: 10
+  - WaveNumber: 8
+    MaxMana: 10
+  - WaveNumber: 9
+    MaxMana: 10
+  - WaveNumber: 10
+    MaxMana: 10
+  regenPerSecond: 100

@@ -2,8 +2,6 @@ using System.Collections.Generic;
 
 public abstract class BasePlayersDataManager
 {
-    public Dictionary<string, PlayerData> AuthIdToPlayerData { get; protected set; } = new();
-
     public abstract void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args);
 
     public abstract void RegisterClient(PlayerData playerData);
@@ -13,4 +11,6 @@ public abstract class BasePlayersDataManager
     public abstract string GetAuthIdByClientId(ulong clientId);
 
     public abstract ulong GetClientIdByTeamType(TeamType teamType);
+    
+    public abstract Dictionary<string, PlayerData> GetAuthIdToPlayerData();
 }

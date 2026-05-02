@@ -64,7 +64,7 @@ public class CardUIFactory : MonoBehaviour
             }
         }
 
-        GameLog.Error($"ServerCardUIFactory: No sub-factory handles {cardDataSO.GetType().Name} for {cardType}");
+        GameLog.Warn($"ServerCardUIFactory: No sub-factory handles {cardDataSO.GetType().Name} for {cardType}");
     }
 
     private void OnNextCardChanged(CardType cardType)

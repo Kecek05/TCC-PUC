@@ -173,6 +173,8 @@ public class TowerCard : AbstractCard
 
         _towerPlacementFeedbackManager.StopPredictSpawn(uniqueRuntimeId);
         
+        GameLog.Info($"Tower place result: {result.Validation.Reason} at {localPos}");
+        
         switch (result.Validation.Reason)
         {
             case TowerReason.Success:
