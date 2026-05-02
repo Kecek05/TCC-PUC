@@ -3,10 +3,10 @@ public class SpawnEnemyCardUISubFactory : BaseCardSubFactory
 {
     public override bool CanHandle(CardDataSO data) => data is SpawnEnemyCardDataSO;
 
-    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO)
+    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO, BaseCardContainer cardContainer)
     {
         SpawnEnemyCard card = Instantiate((SpawnEnemyCard)cardDataSO.CardPrefab, factoryData.CardParent);
-        card.Initialize(factoryData);
+        card.Initialize(factoryData, cardContainer);
         return card;
     }
 }

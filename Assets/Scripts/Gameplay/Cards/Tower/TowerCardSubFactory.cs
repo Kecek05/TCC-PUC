@@ -6,10 +6,10 @@ public class TowerCardSubFactory : BaseCardSubFactory
 
     public override bool CanHandle(CardDataSO data) => data is TowerCardDataSO;
 
-    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO)
+    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO, BaseCardContainer cardContainer)
     {
         TowerCard card = Instantiate((TowerCard)cardDataSO.CardPrefab, factoryData.CardParent);
-        card.Initialize(factoryData, ghostTowerCard);
+        card.Initialize(factoryData, cardContainer, ghostTowerCard);
         return card;
     }
 }

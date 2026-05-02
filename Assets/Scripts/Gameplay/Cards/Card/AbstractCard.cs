@@ -27,7 +27,7 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     
     protected BaseClientManaManager  _clientManaManager;
     protected BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
-    protected CardContainer _cardContainer;
+    protected BaseCardContainer _cardContainer;
     
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
@@ -40,9 +40,9 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
     }
 
-    public void Initialize(CardUIFactoryData factoryData)
+    public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer)
     {
-        _cardContainer = ServiceLocator.Get<CardContainer>();
+        _cardContainer = cardContainer;
         
         _canvasArea = factoryData.CardsCanvas;
         _safeArea = factoryData.SafeAreaParent;
@@ -54,8 +54,6 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         originalPosition = slotTransform.anchoredPosition;
         _originalParent = factoryData.CardParent;
     }
-
-    
     
     public virtual void OnBeginDrag(PointerEventData eventData)
     {

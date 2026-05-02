@@ -5,22 +5,15 @@ using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Server-authoritative coordinator. Holds the per-team <see cref="HandData"/> server-side,
-/// listens to <see cref="IMaxManaProvider"/> to unlock cards, and pushes the visible slice
-/// (hand + next card) onto the synced NetworkList / NetworkVariable for clients.
-/// Clients read the synced state and subscribe to <see cref="BaseCardHandManager.OnHandChanged"/>.
-/// </summary>
 public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocalDrawnACard, IOnLocalNextCardChanged
 {
     [Title("Config")]
-    [SerializeField, MinValue(1)] private int _handSize = 4;
-    [SerializeField] private CardDataListSO _cardDataListSO;
+    [SerializeField] CardHandSettingsSO cardHandSettingsSO;
+    [SerializeField] private CardDataListSO cardDataListSO;
 
     public event Action<TeamType, CardType> OnDrawACard;
     public event Action<CardType> OnLocalDrawACard;
     public event Action<CardType> OnLocalNextCardChanged;
-    
 
     private HandData _blueHandData;
     private HandData _redHandData;
@@ -28,7 +21,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
     private CardDeploymentBus _deploymentBus;
-    private PlayersDataManager  _playersDataManager;
+    private BasePlayersDataManager  _playersDataManager;
 
     protected override void Awake()
     {
@@ -37,7 +30,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         ServiceLocator.Register<IOnDrawACard>(this);
         ServiceLocator.Register<IOnLocalDrawnACard>(this);
         ServiceLocator.Register<IOnLocalNextCardChanged>(this);
-        _costs = _cardDataListSO;
+        _costs = cardDataListSO;
     }
 
     public override void OnNetworkSpawn()
@@ -74,7 +67,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             () => ServiceLocator.Get<BaseServerManaManager>() != null
                && ServiceLocator.Get<CardDeploymentBus>() != null);
 
-        _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+        _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
         
         _maxManaProvider = ServiceLocator.Get<BaseServerManaManager>();
         _maxManaProvider.OnMaxManaChanged += OnMaxManaChanged;
@@ -106,7 +99,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
         SetServerHandData(teamType, handData);
 
-        for (int i = 0; i < _handSize; i++)
+        for (int i = 0; i < cardHandSettingsSO.HandSize; i++)
         {
             if (!handData.Draw(out CardType drawnCard)) break;
             OnDrawACard?.Invoke(teamType, drawnCard);

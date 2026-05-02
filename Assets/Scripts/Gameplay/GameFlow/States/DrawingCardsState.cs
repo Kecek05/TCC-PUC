@@ -4,7 +4,7 @@ public class DrawingCardsState : IGameFlowState
     public GameState Id => GameState.DrawingCards;
     public void Enter(GameFlowContext ctx)
     {
-        PlayersDataManager playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+        BasePlayersDataManager playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
         BaseCardHandManager cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
 
         foreach (var data in playersDataManager.AuthIdToPlayerData)

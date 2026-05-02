@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CardContainer : MonoBehaviour
+public class CardContainer : BaseCardContainer
 {
     [Title("References")]
     [SerializeField] CardDataListSO cardDataListSO;
@@ -14,7 +14,7 @@ public class CardContainer : MonoBehaviour
 
     private void Awake()
     {
-        ServiceLocator.Register<CardContainer>(this);
+        ServiceLocator.Register<BaseCardContainer>(this);
     }
     
     private void OnDestroy()
@@ -22,7 +22,7 @@ public class CardContainer : MonoBehaviour
         ServiceLocator.Unregister<CardContainer>();
     }
 
-    public Transform AddCardToSlot(AbstractCard card)
+    public override Transform AddCardToSlot(AbstractCard card)
     {
         CardSlot occupiedSlot = TryOccupySlot();
 
@@ -36,17 +36,17 @@ public class CardContainer : MonoBehaviour
         return occupiedSlot.SlotTransform;
     }
 
-    public void SetNextCard(Sprite image)
+    public override void SetNextCard(Sprite image)
     {
         nextCardSlot.SetNextCardImage(image);
     }
 
-    public void SetNextCardNone()
+    public override void SetNextCardNone()
     {
         nextCardSlot.SetNextCardImage(null);
     }
 
-    public void Unoccupy(AbstractCard card)
+    public override void Unoccupy(AbstractCard card)
     {
         if (occupiedSlots.Remove(card, out CardSlot slot))
         {

@@ -6,10 +6,10 @@ public class SpellCardUISubFactory : BaseCardSubFactory
     
     public override bool CanHandle(CardDataSO data) => data is SpellCardDataSO;
 
-    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO)
+    public override AbstractCard Create(CardUIFactoryData factoryData, CardDataSO cardDataSO, BaseCardContainer cardContainer)
     {
         SpellCard card = Instantiate((SpellCard)cardDataSO.CardPrefab, factoryData.CardParent);
-        card.Initialize(factoryData, ghostSpellCard);
+        card.Initialize(factoryData, cardContainer, ghostSpellCard);
         return card;
     }
 }

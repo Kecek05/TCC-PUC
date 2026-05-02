@@ -9,7 +9,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
     private BaseServerWaveManager _serverWaveManager;
-    private PlayersDataManager _playersDataManager;
+    private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
 
     public void Awake()
@@ -25,7 +25,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
 
         if (IsServer)
         {
-            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
         }

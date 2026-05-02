@@ -6,7 +6,7 @@ using UnityEngine;
 public class MatchServerControllers : IDisposable
 {
     private NetworkConnectionServer _networkConnectionServer;
-    private PlayersDataManager _playersDataManager;
+    private BasePlayersDataManager _playersDataManager;
 
     public MatchServerControllers(NetworkManager networkManager)
     {
@@ -16,7 +16,7 @@ public class MatchServerControllers : IDisposable
         _networkConnectionServer.OnPlayerConnected += _playersDataManager.Handle_OnPlayerConnected;
 
         ServiceLocator.Register<IOnPlayerLoaded>(_networkConnectionServer);
-        ServiceLocator.Register<PlayersDataManager>(_playersDataManager);
+        ServiceLocator.Register<BasePlayersDataManager>(_playersDataManager);
     }
 
     public void Dispose()
@@ -28,6 +28,6 @@ public class MatchServerControllers : IDisposable
         }
         
         ServiceLocator.Unregister<IOnPlayerLoaded>();
-        ServiceLocator.Unregister<PlayersDataManager>();
+        ServiceLocator.Unregister<BasePlayersDataManager>();
     }
 }

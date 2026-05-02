@@ -24,9 +24,9 @@ public class SpellCard : AbstractCard
         _cardSpellDeployer = ServiceLocator.Get<BaseCardSpellDeployer>();
     }
     
-    public void Initialize(CardUIFactoryData factoryData, GhostSpellCard ghostSpellCard)
+    public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer, GhostSpellCard ghostSpellCard)
     {
-        base.Initialize(factoryData);
+        base.Initialize(factoryData, cardContainer);
         _ghostSpellCard = ghostSpellCard;
     }
 

@@ -15,9 +15,9 @@ public class NetworkConnectionServer : IDisposable, IOnPlayerConnected, IOnPlaye
     public event Action<OnCardPlayerConnectedEventArgs> OnPlayerConnected;
     
     private NetworkManager _networkManager;
-    private PlayersDataManager _playersDataManager;
+    private BasePlayersDataManager _playersDataManager;
 
-    public NetworkConnectionServer(NetworkManager networkManager, PlayersDataManager  playersDataManager)
+    public NetworkConnectionServer(NetworkManager networkManager, BasePlayersDataManager playersDataManager)
     {
         _networkManager  = networkManager;
         _playersDataManager =  playersDataManager;

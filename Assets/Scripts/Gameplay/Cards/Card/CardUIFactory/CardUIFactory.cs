@@ -24,7 +24,7 @@ public class CardUIFactory : MonoBehaviour
 
     private IOnLocalDrawnACard _OnLocalDrawnACard;
     private IOnLocalNextCardChanged _OnLocalNextCardChanged;
-    private CardContainer _cardContainer;
+    private BaseCardContainer _cardContainer;
 
     private void Start()
     {
@@ -34,7 +34,7 @@ public class CardUIFactory : MonoBehaviour
         _OnLocalNextCardChanged  = ServiceLocator.Get<IOnLocalNextCardChanged>();
         _OnLocalNextCardChanged.OnLocalNextCardChanged += OnNextCardChanged;
         
-        _cardContainer = ServiceLocator.Get<CardContainer>();
+        _cardContainer = ServiceLocator.Get<BaseCardContainer>();
     }
 
     private void OnDestroy()
@@ -59,7 +59,7 @@ public class CardUIFactory : MonoBehaviour
         {
             if (factory.CanHandle(cardDataSO))
             {
-                factory.Create(cardUIFactoryData, cardDataSO);
+                factory.Create(cardUIFactoryData, cardDataSO, _cardContainer);
                 return;
             }
         }

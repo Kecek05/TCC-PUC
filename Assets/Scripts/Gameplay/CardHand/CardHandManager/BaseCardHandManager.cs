@@ -9,9 +9,7 @@ using Unity.Netcode;
 /// </summary>
 public abstract class BaseCardHandManager : NetworkBehaviour
 {
-    /// <summary>Current hand cards for the blue team. Server-write, everyone-read.</summary>
     public NetworkList<CardTypeEntry> BlueHandCards;
-    /// <summary>Current hand cards for the red team. Server-write, everyone-read.</summary>
     public NetworkList<CardTypeEntry> RedHandCards;
 
     /// <summary>

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayersDataManager
+public class PlayersDataManager : BasePlayersDataManager
 {
     private Dictionary<string, ulong> _authToClientId = new(); 
     private Dictionary<ulong, string> _clientIdToAuthId = new(); 
@@ -9,7 +9,7 @@ public class PlayersDataManager
     private Dictionary<TeamType, string> _teamDataToAuthId = new();
     public Dictionary<string, PlayerData> AuthIdToPlayerData => _authIdToPlayerData;
     
-    public void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
+    public override void Handle_OnPlayerConnected(OnCardPlayerConnectedEventArgs args)
     {
         PlayerData newPlayerData = new PlayerData()
         {
@@ -20,7 +20,7 @@ public class PlayersDataManager
         RegisterClient(newPlayerData);
     }
     
-    public void RegisterClient(PlayerData playerData)
+    public override void RegisterClient(PlayerData playerData)
     {
         _authToClientId[playerData.UserData.PlayerAuthId] = playerData.ClientId;
         _authIdToPlayerData[playerData.UserData.PlayerAuthId] = playerData;
@@ -29,7 +29,7 @@ public class PlayersDataManager
         GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");
     }
 
-    public void RegisterTeam(TeamType teamType, string authId)
+    public override void RegisterTeam(TeamType teamType, string authId)
     {
         if (_teamDataToAuthId.ContainsKey(teamType))
         {
@@ -39,7 +39,7 @@ public class PlayersDataManager
         _teamDataToAuthId[teamType] = authId;
     }
     
-    public string GetAuthIdByClientId(ulong clientId)
+    public override string GetAuthIdByClientId(ulong clientId)
     {
         if (_clientIdToAuthId.TryGetValue(clientId, out string authId))
         {
@@ -49,16 +49,7 @@ public class PlayersDataManager
         return null;
     }
     
-    public PlayerData GetPlayerDataByAuthId(string authId)
-    {
-        if (_authIdToPlayerData.TryGetValue(authId, out PlayerData playerData))
-        {
-            return playerData;
-        }
-        return null;
-    }
-
-    public ulong GetClientIdByTeamType(TeamType teamType)
+    public override ulong GetClientIdByTeamType(TeamType teamType)
     {
         if (_teamDataToAuthId.TryGetValue(teamType, out string authId))
         {

@@ -7,7 +7,7 @@ public class TeamManager : BaseTeamManager
     private NetworkVariable<PlayerTeamPair> _bluePlayer = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<PlayerTeamPair> _redPlayer = new(writePerm: NetworkVariableWritePermission.Server);
 
-    private PlayersDataManager _playersDataManager;
+    private BasePlayersDataManager _playersDataManager;
     private IOnPlayerLoaded _connectionEvents;
     
     private void Awake()
@@ -23,7 +23,7 @@ public class TeamManager : BaseTeamManager
         if (IsServer)
         {
             _connectionEvents = ServiceLocator.Get<IOnPlayerLoaded>();
-            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _connectionEvents.OnPlayerLoaded += AssignTeam;
         }
     }

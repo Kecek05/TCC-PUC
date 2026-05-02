@@ -10,7 +10,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     
     private BaseTeamManager _teamManager;
     private BaseServerManaManager  _serverManaManager;
-    private PlayersDataManager _playersDataManager;
+    private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
 
     private void Awake()
@@ -25,7 +25,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
 
         if (IsServer)
         {
-            _playersDataManager = ServiceLocator.Get<PlayersDataManager>();
+            _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
             ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
         }
