@@ -11,6 +11,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private BaseServerWaveManager _serverWaveManager;
     private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
+    private CardDeploymentBus _cardDeploymentBus;
 
     public void Awake()
     {
@@ -27,14 +28,15 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         {
             _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
-            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+            _cardDeploymentBus = ServiceLocator.Get<CardDeploymentBus>();
+            _cardDeploymentBus.Register(this);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        if (IsServer && _cardDeploymentBus != null)
+            _cardDeploymentBus.Unregister(this);
         base.OnNetworkDespawn();
     }
 

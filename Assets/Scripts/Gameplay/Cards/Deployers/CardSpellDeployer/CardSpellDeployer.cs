@@ -12,6 +12,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     private BaseServerManaManager _serverManaManager;
     private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
+    private CardDeploymentBus _cardDeploymentBus;
 
     private void Awake()
     {
@@ -28,14 +29,16 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         {
             _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
-            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+            _cardDeploymentBus = ServiceLocator.Get<CardDeploymentBus>();
+            
+            _cardDeploymentBus.Register(this);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        if (IsServer && _cardDeploymentBus != null)
+            _cardDeploymentBus.Unregister(this);
         base.OnNetworkDespawn();
     }
 

@@ -73,9 +73,10 @@ public class NetworkClient : IDisposable
     {
         Debug.Log("Client Disconnect");
         //Check if is host first
-        if (networkManager != null && ServiceLocator.Get<BaseHostManager>() != null && networkManager.IsHost)
+        BaseHostManager hostManager = ServiceLocator.Get<BaseHostManager>();
+        if (networkManager != null && hostManager != null && networkManager.IsHost)
         {
-            ServiceLocator.Get<BaseHostManager>().ShutdownHostAsync();
+            hostManager.ShutdownHostAsync();
         }
 
         if(networkManager.IsConnectedClient)

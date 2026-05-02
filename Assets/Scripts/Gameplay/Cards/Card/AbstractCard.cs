@@ -26,8 +26,8 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     protected Camera _cameraMain;
     
     protected BaseClientManaManager  _clientManaManager;
-    protected BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
     protected BaseCardContainer _cardContainer;
+    protected BaseMapTranslator _mapTranslator;
     
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
@@ -37,7 +37,7 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         _cameraMain = Camera.main;
         
         _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
-        _towerPlacementFeedbackManager  = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
+        _mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
     }
 
     public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer)

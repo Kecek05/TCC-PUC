@@ -19,11 +19,15 @@ public class TowerCard : AbstractCard
     private IPlaceable _currentPlaceable;
     
     private BaseCardTowerDeployer _cardTowerDeployer;
+    private BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
+    private BaseTeamManager  _teamManager;
 
     protected override void Start()
     {
         base.Start();
         _cardTowerDeployer = ServiceLocator.Get<BaseCardTowerDeployer>();
+        _towerPlacementFeedbackManager = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
     }
 
     public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer, GhostTowerCard ghostTowerCard)
@@ -105,7 +109,7 @@ public class TowerCard : AbstractCard
         foreach (RaycastHit2D hit in hits)
         {
             TeamIdentifier team = hit.collider.GetComponentInParent<TeamIdentifier>();
-            if (team == null || team.TeamType != ServiceLocator.Get<BaseTeamManager>().GetLocalTeam()) continue;
+            if (team == null || team.TeamType != _teamManager.GetLocalTeam()) continue;
 
             IPlaceable placeable = hit.collider.GetComponentInParent<IPlaceable>();
             if (placeable == null) continue;
@@ -158,7 +162,7 @@ public class TowerCard : AbstractCard
         
         _towerPlacementFeedbackManager.PredictSpawn(GetTowerCardDataSO().TowerGhostSprite, position, uniqueRuntimeId);
         
-        Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(position);
+        Vector2 serverPosition = _mapTranslator.LocalToServer(position);
         _cardTowerDeployer.RequestPlaceCardServer(cardDataSo.CardType, serverPosition);
     }
 
@@ -169,7 +173,7 @@ public class TowerCard : AbstractCard
         _waitingResult = false;
         _cardTowerDeployer.OnPlaceResult -= HandlePlaceResult;
 
-        Vector3 localPos = ServiceLocator.Get<BaseMapTranslator>().ServerToLocal(result.Position, ServiceLocator.Get<BaseTeamManager>().GetLocalTeam());
+        Vector3 localPos = _mapTranslator.ServerToLocal(result.Position, _teamManager.GetLocalTeam());
 
         _towerPlacementFeedbackManager.StopPredictSpawn(uniqueRuntimeId);
         

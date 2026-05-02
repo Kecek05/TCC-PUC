@@ -74,7 +74,7 @@ public class SpellCard : AbstractCard
         _cardSpellDeployer.OnSpellResult += HandleSpellResult;
         _clientManaManager.PredictSpend(cardDataSo.Cost);
 
-        Vector2 serverPosition = ServiceLocator.Get<BaseMapTranslator>().LocalToServer(worldPosition);
+        Vector2 serverPosition = _mapTranslator.LocalToServer(worldPosition);
         _cardSpellDeployer.RequestSpellCardServer(cardDataSo.CardType, serverPosition);
     }
     

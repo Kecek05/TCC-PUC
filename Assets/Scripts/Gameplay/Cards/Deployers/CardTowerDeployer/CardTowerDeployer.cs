@@ -12,6 +12,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     private BaseServerManaManager  _serverManaManager;
     private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
+    private CardDeploymentBus _cardDeploymentBus;
 
     private void Awake()
     {
@@ -27,14 +28,16 @@ public class CardTowerDeployer : BaseCardTowerDeployer
         {
             _playersDataManager = ServiceLocator.Get<BasePlayersDataManager>();
             _cardHandManager = ServiceLocator.Get<BaseCardHandManager>();
-            ServiceLocator.Get<CardDeploymentBus>()?.Register(this);
+            _cardDeploymentBus = ServiceLocator.Get<CardDeploymentBus>();
+            
+            _cardDeploymentBus.Register(this);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-            ServiceLocator.Get<CardDeploymentBus>()?.Unregister(this);
+        if (IsServer && _cardDeploymentBus != null)
+            _cardDeploymentBus.Unregister(this);
         base.OnNetworkDespawn();
     }
 
@@ -190,6 +193,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
         foreach (RaycastHit2D hit in hits)
         {
             TeamIdentifier team = hit.collider.GetComponentInParent<TeamIdentifier>();
+            GameLog.Info($"Found TeamIdentifier {team?.TeamType} at {hit.collider.transform.position} for required team {requiredTeam}");
             if (team == null || team.TeamType != requiredTeam) continue;
 
             IPlaceable placeable = hit.collider.GetComponentInParent<IPlaceable>();
