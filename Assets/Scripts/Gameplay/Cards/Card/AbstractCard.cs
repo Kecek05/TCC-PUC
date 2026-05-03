@@ -11,6 +11,7 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     [Header("Card Properties")]
     [SerializeField] protected CardDataSO cardDataSo;
     [SerializeField] protected LayersSettingsSO layersSettings;
+    [SerializeField] protected CardGFXController gfxController;
     [Space(5f)]
     
     [SerializeField] private RectTransform rectTransform;
@@ -53,6 +54,8 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         rectTransform.anchoredPosition = slotTransform.anchoredPosition;
         originalPosition = slotTransform.anchoredPosition;
         _originalParent = factoryData.CardParent;
+        
+        gfxController.Initialize(cardDataSo);
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)

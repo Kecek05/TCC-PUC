@@ -1151,9 +1151,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpellCard
   cardDataSo: {fileID: 11400000, guid: 0babcd21ba46ebe42808d57eecb8571c, type: 2}
   layersSettings: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
+  gfxController: {fileID: 8794190752614679342}
   rectTransform: {fileID: 4769146289969050022}
   selfCanvasGroup: {fileID: 4170124164598181938}
-  canUseInEnemyMap: 0
   fadeOutFeedback: {fileID: 5840574710605235749}
   fadeInFeedback: {fileID: 8759511578978136600}
 --- !u!114 &5644965870029990498 stripped
@@ -1177,3 +1177,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4847860331909447245, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
   m_PrefabInstance: {fileID: 3812200173481291583}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8794190752614679342 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5687090001105873937, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
+  m_PrefabInstance: {fileID: 3812200173481291583}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f544d483253d9b940be3b7bd5e0d8747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardGFXController
