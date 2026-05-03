@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: Circle_TowerData
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
   TowerType: 1
-  MaxLevel: 3
+  SetupDurationLevel1: 0.5
   DamageLevel1: 25
   RangeLevel1: 3
   ShootCooldownLevel1: 1
   BulletSpeedLevel1: 15
+  SetupDurationLevel2: 0.85
   DamageLevel2: 30
   RangeLevel2: 4
   ShootCooldownLevel2: 0.9
   BulletSpeedLevel2: 20
+  SetupDurationLevel3: 0.85
   DamageLevel3: 25
   RangeLevel3: 5
   ShootCooldownLevel3: 0.7

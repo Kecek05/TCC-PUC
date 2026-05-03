@@ -1,3 +1,4 @@
+using System.Collections;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
@@ -9,12 +10,15 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected TowerDataSO _towerData => towerManager.Data;
     protected NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
     protected bool _canTickCooldown = true;
+    protected bool _setuped = false;
+    protected bool _upgradingFlag = false;
 
     protected float _currentShootCooldown = 0f;
     protected float _shootCooldown;
     protected float _range;
     protected float _damage;
     protected float _bulletSpeed;
+    protected float _currentSetupDuration;
     
     public NetworkVariable<int> TowerLevel => _towerLevel;
 
@@ -27,25 +31,38 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
             return;
         }
         
-        _currentShootCooldown = 0f;
         _towerLevel.Value = 1;
+        
         UpdateData();
+        StartCoroutine(SetupTimeDuration());
+    }
+
+    protected virtual IEnumerator SetupTimeDuration()
+    {
+        yield return new WaitForSeconds(_currentSetupDuration);
+        _setuped = true;
     }
 
     protected void Update()
     {
         if (!IsServer) return;
-        
+
         // if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
         
         if (!_canTickCooldown)  return;
         
-        _currentShootCooldown += Time.deltaTime;
-        if (_currentShootCooldown < _shootCooldown) return;
+        if (!_setuped) return;
+        
+        if (_upgradingFlag) return;
+        
+        if (_currentShootCooldown < _shootCooldown)
+        {
+            _currentShootCooldown += Time.deltaTime;
+            return;
+        }
 
         if (TryTriggerShot())
             _currentShootCooldown =  0f; 
-        
     }
 
     protected abstract bool TryTriggerShot();
@@ -69,6 +86,14 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
 
         _towerLevel.Value = newLevel;
         UpdateData();
+        StartCoroutine(UpgradeSetupDurationDelay());
+    }
+
+    protected virtual IEnumerator UpgradeSetupDurationDelay()
+    {
+        _upgradingFlag  = true;
+        yield return new WaitForSeconds(_currentSetupDuration);
+        _upgradingFlag = false;
     }
     
     protected virtual void UpdateData()
@@ -77,6 +102,9 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _range = _towerData.GetRangeByLevel(_towerLevel.Value);
         _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
+        _currentSetupDuration = _towerData.GetSetupDurationByLevel(_towerLevel.Value);
+        
+        _currentShootCooldown = 0f;
     }
     
     protected EnemyManager FindClosestEnemyToEnd()
@@ -89,7 +117,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
             EnemyManager enemy = activeEnemies[i];
-
+            
             if (enemy == null || !enemy.NetworkObject.IsSpawned)
                 continue;
             

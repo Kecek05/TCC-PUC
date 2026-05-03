@@ -13,14 +13,10 @@ public class ClientTowerGFX : MonoBehaviour
 {
     [SerializeField] private TowerFeedback[] towerFeedbacks;
     [SerializeField] private MMF_Player shootFeedback;
-    
-    private void Start()
-    {
-        UpgradeTower(1);
-    }
 
     public void UpgradeTower(int newLevel)
     {
+        StopAllFeedbacks();
         foreach (TowerFeedback towerFeedback in towerFeedbacks)
         {
             if (towerFeedback.level == newLevel)
@@ -33,6 +29,29 @@ public class ClientTowerGFX : MonoBehaviour
 
     public void FireBulletFeedback()
     {
+        if (HasAnyFeedbackPlaying()) return;
+        
         shootFeedback?.PlayFeedbacks();
+    }
+    
+    private bool HasAnyFeedbackPlaying()
+    {
+        foreach (TowerFeedback towerFeedback in towerFeedbacks)
+        {
+            if (towerFeedback.Feedback != null && towerFeedback.Feedback.IsPlaying)
+                return true;
+        }
+        return false;
+    }
+
+    private void StopAllFeedbacks()
+    {
+        foreach (TowerFeedback towerFeedback in towerFeedbacks)
+        {
+            if (towerFeedback.Feedback != null && towerFeedback.Feedback.IsPlaying)
+                towerFeedback.Feedback.StopFeedbacks();
+        }
+        if (shootFeedback != null && shootFeedback.IsPlaying)
+            shootFeedback.StopFeedbacks();
     }
 }

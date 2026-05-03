@@ -7,21 +7,24 @@ public class TowerDataSO : ScriptableObject
     [Title("General")]
     [SerializeField] public TowerType TowerType;
 
-    [SerializeField] public int MaxLevel = 3;
+    public readonly int MaxLevel = 3;
     
     [Title("Level 1")]
+    [Unit(Units.Second)] public float SetupDurationLevel1 = 0.3f;
     [SerializeField] public float DamageLevel1 = 15f;
     [SerializeField] public float RangeLevel1 = 4f;
     [SerializeField] public float ShootCooldownLevel1 = 1f;
     [SerializeField] public float BulletSpeedLevel1 = 15f;
     
     [Title("Level 2")]
+    [Unit(Units.Second)] public float SetupDurationLevel2 = 0.2f;
     [SerializeField] public float DamageLevel2 = 20f;
     [SerializeField] public float RangeLevel2 = 5f;
     [SerializeField] public float ShootCooldownLevel2 = 0.9f;
     [SerializeField] public float BulletSpeedLevel2 = 20f;
     
     [Title("Level 3")]
+    [Unit(Units.Second)] public float SetupDurationLevel3 = 0.2f;
     [SerializeField] public float DamageLevel3 = 25f;
     [SerializeField] public float RangeLevel3 = 5.5f;
     [SerializeField] public float ShootCooldownLevel3 = 0.8f;
@@ -73,6 +76,19 @@ public class TowerDataSO : ScriptableObject
             case 1: return BulletSpeedLevel1;
             case 2: return BulletSpeedLevel2;
             case 3: return BulletSpeedLevel3;
+            default: 
+                GameLog.Warn($"Invalid tower level {level}. Returning level 1 bullet speed.");
+                return BulletSpeedLevel1;
+        }
+    }
+    
+    public float GetSetupDurationByLevel(int level)
+    {
+        switch (level)
+        {
+            case 1: return SetupDurationLevel1;
+            case 2: return SetupDurationLevel2;
+            case 3: return SetupDurationLevel3;
             default: 
                 GameLog.Warn($"Invalid tower level {level}. Returning level 1 bullet speed.");
                 return BulletSpeedLevel1;

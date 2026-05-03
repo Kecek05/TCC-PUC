@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: EnemyData1
+  m_Name: DEBUG_EnemyData1
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 1
-  EnemyName: Triangle 1
-  MaxHealth: 100
-  MoveSpeed: 2
+  EnemyName: DEBUG ENEMY
+  MaxHealth: 100000
+  MoveSpeed: 0
   SpawnDuration: 1
   Damage: 10
   EnemySprite: {fileID: 21300012, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
-  EnemyPrefab: {fileID: 1129339759610760271, guid: dab82b31df5662c469ba4450aa09ecbb, type: 3}
+  EnemyPrefab: {fileID: 2842832199123761001, guid: a7dd6c861dfbaad4fa86a30904049bb1, type: 3}
