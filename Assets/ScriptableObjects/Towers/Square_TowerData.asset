@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79aa1b8b3d09e14c826bad2e5538876, type: 3}
+  m_Name: Square_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
+  TowerType: 1
+  SetupDurationLevel1: 0.2
+  DamageLevel1: 25
+  RangeLevel1: 3
+  ShootCooldownLevel1: 1
+  BulletSpeedLevel1: 15
+  SetupDurationLevel2: 0.5
+  DamageLevel2: 30
+  RangeLevel2: 4
+  ShootCooldownLevel2: 0.9
+  BulletSpeedLevel2: 20
+  SetupDurationLevel3: 0.5
+  DamageLevel3: 25
+  RangeLevel3: 5
+  ShootCooldownLevel3: 0.7
+  BulletSpeedLevel3: 25

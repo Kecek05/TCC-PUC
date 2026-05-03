@@ -118,17 +118,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         {
             EnemyManager enemy = activeEnemies[i];
             
-            if (enemy == null || !enemy.NetworkObject.IsSpawned)
-                continue;
-            
-            if (enemy.Team.GetTeamType() != towerManager.Team.GetTeamType())
-                continue;
-            
-            if (!enemy.ServerMovement.IsTargetable)
-                continue;
-
-            float dist = Vector2.Distance(transform.position, enemy.transform.position);
-            if (dist > _range) continue;
+            if (!IsValidEnemy(enemy)) continue;
             
             if (closestEnemy == null)
             {
@@ -143,5 +133,19 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         }
 
         return closestEnemy;
+    }
+
+    protected virtual bool IsValidEnemy(EnemyManager enemyManager)
+    {
+        if (enemyManager == null || !enemyManager.NetworkObject.IsSpawned) return false;
+            
+        if (enemyManager.Team.GetTeamType() != towerManager.Team.GetTeamType()) return false;
+            
+        if (!enemyManager.ServerMovement.IsTargetable) return false;
+        
+        float dist = Vector2.Distance(transform.position, enemyManager.transform.position);
+        if (dist > _range) return false;
+        
+        return true;
     }
 }
