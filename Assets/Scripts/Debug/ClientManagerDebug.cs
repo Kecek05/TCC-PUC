@@ -1,10 +1,7 @@
 using System.Threading.Tasks;
-using UnityEngine;
 
 public class ClientManagerDebug : BaseClientManager
 {
-    [SerializeField] private DebugHand debugHand;
-    
     private void Awake()
     {
         UserData = new UserData()
@@ -12,7 +9,6 @@ public class ClientManagerDebug : BaseClientManager
             PlayerAuthId = "ID",
             PlayerName = "DebugPlayer",
             UserTrophies = -1,
-            DeckCards = debugHand.Deck
         };
         
         ServiceLocator.Register<BaseClientManager>(this);

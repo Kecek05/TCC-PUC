@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataListSO
   TowerDataList:
   - {fileID: 11400000, guid: 3527497a52af09a46bb535e5b8e97326, type: 2}
+  - {fileID: 11400000, guid: 988a9e488c3fdb642bb6ad9af1b79e96, type: 2}

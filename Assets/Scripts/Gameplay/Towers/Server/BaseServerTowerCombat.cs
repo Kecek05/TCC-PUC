@@ -120,6 +120,9 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
             
             if (!IsValidEnemy(enemy)) continue;
             
+            float dist = Vector2.Distance(transform.position, enemy.transform.position);
+            if (dist > _range) continue;
+            
             if (closestEnemy == null)
             {
                 closestEnemy = enemy;
@@ -142,9 +145,6 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         if (enemyManager.Team.GetTeamType() != towerManager.Team.GetTeamType()) return false;
             
         if (!enemyManager.ServerMovement.IsTargetable) return false;
-        
-        float dist = Vector2.Distance(transform.position, enemyManager.transform.position);
-        if (dist > _range) return false;
         
         return true;
     }

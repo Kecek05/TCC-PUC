@@ -1,10 +1,18 @@
+using System;
 using UnityEngine;
 
 public class GameDebugManager : MonoBehaviour
 {
+    [Serializable]
+    private class EnemyDebug
+    {
+        public EnemyManager EnemyManager;
+        public bool IsInverted = false;
+    }
+    
     private PlayersDataManager_SinglePlayerDEBUG playersDataManagerDEBUG;
     [SerializeField] private DebugHand debugHand;
-    [SerializeField] private EnemyManager[] debugEnemiesInMap;
+    [SerializeField] private EnemyDebug[] debugEnemiesInMap;
     [SerializeField] WaypointPath waypointPath;
     public void Awake()
     {
@@ -13,10 +21,10 @@ public class GameDebugManager : MonoBehaviour
         
         ServiceLocator.Register<BasePlayersDataManager>(playersDataManagerDEBUG);
 
-        foreach (EnemyManager enemyManager in debugEnemiesInMap)
+        foreach (EnemyDebug enemyDebug in debugEnemiesInMap)
         {
-            enemyManager.Team.SetTeamType(TeamType.Red);
-            enemyManager.ServerMovement.Initialize(waypointPath);
+            enemyDebug.EnemyManager.Team.SetTeamType(TeamType.Red);
+            enemyDebug.EnemyManager.ServerMovement.Initialize(waypointPath, enemyDebug.IsInverted);
         }
     }
 }
