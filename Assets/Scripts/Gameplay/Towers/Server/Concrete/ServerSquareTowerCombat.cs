@@ -7,7 +7,7 @@ using UnityEngine;
 public class ServerSquareTowerCombat : BaseServerTowerCombat
 {
     [Title("Circle Tower Combat References")]
-    [SerializeField] private ClientCircleTowerCombat clientCircleCombat;
+    [SerializeField] private ClientSquareTowerCombat clientSquareCombat;
 
     private float _explosionRadius;
     
@@ -22,10 +22,11 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
         
         StartCoroutine(ApplyExplosionAfterDelay(target, _damage, travelTime));
         
-        clientCircleCombat.FireBulletRpc(
+        clientSquareCombat.FireBulletRpc(
             transform.position,
             _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
-            target.GetComponent<NetworkObject>()
+            target.GetComponent<NetworkObject>(),
+            travelTime
         );
         
         return true;
@@ -56,7 +57,7 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
             elapsed += Time.deltaTime;
             yield return null;
         }
-
+        
         EnemyManager[] enemiesInRange = GetEnemiesInExplosionRange(_explosionRadius, lastKnownPosition);
 
         foreach (EnemyManager enemy in enemiesInRange)

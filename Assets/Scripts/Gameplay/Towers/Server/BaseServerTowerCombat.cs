@@ -34,6 +34,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _towerLevel.Value = 1;
         
         UpdateData();
+        _currentShootCooldown = 0f;
         StartCoroutine(SetupTimeDuration());
     }
 
@@ -103,8 +104,6 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
         _currentSetupDuration = _towerData.GetSetupDurationByLevel(_towerLevel.Value);
-        
-        _currentShootCooldown = 0f;
     }
     
     protected EnemyManager FindClosestEnemyToEnd()

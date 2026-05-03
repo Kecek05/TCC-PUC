@@ -24,7 +24,7 @@ MonoBehaviour:
   ShootCooldownLevel2: 0.9
   BulletSpeedLevel2: 20
   SetupDurationLevel3: 0.5
-  DamageLevel3: 25
+  DamageLevel3: 40
   RangeLevel3: 5
   ShootCooldownLevel3: 0.7
   BulletSpeedLevel3: 25

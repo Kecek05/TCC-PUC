@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TowerData", menuName = "Scriptable Objects/Data/TowerData")]
+[CreateAssetMenu(fileName = "TowerData", menuName = "Scriptable Objects/Data/TowerData/TowerData")]
 public class TowerDataSO : ScriptableObject
 {
     [Title("General")]
@@ -13,21 +13,21 @@ public class TowerDataSO : ScriptableObject
     [Unit(Units.Second)] public float SetupDurationLevel1 = 0.3f;
     public float DamageLevel1 = 15f;
     public float RangeLevel1 = 4f;
-    public float ShootCooldownLevel1 = 1f;
+    [Unit(Units.Second)] public float ShootCooldownLevel1 = 1f;
     public float BulletSpeedLevel1 = 15f;
     
     [Title("Level 2")]
     [Unit(Units.Second)] public float SetupDurationLevel2 = 0.2f;
     public float DamageLevel2 = 20f;
     public float RangeLevel2 = 5f;
-    public float ShootCooldownLevel2 = 0.9f;
+    [Unit(Units.Second)] public float ShootCooldownLevel2 = 0.9f;
     public float BulletSpeedLevel2 = 20f;
     
     [Title("Level 3")]
     [Unit(Units.Second)] public float SetupDurationLevel3 = 0.2f;
     public float DamageLevel3 = 25f;
     public float RangeLevel3 = 5.5f;
-    public float ShootCooldownLevel3 = 0.8f;
+    [Unit(Units.Second)] public float ShootCooldownLevel3 = 0.8f;
     public float BulletSpeedLevel3 = 25f;
 
     public float GetDamageByLevel(int level)

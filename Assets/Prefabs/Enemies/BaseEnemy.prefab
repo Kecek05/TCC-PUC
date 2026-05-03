@@ -102,6 +102,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyManager: {fileID: 2130253301752267672}
   healthBarRenderer: {fileID: 142454859268086042}
+  enemyGfxRenderer: {fileID: 4984184894015553171}
   tweenDuration: 0.3
   tweenEase: 9
 --- !u!114 &1810410909286907981

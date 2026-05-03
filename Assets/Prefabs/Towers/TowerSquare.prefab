@@ -43,7 +43,7 @@ PrefabInstance:
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: towerDataSO
       value: 
-      objectReference: {fileID: 11400000, guid: 988a9e488c3fdb642bb6ad9af1b79e96, type: 2}
+      objectReference: {fileID: 11400000, guid: bc2dc74a98cf0534698d83e169897e12, type: 2}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: clientTowerCombat
       value: 
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ServerSquareTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   towerManager: {fileID: 6640123157349213570}
-  clientCircleCombat: {fileID: 7437626524827975165}
+  clientSquareCombat: {fileID: 0}
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7854881983952793562, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
