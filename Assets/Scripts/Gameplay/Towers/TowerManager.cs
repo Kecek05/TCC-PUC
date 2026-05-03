@@ -9,15 +9,15 @@ public class TowerManager : MonoBehaviour
     [SerializeField, Required]
     private NetworkObject networkObject;
     [SerializeField, Required]
-    private ServerTowerCombat serverTowerCombat;
+    private BaseServerTowerCombat serverTowerCombat;
     [SerializeField, Required]
-    private ClientTowerCombat clientTowerCombat;
+    private BaseClientTowerCombat clientTowerCombat;
     [SerializeField, Required]
     private EntityTeam entityTeam;
 
     public TowerDataSO Data => towerDataSO;
     public NetworkObject NetworkObject => networkObject;
-    public ServerTowerCombat ServerCombat => serverTowerCombat;
-    public ClientTowerCombat ClientCombat => clientTowerCombat;
+    public BaseServerTowerCombat ServerTowerCombat => serverTowerCombat;
+    public BaseClientTowerCombat ClientTowerCombat => clientTowerCombat;
     public EntityTeam Team => entityTeam;
 }

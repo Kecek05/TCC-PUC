@@ -106,7 +106,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             //Level Up
             TowerManager towerManager = hit.placeable.OccupiedTower.GetComponent<TowerManager>();
 
-            if (!towerManager.ServerCombat.CanUpgradeTower())
+            if (!towerManager.ServerTowerCombat.CanUpgradeTower())
             {
                 SendFailure(clientId, cardType, TowerReason.NotSuccessMaxLevel, placePosition);
                 return;
@@ -118,7 +118,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
                 return;
             }
 
-            towerManager.ServerCombat.IncrementTowerLevel(1);
+            towerManager.ServerTowerCombat.IncrementTowerLevel(1);
 
             PlaceResultRpc(new TowerPlaceResult
             {

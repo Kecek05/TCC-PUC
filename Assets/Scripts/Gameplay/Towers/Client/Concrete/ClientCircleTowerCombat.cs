@@ -1,34 +1,11 @@
+using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Client-only: receives shot events from the server and spawns cosmetic bullets.
-/// The RPC is defined here so the server can call it via GetComponent from ServerTowerCombat.
-/// </summary>
-public class ClientTowerCombat : NetworkBehaviour
+public class ClientCircleTowerCombat : BaseClientTowerCombat
 {
+    [Title("Circle Client Tower References")]
     [SerializeField] private EntityTeam entityTeam;
-    [SerializeField] private ServerTowerCombat serverTowerCombat;
-    [SerializeField] private ClientTowerGFX clientTowerGFX;
-    
-    private int _towerLevel = 1;
-    
-    public override void OnNetworkSpawn()
-    {
-        if (IsServer && !IsClient)
-        {
-            enabled = false;
-            return;
-        }
-        
-        serverTowerCombat.TowerLevel.OnValueChanged += OnTowerLevelChanged;
-        OnTowerLevelChanged(0, serverTowerCombat.TowerLevel.Value);
-    }
-
-    private void OnTowerLevelChanged(int previousValue, int newValue)
-    {
-        clientTowerGFX.UpgradeTower(newValue);
-    }
 
     /// <summary>
     /// Called by the server (via ServerTowerCombat) to notify clients of a shot.

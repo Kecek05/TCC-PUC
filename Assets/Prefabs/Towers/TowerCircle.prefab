@@ -1,0 +1,168 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2106039886683820926
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2606555038004479415, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: serverTowerCombat
+      value: 
+      objectReference: {fileID: 7717670085523773741}
+    - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: serverTowerCombat
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1455048732
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 590291487
+      objectReference: {fileID: 0}
+    - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: clientTowerCombat
+      value: 
+      objectReference: {fileID: 7437626524827975165}
+    - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: serverTowerCombat
+      value: 
+      objectReference: {fileID: 7717670085523773741}
+    - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: circleClientTowerCombat
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Name
+      value: TowerCircle
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3601178175637536332, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+    - {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 7717670085523773741}
+    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 7437626524827975165}
+  m_SourcePrefab: {fileID: 100100000, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+--- !u!114 &4680447756710118569 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cea0f0f844747f4db7ee3510193bdca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClientTowerGFX
+--- !u!114 &6640123157349213570 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7615245171005323432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4f1f5724e544b4094cb8756db31d16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TowerManager
+--- !u!1 &7615245171005323432 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7717670085523773741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7615245171005323432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54eae0cfac601a749aeaada5eb14275e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ServerCircleTowerCombat
+  ShowTopMostFoldoutHeaderGroup: 1
+  towerManager: {fileID: 6640123157349213570}
+  clientCircleCombat: {fileID: 7437626524827975165}
+--- !u!114 &7437626524827975165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7615245171005323432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0782542fdf5706a49bcb9faa750c000d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CircleClientTowerCombat
+  ShowTopMostFoldoutHeaderGroup: 1
+  clientTowerGFX: {fileID: 4680447756710118569}
+  serverTowerCombat: {fileID: 7717670085523773741}
+  entityTeam: {fileID: 8086228052843494564}
+--- !u!114 &8086228052843494564 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7854881983952793562, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7615245171005323432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe06eaad7593709468d1cc8f13550077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityTeam

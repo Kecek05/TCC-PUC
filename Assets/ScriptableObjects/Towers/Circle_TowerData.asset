@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79aa1b8b3d09e14c826bad2e5538876, type: 3}
-  m_Name: TowerData1
+  m_Name: Circle_TowerData
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
   TowerType: 1
   MaxLevel: 3

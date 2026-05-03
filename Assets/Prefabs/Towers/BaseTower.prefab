@@ -78,7 +78,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: f51d97d2778c1b04ab67ca628245514d, type: 3}
@@ -2295,7 +2295,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
@@ -2421,7 +2421,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 66cd82b5ad6451f4dbed928c80f66b2b, type: 3}
@@ -2817,14 +2817,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7534808882448730159}
-  - component: {fileID: 4691726937858701052}
   - component: {fileID: 4064182366859840236}
-  - component: {fileID: 3096684015542124624}
-  - component: {fileID: 2606555038004479415}
+  - component: {fileID: 4691726937858701052}
+  - component: {fileID: 3601178175637536332}
+  - component: {fileID: 3797430115819096027}
   - component: {fileID: 5787397079051057888}
   - component: {fileID: 7854881983952793562}
   m_Layer: 0
-  m_Name: TowerCircle1
+  m_Name: BaseTower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2847,6 +2847,31 @@ Transform:
   - {fileID: 4227551398247064986}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4064182366859840236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8400586856522066902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2113466914
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 1
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &4691726937858701052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2861,10 +2886,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerManager
   towerDataSO: {fileID: 11400000, guid: 3527497a52af09a46bb535e5b8e97326, type: 2}
   networkObject: {fileID: 4064182366859840236}
-  serverTowerCombat: {fileID: 3096684015542124624}
-  clientTowerCombat: {fileID: 2606555038004479415}
+  serverTowerCombat: {fileID: 3601178175637536332}
+  clientTowerCombat: {fileID: 3797430115819096027}
   entityTeam: {fileID: 7854881983952793562}
---- !u!114 &4064182366859840236
+--- !u!114 &3601178175637536332
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2873,38 +2898,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8400586856522066902}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Script: {fileID: 11500000, guid: bf8efbe4cb1d6a142921a7e050ed78ee, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 590291487
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 1
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &3096684015542124624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8400586856522066902}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54eae0cfac601a749aeaada5eb14275e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ServerTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::EmptyServerTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   towerManager: {fileID: 4691726937858701052}
-  clientCombat: {fileID: 2606555038004479415}
---- !u!114 &2606555038004479415
+--- !u!114 &3797430115819096027
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2913,13 +2912,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8400586856522066902}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0782542fdf5706a49bcb9faa750c000d, type: 3}
+  m_Script: {fileID: 11500000, guid: 136f840837fd55f40a7f329e731091fb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::EmptyClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  entityTeam: {fileID: 7854881983952793562}
-  serverTowerCombat: {fileID: 3096684015542124624}
   clientTowerGFX: {fileID: 6759448331034613719}
+  serverTowerCombat: {fileID: 3601178175637536332}
 --- !u!114 &5787397079051057888
 MonoBehaviour:
   m_ObjectHideFlags: 0
