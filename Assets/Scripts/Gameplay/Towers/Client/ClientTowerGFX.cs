@@ -49,9 +49,15 @@ public class ClientTowerGFX : MonoBehaviour
         foreach (TowerFeedback towerFeedback in towerFeedbacks)
         {
             if (towerFeedback.Feedback != null && towerFeedback.Feedback.IsPlaying)
+            {
                 towerFeedback.Feedback.StopFeedbacks();
+                towerFeedback.Feedback.RestoreInitialValues();
+            }
         }
         if (shootFeedback != null && shootFeedback.IsPlaying)
+        {
             shootFeedback.StopFeedbacks();
+            shootFeedback.RestoreInitialValues();
+        }
     }
 }
