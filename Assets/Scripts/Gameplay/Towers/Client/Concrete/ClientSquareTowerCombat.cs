@@ -11,7 +11,7 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
     [SerializeField] private GameObject explosionPrefab;
     
     [Rpc(SendTo.ClientsAndHost)]
-    public void FireBulletRpc(Vector3 originServerPos, float bulletSpeed, NetworkObjectReference targetRef, float delayToExplode)
+    public void FireBulletRpc(Vector3 originServerPos, float bulletSpeed, NetworkObjectReference targetRef, float delayToExplode, float explosionRadius)
     {
         if (CosmeticBulletPool.Instance == null) return;
         
@@ -20,21 +20,21 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
             targetTransform = targetObj.transform;
         
         BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
-        Vector3 localOrigin = mapTranslator != null && mapTranslator.IsInitialized
-            ? mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType())
-            : originServerPos;
+        Vector3 localOrigin = mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType());
 
         CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();
         bullet.Fire(localOrigin, targetTransform, bulletSpeed);
         clientTowerGFX.FireBulletFeedback();
         
-        StartCoroutine(ExplodeBulletAfterDelay(localOrigin, delayToExplode));
+        StartCoroutine(ExplodeBulletAfterDelay(targetTransform, explosionRadius, delayToExplode));
     }
     
-    private IEnumerator ExplodeBulletAfterDelay(Vector2 explosionCenter, float delayToExplode)
+    private IEnumerator ExplodeBulletAfterDelay(Transform targetTransform, float explosionRadius, float delayToExplode)
     {
         yield return new WaitForSeconds(delayToExplode);
         
-        Instantiate(explosionPrefab, explosionCenter, Quaternion.identity);
+        GameObject explosionObject = Instantiate(explosionPrefab, targetTransform.position, Quaternion.identity);
+        
+        explosionObject.transform.localScale = Vector3.one * explosionRadius * 2f;
     }
 }

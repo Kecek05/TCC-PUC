@@ -47,7 +47,7 @@ PrefabInstance:
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: clientTowerCombat
       value: 
-      objectReference: {fileID: 7437626524827975165}
+      objectReference: {fileID: 5912178713787069972}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
@@ -111,11 +111,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 7437626524827975165}
-    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5804759541381022721}
+    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5912178713787069972}
   m_SourcePrefab: {fileID: 100100000, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
 --- !u!114 &4680447756710118569 stripped
 MonoBehaviour:
@@ -144,22 +144,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
   m_PrefabInstance: {fileID: 2106039886683820926}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7437626524827975165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7615245171005323432}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0782542fdf5706a49bcb9faa750c000d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CircleClientTowerCombat
-  ShowTopMostFoldoutHeaderGroup: 1
-  clientTowerGFX: {fileID: 4680447756710118569}
-  serverTowerCombat: {fileID: 5804759541381022721}
-  entityTeam: {fileID: 8086228052843494564}
 --- !u!114 &5804759541381022721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +158,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ServerSquareTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   towerManager: {fileID: 6640123157349213570}
-  clientSquareCombat: {fileID: 0}
+  clientSquareCombat: {fileID: 5912178713787069972}
+--- !u!114 &5912178713787069972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7615245171005323432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30773341dd5930246a5b80615a0fc750, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClientSquareTowerCombat
+  ShowTopMostFoldoutHeaderGroup: 1
+  clientTowerGFX: {fileID: 4680447756710118569}
+  serverTowerCombat: {fileID: 5804759541381022721}
+  entityTeam: {fileID: 8086228052843494564}
+  explosionPrefab: {fileID: 403543111581879614, guid: c128e3994a5a6ea438f35edd2188e77a, type: 3}
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7854881983952793562, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}

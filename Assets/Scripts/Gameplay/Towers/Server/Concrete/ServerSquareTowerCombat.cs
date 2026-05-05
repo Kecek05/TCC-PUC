@@ -26,7 +26,8 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
             transform.position,
             _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
             target.GetComponent<NetworkObject>(),
-            travelTime
+            travelTime,
+            _explosionRadius
         );
         
         return true;

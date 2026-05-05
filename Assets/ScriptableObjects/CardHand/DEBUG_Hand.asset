@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3707bed9234361443841332eaf6483bb, type: 3}
   m_Name: DEBUG_Hand
   m_EditorClassIdentifier: Assembly-CSharp::DebugHand
-  Deck: 010000000300000004000000
+  Deck: 01000000030000000400000002000000

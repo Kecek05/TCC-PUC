@@ -16,7 +16,7 @@ MonoBehaviour:
   CardPrefab: {fileID: 1325791681110519822, guid: 4e27d0b64bd04c34b94b7f602886048d, type: 3}
   CardName: CIRCLE
   Description: Spawn Circle Tower
-  CardImage: {fileID: 5524590292671962877, guid: f7043b7291f49844b9671b3d3dedcbb5, type: 3}
+  CardImage: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
   Cost: 4
   TowerType: 1
   TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}

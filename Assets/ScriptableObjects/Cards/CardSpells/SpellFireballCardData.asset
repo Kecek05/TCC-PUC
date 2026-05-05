@@ -16,8 +16,10 @@ MonoBehaviour:
   CardPrefab: {fileID: 2383729291938179494, guid: 2dd5fee0fd2b978478ae8c7aa7185fe0, type: 3}
   CardName: Fireball
   Description: MEGA FIREBALL
-  CardImage: {fileID: 21300000, guid: cd807e3eb5122524d9a1783af6375956, type: 3}
+  CardImage: {fileID: 21300164, guid: 9bd9265533309304db171aa9f916554a, type: 3}
   Cost: 2
   SpellType: 1
+  CanUseInEnemyMap: 0
+  CanUseInLocalMap: 1
   SpellGhostSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   SpellData: {fileID: 11400000, guid: a501c122b3fc6ff468c013f1314725de, type: 2}
