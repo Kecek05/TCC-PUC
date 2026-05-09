@@ -19,7 +19,7 @@ public class MenuNavController : MonoBehaviour
         for (int i = 0; i < buttons.Count; i++)
         {
             int capturedIndex = i;
-            buttons[i].Button.onClick.AddListener(() => scroller.GoToPage(capturedIndex, true));
+            buttons[i].Button.onClick.AddListener(() => scroller.GoToPage(capturedIndex, false));
             buttons[i].SetSelected(false, animated: false);
         }
 

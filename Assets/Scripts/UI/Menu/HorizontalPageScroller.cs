@@ -44,7 +44,40 @@ public class HorizontalPageScroller : MonoBehaviour, IBeginDragHandler, IDragHan
     private void Start()
     {
         _currentPageIndex = Mathf.Clamp(startingPageIndex, 0, Mathf.Max(0, PageCount - 1));
+        LayoutPages();
         SnapImmediate(_currentPageIndex);
+    }
+
+    private void OnEnable()
+    {
+        LayoutPages();
+    }
+
+    private void LayoutPages()
+    {
+        if (_content == null || _viewport == null) return;
+
+        float pageWidth = _viewport.rect.width;
+        if (pageWidth <= 0f) return;
+
+        int count = _content.childCount;
+
+        _content.anchorMin = new Vector2(0f, 0f);
+        _content.anchorMax = new Vector2(0f, 1f);
+        _content.pivot = new Vector2(0f, 0.5f);
+        _content.sizeDelta = new Vector2(pageWidth * count, 0f);
+
+        for (int i = 0; i < count; i++)
+        {
+            RectTransform page = _content.GetChild(i) as RectTransform;
+            if (page == null) continue;
+
+            page.anchorMin = new Vector2(0f, 0f);
+            page.anchorMax = new Vector2(0f, 1f);
+            page.pivot = new Vector2(0f, 0.5f);
+            page.sizeDelta = new Vector2(pageWidth, 0f);
+            page.anchoredPosition = new Vector2(i * pageWidth, 0f);
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -107,22 +140,8 @@ public class HorizontalPageScroller : MonoBehaviour, IBeginDragHandler, IDragHan
         if (pageWidth <= 0f) return;
 
         float currentX = _content.anchoredPosition.x;
-        int nearestIndex = Mathf.RoundToInt(-currentX / pageWidth);
-        float velocity = GetRecentVelocity();
+        int targetIndex = Mathf.Clamp(Mathf.RoundToInt(-currentX / pageWidth), 0, PageCount - 1);
 
-        int targetIndex;
-        // Flick overrides position, fast intent wins (mirrors CameraSlide convention)
-        if (Mathf.Abs(velocity) > flickVelocityThreshold)
-        {
-            int direction = velocity > 0f ? -1 : 1;
-            targetIndex = _currentPageIndex + direction;
-        }
-        else
-        {
-            targetIndex = nearestIndex;
-        }
-
-        targetIndex = Mathf.Clamp(targetIndex, 0, PageCount - 1);
         bool changed = targetIndex != _currentPageIndex;
         _currentPageIndex = targetIndex;
 
@@ -160,6 +179,7 @@ public class HorizontalPageScroller : MonoBehaviour, IBeginDragHandler, IDragHan
     {
         if (!isActiveAndEnabled || _content == null) return;
 
+        LayoutPages();
         SnapImmediate(_currentPageIndex);
     }
 
