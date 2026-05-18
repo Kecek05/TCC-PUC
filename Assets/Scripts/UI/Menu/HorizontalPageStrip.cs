@@ -54,31 +54,30 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         while (PageWidth <= 0f) yield return null;
 
-        Layout();
-        SetStripX(GetTargetX(CurrentPageIndex));
+        InitializeLayout();
+        SetStripXPos(GetPageXPos(CurrentPageIndex));
         OnPageChanged?.Invoke(CurrentPageIndex);
     }
 
-    private void Layout()
+    private void InitializeLayout()
     {
         if (PageWidth <= 0f || pageStrip == null) return;
-        float w = PageWidth;
-        _lastLaidOutWidth = w;
+        _lastLaidOutWidth = PageWidth;
 
         pageStrip.anchorMin = new Vector2(0f, 0f);
         pageStrip.anchorMax = new Vector2(0f, 1f);
         pageStrip.pivot = new Vector2(0f, 0.5f);
-        pageStrip.sizeDelta = new Vector2(w * PageCount, 0f);
+        pageStrip.sizeDelta = new Vector2(PageWidth * PageCount, 0f);
 
         for (int i = 0; i < pages.Count; i++)
         {
             if (pages[i] == null) continue;
-            RectTransform p = (RectTransform)pages[i].transform;
-            p.anchorMin = new Vector2(0f, 0f);
-            p.anchorMax = new Vector2(0f, 1f);
-            p.pivot = new Vector2(0f, 0.5f);
-            p.sizeDelta = new Vector2(w, 0f);
-            p.anchoredPosition = new Vector2(i * w, 0f);
+            RectTransform page = (RectTransform)pages[i].transform;
+            page.anchorMin = new Vector2(0f, 0f);
+            page.anchorMax = new Vector2(0f, 1f);
+            page.pivot = new Vector2(0f, 0.5f);
+            page.sizeDelta = new Vector2(PageWidth, 0f);
+            page.anchoredPosition = new Vector2(i * PageWidth, 0f);
         }
     }
 
@@ -100,14 +99,13 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
 
         float pointerDelta = eventData.position.x - _dragStartPointerX;
         float newX = _dragStartStripX + pointerDelta;
-
-        // Rubber-band at edges so it feels alive at boundaries
+        
         float minX = -(PageCount - 1) * PageWidth;
         const float maxX = 0f;
         if (newX > maxX) newX = maxX + (newX - maxX) * (1f - edgeResistance);
         else if (newX < minX) newX = minX + (newX - minX) * (1f - edgeResistance);
 
-        SetStripX(newX);
+        SetStripXPos(newX);
 
         float now = Time.unscaledTime;
         float dt = now - _lastPointerTime;
@@ -121,16 +119,14 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         if (!_dragging) return;
         _dragging = false;
-
-        float w = PageWidth;
+        
         float dragDelta = pageStrip.anchoredPosition.x - _dragStartStripX;
         int targetIndex = CurrentPageIndex;
-
-        // Negative pointer velocity = swiped left = advance to next page (higher index)
+        
         bool flickNext = _pointerVelocity < -flickVelocityThreshold;
         bool flickPrev = _pointerVelocity > flickVelocityThreshold;
-        bool draggedNext = dragDelta < -w * pageChangeDragThreshold;
-        bool draggedPrev = dragDelta > w * pageChangeDragThreshold;
+        bool draggedNext = dragDelta < -PageWidth * pageChangeDragThreshold;
+        bool draggedPrev = dragDelta > PageWidth * pageChangeDragThreshold;
 
         if (flickNext || draggedNext) targetIndex = CurrentPageIndex + 1;
         else if (flickPrev || draggedPrev) targetIndex = CurrentPageIndex - 1;
@@ -150,7 +146,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         bool changed = index != CurrentPageIndex;
         CurrentPageIndex = index;
-        float targetX = GetTargetX(index);
+        float targetX = GetPageXPos(index);
 
         _activeTween?.Kill();
         if (animated)
@@ -159,19 +155,19 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         }
         else
         {
-            SetStripX(targetX);
+            SetStripXPos(targetX);
         }
 
         if (changed) OnPageChanged?.Invoke(CurrentPageIndex);
     }
 
-    private float GetTargetX(int index) => -index * PageWidth;
+    private float GetPageXPos(int index) => -index * PageWidth;
 
-    private void SetStripX(float x)
+    private void SetStripXPos(float x)
     {
-        Vector2 p = pageStrip.anchoredPosition;
-        p.x = x;
-        pageStrip.anchoredPosition = p;
+        Vector2 pagePosition = pageStrip.anchoredPosition;
+        pagePosition.x = x;
+        pageStrip.anchoredPosition = pagePosition;
     }
 
     private void OnRectTransformDimensionsChange()
@@ -179,8 +175,8 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         if (!isActiveAndEnabled || viewportArea == null || pageStrip == null) return;
         float w = PageWidth;
         if (w <= 0f || Mathf.Approximately(w, _lastLaidOutWidth)) return;
-        Layout();
-        SetStripX(GetTargetX(CurrentPageIndex));
+        InitializeLayout();
+        SetStripXPos(GetPageXPos(CurrentPageIndex));
     }
 
     private void OnDestroy()

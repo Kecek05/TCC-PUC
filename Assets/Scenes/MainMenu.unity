@@ -2601,11 +2601,11 @@ RectTransform:
   - {fileID: 57310566}
   m_Father: {fileID: 614744318}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 490, y: 0}
+  m_SizeDelta: {x: 100, y: -1820}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &1702494225
 GameObject:
   m_ObjectHideFlags: 0
@@ -3334,7 +3334,6 @@ GameObject:
   - component: {fileID: 2066333640}
   - component: {fileID: 2066333639}
   - component: {fileID: 2066333638}
-  - component: {fileID: 2066333642}
   - component: {fileID: 2066333641}
   m_Layer: 0
   m_Name: MainMenuCanvas
@@ -3445,19 +3444,6 @@ MonoBehaviour:
   - {fileID: 1801763339}
   - {fileID: 872931559}
   startingPageIndex: 1
---- !u!114 &2066333642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2066333636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85221b00862c19a49942af1d6f14a0a5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MenuUIManager
-  navController: {fileID: 2066333641}
 --- !u!1 &2109667992
 GameObject:
   m_ObjectHideFlags: 0
