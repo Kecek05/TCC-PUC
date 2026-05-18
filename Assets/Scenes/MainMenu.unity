@@ -265,7 +265,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 1045.3099, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1000, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &57310567
@@ -1447,7 +1447,7 @@ RectTransform:
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &602510739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1750,7 +1750,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -1022.5439, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1000, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &734904291
@@ -2189,7 +2189,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 3462, y: 0}
+  m_SizeDelta: {x: 1058.1143, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &946497132
 MonoBehaviour:
@@ -2275,6 +2275,13 @@ MonoBehaviour:
   snapEase: 9
   flickVelocityThreshold: 800
   startingPageIndex: 0
+  _sampleIndex: 0
+  _scrollRect: {fileID: 0}
+  _viewport: {fileID: 0}
+  _content: {fileID: 0}
+  _lastPointerX: 0
+  _dragging: 0
+  _currentPageIndex: 0
 --- !u!1 &958219599
 GameObject:
   m_ObjectHideFlags: 0
@@ -4232,7 +4239,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 579f6f75bbc961443a250912a3eef12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuNavController
-  scroller: {fileID: 946497135}
   buttons:
   - {fileID: 1801763339}
   - {fileID: 848834368}
@@ -4241,6 +4247,7 @@ MonoBehaviour:
   - {fileID: 295393557}
   - {fileID: 734904293}
   - {fileID: 57310567}
+  startingPageIndex: 0
 --- !u!114 &2066333642
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,75 +6,63 @@ public class MenuNavController : MonoBehaviour
 {
     [Title("References")]
     [InfoBox("Pages and buttons must be index-aligned: buttons[i] selects pages[i].")]
-    [SerializeField] private HorizontalPageScroller scroller;
     [SerializeField] private List<MenuNavButton> buttons = new List<MenuNavButton>();
     [SerializeField] private List<MenuPage> pages = new List<MenuPage>();
+
+    [Title("Initial State")]
+    [SerializeField] private int startingPageIndex = 0;
 
     private int _activePageIndex = -1;
 
     private void Start()
     {
-        scroller.OnPageChanged += Scroller_OnPageChanged;
-
         for (int i = 0; i < buttons.Count; i++)
         {
             int capturedIndex = i;
-            buttons[i].Button.onClick.AddListener(() => scroller.GoToPage(capturedIndex, false));
+            buttons[i].Button.onClick.AddListener(() => GoToPage(capturedIndex));
             buttons[i].SetSelected(false, animated: false);
         }
 
         for (int i = 0; i < pages.Count; i++)
         {
-            pages[i].OnPageBecameInactive();
+            pages[i].gameObject.SetActive(false);
         }
 
-        ApplyPageChange(scroller.CurrentPageIndex, animated: false);
+        GoToPage(Mathf.Clamp(startingPageIndex, 0, Mathf.Max(0, pages.Count - 1)));
     }
 
     private void OnDestroy()
     {
-        if (scroller != null)
-        {
-            scroller.OnPageChanged -= Scroller_OnPageChanged;
-        }
-
         for (int i = 0; i < buttons.Count; i++)
         {
             if (buttons[i] != null && buttons[i].Button != null)
-            {
                 buttons[i].Button.onClick.RemoveAllListeners();
+        }
+    }
+
+    public void GoToPage(int index)
+    {
+        if (index < 0 || index >= pages.Count) return;
+        if (index == _activePageIndex) return;
+
+        if (_activePageIndex >= 0)
+        {
+            if (_activePageIndex < buttons.Count)
+                buttons[_activePageIndex].SetSelected(false, animated: true);
+            if (_activePageIndex < pages.Count)
+            {
+                pages[_activePageIndex].OnPageBecameInactive();
+                pages[_activePageIndex].gameObject.SetActive(false);
             }
         }
-    }
 
-    private void Scroller_OnPageChanged(int newIndex)
-    {
-        ApplyPageChange(newIndex, animated: true);
-    }
+        _activePageIndex = index;
 
-    private void ApplyPageChange(int newIndex, bool animated)
-    {
-        if (newIndex == _activePageIndex) return;
+        if (_activePageIndex < buttons.Count)
+            buttons[_activePageIndex].SetSelected(true, animated: true);
 
-        if (_activePageIndex >= 0 && _activePageIndex < buttons.Count)
-        {
-            buttons[_activePageIndex].SetSelected(false, animated);
-        }
-        if (_activePageIndex >= 0 && _activePageIndex < pages.Count)
-        {
-            pages[_activePageIndex].OnPageBecameInactive();
-        }
-
-        _activePageIndex = newIndex;
-
-        if (_activePageIndex >= 0 && _activePageIndex < buttons.Count)
-        {
-            buttons[_activePageIndex].SetSelected(true, animated);
-        }
-        if (_activePageIndex >= 0 && _activePageIndex < pages.Count)
-        {
-            pages[_activePageIndex].OnPageBecameActive();
-        }
+        pages[_activePageIndex].gameObject.SetActive(true);
+        pages[_activePageIndex].OnPageBecameActive();
     }
 
     private void OnValidate()
