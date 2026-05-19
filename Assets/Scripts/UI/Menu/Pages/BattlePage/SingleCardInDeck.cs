@@ -10,16 +10,13 @@ public class SingleCardInDeck : MonoBehaviour
     [SerializeField] private Image cardImage;
     [SerializeField] private Button cardButton;
     
-    private bool _isEquipped = false;
-    
     private CardDataSO _cardData;
     private DeckUIController _deckUIController;
 
-    public void Initialize(CardDataSO cardData, DeckUIController deckUIController, bool isEquipped)
+    public void Initialize(CardDataSO cardData, DeckUIController deckUIController)
     {
         _cardData = cardData;
         _deckUIController = deckUIController;
-        _isEquipped = isEquipped;
         
         cardCost.text = cardData.Cost.ToString();
         cardImage.sprite = cardData.CardImage;
@@ -31,8 +28,7 @@ public class SingleCardInDeck : MonoBehaviour
     {
         cardButton.onClick.AddListener(() =>
         {
-            _isEquipped = !_isEquipped;
-            _deckUIController.RequestActionFrame(_cardData, _isEquipped);
+            _deckUIController.RequestActionFrame(_cardData);
         });
     }
 }

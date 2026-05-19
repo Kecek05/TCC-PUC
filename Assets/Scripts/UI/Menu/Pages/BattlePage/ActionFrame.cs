@@ -22,6 +22,7 @@ public class ActionFrame : MonoBehaviour
         _deckUIController = deckUIController;
         InitializeButtons();
         content.SetActive(false);
+        UpdateActionButton();
     }
 
     public void SelectActionFrame(CardDataSO cardData, bool isEquipped)
@@ -52,6 +53,7 @@ public class ActionFrame : MonoBehaviour
             _isEquipped = !_isEquipped;
             _deckUIController.SetEquippedCard(_cardData.CardType, _isEquipped);
             UpdateActionButton();
+            ResetActionFrame();
         });
 
         infoButton.onClick.AddListener(() =>
@@ -71,5 +73,12 @@ public class ActionFrame : MonoBehaviour
                 actionButtonText.text = "Use";
                 break;
         }
+    }
+
+    private void ResetActionFrame()
+    {
+        _isVisible = false;
+        content.SetActive(false);
+        _cardData = null;
     }
 }

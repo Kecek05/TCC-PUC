@@ -348,10 +348,6 @@ MonoBehaviour:
   cardCost: {fileID: 1282940495710173655}
   cardImage: {fileID: 975426638711126010}
   cardButton: {fileID: 2551525577704675813}
-  actionsFrame: {fileID: 0}
-  infoButton: {fileID: 0}
-  actionButton: {fileID: 0}
-  actionButtonText: {fileID: 0}
 --- !u!1 &6526003004812058659
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

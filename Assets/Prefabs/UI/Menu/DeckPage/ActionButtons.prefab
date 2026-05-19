@@ -34,10 +34,10 @@ RectTransform:
   - {fileID: 3770673016285562131}
   m_Father: {fileID: 7451645507886729513}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 90, y: -36.239624}
+  m_SizeDelta: {x: 180, y: 72.47925}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &50351795763517207
 CanvasRenderer:
@@ -482,10 +482,10 @@ RectTransform:
   - {fileID: 2044010079294205330}
   m_Father: {fileID: 7451645507886729513}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 90, y: -108.71887}
+  m_SizeDelta: {x: 180, y: 72.47925}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &113795624743710879
 CanvasRenderer:
@@ -578,7 +578,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7451645507886729513}
-  - component: {fileID: 5340382148679122831}
+  - component: {fileID: 2447874970729166975}
   m_Layer: 0
   m_Name: Content
   m_TagString: Untagged
@@ -607,7 +607,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 180, y: 144.9585}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &5340382148679122831
+--- !u!114 &2447874970729166975
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -616,20 +616,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 7590899471308976867}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 1
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}

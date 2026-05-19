@@ -41,13 +41,13 @@ public class DeckUIController : MonoBehaviour
             if (DeckCards.Contains(cardType.CardType))
             {
                 SingleCardInDeck cardInDeck = Instantiate(singleCardInDeckPrefab, deckCardsParent);
-                cardInDeck.Initialize(cardType, this, true);
+                cardInDeck.Initialize(cardType, this);
                 cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInDeck, IsEquipped = true });
             }
             else
             {
                 SingleCardInDeck cardInAllCards = Instantiate(singleCardInDeckPrefab, allCardsParent);
-                cardInAllCards.Initialize(cardType, this, false);
+                cardInAllCards.Initialize(cardType, this);
                 cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInAllCards, IsEquipped = false });
             }
         }
@@ -59,11 +59,11 @@ public class DeckUIController : MonoBehaviour
         _spawnedActionFrame.Initialize(this);
     }
 
-    public void RequestActionFrame(CardDataSO cardData, bool isEquipped)
+    public void RequestActionFrame(CardDataSO cardData)
     {
         _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform);
         _spawnedActionFrame.transform.localPosition = Vector3.zero;
-        _spawnedActionFrame.SelectActionFrame(cardData, isEquipped);
+        _spawnedActionFrame.SelectActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
     }
 
     public void SetEquippedCard(CardType cardType, bool isEquipped)
