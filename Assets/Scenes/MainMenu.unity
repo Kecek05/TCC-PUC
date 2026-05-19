@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.8769709, b: 0.8235294, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -511,7 +511,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -771,8 +771,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.75, y: -317.6875}
-  m_SizeDelta: {x: 872.25, y: 761.5}
+  m_AnchoredPosition: {x: -9.75, y: -323.28064}
+  m_SizeDelta: {x: 872.25, y: 621.1013}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &456678315
 GameObject:
@@ -1010,7 +1010,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -14.625, y: 438.3125}
+  m_AnchoredPosition: {x: -14.625, y: 373.71216}
   m_SizeDelta: {x: 872.25, y: 624.625}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &537728709
@@ -1209,7 +1209,7 @@ MonoBehaviour:
   snapDuration: 0.3
   snapEase: 9
   pageChangeDragThreshold: 0.42
-  flickVelocityThreshold: 600
+  flickVelocityThreshold: 900
   edgeResistance: 0.6
 --- !u!114 &614744320
 MonoBehaviour:
@@ -1459,7 +1459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.8254717, g: 1, b: 0.96938455, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1511,6 +1511,7 @@ MonoBehaviour:
   allCardsParent: {fileID: 1571833213}
   cardDataListSO: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
   singleCardInDeckPrefab: {fileID: 2960693365353568230, guid: 8291ca3a1f93f6b419304f38413beea6, type: 3}
+  actionFramePrefab: {fileID: 9094998012314429239, guid: 47c799abd45f11f41b05e1a31a64939f, type: 3}
 --- !u!1 &767905618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2814,7 +2815,7 @@ GameObject:
   - component: {fileID: 1586071822}
   - component: {fileID: 1586071821}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2836,7 +2837,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.751221, y: 860.3125}
+  m_AnchoredPosition: {x: -9.751221, y: 764.8504}
   m_SizeDelta: {x: 751.75, y: 102.125}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1586071821
@@ -2974,8 +2975,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 490, y: 0}
-  m_SizeDelta: {x: 100, y: -1820}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1246.8, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &1702494225
 GameObject:

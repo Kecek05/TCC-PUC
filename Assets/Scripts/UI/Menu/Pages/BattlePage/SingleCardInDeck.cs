@@ -9,21 +9,11 @@ public class SingleCardInDeck : MonoBehaviour
     [SerializeField] private TextMeshProUGUI cardCost;
     [SerializeField] private Image cardImage;
     [SerializeField] private Button cardButton;
-    [SerializeField] private GameObject actionsFrame;
-    [SerializeField] private Button infoButton;
-    [SerializeField] private Button actionButton;
-    [SerializeField] private TextMeshProUGUI actionButtonText;
     
-    private bool _isShowingActions = false;
     private bool _isEquipped = false;
     
     private CardDataSO _cardData;
     private DeckUIController _deckUIController;
-
-    private void Awake()
-    {
-        actionsFrame.SetActive(false);
-    }
 
     public void Initialize(CardDataSO cardData, DeckUIController deckUIController, bool isEquipped)
     {
@@ -34,19 +24,15 @@ public class SingleCardInDeck : MonoBehaviour
         cardCost.text = cardData.Cost.ToString();
         cardImage.sprite = cardData.CardImage;
         
-        UpdateActionButton();
+        InitializeButtons();
     }
 
-    private void UpdateActionButton()
+    private void InitializeButtons()
     {
-        switch (_isEquipped)
+        cardButton.onClick.AddListener(() =>
         {
-            case true:
-                actionButtonText.text = "Remove";
-                break;
-            case false:
-                actionButtonText.text = "Use";
-                break;
-        }
+            _isEquipped = !_isEquipped;
+            _deckUIController.RequestActionFrame(_cardData, _isEquipped);
+        });
     }
 }
