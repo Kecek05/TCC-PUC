@@ -18,10 +18,15 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     [SerializeField] private List<MenuPage> pages = new List<MenuPage>();
 
     [Title("Snap")]
+    [Tooltip("Seconds the strip takes to tween into the target page after a release or a button tap.")]
     [SerializeField, MinValue(0.05f)] private float snapDuration = 0.3f;
+    [Tooltip("Easing curve applied to the snap tween. OutCubic ≈ Clash-Royale feel.")]
     [SerializeField] private Ease snapEase = Ease.OutCubic;
+    [Tooltip("Fraction of page width you must drag (without a flick) to switch pages on release. 0.35 = drag 35% of a page to commit. Below this, the strip rubber-bands back to the current page.")]
     [SerializeField, Range(0.1f, 0.5f)] private float pageChangeDragThreshold = 0.35f;
+    [Tooltip("Pointer speed (screen pixels per second) at release that counts as a flick and forces a page change, even if you didn't drag far enough to hit pageChangeDragThreshold. Lower = easier to flick.")]
     [SerializeField, MinValue(0f)] private float flickVelocityThreshold = 600f;
+    [Tooltip("Rubber-band strength when dragging past the first or last page. 0 = no resistance (drags freely past the edge), 1 = hard stop at the edge. 0.5 = strip moves half your finger distance past the edge.")]
     [SerializeField, Range(0f, 1f)] private float edgeResistance = 0.5f;
 
     public event Action<int> OnPageChanged;
