@@ -732,6 +732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f912a3d5fef4a89468a6cd2665e6f559, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RelayManager
+  cardHandSettingsSO: {fileID: 11400000, guid: e000621b4c83905469856f83e430592b, type: 2}
   createRelayButton: {fileID: 1137407562}
   createDedicatedServerButton: {fileID: 1012175129}
   joinCodeInput: {fileID: 656738890}
@@ -1512,6 +1513,7 @@ MonoBehaviour:
   cardDataListSO: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
   singleCardInDeckPrefab: {fileID: 2960693365353568230, guid: 8291ca3a1f93f6b419304f38413beea6, type: 3}
   actionFramePrefab: {fileID: 9094998012314429239, guid: 47c799abd45f11f41b05e1a31a64939f, type: 3}
+  cardHandSettingsSO: {fileID: 11400000, guid: e000621b4c83905469856f83e430592b, type: 2}
 --- !u!1 &767905618
 GameObject:
   m_ObjectHideFlags: 0
@@ -3967,7 +3969,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2109667993
 RectTransform:
   m_ObjectHideFlags: 0

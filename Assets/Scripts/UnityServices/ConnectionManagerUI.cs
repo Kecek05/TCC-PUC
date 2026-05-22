@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class ConnectionManagerUI : MonoBehaviour
 {
+    [Header("General")]
+    [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
+    
     [Header("Create")]
     [SerializeField] private Button createRelayButton;
     [SerializeField] private Button createDedicatedServerButton;
@@ -31,6 +34,8 @@ public class ConnectionManagerUI : MonoBehaviour
 
     private async void CreateRelay()
     {
+        if (!CanPlay()) return;
+        
         createRelayButton.interactable = false;
         try
         {
@@ -45,6 +50,8 @@ public class ConnectionManagerUI : MonoBehaviour
 
     private async void JoinRelay()
     {
+        if (!CanPlay()) return;
+        
         string code = joinCodeInput.text.Trim();
         if (string.IsNullOrEmpty(code)) return;
 
@@ -70,5 +77,10 @@ public class ConnectionManagerUI : MonoBehaviour
     private async void JoinDedicatedServer()
     {
         
+    }
+
+    private bool CanPlay()
+    {
+        return _clientManager.UserData.DeckCards.Count == cardHandSettingsSO.DeckSize;
     }
 }

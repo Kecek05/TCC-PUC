@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: CardHandSettings
   m_EditorClassIdentifier: Assembly-CSharp::CardHandSettingsSO
   HandSize: 4
+  DeckSize: 4

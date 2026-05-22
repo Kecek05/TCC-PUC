@@ -5,4 +5,5 @@ using UnityEngine;
 public class CardHandSettingsSO : ScriptableObject
 {
    [MinValue(1)] public int HandSize = 4;
+   public int DeckSize = 12;
 }

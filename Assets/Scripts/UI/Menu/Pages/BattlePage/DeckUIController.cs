@@ -16,12 +16,15 @@ public class DeckUIController : MonoBehaviour
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private SingleCardInDeck singleCardInDeckPrefab;
     [SerializeField] private ActionFrame actionFramePrefab;
+    [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
     
     private List<CardType> DeckCards;
     private Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
 
     private BaseClientManager _clientManager;
     private ActionFrame _spawnedActionFrame;
+
+    private UserData _userData => _clientManager.UserData;
 
     private void Start()
     {
@@ -74,6 +77,12 @@ public class DeckUIController : MonoBehaviour
             return;
         }
         
+        if (IsDeckFull() && isEquipped)
+        {
+            GameLog.Warn("Cannot equip card. Deck is full.");
+            return;
+        }
+        
         info.IsEquipped = isEquipped;
         
         info.SingleCardInDeck.transform.SetParent(isEquipped ? deckCardsParent : allCardsParent);
@@ -84,5 +93,10 @@ public class DeckUIController : MonoBehaviour
             DeckCards.Remove(cardType);
         
         _clientManager.UserData.SetDeckCards(DeckCards);
+    }
+    
+    private bool IsDeckFull()
+    {
+        return DeckCards.Count == cardHandSettingsSO.DeckSize;
     }
 }
