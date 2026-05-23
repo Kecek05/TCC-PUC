@@ -526,7 +526,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -835,7 +835,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -1144,7 +1144,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -1453,7 +1453,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -1762,7 +1762,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -2071,7 +2071,7 @@ MonoBehaviour:
           ConditionPropertyName: AnimateZ
           EnumConditionPropertyName: 
           EnumConditions: 0000000000000000000000000000000000000000000000000000000000000000
-        UniformScaling: 0
+        UniformScaling: 1
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: {x: 0.5, y: 0.5, z: 0.5}
