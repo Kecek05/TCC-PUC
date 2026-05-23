@@ -19,11 +19,13 @@ public class ConnectionManagerUI : MonoBehaviour
 
     private BaseHostManager _hostManager;
     private BaseClientManager _clientManager;
+    private ScreenWarning _screenWarning;
     
     private void Start()
     {
         _hostManager = ServiceLocator.Get<BaseHostManager>();
         _clientManager = ServiceLocator.Get<BaseClientManager>();
+        _screenWarning = ServiceLocator.Get<ScreenWarning>();
         
         createRelayButton.onClick.AddListener(CreateRelay);
         joinButton.onClick.AddListener(JoinRelay);
@@ -81,6 +83,10 @@ public class ConnectionManagerUI : MonoBehaviour
 
     private bool CanPlay()
     {
-        return _clientManager.UserData.DeckCards.Count == cardHandSettingsSO.DeckSize;
+        if (_clientManager.UserData.DeckCards.Count == cardHandSettingsSO.DeckSize)
+            return true;
+        
+        _screenWarning.ShowWarning(WarningMessages.DeckNotFull);
+        return false;
     }
 }

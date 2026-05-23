@@ -26,6 +26,13 @@ public class ScreenWarning : MonoBehaviour
         content.gameObject.SetActive(false);
         warningText.SetText(message);
         content.gameObject.SetActive(true);
+        warningFeedback.StopFeedbacks();
         warningFeedback.PlayFeedbacks();
     }
+}
+
+public static class WarningMessages
+{
+    public static string CannotEquipCard = "Cannot equip card. Deck is full.";
+    public static string DeckNotFull = "Cannot play. Deck is not full.";
 }

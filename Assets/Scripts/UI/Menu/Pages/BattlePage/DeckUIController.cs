@@ -23,12 +23,14 @@ public class DeckUIController : MonoBehaviour
 
     private BaseClientManager _clientManager;
     private ActionFrame _spawnedActionFrame;
+    private ScreenWarning _screenWarning;
 
     private UserData _userData => _clientManager.UserData;
 
     private void Start()
     {
         _clientManager = ServiceLocator.Get<BaseClientManager>();
+        _screenWarning = ServiceLocator.Get<ScreenWarning>();
         DeckCards = _clientManager.UserData.DeckCards;
         if (DeckCards == null || DeckCards.Count == 0) {
             DeckCards = new List<CardType>();
@@ -79,7 +81,7 @@ public class DeckUIController : MonoBehaviour
         
         if (IsDeckFull() && isEquipped)
         {
-            GameLog.Warn("Cannot equip card. Deck is full.");
+            _screenWarning.ShowWarning(WarningMessages.CannotEquipCard);
             return;
         }
         
