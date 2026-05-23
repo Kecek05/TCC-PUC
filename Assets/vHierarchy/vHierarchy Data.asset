@@ -387,3 +387,4 @@ MonoBehaviour:
   - Assets/Scenes/GameScene.unity
   - Assets/Scenes/StartScene.unity
   - Assets/Scenes/Unit Tests/Tower/01_Tower_Placement.unity
+  - Assets/Scenes/Loading.unity
