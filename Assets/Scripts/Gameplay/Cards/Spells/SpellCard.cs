@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 public class SpellCard : AbstractCard
 {
-    [Header("Spell Card GFXs")] 
+    [Header("Spell Card GFXs")]
     [SerializeField] private MMF_Player fadeOutFeedback;
     [SerializeField] private MMF_Player fadeInFeedback;
 
@@ -46,7 +46,7 @@ public class SpellCard : AbstractCard
             DisableGhostSpellGFX();
             return;
         }
-        
+
         AnimateFadeOut();
 
         EnableGhostSpellGFX(worldPosition);
@@ -57,15 +57,15 @@ public class SpellCard : AbstractCard
         base.OnEndDrag(eventData);
         DisableGhostSpellGFX();
     }
-    
+
     public override CardValidation CanPlayCardAt(Vector2 worldPosition)
     {
         var baseCheck = base.CanPlayCardAt(worldPosition);
         if (!baseCheck) return baseCheck;
 
-        if (IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap || (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap))
+        if ((IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap) || (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap))
             return CardValidation.Invalid(CardInvalidReason.EnemyMap);
-        
+
         return CardValidation.Valid;
     }
 

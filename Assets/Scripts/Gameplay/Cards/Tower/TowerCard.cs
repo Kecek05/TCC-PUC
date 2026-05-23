@@ -20,14 +20,12 @@ public class TowerCard : AbstractCard
     
     private BaseCardTowerDeployer _cardTowerDeployer;
     private BaseTowerPlacementFeedbackManager  _towerPlacementFeedbackManager;
-    private BaseTeamManager  _teamManager;
 
     protected override void Start()
     {
         base.Start();
         _cardTowerDeployer = ServiceLocator.Get<BaseCardTowerDeployer>();
         _towerPlacementFeedbackManager = ServiceLocator.Get<BaseTowerPlacementFeedbackManager>();
-        _teamManager = ServiceLocator.Get<BaseTeamManager>();
     }
 
     public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer, GhostTowerCard ghostTowerCard)

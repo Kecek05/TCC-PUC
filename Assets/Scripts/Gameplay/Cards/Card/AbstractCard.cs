@@ -29,16 +29,18 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     protected BaseClientManaManager  _clientManaManager;
     protected BaseCardContainer _cardContainer;
     protected BaseMapTranslator _mapTranslator;
-    
+    protected BaseTeamManager _teamManager;
+
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
     protected virtual void Start()
     {
         _cameraMain = Camera.main;
-        
+
         _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
         _mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
+        _teamManager = ServiceLocator.Get<BaseTeamManager>();
     }
 
     public void Initialize(CardUIFactoryData factoryData, BaseCardContainer cardContainer)
@@ -105,7 +107,13 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     protected bool IsLocalMap(Vector2 position)
     {
         RaycastHit2D[] hits = Physics2D.CircleCastAll(position, layersSettings.PlaceableRadius, Vector2.zero, 10f, layersSettings.PlaceableLayer);
-        return hits.Length > 0;
+        TeamType localTeam = _teamManager.GetLocalTeam();
+        foreach (RaycastHit2D hit in hits)
+        {
+            TeamIdentifier team = hit.collider.GetComponentInParent<TeamIdentifier>();
+            if (team != null && team.TeamType == localTeam) return true;
+        }
+        return false;
     }
 
     public virtual CardValidation CanPlayCard()
