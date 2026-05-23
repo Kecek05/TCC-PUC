@@ -186,6 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasicPlaceable
   placeablePoint: {fileID: 665670900790689475}
+  teamIdentifier: {fileID: 2683988495876124766}
 --- !u!114 &2683988495876124766
 MonoBehaviour:
   m_ObjectHideFlags: 0

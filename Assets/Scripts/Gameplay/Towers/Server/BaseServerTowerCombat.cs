@@ -30,12 +30,21 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
             enabled = false;
             return;
         }
-        
+
+        TowerRegistry.Register(towerManager);
+
         _towerLevel.Value = 1;
-        
+
         UpdateData();
         _currentShootCooldown = 0f;
         StartCoroutine(SetupTimeDuration());
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+            TowerRegistry.Unregister(towerManager);
+        base.OnNetworkDespawn();
     }
 
     protected virtual IEnumerator SetupTimeDuration()
