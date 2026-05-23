@@ -142,7 +142,6 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             return;
         }
         
-        GameLog.Info($"[CardHandManager] {teamType} played {cardType}, drew {drawnCard}");
         OnDrawACard?.Invoke(teamType, drawnCard);
         SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
         PushSyncedState(teamType, handData);

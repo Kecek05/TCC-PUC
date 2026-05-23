@@ -14,8 +14,7 @@ public class ClientManaManager : BaseClientManaManager
     [SerializeField] private ManaSettingsSO manaSettings;
     [SerializeField] private Image manaBarFill;
     [SerializeField] private TMP_Text manaText;
-
-    private float _predictedMana;
+    
     private float _serverMana;
     private float _pendingSpendTotal;
     private bool _initialized;
@@ -46,6 +45,19 @@ public class ClientManaManager : BaseClientManaManager
         if (_maxMana != null)
             _maxMana.OnValueChanged -= OnServerMaxManaChanged;
     }
+    
+    private void Update()
+    {
+        if (!_initialized) return;
+
+        // Local regen prediction for smooth bar between network ticks
+        PredictedMana = Mathf.Min(
+            PredictedMana + manaSettings.RegenPerSecond * Time.deltaTime,
+            CurrentMaxMana
+        );
+
+        UpdateUI();
+    }
 
     private IEnumerator WaitForInitialization()
     {
@@ -66,7 +78,7 @@ public class ClientManaManager : BaseClientManaManager
         _maxMana = _serverManaManager.GetMaxManaNetworkVariable(_localTeam);
 
         _serverMana = _currentMana.Value;
-        _predictedMana = _serverMana;
+        PredictedMana = _serverMana;
         CurrentMaxMana = _maxMana.Value;
 
         _currentMana.OnValueChanged += OnServerManaChanged;
@@ -82,11 +94,11 @@ public class ClientManaManager : BaseClientManaManager
         if (_pendingSpendTotal > 0f)
         {
             // Server truth minus what it hasn't processed yet
-            _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
+            PredictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
         }
         else
         {
-            _predictedMana = _serverMana;
+            PredictedMana = _serverMana;
         }
     }
 
@@ -94,32 +106,19 @@ public class ClientManaManager : BaseClientManaManager
     {
         CurrentMaxMana = newValue;
 
-        if (_predictedMana > CurrentMaxMana)
-            _predictedMana = CurrentMaxMana;
-    }
-
-    private void Update()
-    {
-        if (!_initialized) return;
-
-        // Local regen prediction for smooth bar between network ticks
-        _predictedMana = Mathf.Min(
-            _predictedMana + manaSettings.RegenPerSecond * Time.deltaTime,
-            CurrentMaxMana
-        );
-
-        UpdateUI();
+        if (PredictedMana > CurrentMaxMana)
+            PredictedMana = CurrentMaxMana;
     }
 
     public override bool CanAffordLocally(int cost)
     {
-        return Mathf.FloorToInt(_predictedMana) >= cost;
+        return Mathf.FloorToInt(PredictedMana) >= cost;
     }
 
     public override void PredictSpend(int cost)
     {
         _pendingSpendTotal += cost;
-        _predictedMana -= cost;
+        PredictedMana -= cost;
     }
 
     /// <summary>
@@ -128,7 +127,7 @@ public class ClientManaManager : BaseClientManaManager
     public override void ConfirmSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
-        _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
+        PredictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
     }
 
     /// <summary>
@@ -137,15 +136,15 @@ public class ClientManaManager : BaseClientManaManager
     public override void RevertSpend(int cost)
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
-        _predictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
+        PredictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
     }
 
     private void UpdateUI()
     {
         if (manaBarFill != null)
-            manaBarFill.fillAmount = CurrentMaxMana > 0f ? _predictedMana / CurrentMaxMana : 0f;
+            manaBarFill.fillAmount = CurrentMaxMana > 0f ? PredictedMana / CurrentMaxMana : 0f;
 
         if (manaText != null)
-            manaText.text = Mathf.FloorToInt(_predictedMana).ToString();
+            manaText.text = Mathf.FloorToInt(PredictedMana).ToString();
     }
 }
