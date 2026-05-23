@@ -8,11 +8,11 @@ public class IceExecutor : ISpellExecutor
     {
         if (context.SpellData is not SpellOffensiveDataSO offensiveData)
         {
-            GameLog.Error("FireballExecutor: SpellData is not SpellOffensiveDataSO");
+            GameLog.Error("IceExecutor: SpellData is not SpellOffensiveDataSO");
             return;
         }
     
-        GameLog.Info("FireballExecutor: Execute");
+        GameLog.Info("IceExecutor: Execute");
         context.CoroutineRunner.StartCoroutine(
             ApplyAoEDamageAfterDelay(context.ServerPosition, context.CasterTeam, offensiveData)
         );

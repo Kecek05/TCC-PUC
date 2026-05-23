@@ -1014,7 +1014,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8308812062743557893, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
       propertyPath: m_Name
-      value: CardSpellFireball
+      value: CardSpellIce
       objectReference: {fileID: 0}
     - target: {fileID: 8559318228989566617, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
       propertyPath: m_Pivot.x
@@ -1149,7 +1149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38fc49ab3e9bebb4098e3ef0bfe77bfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpellCard
-  cardDataSo: {fileID: 11400000, guid: 0babcd21ba46ebe42808d57eecb8571c, type: 2}
+  cardDataSo: {fileID: 11400000, guid: 74b0e37a0308d3241bfb286edbed3de6, type: 2}
   layersSettings: {fileID: 11400000, guid: 32bf198c202fd3647ac245e6ca0fdc84, type: 2}
   gfxController: {fileID: 8794190752614679342}
   rectTransform: {fileID: 4769146289969050022}

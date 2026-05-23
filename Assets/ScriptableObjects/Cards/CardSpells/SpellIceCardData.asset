@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpellIceCardData
   m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
   CardType: 5
-  CardPrefab: {fileID: 0}
+  CardPrefab: {fileID: 2383729291938179494, guid: 03d01f4710d43a84c8275d2da6fb59ee, type: 3}
   CardName: Ice
   Description: ICE
   CardImage: {fileID: 21300000, guid: c23294d57f74bea4b9a439f033a6bf15, type: 3}
