@@ -8,7 +8,7 @@ public abstract class BaseCardSpawnEnemyDeployer : NetworkBehaviour, ICardDeploy
 
     public abstract void RequestSpawnEnemyCardServer(CardType cardType, RpcParams rpcParams = default);
 
-    protected void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
+    public void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
 
     protected void TriggerOnSpawnResult(SpawnEnemyResult spawnEnemyResult) => OnSpawnResult?.Invoke(spawnEnemyResult);
 }

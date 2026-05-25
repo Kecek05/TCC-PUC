@@ -59,56 +59,55 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         TeamType team = _teamManager.GetTeam(authId);
 
         if (team == TeamType.None)
+        {
             GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
-
-        SpawnEnemyResult result = TrySpawnEnemyInternal(team, authId, cardType);
-        SpawnResultRpc(result, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-    }
-
-    /// <summary>
-    /// Server-internal entry point: same validation + dispatch pipeline as the RPC, but takes
-    /// the acting team and authId explicitly. Both the RPC handler (real player) and bot AI
-    /// call this. Returns the result synchronously instead of going through SpawnResultRpc.
-    /// </summary>
-    public SpawnEnemyResult TrySpawnEnemyInternal(TeamType team, string authId, CardType cardType)
-    {
-        if (team == TeamType.None)
-            return Fail(cardType, CardInvalidReason.NoTeam);
+            SendFailure(clientId, cardType, CardInvalidReason.NoTeam);
+            return;
+        }
 
         if (!_cardHandManager.TeamHasCardInHand(team, cardType))
         {
-            GameLog.Error($"Team {team} tried to play {cardType} but it's not in hand.");
-            return Fail(cardType, CardInvalidReason.NotInHand);
+            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
+            SendFailure(clientId, cardType, CardInvalidReason.NotInHand);
+            return;
         }
 
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpawnEnemyCardDataSO spawnCardData)
-            return Fail(cardType, CardInvalidReason.None);
+        {
+            SendFailure(clientId, cardType, CardInvalidReason.None);
+            return;
+        }
 
         if (!_serverManaManager.TrySpendMana(team, spawnCardData.Cost))
-            return Fail(cardType, CardInvalidReason.NotEnoughMana);
+        {
+            SendFailure(clientId, cardType, CardInvalidReason.NotEnoughMana);
+            return;
+        }
 
         _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId);
+
+        SpawnResultRpc(new SpawnEnemyResult
+        {
+            CardType = cardType,
+            Validation = CardValidation.Valid,
+        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
 
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
             TeamDeployed = team,
             CardDeployed = cardType
         });
-
-        return new SpawnEnemyResult
-        {
-            CardType = cardType,
-            Validation = CardValidation.Valid,
-        };
     }
 
-    private static SpawnEnemyResult Fail(CardType cardType, CardInvalidReason reason) =>
-        new SpawnEnemyResult
+    private void SendFailure(ulong clientId, CardType cardType, CardInvalidReason reason)
+    {
+        SpawnResultRpc(new SpawnEnemyResult
         {
             CardType = cardType,
             Validation = CardValidation.Invalid(reason),
-        };
+        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
     
     [Rpc(SendTo.SpecifiedInParams)]
     private void SpawnResultRpc(SpawnEnemyResult result, RpcParams rpcParams = default)

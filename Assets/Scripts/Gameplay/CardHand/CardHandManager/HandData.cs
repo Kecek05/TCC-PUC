@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Sirenix.OdinInspector;
 using Random = UnityEngine.Random;
 
+[Serializable]
 public class HandData
 {
     /// <summary>
@@ -27,7 +29,7 @@ public class HandData
     /// <summary>
     /// Queue of the next cards available to be drawn, based on the current deck, hand and maximum mana
     /// </summary>
-    public Queue<CardType> QueuedCardsType;
+    [ShowInInspector] public Queue<CardType> QueuedCardsType;
 
     /// <summary>
     /// Builds a fresh <see cref="HandData"/>: locks cards above <paramref name="maxMana"/>,

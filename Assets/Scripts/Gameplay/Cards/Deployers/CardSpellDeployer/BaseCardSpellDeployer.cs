@@ -9,7 +9,7 @@ public abstract class BaseCardSpellDeployer : NetworkBehaviour, ICardDeployer
 
     public abstract void RequestSpellCardServer(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default);
 
-    protected void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
+    public void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
 
     protected void TriggerOnSpellResult(SpellSpawnResult result) => OnSpellResult?.Invoke(result);
 }

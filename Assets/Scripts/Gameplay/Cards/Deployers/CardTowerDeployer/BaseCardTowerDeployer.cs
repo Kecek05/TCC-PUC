@@ -10,7 +10,7 @@ public abstract class BaseCardTowerDeployer : NetworkBehaviour, ICardDeployer
     public abstract void RequestPlaceCardServer(CardType cardType, Vector2 placePosition,
         RpcParams rpcParams = default);
 
-    protected void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
+    public void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
 
     protected void TriggerOnPlaceResult(TowerPlaceResult result) => OnPlaceResult?.Invoke(result);
 }

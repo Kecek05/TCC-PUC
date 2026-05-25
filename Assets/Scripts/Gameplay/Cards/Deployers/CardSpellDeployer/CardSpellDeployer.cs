@@ -60,38 +60,40 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         string authId = _playersDataManager.GetAuthIdByClientId(clientId);
         TeamType team = _teamManager.GetTeam(authId);
 
-        SpellSpawnResult result = TrySpellInternal(team, cardType, serverPosition);
-        PlaceResultRpc(result, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-    }
-
-    /// <summary>
-    /// Server-internal entry point: same validation + execution pipeline as the RPC, but takes
-    /// the acting team explicitly. Both the RPC handler (real player) and bot AI call this.
-    /// Returns the result synchronously instead of going through PlaceResultRpc.
-    /// </summary>
-    public SpellSpawnResult TrySpellInternal(TeamType team, CardType cardType, Vector2 serverPosition)
-    {
         if (team == TeamType.None)
-            return Fail(cardType, SpellInvalidReason.NoTeam);
+        {
+            SendFailure(clientId, cardType, SpellInvalidReason.NoTeam);
+            return;
+        }
 
         if (!_cardHandManager.TeamHasCardInHand(team, cardType))
         {
-            GameLog.Error($"Team {team} tried to play {cardType} but it's not in hand.");
-            return Fail(cardType, SpellInvalidReason.NotInHand);
+            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
+            SendFailure(clientId, cardType, SpellInvalidReason.NotInHand);
+            return;
         }
 
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpellCardDataSO spellCardData)
-            return Fail(cardType, SpellInvalidReason.NotSuccess);
+        {
+            SendFailure(clientId, cardType, SpellInvalidReason.NotSuccess);
+            return;
+        }
 
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellCardData.SpellType);
         ISpellExecutor executor = SpellExecutorFactory.GetExecutor(spellCardData.SpellType);
 
         if (spellData == null || executor == null)
-            return Fail(cardType, SpellInvalidReason.NotSuccess);
+        {
+            SendFailure(clientId, cardType, SpellInvalidReason.NotSuccess);
+            return;
+        }
 
         if (!_serverManaManager.TrySpendMana(team, spellCardData.Cost))
-            return Fail(cardType, SpellInvalidReason.NotEnoughMana);
+        {
+            SendFailure(clientId, cardType, SpellInvalidReason.NotEnoughMana);
+            return;
+        }
 
         executor.Execute(new SpellExecutionContext
         {
@@ -103,26 +105,28 @@ public class CardSpellDeployer : BaseCardSpellDeployer
 
         SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, team);
 
+        PlaceResultRpc(new SpellSpawnResult
+        {
+            CardType = cardType,
+            Validation = SpellValidation.Valid,
+            Position = serverPosition,
+        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
             TeamDeployed = team,
             CardDeployed = cardType
         });
-
-        return new SpellSpawnResult
-        {
-            CardType = cardType,
-            Validation = SpellValidation.Valid,
-            Position = serverPosition,
-        };
     }
 
-    private static SpellSpawnResult Fail(CardType cardType, SpellInvalidReason reason) =>
-        new SpellSpawnResult
+    private void SendFailure(ulong clientId, CardType cardType, SpellInvalidReason reason)
+    {
+        PlaceResultRpc(new SpellSpawnResult
         {
             CardType = cardType,
             Validation = SpellValidation.Invalid(reason),
-        };
+        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
 
     [Rpc(SendTo.SpecifiedInParams)]
     private void PlaceResultRpc(SpellSpawnResult result, RpcParams rpcParams = default)

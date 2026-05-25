@@ -28,7 +28,7 @@ public class CardContainer : BaseCardContainer
 
         if (occupiedSlot == null)
         {
-            GameLog.Warn("All card slots are occupied. Cannot add card to container.");
+            GameLog.Error("All card slots are occupied. Cannot add card to container.");
         }
         
         occupiedSlots[card] = occupiedSlot;
