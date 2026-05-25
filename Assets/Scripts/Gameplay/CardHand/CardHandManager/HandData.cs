@@ -7,27 +7,27 @@ public class HandData
     /// <summary>
     ///  List of Instance Cards in the players hand (populated by UI layer)
     /// </summary>
-    public List<AbstractCard> CardsInHand;
+    public List<AbstractCard> CardsInstanceInHand;
     
     /// <summary>
     /// Cards currently displayed in the player's hand (data, source of truth for draw cycle)
     /// </summary>
-    public List<CardType> HandCards;
+    public List<CardType> CardsTypeInHand;
     
     /// <summary>
     /// List of all Cards in the player's deck (full set, unchanged after distribution)
     /// </summary>
-    public List<CardType> CardsInDeck;
+    public List<CardType> CardsTypeInDeck;
     
     /// <summary>
     /// List of cards that the Cost is higher than the current maximum mana
     /// </summary>
-    public List<CardType> LockedCards;
+    public List<CardType> LockedCardsType;
     
     /// <summary>
     /// Queue of the next cards available to be drawn, based on the current deck, hand and maximum mana
     /// </summary>
-    public Queue<CardType> QueuedCards;
+    public Queue<CardType> QueuedCardsType;
 
     /// <summary>
     /// Builds a fresh <see cref="HandData"/>: locks cards above <paramref name="maxMana"/>,
@@ -38,18 +38,18 @@ public class HandData
     {
         HandData data = new HandData
         {
-            CardsInHand = new List<AbstractCard>(),
-            HandCards = new List<CardType>(),
-            CardsInDeck = new List<CardType>(deck),
-            LockedCards = new List<CardType>(),
-            QueuedCards = new Queue<CardType>(),
+            CardsInstanceInHand = new List<AbstractCard>(),
+            CardsTypeInHand = new List<CardType>(),
+            CardsTypeInDeck = new List<CardType>(deck),
+            LockedCardsType = new List<CardType>(),
+            QueuedCardsType = new Queue<CardType>(),
         };
 
         List<CardType> unlockedPool = new List<CardType>(deck.Count);
         foreach (CardType card in deck)
         {
             if (costs.GetCost(card) > maxMana)
-                data.LockedCards.Add(card);
+                data.LockedCardsType.Add(card);
             else
                 unlockedPool.Add(card);
         }
@@ -57,7 +57,7 @@ public class HandData
         Shuffle(unlockedPool);
 
         for (int i = 0; i < unlockedPool.Count; i++)
-            data.QueuedCards.Enqueue(unlockedPool[i]);
+            data.QueuedCardsType.Enqueue(unlockedPool[i]);
 
         return data;
     }
@@ -68,10 +68,10 @@ public class HandData
     public bool Draw(out CardType drawnCard)
     {
         drawnCard = CardType.None;
-        if (QueuedCards.Count == 0) return false;
+        if (QueuedCardsType.Count == 0) return false;
 
-        drawnCard = QueuedCards.Dequeue();
-        HandCards.Add(drawnCard);
+        drawnCard = QueuedCardsType.Dequeue();
+        CardsTypeInHand.Add(drawnCard);
         return true;
     }
 
@@ -83,11 +83,11 @@ public class HandData
     public bool Play(CardType cardType, out CardType drawnCard)
     {
         drawnCard = CardType.None;
-        if (!HandCards.Remove(cardType)) return false;
+        if (!CardsTypeInHand.Remove(cardType)) return false;
 
         // Played -> back of queue -> then draw the front. Guarantees a draw even in
         // the degenerate case where the played card is the only drawable one.
-        QueuedCards.Enqueue(cardType);
+        QueuedCardsType.Enqueue(cardType);
         return Draw(out drawnCard);
     }
 
@@ -100,12 +100,12 @@ public class HandData
     public bool Unlock(float newMaxMana, ICardCostProvider costs)
     {
         List<CardType> unlocked = null;
-        for (int i = LockedCards.Count - 1; i >= 0; i--)
+        for (int i = LockedCardsType.Count - 1; i >= 0; i--)
         {
-            CardType card = LockedCards[i];
+            CardType card = LockedCardsType[i];
             if (costs.GetCost(card) <= newMaxMana)
             {
-                LockedCards.RemoveAt(i);
+                LockedCardsType.RemoveAt(i);
                 unlocked ??= new List<CardType>();
                 unlocked.Add(card);
             }
@@ -119,24 +119,24 @@ public class HandData
 
     private void MergeUnlockedIntoQueue(List<CardType> unlocked)
     {
-        List<CardType> tail = new List<CardType>(QueuedCards.Count + unlocked.Count);
+        List<CardType> tail = new List<CardType>(QueuedCardsType.Count + unlocked.Count);
 
         CardType? next = null;
-        if (QueuedCards.Count > 0)
+        if (QueuedCardsType.Count > 0)
         {
-            next = QueuedCards.Dequeue();
-            while (QueuedCards.Count > 0)
-                tail.Add(QueuedCards.Dequeue());
+            next = QueuedCardsType.Dequeue();
+            while (QueuedCardsType.Count > 0)
+                tail.Add(QueuedCardsType.Dequeue());
         }
 
         tail.AddRange(unlocked);
         Shuffle(tail);
 
-        QueuedCards.Clear();
+        QueuedCardsType.Clear();
         if (next.HasValue)
-            QueuedCards.Enqueue(next.Value);
+            QueuedCardsType.Enqueue(next.Value);
         for (int i = 0; i < tail.Count; i++)
-            QueuedCards.Enqueue(tail[i]);
+            QueuedCardsType.Enqueue(tail[i]);
     }
 
     private static void Shuffle<T>(IList<T> list)

@@ -15,9 +15,6 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
     public event Action<CardType> OnLocalDrawACard;
     public event Action<CardType> OnLocalNextCardChanged;
 
-    private HandData _blueHandData;
-    private HandData _redHandData;
-
     private ICardCostProvider _costs;
     private IMaxManaProvider _maxManaProvider;
     private CardDeploymentBus _deploymentBus;
@@ -75,8 +72,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         _deploymentBus.OnAnyCardDeployed += OnAnyCardDeployed;
     }
 
-    private void OnAnyCardDeployed(CardDeployedEventArgs args)
-        => NotifyCardPlayed(args.TeamDeployed, args.CardDeployed);
+    private void OnAnyCardDeployed(CardDeployedEventArgs args) => NotifyCardPlayed(args.TeamDeployed, args.CardDeployed);
 
     public override void SetDeckForPlayer(TeamType teamType, List<CardType> cardsInDeck)
     {
@@ -105,7 +101,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
         }
 
-        PushSyncedState(teamType, handData);
+        PushSyncedState(teamType);
     }
 
     [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
@@ -144,7 +140,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         
         OnDrawACard?.Invoke(teamType, drawnCard);
         SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
-        PushSyncedState(teamType, handData);
+        PushSyncedState(teamType);
     }
 
     private void OnMaxManaChanged(TeamType teamType, float newMax)
@@ -155,33 +151,38 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         if (handData == null) return;
 
         if (handData.Unlock(newMax, _costs))
-            PushSyncedState(teamType, handData);
+        {
+            for (int i = handData.CardsTypeInHand.Count; i < cardHandSettingsSO.HandSize; i++)
+            {
+                if (!handData.Draw(out CardType drawnCard)) break;
+                OnDrawACard?.Invoke(teamType, drawnCard);
+                SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+            }
+            
+            PushSyncedState(teamType);
+        }
     }
 
-    private void PushSyncedState(TeamType teamType, HandData handData)
+    private void PushSyncedState(TeamType teamType)
     {
-        List<CardType> handList = teamType == TeamType.Blue ? BlueHandCards : RedHandCards;
+        HandData handData = GetServerHandData(teamType);
 
-        handList.Clear();
-        for (int i = 0; i < handData.HandCards.Count; i++)
-            handList.Add(handData.HandCards[i]);
-
-        CardType nextVar = handData.QueuedCards.Count > 0 ? handData.QueuedCards.Peek() : CardType.None;
+        CardType nextVar = handData.QueuedCardsType.Count > 0 ? handData.QueuedCardsType.Peek() : CardType.None;
         
         SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
     }
 
-    private HandData GetServerHandData(TeamType teamType)
-        => teamType == TeamType.Blue ? _blueHandData : _redHandData;
+    private HandData GetServerHandData(TeamType teamType) => teamType == TeamType.Blue ? BlueHandData : RedHandData;
 
     private void SetServerHandData(TeamType teamType, HandData data)
     {
         if (teamType == TeamType.Blue)
-            _blueHandData = data;
+            BlueHandData = data;
         else if (teamType == TeamType.Red)
-            _redHandData = data;
+            RedHandData = data;
         else
             GameLog.Error($"[CardHandManager] Invalid team: {teamType}");
     }
+    
 
 }
