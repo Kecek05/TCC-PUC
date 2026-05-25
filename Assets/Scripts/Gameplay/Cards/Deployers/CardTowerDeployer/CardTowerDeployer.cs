@@ -71,7 +71,7 @@ public class CardTowerDeployer : BaseCardTowerDeployer
     /// acting team and owner client id explicitly. Both the RPC handler (real player) and bot
     /// AI call this. Returns the result synchronously instead of going through PlaceResultRpc.
     /// </summary>
-    public TowerPlaceResult TryPlaceTowerInternal(TeamType team, ulong ownerClientId, CardType cardType, Vector2 placePosition)
+    public override TowerPlaceResult TryPlaceTowerInternal(TeamType team, ulong ownerClientId, CardType cardType, Vector2 placePosition)
     {
         if (team == TeamType.None)
             return Fail(cardType, TowerReason.NotSuccess, placePosition);

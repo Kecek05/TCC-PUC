@@ -69,7 +69,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     /// the acting team explicitly. Both the RPC handler (real player) and bot AI call this.
     /// Returns the result synchronously instead of going through PlaceResultRpc.
     /// </summary>
-    public SpellSpawnResult TrySpellInternal(TeamType team, CardType cardType, Vector2 serverPosition)
+    public override SpellSpawnResult TrySpellInternal(TeamType team, CardType cardType, Vector2 serverPosition)
     {
         if (team == TeamType.None)
             return Fail(cardType, SpellInvalidReason.NoTeam);

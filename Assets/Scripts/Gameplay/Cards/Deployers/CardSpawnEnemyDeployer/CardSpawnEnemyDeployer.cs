@@ -70,7 +70,7 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     /// the acting team and authId explicitly. Both the RPC handler (real player) and bot AI
     /// call this. Returns the result synchronously instead of going through SpawnResultRpc.
     /// </summary>
-    public SpawnEnemyResult TrySpawnEnemyInternal(TeamType team, string authId, CardType cardType)
+    public override SpawnEnemyResult TrySpawnEnemyInternal(TeamType team, string authId, CardType cardType)
     {
         if (team == TeamType.None)
             return Fail(cardType, CardInvalidReason.NoTeam);

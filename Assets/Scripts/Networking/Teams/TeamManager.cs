@@ -50,7 +50,7 @@ public class TeamManager : BaseTeamManager
                (_bluePlayer.Value.Team != TeamType.None && _bluePlayer.Value.AuthId == authId);
     }
 
-    private void AssignTeam(string authId)
+    public override void AssignTeam(string authId)
     {
         if (string.IsNullOrEmpty(authId))
         {

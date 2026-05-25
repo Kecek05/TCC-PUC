@@ -9,6 +9,12 @@ public abstract class BaseCardSpellDeployer : NetworkBehaviour, ICardDeployer
 
     public abstract void RequestSpellCardServer(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default);
 
+    /// <summary>
+    /// Server-internal entry point bypassing the RPC. Used by AI bots that don't have a
+    /// real ClientId / RPC channel. Caller passes the acting team explicitly.
+    /// </summary>
+    public abstract SpellSpawnResult TrySpellInternal(TeamType team, CardType cardType, Vector2 serverPosition);
+
     protected void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
 
     protected void TriggerOnSpellResult(SpellSpawnResult result) => OnSpellResult?.Invoke(result);

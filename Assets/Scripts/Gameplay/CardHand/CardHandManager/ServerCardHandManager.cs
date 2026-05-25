@@ -98,11 +98,15 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
         SetServerHandData(teamType, handData);
 
+        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        bool isBotTeam = BotIdentity.IsBot(clientId);
+
         for (int i = 0; i < cardHandSettingsSO.HandSize; i++)
         {
             if (!handData.Draw(out CardType drawnCard)) break;
             OnDrawACard?.Invoke(teamType, drawnCard);
-            SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+            if (!isBotTeam)
+                SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
 
         PushSyncedState(teamType, handData);
@@ -141,9 +145,11 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             GameLog.Warn($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
             return;
         }
-        
+
+        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
         OnDrawACard?.Invoke(teamType, drawnCard);
-        SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+        if (!BotIdentity.IsBot(clientId))
+            SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         PushSyncedState(teamType, handData);
     }
 
@@ -167,8 +173,10 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             handList.Add(handData.HandCards[i]);
 
         CardType nextVar = handData.QueuedCards.Count > 0 ? handData.QueuedCards.Peek() : CardType.None;
-        
-        SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+
+        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        if (!BotIdentity.IsBot(clientId))
+            SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(clientId, RpcTargetUse.Temp));
     }
 
     private HandData GetServerHandData(TeamType teamType)
