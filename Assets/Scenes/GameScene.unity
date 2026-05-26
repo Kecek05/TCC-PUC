@@ -4155,7 +4155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000038146973
+      value: 0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7820,7 +7820,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
@@ -10670,6 +10670,99 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2501581645706275590, guid: 068a93cdf184025459603be2f9145773, type: 3}
   m_PrefabInstance: {fileID: 605854057}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &609966804
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 609966805}
+  - component: {fileID: 609966806}
+  m_Layer: 21
+  m_Name: Background Blue Spot Light 2D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &609966805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 609966804}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 11, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1904930481}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &609966806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 609966804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 2
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.419
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 0.52
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 3d87caa3
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 21
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 1.72
+  m_PointLightOuterRadius: 5.23
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 33.68
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -2.5, y: -4.875, z: 0}
+  - {x: 2.625, y: -4.75, z: 0}
+  - {x: 2.625, y: -4.25, z: 0}
+  - {x: -2.625, y: -4.375, z: 0}
+  - {x: -2.625, y: 4.625, z: 0}
+  - {x: 2.75, y: 4.625, z: 0}
+  - {x: 2.875, y: -4.75, z: 0}
+  - {x: 3.375, y: -4.75, z: 0}
+  - {x: 3.375, y: 5.375, z: 0}
+  - {x: 3, y: 5.375, z: 0}
+  - {x: -3.5, y: 5.375, z: 0}
+  - {x: -3.5, y: 4.625, z: 0}
+  - {x: -3.5, y: -4.875, z: 0}
 --- !u!1 &612169465
 GameObject:
   m_ObjectHideFlags: 0
@@ -14710,9 +14803,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 797691996}
     m_Modifications:
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
+      propertyPath: m_Size.x
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
+      propertyPath: m_Size.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1911409828, guid: a46602ec0621e1040b07f73784768c00, type: 3}
+      objectReference: {fileID: 158106486, guid: a46602ec0621e1040b07f73784768c00, type: 3}
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_Color.b
       value: 0.17647058
@@ -14731,7 +14832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_WasSpriteAssigned
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2501581645706275590, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_LocalPosition.x
@@ -16241,7 +16342,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   mapOffset: 11
   player1Map: {fileID: 1522872422}
-  player2Map: {fileID: 0}
+  player2Map: {fileID: 797691996}
 --- !u!4 &917948729
 Transform:
   m_ObjectHideFlags: 0
@@ -24369,8 +24470,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Waiting...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4eccd51250cfa3948a3ac1e21d15fe34, type: 2}
+  m_sharedMaterial: {fileID: 7304186015023537574, guid: 4eccd51250cfa3948a3ac1e21d15fe34, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -24400,7 +24501,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -24856,7 +24957,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.24313726, g: 0.21568628, b: 0.34117648, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -26038,9 +26139,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 1522872422}
     m_Modifications:
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
+      propertyPath: m_Size.x
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
+      propertyPath: m_Size.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1911409828, guid: a46602ec0621e1040b07f73784768c00, type: 3}
+      objectReference: {fileID: 158106486, guid: a46602ec0621e1040b07f73784768c00, type: 3}
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_Color.b
       value: 0.77254903
@@ -26056,6 +26165,10 @@ PrefabInstance:
     - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_SortingOrder
       value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 325941693325496682, guid: 068a93cdf184025459603be2f9145773, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2501581645706275590, guid: 068a93cdf184025459603be2f9145773, type: 3}
       propertyPath: m_LocalPosition.x
@@ -29094,7 +29207,7 @@ SpriteRenderer:
   m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
-  m_Color: {r: 0.9490196, g: 0.18419226, b: 0.17647058, a: 1}
+  m_Color: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 0.42745098}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -29849,8 +29962,8 @@ MonoBehaviour:
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
-  m_PointLightInnerRadius: 3.64
-  m_PointLightOuterRadius: 6.14
+  m_PointLightInnerRadius: 1.72
+  m_PointLightOuterRadius: 5.23
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -30694,6 +30807,7 @@ Transform:
   - {fileID: 1422185822}
   - {fileID: 1800846902}
   - {fileID: 1877163922}
+  - {fileID: 609966805}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1913019744
@@ -33297,8 +33411,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4eccd51250cfa3948a3ac1e21d15fe34, type: 2}
+  m_sharedMaterial: {fileID: 7304186015023537574, guid: 4eccd51250cfa3948a3ac1e21d15fe34, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -33328,7 +33442,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 17
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
