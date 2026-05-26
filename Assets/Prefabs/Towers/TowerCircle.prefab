@@ -96,13 +96,57 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       insertIndex: 4
       addedObject: {fileID: 7437626524827975165}
+    - targetCorrespondingSourceObject: {fileID: 4346362303017979155, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8613548249788466932}
   m_SourcePrefab: {fileID: 100100000, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+--- !u!1 &2408099115043839597 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4346362303017979155, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
+--- !u!58 &8613548249788466932
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2408099115043839597}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.3
 --- !u!114 &4680447756710118569 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
   m_PrefabInstance: {fileID: 2106039886683820926}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2408099115043839597}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cea0f0f844747f4db7ee3510193bdca, type: 3}

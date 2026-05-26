@@ -24,9 +24,9 @@ TagManager:
   - 
   - SlideArea
   - 
+  - Shadow
   - 
-  - 
-  - 
+  - Background
   - 
   - 
   - 
@@ -38,6 +38,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2747959101
+    locked: 0
+  - name: Ground
+    uniqueID: 4241771019
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
