@@ -1,12 +1,13 @@
 using System.Collections;
+using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 
 public class MapTranslator : BaseMapTranslator
 {
     [SerializeField] private float mapOffset = 10f;
-    [SerializeField] private Transform player1Map;
-    [SerializeField] private Transform player2Map;
+    [SerializeField, Required] private Transform player1Map;
+    [SerializeField, Required] private Transform player2Map;
 
     private bool _playerRedInitialized = false;
     private bool _playerBlueInitialized = false;
