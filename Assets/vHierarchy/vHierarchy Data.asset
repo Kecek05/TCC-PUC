@@ -23,6 +23,7 @@ MonoBehaviour:
     - 5e12c15f5d6988640a1644335b8c833d
     - 467d8310baabb974591003ac98b8ce0d
     - 6e00146bf37d59443bfc8e614ff6aed6
+    - 068a93cdf184025459603be2f9145773
     values:
     - goDatas_byGlobalId:
         keys:
@@ -391,6 +392,9 @@ MonoBehaviour:
           iconNameOrGuid: Folder Icon
           isIconRecursive: 0
           isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys: []
+        values: []
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/MainMenu.unity
