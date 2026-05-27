@@ -85,5 +85,29 @@ MonoBehaviour:
       IncludeAssetDependencies: 0
     AssetBundle: 
     AddressableGroup: 
-  Exclude: []
+  Exclude:
+  - Enabled: 1
+    Type: 2
+    Asset:
+      Path: 
+      Filter: 
+    Object: {fileID: 0}
+    Scene:
+      Type: 3
+      Value: 12235a8dd5cff214aba4e98e5f22a512
+      IncludeAssetDependencies: 1
+    AssetBundle: 
+    AddressableGroup: 
+  - Enabled: 1
+    Type: 2
+    Asset:
+      Path: 
+      Filter: 
+    Object: {fileID: 0}
+    Scene:
+      Type: 3
+      Value: 6e00146bf37d59443bfc8e614ff6aed6
+      IncludeAssetDependencies: 1
+    AssetBundle: 
+    AddressableGroup: 
   icon: 391
