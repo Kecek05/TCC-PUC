@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class CardContainer : BaseCardContainer
 {
     [Title("References")]
-    [SerializeField] CardDataListSO cardDataListSO;
     [SerializeField] private NextCardSlot nextCardSlot;
     [SerializeField] private List<CardSlot> cardSlots;
     
