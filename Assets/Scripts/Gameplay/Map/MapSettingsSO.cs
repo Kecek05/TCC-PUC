@@ -13,4 +13,6 @@ public class MapSettingsSO : ScriptableObject
     public float TargetWorldWidth = 10f;
     [Tooltip("Minimum world-space height that all devices must see.")]
     public float TargetWorldHeight = 10f;
+    [Tooltip("Floor for the orthographic size — prevents zooming in too far on wide aspect ratios.")]
+    public float MinOrthographicSize = 6f;
 }

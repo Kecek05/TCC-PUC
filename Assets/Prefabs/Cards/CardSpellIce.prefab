@@ -1156,7 +1156,6 @@ MonoBehaviour:
   selfCanvasGroup: {fileID: 4170124164598181938}
   fadeOutFeedback: {fileID: 5840574710605235749}
   fadeInFeedback: {fileID: 8759511578978136600}
-  debugValidationLogs: 1
 --- !u!114 &5644965870029990498 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8840941349036328285, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}

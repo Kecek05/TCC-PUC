@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: MapSettingsSO
   m_EditorClassIdentifier: Assembly-CSharp::MapSettingsSO
   BluePlayerMapY: 11
-  RedPlayerMapY: 0
+  RedPlayerMapY: -1.1
   TargetWorldWidth: 6
   TargetWorldHeight: 11

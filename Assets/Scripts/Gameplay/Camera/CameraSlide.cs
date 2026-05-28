@@ -1,5 +1,6 @@
 using System.Collections;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -35,7 +36,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         float orthoForWidth = mapSettingsSO.TargetWorldWidth / (2f * mainCamera.aspect);
         float orthoForHeight = mapSettingsSO.TargetWorldHeight / 2f;
-        mainCamera.orthographicSize = Mathf.Max(orthoForWidth, orthoForHeight);
+        mainCamera.orthographicSize = Mathf.Max(orthoForWidth, orthoForHeight, mapSettingsSO.MinOrthographicSize);
     }
 
     private IEnumerator Start()
