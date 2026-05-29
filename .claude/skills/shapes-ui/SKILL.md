@@ -100,6 +100,85 @@ component path — it doesn't apply here and will confuse the user.
 
 ---
 
+## Layering Shapes with UGUI
+
+A constraint to flag immediately: **`ImmediateModePanel`s and UGUI elements live in different
+render paths**. Shapes draws via a single URP Render Feature command per `ImmediateModeCanvas`,
+injected at one `RenderPassEvent`. UGUI draws via the camera's transparent queue. They **cannot be
+freely interleaved by sibling order** in one Canvas — sibling order in the Hierarchy doesn't reach
+across that boundary.
+
+### Default: Shapes draws ABOVE all UGUI
+
+Without an override, `Draw.Command(cam)` uses `RenderPassEvent.BeforeRenderingPostProcessing` —
+which runs *after* UGUI's transparent queue. Every Shapes panel ends up painted on top of every
+UGUI `Image`, `Text`, etc. on the same camera. **Flag this proactively** when the user is about to
+mix Shapes with UGUI — they almost always expect Unity-style hierarchy ordering and are surprised
+when Shapes "jumps to the front."
+
+### Two-canvas pattern: some UGUI above Shapes, some below
+
+The standard fix when the user wants UGUI sandwiched between Shapes — use **two sub-Canvases under
+the main canvas, each with its own `UIShape`** at a different `RenderPassEvent`:
+
+```
+CardsCanvas                          Canvas (main, hosts UGUI)
+├── ShapesUnder                      Canvas + UIShape
+│     ↳ Render Pass Event = BeforeRenderingTransparents
+│   └── (RectangleImmediateUI children — draw BELOW UGUI)
+├── BackgroundImage                  UGUI Image
+├── HUDText                          TMPro Text
+└── ShapesOver                       Canvas + UIShape
+      ↳ Render Pass Event = BeforeRenderingPostProcessing (default)
+    └── (RectangleImmediateUI children — draw ABOVE UGUI)
+```
+
+Render order on the camera:
+
+1. `ShapesUnder` panels render (`BeforeRenderingTransparents`)
+2. UGUI transparent queue: `BackgroundImage`, `HUDText`, any UGUI in sibling sub-Canvases
+3. `ShapesOver` panels render (`BeforeRenderingPostProcessing`)
+
+A Shapes panel goes above or below UGUI simply by being parented to the right sub-Canvas. Inside
+each sub-Canvas, the existing `ISortableImmediatePanel.SortingOrder` (plus sibling-index tiebreak)
+still controls Shape-vs-Shape order. UGUI-vs-UGUI is normal sibling order.
+
+### Single-canvas, single-layer (when one direction is enough)
+
+If the user only needs *all* Shapes below UGUI (or *all* above), one `UIShape` is enough — flip its
+`Render Pass Event` field:
+
+| Visual order needed | `Render Pass Event` on `UIShape` |
+|---|---|
+| Shapes drawn over everything (default) | `BeforeRenderingPostProcessing` |
+| Shapes below UGUI Images/Text | `BeforeRenderingTransparents` |
+| Shapes above UGUI but before post-FX | `AfterRenderingTransparents` |
+
+### Available URP events (earliest → latest)
+
+| Event | Position relative to UGUI/sprites |
+|---|---|
+| `BeforeRenderingOpaques` | very early, before sprites |
+| `AfterRenderingOpaques` | between opaques and transparents |
+| `BeforeRenderingTransparents` | **below all UGUI + transparents** |
+| `AfterRenderingTransparents` | above UGUI, before post-FX |
+| `BeforeRenderingPostProcessing` (default) | **above all UGUI** |
+| `AfterRendering` | very late |
+
+For more than two layers (e.g. `Shape1 → Image → Shape2 → Image → Shape3`), chain additional
+sub-Canvases at intermediate events. If you find yourself needing a third Shapes layer, that's
+usually a signal the UI is over-decorated with Shapes — push some of the decoration to a plain
+Unity `Image` with a 9-slice sprite.
+
+### The hard limit
+
+You cannot interleave a *single* Shapes panel between two UGUI elements in the **same transparent
+queue** without splitting them into separate sub-Canvases. UGUI's transparent pass is monolithic
+per Canvas. Whenever the user asks "can I just drag the Shapes panel between Image1 and Image2 in
+the Hierarchy?" — explain the constraint and reach for the sub-Canvas pattern.
+
+---
+
 ## How to respond to typical requests
 
 | Request | Response |
@@ -110,6 +189,8 @@ component path — it doesn't apply here and will confuse the user.
 | "It scales wrong on small screens" | Confirm canvas units are used and Canvas Scaler is configured for screen size. The pattern handles this automatically; misuse usually means hard-coded pixel constants. |
 | "How to draw a circle / disc / gradient ring" | Inside `DrawPanelShapes`, call `Draw.Disc`, `Draw.Ring`, `Draw.Pie`, `Draw.Arc`. |
 | "It's behind my map / towers / enemies" | Check the parent `Canvas`'s Sorting Layer. Do NOT touch a MeshRenderer — IMPanel doesn't have one. |
+| "Shapes are showing above all my UGUI Image/Text" | Expected — Shapes injects after UGUI's transparent queue by default. See *Layering Shapes with UGUI*: switch `UIShape.Render Pass Event` to `BeforeRenderingTransparents` for below-UGUI, or use the two-sub-Canvas pattern for both. |
+| "I want some UGUI above and some below Shapes" | Two sub-Canvases under the main Canvas, each with its own `UIShape` at a different `RenderPassEvent`. See *Layering Shapes with UGUI*. Do NOT promise sibling-order interleaving. |
 | "I want masking / it bleeds out of my ScrollRect" | This is the hard limit — see *When to break the default* below. |
 | "Performance with many panels" | Static panels: each panel costs one `DrawPanelShapes` call per frame. Cheap individually; if hundreds, consider consolidating draws into a single panel that batch-renders, or use the component approach which only updates on property changes. |
 
@@ -146,11 +227,15 @@ Use `TextMeshPro`. Shapes' `Draw.Text` exists but isn't optimized for UI text fl
   `ImmediateModePanel` instead.
 - **Hard-coding pixel sizes assuming screen resolution.** Use canvas units consistently. Reference
   resolution is what `Canvas Scaler` is configured for (this project: 1080×1920, match 0.5).
-- **Multiple `ImmediateModeCanvas` components on one Canvas.** One per Canvas. Multiple panels per
-  canvas is fine.
+- **Multiple `ImmediateModeCanvas` components on one Canvas GameObject.** One per Canvas component.
+  Multiple panels per canvas is fine. **Multiple sub-Canvases under the same parent, each with its
+  own `UIShape`, is also fine and is the right pattern for the two-layer sandwich** (see
+  *Layering Shapes with UGUI*).
 - **Adding a panel to a GameObject that has no `ImmediateModeCanvas` in its parent chain.**
-  Produces a console warning on enable. Tell the user to add `UIShapesCanvas` to the parent Canvas
+  Produces a console warning on enable. Tell the user to add `UIShape` to the parent Canvas
   first, then re-enable the panel (or trigger a domain reload).
+- **Expecting hierarchy sibling order to interleave Shapes with UGUI.** It doesn't — they render in
+  different paths. Reach for the sub-Canvas pattern.
 
 ---
 
