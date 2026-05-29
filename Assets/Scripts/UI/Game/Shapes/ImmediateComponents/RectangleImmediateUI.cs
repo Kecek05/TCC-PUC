@@ -1,11 +1,9 @@
 using Shapes;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 [ExecuteAlways]
-public class ImediateTest : ImmediateModePanel
+public class RectangleImmediateUI : ImmediateModePanel
 {
-
     [SerializeField] Color color           = new Color(0.18f, 0.95f, 0.77f, 1f);
     [SerializeField] float cornerRadius    = 16f;   // canvas units
     [SerializeField] bool  drawBorder      = false;
@@ -20,5 +18,4 @@ public class ImediateTest : ImmediateModePanel
         if (drawBorder)
             Draw.RectangleBorder(rect, borderThickness, cornerRadius, borderColor);
     }
-
 }
