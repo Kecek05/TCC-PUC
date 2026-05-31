@@ -20,7 +20,7 @@ public class RectangleImmediateUIAnimationSettings
         float dashCount = rectangleImmediateUI.GetDashCount();
         if (dashCount <= 0f || duration <= 0f) return;
 
-        float delta = deltaTime / (duration );
+        float delta = deltaTime / (duration / dashCount);
         float next = (rectangleImmediateUI.GetDashOffset() + delta) % 1f;
         rectangleImmediateUI.SetDashOffset(next);
     }

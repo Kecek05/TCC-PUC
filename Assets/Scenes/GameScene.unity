@@ -4645,7 +4645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000038146973
+      value: 0.000011444092
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -30755,11 +30755,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RectangleImmediateUIAnimator
   rectangleImmediateUIAnimationSettings:
   - rectangleImmediateUI: {fileID: 259514612}
-    ease: 1
-    duration: 10
+    duration: 100
   - rectangleImmediateUI: {fileID: 937664391}
-    ease: 1
-    duration: 10
+    duration: 100
 --- !u!1001 &1615730708
 PrefabInstance:
   m_ObjectHideFlags: 0
