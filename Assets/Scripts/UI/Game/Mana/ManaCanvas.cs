@@ -26,6 +26,8 @@ public class ManaCanvas : MonoBehaviour
     private float _fillPos;
     private float _fillTotal;
     private float _barFill;
+
+    private bool _initialized = false;
     
     private void Start()
     {
@@ -55,10 +57,13 @@ public class ManaCanvas : MonoBehaviour
         _maxMana = _serverManaManager.GetMaxManaNetworkVariable(_teamManager.GetLocalTeam());
 
         _maxMana.OnValueChanged += OnServerMaxManaChanged;
+
+        _initialized = true;
     }
 
     private void Update()
     {
+        if (!_initialized) return;
         if (_clientManaManager == null) return;
         
         _filled = Mathf.Floor(_clientManaManager.PredictedMana);

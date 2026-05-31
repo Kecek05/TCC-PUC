@@ -4645,7 +4645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000019073486
+      value: -0.0000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4896,13 +4896,13 @@ MonoBehaviour:
   color: {r: 0.6289593, g: 0.80995476, b: 1, a: 1}
   cornerRadiusMode: 1
   cornerRadius: 16
-  cornerRadii: {x: 0, y: 65, z: 65, w: 65}
+  cornerRadii: {x: 65, y: 65, z: 65, w: 65}
   thickness: 28
   thicknessSpace: 0
   dashed: 1
   matchDashSpacingToSize: 0
   dashStyle:
-    type: 3
+    type: 2
     space: -2
     snap: 1
     size: 1
@@ -18890,7 +18890,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ManaCanvas
   manaFill: {fileID: 259514612}
   manaBackgroundFill: {fileID: 937664391}
-  reducer: 0.8
   manaText: {fileID: 475950925}
 --- !u!1001 &877744779
 PrefabInstance:
@@ -20170,13 +20169,13 @@ MonoBehaviour:
   color: {r: 0.28627452, g: 0.36862746, b: 0.45490196, a: 1}
   cornerRadiusMode: 1
   cornerRadius: 0
-  cornerRadii: {x: 0, y: 65, z: 65, w: 65}
+  cornerRadii: {x: 65, y: 65, z: 65, w: 65}
   thickness: 28
   thicknessSpace: 0
   dashed: 1
   matchDashSpacingToSize: 0
   dashStyle:
-    type: 3
+    type: 2
     space: -2
     snap: 1
     size: 4
@@ -30712,7 +30711,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1610618290}
-  - component: {fileID: 1610618292}
   - component: {fileID: 1610618291}
   m_Layer: 5
   m_Name: Mana
@@ -30752,35 +30750,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1610618289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: ad899a5694dab20479caba48dc98a388, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6062938d8f6b89a46a7a92f81dcfae00, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1610618292
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1610618289}
-  m_CullTransparentMesh: 1
+  m_EditorClassIdentifier: Assembly-CSharp::RectangleImmediateUIAnimator
+  rectangleImmediateUIAnimationSettings:
+  - rectangleImmediateUI: {fileID: 259514612}
+    ease: 1
+    duration: 10
+  - rectangleImmediateUI: {fileID: 937664391}
+    ease: 1
+    duration: 10
 --- !u!1001 &1615730708
 PrefabInstance:
   m_ObjectHideFlags: 0

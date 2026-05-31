@@ -98,9 +98,24 @@ public class RectangleImmediateUI : ImmediateModePanel, ISortableImmediatePanel
         dashStyle.size = dashCount;
     }
 
+    public float GetDashCount()
+    {
+        return dashStyle.size;
+    }
+
     public void SetDashFill(float dashFill)
     {
         dashStyle.spacing = dashFill;
+    }
+
+    public void SetDashOffset(float dashOffset)
+    {
+        dashStyle.offset = dashOffset;
+    }
+
+    public float GetDashOffset()
+    {
+        return dashStyle.offset;
     }
 }
 
