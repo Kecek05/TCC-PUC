@@ -4645,7 +4645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000011444092
+      value: 0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4890,7 +4890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RectangleImmediateUI
   blendMode: 0
-  zTest: 0
+  zTest: 3
   sortingOrder: 2
   type: 3
   color: {r: 0.6289593, g: 0.80995476, b: 1, a: 1}
@@ -4906,7 +4906,7 @@ MonoBehaviour:
     space: -2
     snap: 1
     size: 1
-    spacing: 0.859
+    spacing: 0.919
     offset: 0
     shapeModifier: 1
   useFill: 0
@@ -18890,6 +18890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ManaCanvas
   manaFill: {fileID: 259514612}
   manaBackgroundFill: {fileID: 937664391}
+  reducer: 0.8
   manaText: {fileID: 475950925}
 --- !u!1001 &877744779
 PrefabInstance:

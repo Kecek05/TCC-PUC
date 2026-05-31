@@ -10,13 +10,22 @@ public class ManaCanvas : MonoBehaviour
     [Title("References")] 
     [SerializeField] private RectangleImmediateUI manaFill;
     [SerializeField] private RectangleImmediateUI manaBackgroundFill;
-    [SerializeField] private float reducer = 0.8f;
     [SerializeField] private TextMeshProUGUI manaText;
 
     private BaseTeamManager _teamManager;
     private BaseServerManaManager _serverManaManager;
     private NetworkVariable<float> _maxMana;
     private BaseClientManaManager _clientManaManager;
+    
+    //Bar
+    private readonly float _barGap = 0.15f;
+    private readonly float _iconWidth = 1f;
+    
+    private float _filled;
+    private float _fraction;
+    private float _fillPos;
+    private float _fillTotal;
+    private float _barFill;
     
     private void Start()
     {
@@ -51,8 +60,15 @@ public class ManaCanvas : MonoBehaviour
     private void Update()
     {
         if (_clientManaManager == null) return;
-        GameLog.Info($"Updating mana UI. Predicted mana: {_clientManaManager.PredictedMana} - {1 - ((_clientManaManager.PredictedMana / _maxMana.Value) * reducer)}");
-        manaFill.SetDashFill(1 - ((_clientManaManager.PredictedMana / _maxMana.Value) * reducer));
+        
+        _filled = Mathf.Floor(_clientManaManager.PredictedMana);
+        _fraction = _clientManaManager.PredictedMana - _filled;
+        
+        _fillPos = _filled * (_iconWidth + _barGap) + _fraction * _iconWidth;
+        _fillTotal = _maxMana.Value * (_iconWidth + _barGap);
+        _barFill = 1f - (_fillPos / _fillTotal);
+        
+        manaFill.SetDashFill(_barFill);
         manaText.text = $"{Mathf.FloorToInt(_clientManaManager.PredictedMana)}";
     }
 
