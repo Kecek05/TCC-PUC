@@ -163,10 +163,12 @@ namespace SingularityGroup.HotReload.Editor {
                 if (MultiplayerPlaymodeHelper.IsClone) {
                     return;
                 }
+                bool hasCompileError = false;
                 foreach (var message in messages) {
                     if (message.type != CompilerMessageType.Error) {
                         continue;
                     }
+                    hasCompileError = true;
                     if (!message.message.Contains("Sirenix")) {
                         continue;
                     }
@@ -186,6 +188,11 @@ namespace SingularityGroup.HotReload.Editor {
                         PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", symbols));
                         #endif
                     }
+                }
+                if (!hasCompileError) {
+                    HotReloadState.EditorAssemblyNames = "";
+                    HotReloadState.PlayerAssemblyNames = "";
+                    HotReloadState.OmittedAssemblies = "";
                 }
             };
             
@@ -337,7 +344,11 @@ namespace SingularityGroup.HotReload.Editor {
             // because you might connect with a build downloaded onto the device. 
             if ((DateTime.UtcNow - lastPrepareBuildInfo).TotalSeconds > 5) {
                 lastPrepareBuildInfo = DateTime.UtcNow;
-                HotReloadCli.PrepareBuildInfoAsync().Forget();
+                var settingsObject = HotReloadSettingsEditor.LoadSettingsOrDefault();
+                var so = new SerializedObject(settingsObject);
+                if (IncludeInBuildOption.I.GetValue(so)) {
+                    HotReloadCli.PrepareBuildInfoAsync().Forget();
+                }
             }
         }
 
@@ -576,7 +587,7 @@ namespace SingularityGroup.HotReload.Editor {
             } else {
                 HotReloadState.WarnedDebuggerAttached = false;
             }
-            
+
             if(ServerHealthCheck.I.IsServerHealthy) {
                 // NOTE: avoid calling this method when HR is not running to avoid allocations
                 RequestServerInfo();
@@ -702,8 +713,9 @@ namespace SingularityGroup.HotReload.Editor {
             // debug files
             ".mdb",
             ".pdb",
-            ".compute",
-            // ".shader", //use assetBlacklist instead
+            //use assetBlacklist instead
+            // ".compute",
+            // ".shader", 
         };
 
         public static string[] compileFiles = new[] {
@@ -721,7 +733,8 @@ namespace SingularityGroup.HotReload.Editor {
             ".so",
             // plugin scripts
             ".cpp",
-            ".h",
+            // don't need to recompile these
+            // ".h",
             ".aar",
             ".jar",
             ".a",
@@ -771,7 +784,7 @@ namespace SingularityGroup.HotReload.Editor {
 
             // ignore file extensions that trigger domain reload
             if (!HotReloadPrefs.IncludeShaderChanges) { 
-                if (assetPath.EndsWith(".shader", StringComparison.Ordinal)) {
+                if (assetPath.EndsWith(".shader", StringComparison.Ordinal) || assetPath.EndsWith(".compute", StringComparison.Ordinal)) {
                     return;
                 }
             }
@@ -1102,10 +1115,14 @@ namespace SingularityGroup.HotReload.Editor {
         private static DateTime? startWaitingForCompile;
         static void OnCompilationFinished() {
             ServerHealthCheck.instance.CheckHealth();
+            var compileSessionId = compileChecker.CompilationSessionId;
             if(ServerHealthCheck.I.IsServerHealthy) {
                 startWaitingForCompile = DateTime.UtcNow;
                 firstPatchAttempted = false;
-                RequestCompile().Forget();
+                RequestCompile(compileSessionId).Forget();
+            } else {
+                // server not running, no request to send so clear this here
+                compileChecker.OnCompilationRequestFinished();
             }
             ClearPersistence();
         }
@@ -1118,21 +1135,22 @@ namespace SingularityGroup.HotReload.Editor {
         }
 
         static bool requestingCompile;
-        static async Task RequestCompile() {
+        static async Task RequestCompile(string compileSessionId) {
             if (MultiplayerPlaymodeHelper.IsClone) {
                 return;
             }
             requestingCompile = true;
             try {
-                await RequestHelper.RequestClearPatches();
+                await RequestHelper.RequestClearPatches(compileSessionId);
                 await ProjectGeneration.ProjectGeneration.GenerateSlnAndCsprojFiles(Application.dataPath);
-                await RequestHelper.RequestCompile(scenePath => {
+                await RequestHelper.RequestCompile(compileSessionId, scenePath => {
                     var path = ToPath(scenePath);
                     if (File.Exists(scenePath) && path != null) {
                         AssetDatabase.ImportAsset(path, ImportAssetOptions.Default);
                     }
                 });
             } finally {
+                ThreadUtility.RunOnMainThread(compileChecker.OnCompilationRequestFinished);
                 requestingCompile = false;
             }
         }
@@ -1285,7 +1303,7 @@ namespace SingularityGroup.HotReload.Editor {
                     if (resp.error.Contains("License already reset")) {
                         Log.Info("License was reset previously. Please reach out to support to reset license manually");
                     } else {
-                        Log.Info("License was reset failed. Please reach out to support to reset license manually");
+                        Log.Info("License reset failed. Please reach out to support to reset license manually");
                     }
                     return;
                 }

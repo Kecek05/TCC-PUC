@@ -1,16 +1,16 @@
-using System;
 using System.Collections;
 using Sirenix.OdinInspector;
 using TMPro;
+using UI.Game.Shapes.ImmediateComponents;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ManaCanvas : MonoBehaviour
 {
     [Title("References")] 
-    [SerializeField] private Image manaFill;
-    [SerializeField] private Image manaBackgroundFill;
+    [SerializeField] private RectangleImmediateUI manaFill;
+    [SerializeField] private RectangleImmediateUI manaBackgroundFill;
+    [SerializeField] private float reducer = 0.8f;
     [SerializeField] private TextMeshProUGUI manaText;
 
     private BaseTeamManager _teamManager;
@@ -51,13 +51,13 @@ public class ManaCanvas : MonoBehaviour
     private void Update()
     {
         if (_clientManaManager == null) return;
-        manaFill.fillAmount = _clientManaManager.PredictedMana / 10;
+        GameLog.Info($"Updating mana UI. Predicted mana: {_clientManaManager.PredictedMana} - {1 - ((_clientManaManager.PredictedMana / _maxMana.Value) * reducer)}");
+        manaFill.SetDashFill(1 - ((_clientManaManager.PredictedMana / _maxMana.Value) * reducer));
         manaText.text = $"{Mathf.FloorToInt(_clientManaManager.PredictedMana)}";
     }
 
     private void OnServerMaxManaChanged(float previousValue, float newValue)
     {
-        float normalizedValue = newValue / 10;
-        manaBackgroundFill.fillAmount = normalizedValue;
+        manaBackgroundFill.SetDashCount(newValue);
     }
 }

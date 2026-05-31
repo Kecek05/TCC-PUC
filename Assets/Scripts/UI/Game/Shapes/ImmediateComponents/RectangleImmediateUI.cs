@@ -92,6 +92,16 @@ public class RectangleImmediateUI : ImmediateModePanel, ISortableImmediatePanel
         else
             Draw.Rectangle(rect, radii, color);
     }
+
+    public void SetDashCount(float dashCount)
+    {
+        dashStyle.size = dashCount;
+    }
+
+    public void SetDashFill(float dashFill)
+    {
+        dashStyle.spacing = dashFill;
+    }
 }
 
 }

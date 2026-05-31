@@ -435,13 +435,13 @@ namespace SingularityGroup.HotReload {
 #endif
         }
         
-        public static Task RequestClearPatches() {
-            var body = SerializeRequestBody(new CompileRequest(serverInfo.rootPath, IsReleaseMode()));
+        public static Task RequestClearPatches(string sessionId) {
+            var body = SerializeRequestBody(new CompileRequest(serverInfo.rootPath, IsReleaseMode(), sessionId));
             return PostJson(url + "/clearpatches", body, 10);
         }
         
-        public static async Task RequestCompile(Action<string> onResponseReceived) {
-            var body = SerializeRequestBody(new CompileRequest(serverInfo.rootPath, IsReleaseMode()));
+        public static async Task RequestCompile(string sessionId, Action<string> onResponseReceived) {
+            var body = SerializeRequestBody(new CompileRequest(serverInfo.rootPath, IsReleaseMode(), sessionId));
             var result = await PostJson(url + "/compile", body, 10);
             if (result.statusCode == HttpStatusCode.OK && !string.IsNullOrEmpty(result.responseText)) {
                 var responses = JsonConvert.DeserializeObject<List<string>>(result.responseText);

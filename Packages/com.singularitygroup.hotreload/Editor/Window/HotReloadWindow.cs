@@ -123,8 +123,10 @@ namespace SingularityGroup.HotReload.Editor {
             if (Current == this) {
                 Current = null;
             }
-            timer.Dispose();
-            timer = null;
+            if (timer != null) {
+                timer.Dispose();
+                timer = null;
+            }
         }
 
         internal void SelectTab(Type tabType) {
