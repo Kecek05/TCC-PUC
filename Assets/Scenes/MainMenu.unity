@@ -594,15 +594,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: JOIN
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 06fa9860c33297645a47fad6fef43f10, type: 2}
-  m_sharedMaterial: {fileID: 157449401253228586, guid: 06fa9860c33297645a47fad6fef43f10, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
+  m_sharedMaterial: {fileID: -4726671954187354576, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1356,7 +1356,7 @@ MonoBehaviour:
   m_CaretWidth: 1
   m_ReadOnly: 0
   m_RichText: 1
-  m_GlobalFontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_GlobalFontAsset: {fileID: 11400000, guid: 06fa9860c33297645a47fad6fef43f10, type: 2}
   m_OnFocusSelectAll: 1
   m_ResetOnDeActivation: 1
   m_KeepTextSelectionVisible: 0
@@ -2452,15 +2452,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: CREATE
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 06fa9860c33297645a47fad6fef43f10, type: 2}
-  m_sharedMaterial: {fileID: 157449401253228586, guid: 06fa9860c33297645a47fad6fef43f10, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
+  m_sharedMaterial: {fileID: -4726671954187354576, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2872,8 +2872,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3047,8 +3047,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3288,11 +3288,15 @@ PrefabInstance:
     - target: {fileID: 7976059215378674501, guid: 340f4c113e9b15c4b89970e42303e325, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: e1a3a69ed6c3b9f45834f2d91afc0dc2, type: 2}
+      objectReference: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
     - target: {fileID: 7976059215378674501, guid: 340f4c113e9b15c4b89970e42303e325, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: -8780019797823551317, guid: e1a3a69ed6c3b9f45834f2d91afc0dc2, type: 2}
+      objectReference: {fileID: -4726671954187354576, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
+    - target: {fileID: 7976059215378674501, guid: 340f4c113e9b15c4b89970e42303e325, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
