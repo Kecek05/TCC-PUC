@@ -19,6 +19,7 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     public abstract WaypointPath GetPath(TeamType map);
     public abstract NetworkVariable<int> GetLocalCurrentWave();
     public abstract NetworkVariable<int> GetEnemyCurrentWave();
+    public abstract int GetTotalWaves();
     protected void TriggerOnTeamDefeatLastWave(TeamType teamType) => OnTeamDefeatLastWave?.Invoke(teamType);
     protected void TriggerOnNewWave(TeamType teamType, int waveNumber) => OnNewWave?.Invoke(teamType, waveNumber);
 }

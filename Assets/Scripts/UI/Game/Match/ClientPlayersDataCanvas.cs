@@ -95,7 +95,7 @@ public class ClientPlayersDataCanvas : MonoBehaviour
 
     private void ChangeWaveCount(int newWave, bool isLocal)
     {
-        playersWaves[isLocal ? 0 : 1].text = $"{newWave}";
+        playersWaves[isLocal ? 0 : 1].text = isLocal ?  $"{newWave}/{_waveManager.GetTotalWaves()}" : $"{newWave}";
     }
     
     private void WaveManager_OnBlueWaveProgressChanged(float previousValue, float newValue)

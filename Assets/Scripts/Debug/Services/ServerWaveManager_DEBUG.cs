@@ -32,4 +32,6 @@ public class ServerWaveManager_DEBUG : BaseServerWaveManager
     {
         return currentWave;
     }
+
+    public override int GetTotalWaves() => 0;
 }

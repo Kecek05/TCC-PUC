@@ -38,11 +38,13 @@ public class CardContainer : BaseCardContainer
     public override void SetNextCard(Sprite image)
     {
         nextCardSlot.SetNextCardImage(image);
+        nextCardSlot.gameObject.SetActive(true);
     }
 
     public override void SetNextCardNone()
     {
         nextCardSlot.SetNextCardImage(null);
+        nextCardSlot.gameObject.SetActive(false);
     }
 
     public override void Unoccupy(AbstractCard card)

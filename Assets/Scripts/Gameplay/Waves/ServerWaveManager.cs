@@ -173,6 +173,8 @@ public class ServerWaveManager : BaseServerWaveManager
         return _teamManager.GetLocalTeam() == TeamType.Blue ? RedCurrentWave : BlueCurrentWave;
     }
 
+    public override int GetTotalWaves() => waveData.Waves.Count;
+
     private void SetCurrentWave(TeamType teamType, int wave, WaveEntry waveEntry)
     {
         _currentWaves[teamType] = waveEntry;
