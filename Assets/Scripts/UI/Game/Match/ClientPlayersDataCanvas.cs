@@ -80,7 +80,7 @@ public class ClientPlayersDataCanvas : MonoBehaviour
 
     private void UpdateHealth(float newHealth, bool isLocal)
     {
-        playersHealth[isLocal ? 0 : 1].text = $"Health: {newHealth}";
+        playersHealth[isLocal ? 0 : 1].text = $"{newHealth}";
     }
 
     private void WaveManager_OnBlueWaveChanged(int previousValue, int newValue)
