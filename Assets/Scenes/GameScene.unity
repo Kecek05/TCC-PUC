@@ -4839,7 +4839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00002670288
+      value: -0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7017,7 +7017,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: aa90b24a9fbd26543a56ad7303cb9dfc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 86f272420d8f732429b4bc839ffb59bd, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -7295,7 +7295,7 @@ MonoBehaviour:
   m_ComponentVersion: 2
   m_LightType: 3
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.324
+  m_FalloffIntensity: 0.702
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 0.38
   m_LightVolumeIntensity: 1
@@ -9680,7 +9680,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1660870770741127431, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
       propertyPath: m_fontSize
-      value: 36.35
+      value: 44.1
       objectReference: {fileID: 0}
     - target: {fileID: 1660870770741127431, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
       propertyPath: m_fontAsset
@@ -9772,7 +9772,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3948403210750365712, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 179.96506
+      value: 327.99994
       objectReference: {fileID: 0}
     - target: {fileID: 3948403210750365712, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -29469,7 +29469,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: aa90b24a9fbd26543a56ad7303cb9dfc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b0622b341ecb7ed43899d3c141e0384e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: eda97507af9876242a76bf4db56f5f5b
+guid: 86f272420d8f732429b4bc839ffb59bd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8560198176396694140
-    second: BaseEnemy1_0
+      213: 5776590359187120824
+    second: wave-flag-local_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 2000
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 1024
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SquareTower1_0
+      name: wave-flag-local_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 42
-        width: 669
-        height: 654
+        x: 0
+        y: 0
+        width: 192
+        height: 215
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0f0648b95cdc30db0800000000000000
-      internalID: -4826788127009644304
+      spriteID: 8b26b4473529a2050800000000000000
+      internalID: 5776590359187120824
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SquareTower1_0: -4826788127009644304
+      wave-flag-local_0: 5776590359187120824
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
