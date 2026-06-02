@@ -11,8 +11,13 @@ public class RectangleImmediateUIAnimationSettings
     [SerializeField, Required] private RectangleImmediateUI rectangleImmediateUI;
 
     [Title("Settings")]
-    [Tooltip("Seconds for the offset to advance by one dash cycle. Total loop time = duration * dashCount.")]
+    [Tooltip("Seconds for the dash pattern to travel one full loop around the rectangle, independent of dashCount.")]
     [SerializeField] private float duration = 10f;
+
+    // Phase in perimeter-fraction units (0..1 = one full loop). Stored here so the Shapes
+    // offset can be derived as _phase*dashCount each frame — that keeps dashes visually
+    // anchored to the same physical perimeter position when dashCount changes mid-animation.
+    private float _phase;
 
     public void Tick(float deltaTime)
     {
@@ -20,14 +25,14 @@ public class RectangleImmediateUIAnimationSettings
         float dashCount = rectangleImmediateUI.GetDashCount();
         if (dashCount <= 0f || duration <= 0f) return;
 
-        float delta = deltaTime / (duration / dashCount);
-        float next = (rectangleImmediateUI.GetDashOffset() + delta) % 1f;
-        rectangleImmediateUI.SetDashOffset(next);
+        _phase = (_phase + deltaTime / duration) % 1f;
+        rectangleImmediateUI.SetDashOffset(_phase * dashCount);
     }
 
     [Button("Reset Offset")]
     public void ResetOffsetDebug()
     {
+        _phase = 0f;
         if (rectangleImmediateUI == null) return;
         rectangleImmediateUI.SetDashOffset(0f);
     }

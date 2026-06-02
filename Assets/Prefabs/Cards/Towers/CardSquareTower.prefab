@@ -453,7 +453,7 @@ MonoBehaviour:
           ButtonText: 
         Owner: {fileID: 3598793063976289703}
         DebugActive: 0
-        BoundImage: {fileID: 4539284085188550348}
+        BoundImage: {fileID: 0}
         Mode: 0
         Duration: 0.15
         AllowAdditivePlays: 0
@@ -946,7 +946,7 @@ MonoBehaviour:
           ButtonText: 
         Owner: {fileID: 229978041824731669}
         DebugActive: 0
-        BoundImage: {fileID: 4539284085188550348}
+        BoundImage: {fileID: 0}
         Mode: 0
         Duration: 0.3
         AllowAdditivePlays: 0
@@ -1144,17 +1144,6 @@ MonoBehaviour:
   selfCanvasGroup: {fileID: 5293829126729073820}
   fadeOutFeedback: {fileID: 229978041824731669}
   fadeInFeedback: {fileID: 3598793063976289703}
---- !u!114 &4539284085188550348 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8840941349036328285, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
-  m_PrefabInstance: {fileID: 4922315110826957713}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!225 &5293829126729073820 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 952764249618079501, guid: 96ced2ca224e851469aa6e6904e2f282, type: 3}
