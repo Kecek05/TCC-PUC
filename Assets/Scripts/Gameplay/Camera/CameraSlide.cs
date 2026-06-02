@@ -1,11 +1,16 @@
+using System;
 using System.Collections;
 using DG.Tweening;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+public enum CameraSide { Local, Enemy }
+
 public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public static event Action<CameraSide> SideChanged;
+    public CameraSide CurrentSide => _isUp ? CameraSide.Enemy : CameraSide.Local;
+
     [SerializeField] private Camera mainCamera;
 
     [Header("Camera Positions")]
@@ -141,11 +146,13 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (_isUp)
         {
             _isUp = false;
+            SideChanged?.Invoke(CameraSide.Local);
             TweenCameraTo(mapSettingsSO.RedPlayerMapY);
         }
         else
         {
             _isUp = true;
+            SideChanged?.Invoke(CameraSide.Enemy);
             TweenCameraTo(mapSettingsSO.BluePlayerMapY);
         }
     }

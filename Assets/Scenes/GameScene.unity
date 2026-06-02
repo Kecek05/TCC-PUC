@@ -4839,7 +4839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000019073486
+      value: -0.000011444092
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9935,7 +9935,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &473128990
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25486,7 +25486,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0.25, y: 1}
-  m_AnchoredPosition: {x: -0.07500458, y: 0}
+  m_AnchoredPosition: {x: -0.07501221, y: 0}
   m_SizeDelta: {x: -0.15000916, y: 222.3778}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1241459516
@@ -34364,6 +34364,12 @@ MonoBehaviour:
   playersWaveSliders:
   - {fileID: 620786246}
   - {fileID: 1871702432}
+  localPlayerContents:
+  - {fileID: 1627887717}
+  - {fileID: 1241459514}
+  enemyPlayerContents:
+  - {fileID: 1971954936}
+  - {fileID: 473128989}
   sliderTweenDuration: 0.5
   tweenEase: 27
 --- !u!1652712579 &1837297745
@@ -37705,7 +37711,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1971954937
 RectTransform:
   m_ObjectHideFlags: 0

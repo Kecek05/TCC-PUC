@@ -13,6 +13,8 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] playersHealth;
     [SerializeField] private TextMeshProUGUI[] playersWaves;
     [SerializeField] private Slider[] playersWaveSliders;
+    [SerializeField] private GameObject[] localPlayerContents;
+    [SerializeField] private GameObject[] enemyPlayerContents;
     [Space(5f)]
     
     [Title("Tween Settings")]
@@ -49,6 +51,34 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         WaveManager_OnRedWaveChanged(0, _waveManager.RedCurrentWave.Value);
         WaveManager_OnBlueWaveProgressChanged(0, _waveManager.BlueCurrentWaveProgress.Value);
         WaveManager_OnRedWaveProgressChanged(0, _waveManager.RedCurrentWaveProgress.Value);
+        
+        CameraSlide.SideChanged += side =>
+        {
+            GameLog.Info($"Camera side changed to {side}.");
+            switch (side)
+            {
+                case CameraSide.Local:
+                    foreach (GameObject gameObject in localPlayerContents)
+                    {
+                        gameObject.SetActive(true);
+                    }
+                    foreach (GameObject gameObject in enemyPlayerContents)
+                    {
+                        gameObject.SetActive(false);
+                    }
+                    break;
+                case CameraSide.Enemy:
+                    foreach (GameObject gameObject in localPlayerContents)
+                    {
+                        gameObject.SetActive(false);
+                    }
+                    foreach (GameObject gameObject in enemyPlayerContents)
+                    {
+                        gameObject.SetActive(true);
+                    }
+                    break;
+            }
+        };
     }
 
     private void OnDestroy()
