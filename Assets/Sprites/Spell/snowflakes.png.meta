@@ -1,37 +1,10 @@
 fileFormatVersion: 2
-guid: 752ea34d4938c7147be5a7f324659725
+guid: fc7324b43ab6f644da62b6f0f7f95411
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6095778582064710142
-    second: ManaBar_0
-  - first:
-      213: 3875974724091868772
-    second: ManaBar_1
-  - first:
-      213: 1540617989880093257
-    second: ManaBar_2
-  - first:
-      213: 8815663822805150119
-    second: ManaBar_3
-  - first:
-      213: 7449523085525524337
-    second: ManaBar_4
-  - first:
-      213: -162051914653807559
-    second: ManaBar_5
-  - first:
-      213: 867096303720630194
-    second: ManaBar_6
-  - first:
-      213: 6737140546448014460
-    second: ManaBar_7
-  - first:
-      213: 2242050584102336696
-    second: ManaBar_8
-  - first:
-      213: 2052605956238894369
-    second: ManaBar_9
+      213: 7048142418566166556
+    second: snowflakes_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:

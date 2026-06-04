@@ -3,7 +3,6 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 //Only Exists in Client
 public class ClientPlayersDataCanvas : MonoBehaviour
@@ -12,7 +11,6 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     [InfoBox("The order of the arrays must be Local Player -> Enemy Player")]
     [SerializeField] private TextMeshProUGUI[] playersHealth;
     [SerializeField] private TextMeshProUGUI[] playersWaves;
-    [SerializeField] private Slider[] playersWaveSliders;
     [SerializeField] private GameObject[] localPlayerContents;
     [SerializeField] private GameObject[] enemyPlayerContents;
     [Space(5f)]
@@ -44,13 +42,9 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         
         _waveManager.BlueCurrentWave.OnValueChanged += WaveManager_OnBlueWaveChanged;
         _waveManager.RedCurrentWave.OnValueChanged += WaveManager_OnRedWaveChanged;
-        _waveManager.BlueCurrentWaveProgress.OnValueChanged += WaveManager_OnBlueWaveProgressChanged;
-        _waveManager.RedCurrentWaveProgress.OnValueChanged += WaveManager_OnRedWaveProgressChanged;
         
         WaveManager_OnBlueWaveChanged(0, _waveManager.BlueCurrentWave.Value);
         WaveManager_OnRedWaveChanged(0, _waveManager.RedCurrentWave.Value);
-        WaveManager_OnBlueWaveProgressChanged(0, _waveManager.BlueCurrentWaveProgress.Value);
-        WaveManager_OnRedWaveProgressChanged(0, _waveManager.RedCurrentWaveProgress.Value);
         
         CameraSlide.SideChanged += side =>
         {
@@ -93,8 +87,6 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         {
             _waveManager.BlueCurrentWave.OnValueChanged -= WaveManager_OnBlueWaveChanged;
             _waveManager.RedCurrentWave.OnValueChanged -= WaveManager_OnRedWaveChanged;
-            _waveManager.BlueCurrentWaveProgress.OnValueChanged -= WaveManager_OnBlueWaveProgressChanged;
-            _waveManager.RedCurrentWaveProgress.OnValueChanged -= WaveManager_OnRedWaveProgressChanged;
         }
     }
 
@@ -126,22 +118,5 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     private void ChangeWaveCount(int newWave, bool isLocal)
     {
         playersWaves[isLocal ? 0 : 1].text = isLocal ?  $"{newWave}/{_waveManager.GetTotalWaves()}" : $"{newWave}";
-    }
-    
-    private void WaveManager_OnBlueWaveProgressChanged(float previousValue, float newValue)
-    {
-        ChangeWaveProgress(newValue, _teamManager.GetLocalTeam() == TeamType.Blue);
-    }
-    
-    private void WaveManager_OnRedWaveProgressChanged(float previousValue, float newValue)
-    {
-        ChangeWaveProgress(newValue, _teamManager.GetLocalTeam() == TeamType.Red);
-    }
-    
-    private void ChangeWaveProgress(float newProgress, bool isLocal)
-    {
-        int index = isLocal ? 0 : 1;
-        _sliderTweens[index]?.Kill();
-        _sliderTweens[index] = playersWaveSliders[index].DOValue(newProgress, sliderTweenDuration).SetEase(tweenEase);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 [Serializable]
 public class PlayerEndGameCanvasData
@@ -12,12 +13,12 @@ public class PlayerEndGameCanvasData
 
     public void ChangePlayerHealthText(float newHealth)
     {
-        playerHealth.text = $"Health: {newHealth}";
+        playerHealth.text = $"{newHealth}";
     }
 
     public void ChangePlayerWaveText(int newWave)
     {
-        playerWave.text = $"Wave: {newWave}";
+        playerWave.text = $"{newWave}";
     }
 }
 
@@ -29,13 +30,18 @@ public class ClientEndGameCanvas : MonoBehaviour
     [SerializeField] private PlayerEndGameCanvasData enemyPlayerData;
     [SerializeField] private GameObject victoryLabel;
     [SerializeField] private GameObject defeatLabel;
-
+    [SerializeField] private Button okButton;
+    [SerializeField] private Button playAgainButton;
+    
     private BaseServerEndGameManager _endGameManager;
     private BaseTeamManager _teamManager;
 
     private void Awake()
     {
         rootCanvas.SetActive(false);
+        
+        okButton.onClick.AddListener(OnOkButtonClicked);
+        playAgainButton.onClick.AddListener(OnPlayAgainButtonClicked);
     }
 
     private void Start()
@@ -50,6 +56,8 @@ public class ClientEndGameCanvas : MonoBehaviour
     {
         if (_endGameManager != null)
             _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
+        
+        okButton.onClick.RemoveListener(OnOkButtonClicked);
     }
     
     private void EndGameManager_OnGameEnded(EndGameSnapshot endgameSnapshot)
@@ -96,5 +104,15 @@ public class ClientEndGameCanvas : MonoBehaviour
             enemyPlayerData.ChangePlayerHealthText(endgameSnapshot.BluePlayer.Health);
             enemyPlayerData.ChangePlayerWaveText(endgameSnapshot.BluePlayer.Wave);
         }
+    }
+    
+    private void OnOkButtonClicked()
+    {
+        // TODO: just go to main menu. Shutdown server and client. stop game properly to be able to play again with out needing to relaunch the game
+    }
+    
+    private void OnPlayAgainButtonClicked()
+    {
+        //TODO: go to main menu and call play. stop game properly to be able to play again with out needing to relaunch the game
     }
 }
