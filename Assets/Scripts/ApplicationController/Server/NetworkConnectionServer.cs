@@ -80,6 +80,8 @@ public class NetworkConnectionServer : IDisposable, IOnPlayerConnected, IOnPlaye
 
     public void Dispose()
     {
+        // Unsubscribe only. Stopping the NetworkManager is owned by HostManager
+        // (single, explicit shutdown ordering), not by this event wrapper.
         if (_networkManager != null)
         {
             _networkManager.ConnectionApprovalCallback -= ApprovalCheck;
@@ -87,13 +89,8 @@ public class NetworkConnectionServer : IDisposable, IOnPlayerConnected, IOnPlaye
 
             if(_networkManager.SceneManager != null)
                 _networkManager.SceneManager.OnLoadComplete -= SceneManager_OnLoadComplete;
-            
-            _networkManager.OnClientConnectedCallback -= NetworkManager_OnClientConnectedCallback;
-        }
 
-        if (_networkManager.IsListening)
-        {
-            _networkManager.Shutdown();
+            _networkManager.OnClientConnectedCallback -= NetworkManager_OnClientConnectedCallback;
         }
     }
 }

@@ -3,7 +3,10 @@
     "allow": [
       "Bash(find:*)",
       "Bash(python -c \"import zipfile; z = zipfile.ZipFile\\(''.claude/skills/unity-td-netcode.skill''\\); print\\(z.namelist\\(\\)\\)\")",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "mcp__ide__getDiagnostics",
+      "mcp__unity-mcp__Unity_GetConsoleLogs",
+      "mcp__unity-mcp__Unity_RunCommand"
     ]
   }
 }

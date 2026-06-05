@@ -23,6 +23,20 @@ public class EnemyNetworkPool : BaseEnemyNetworkPool
 
     private void OnDestroy()
     {
+        // Remove our prefab handlers from the NetworkManager. PrefabHandler lives on
+        // the persistent (DDOL) NetworkManager, so it outlives this scene's pool. If we
+        // don't remove the handlers, they leak across matches still holding references
+        // to this scene's now-destroyed pooled NetworkObjects — which makes NGO call a
+        // stale handler next match and throw MissingReferenceException / "Failed to
+        // spawn" (e.g. joining as a client after having hosted).
+        // PrefabIdHash == GlobalObjectIdHash, the key Add/RemoveHandler use.
+        if (NetworkManager.Singleton != null)
+        {
+            foreach (uint prefabHash in _handlers.Keys)
+                NetworkManager.Singleton.PrefabHandler.RemoveHandler(prefabHash);
+        }
+        _handlers.Clear();
+
         ServiceLocator.Unregister<BaseEnemyNetworkPool>();
     }
 

@@ -43,7 +43,8 @@ public class HostManager : BaseHostManager
     public event Action OnHostShutdown;
     
     private BaseClientManager _clientManager;
-    
+    private Coroutine _heartbeatCoroutine;
+
     private void Awake()
     {
         ServiceLocator.Register<BaseHostManager>(this);
@@ -163,8 +164,8 @@ public class HostManager : BaseHostManager
 
 
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync($"Player's Lobby", MAX_CONNECTIONS, lobbyOptions);
-            StartCoroutine(HeartbeatLobby(15f, lobby.Id));
-            
+            _heartbeatCoroutine = StartCoroutine(HeartbeatLobby(15f, lobby.Id));
+
             return lobby;
         } catch (LobbyServiceException lobbyEx)
         {
@@ -175,13 +176,19 @@ public class HostManager : BaseHostManager
     }
     
     /// <summary>
-    /// Call this to shutdown the host. Doesn't go to Main Menu
+    /// Call this to shutdown the host. Doesn't go to Main Menu.
+    /// Owns the full host teardown: stop heartbeat, delete lobby, shutdown
+    /// NetworkManager, and await until Netcode has fully stopped.
     /// </summary>
-    public override async void ShutdownHostAsync()
+    public override async Task ShutdownHostAsync()
     {
         if (CurrentHostConnectionData == null) return;
-        
-        StopCoroutine(nameof(HeartbeatLobby));
+
+        if (_heartbeatCoroutine != null)
+        {
+            StopCoroutine(_heartbeatCoroutine);
+            _heartbeatCoroutine = null;
+        }
 
         try
         {
@@ -192,9 +199,22 @@ public class HostManager : BaseHostManager
             GameLog.Exception(lobbyEx);
         }
 
+        NetworkManager networkManager = NetworkManager.Singleton;
+        if (networkManager != null && networkManager.IsListening)
+        {
+            networkManager.Shutdown();
+
+            // Shutdown() only completes on a later update tick; wait until Netcode
+            // has fully stopped so the next StartHost() (replay) starts clean.
+            while (networkManager.ShutdownInProgress)
+                await Task.Yield();
+        }
+
+        // Disposes MatchServerControllers (unsubscribes server-side listeners and
+        // unregisters services). The NetworkManager is already stopped above.
         CurrentHostConnectionData.Dispose();
         CurrentHostConnectionData = null;
-        Debug.Log("NETMANAGER - Call network dispose on Host game manager");
+
         OnHostShutdown?.Invoke();
     }
     

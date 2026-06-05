@@ -8,10 +8,12 @@ using Unity.Services.Authentication;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ClientManager : BaseClientManager
 {
     private NetworkClient networkClient;
+    private bool _isLeavingMatch;
 
     [Title("Debug")]
     [SerializeField] private bool useDebugHand = false;
@@ -68,7 +70,42 @@ public class ClientManager : BaseClientManager
 
     public override void DisconnectClient()
     {
-        networkClient.Disconnect();
+        _ = LeaveMatchAsync();
+    }
+
+    public override async Task LeaveMatchAsync()
+    {
+        if (_isLeavingMatch) return;
+        _isLeavingMatch = true;
+
+        try
+        {
+            NetworkManager networkManager = NetworkManager.Singleton;
+            BaseHostManager hostManager = ServiceLocator.Get<BaseHostManager>();
+
+            if (networkManager != null && networkManager.IsHost && hostManager != null)
+            {
+                // Host owns lobby/relay cleanup + NetworkManager shutdown.
+                await hostManager.ShutdownHostAsync();
+            }
+            else
+            {
+                await networkClient.ShutdownAsync();
+            }
+
+            if (SceneManager.GetActiveScene().name != Loader.Scene.MainMenu.ToString())
+            {
+                Loader.Load(Loader.Scene.MainMenu);
+            }
+        }
+        catch (Exception e)
+        {
+            GameLog.Exception(e);
+        }
+        finally
+        {
+            _isLeavingMatch = false;
+        }
     }
 
     private void OnDestroy()

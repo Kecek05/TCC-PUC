@@ -31,11 +31,19 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-        {
-            EnemyRegistry.Unregister(enemyManager);
-            OnDeath?.Invoke(enemyManager);
-        }
+        if (!IsServer) return;
+
+        EnemyRegistry.Unregister(enemyManager);
+
+        // OnNetworkDespawn fires both for real removals (killed / reached the base)
+        // AND when NGO destroys every NetworkObject during a NetworkManager shutdown
+        // (host left / match teardown). In the shutdown case we must NOT raise the
+        // gameplay "death" reaction: ServerWaveManager would re-run win-condition
+        // logic (double SetWinner) and write NetworkVariables mid-shutdown — the
+        // exact condition NGO warns about (NetworkVariableBase: ShutdownInProgress).
+        if (NetworkManager != null && NetworkManager.ShutdownInProgress) return;
+
+        OnDeath?.Invoke(enemyManager);
     }
 
     public void TakeDamage(float damage)

@@ -19,7 +19,9 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected float _damage;
     protected float _bulletSpeed;
     protected float _currentSetupDuration;
-    
+
+    protected BaseGameFlowManager _gameFlowManager;
+
     public NetworkVariable<int> TowerLevel => _towerLevel;
 
     public override void OnNetworkSpawn()
@@ -30,9 +32,11 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
             enabled = false;
             return;
         }
-        
+
+        _gameFlowManager = ServiceLocator.Get<BaseGameFlowManager>();
+
         _towerLevel.Value = 1;
-        
+
         UpdateData();
         _currentShootCooldown = 0f;
         StartCoroutine(SetupTimeDuration());
@@ -48,8 +52,10 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
-        
+        // Freeze firing outside an active match (e.g. on GameState.EndMatch), the
+        // same gate ServerEnemyMovement uses to halt the simulation.
+        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
+
         if (!_canTickCooldown)  return;
         
         if (!_setuped) return;

@@ -94,10 +94,14 @@ public class ServerEndGameManager : BaseServerEndGameManager
         
         TriggerOnGameEnded(_endGameSnapshot);
         TriggerOnGameEndedToClientRpc(_endGameSnapshot);
-        
-        //TODO:
-        // Handle Trophies and rewards
-        // Stop the Game and the Spawning. Stop Everything.
+
+        // OnGameEnded drives the FSM to GameState.EndMatch (see InMatchState),
+        // which freezes the simulation: ServerWaveManager stops spawning,
+        // ServerEnemyMovement stops moving, BaseServerTowerCombat stops firing.
+        // The network connection is torn down later, per-player, from
+        // ClientEndGameCanvas -> ClientManager.LeaveMatchAsync().
+        //
+        // TODO: Handle trophies and rewards before/while showing the end screen.
     }
 
     [Rpc(SendTo.NotServer)]

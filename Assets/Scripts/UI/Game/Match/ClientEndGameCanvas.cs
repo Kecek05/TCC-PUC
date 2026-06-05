@@ -35,6 +35,7 @@ public class ClientEndGameCanvas : MonoBehaviour
     
     private BaseServerEndGameManager _endGameManager;
     private BaseTeamManager _teamManager;
+    private BaseClientManager _clientManager;
 
     private void Awake()
     {
@@ -48,7 +49,8 @@ public class ClientEndGameCanvas : MonoBehaviour
     {
         _teamManager = ServiceLocator.Get<BaseTeamManager>();
         _endGameManager = ServiceLocator.Get<BaseServerEndGameManager>();
-        
+        _clientManager = ServiceLocator.Get<BaseClientManager>();
+
         _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
     }
 
@@ -56,8 +58,9 @@ public class ClientEndGameCanvas : MonoBehaviour
     {
         if (_endGameManager != null)
             _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
-        
+
         okButton.onClick.RemoveListener(OnOkButtonClicked);
+        playAgainButton.onClick.RemoveListener(OnPlayAgainButtonClicked);
     }
     
     private void EndGameManager_OnGameEnded(EndGameSnapshot endgameSnapshot)
@@ -106,13 +109,18 @@ public class ClientEndGameCanvas : MonoBehaviour
         }
     }
     
-    private void OnOkButtonClicked()
+    private void OnOkButtonClicked() => LeaveMatch();
+
+    // Play Again behaves like OK: tear down the match and return to the menu,
+    // where the player re-hosts or re-joins (no matchmaking for a 1-click rematch).
+    private void OnPlayAgainButtonClicked() => LeaveMatch();
+
+    private async void LeaveMatch()
     {
-        // TODO: just go to main menu. Shutdown server and client. stop game properly to be able to play again with out needing to relaunch the game
-    }
-    
-    private void OnPlayAgainButtonClicked()
-    {
-        //TODO: go to main menu and call play. stop game properly to be able to play again with out needing to relaunch the game
+        // Guard against double-press while the async teardown is running.
+        okButton.interactable = false;
+        playAgainButton.interactable = false;
+
+        await _clientManager.LeaveMatchAsync();
     }
 }

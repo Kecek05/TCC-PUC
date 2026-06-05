@@ -46,33 +46,30 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         WaveManager_OnBlueWaveChanged(0, _waveManager.BlueCurrentWave.Value);
         WaveManager_OnRedWaveChanged(0, _waveManager.RedCurrentWave.Value);
         
-        CameraSlide.SideChanged += side =>
+        // Named method (not a lambda) so OnDestroy can unsubscribe. SideChanged is a
+        // static event; an un-removed subscription survives this scene and fires on the
+        // next match's CameraSlide, hitting this canvas's already-destroyed GameObjects.
+        CameraSlide.SideChanged += HandleCameraSideChanged;
+    }
+
+    private void HandleCameraSideChanged(CameraSide side)
+    {
+        GameLog.Info($"Camera side changed to {side}.");
+        switch (side)
         {
-            GameLog.Info($"Camera side changed to {side}.");
-            switch (side)
-            {
-                case CameraSide.Local:
-                    foreach (GameObject gameObject in localPlayerContents)
-                    {
-                        gameObject.SetActive(true);
-                    }
-                    foreach (GameObject gameObject in enemyPlayerContents)
-                    {
-                        gameObject.SetActive(false);
-                    }
-                    break;
-                case CameraSide.Enemy:
-                    foreach (GameObject gameObject in localPlayerContents)
-                    {
-                        gameObject.SetActive(false);
-                    }
-                    foreach (GameObject gameObject in enemyPlayerContents)
-                    {
-                        gameObject.SetActive(true);
-                    }
-                    break;
-            }
-        };
+            case CameraSide.Local:
+                foreach (GameObject content in localPlayerContents)
+                    content.SetActive(true);
+                foreach (GameObject content in enemyPlayerContents)
+                    content.SetActive(false);
+                break;
+            case CameraSide.Enemy:
+                foreach (GameObject content in localPlayerContents)
+                    content.SetActive(false);
+                foreach (GameObject content in enemyPlayerContents)
+                    content.SetActive(true);
+                break;
+        }
     }
 
     private void OnDestroy()
@@ -88,6 +85,8 @@ public class ClientPlayersDataCanvas : MonoBehaviour
             _waveManager.BlueCurrentWave.OnValueChanged -= WaveManager_OnBlueWaveChanged;
             _waveManager.RedCurrentWave.OnValueChanged -= WaveManager_OnRedWaveChanged;
         }
+
+        CameraSlide.SideChanged -= HandleCameraSideChanged;
     }
 
     private void PlayerHealthManager_OnBlueHealthChanged(float previousValue, float newValue)

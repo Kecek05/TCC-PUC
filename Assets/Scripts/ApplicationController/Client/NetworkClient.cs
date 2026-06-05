@@ -5,7 +5,6 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class NetworkClient : IDisposable
 {
@@ -34,6 +33,11 @@ public class NetworkClient : IDisposable
     
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
     {
+        // Just log. Leaving the match is driven only by the local player pressing
+        // OK / Play Again (ClientManager.LeaveMatchAsync). A disconnect caused by
+        // the other instance tearing down must NOT navigate this instance away —
+        // each player leaves on their own action. The end screen already holds the
+        // snapshot, so the connection dropping here is harmless.
         GameLog.Info($"Client disconnected: {clientId}");
     }
 
@@ -69,22 +73,21 @@ public class NetworkClient : IDisposable
         }
     }
 
-    public void Disconnect()
+    /// <summary>
+    /// Shuts down a pure client connection and completes only once Netcode has
+    /// fully stopped. Host teardown is handled separately by <see cref="HostManager"/>;
+    /// role selection and the scene change live in <see cref="ClientManager.LeaveMatchAsync"/>.
+    /// </summary>
+    public async Task ShutdownAsync()
     {
-        Debug.Log("Client Disconnect");
-        //Check if is host first
-        BaseHostManager hostManager = ServiceLocator.Get<BaseHostManager>();
-        if (networkManager != null && hostManager != null && networkManager.IsHost)
-        {
-            hostManager.ShutdownHostAsync();
-        }
+        if (networkManager == null) return;
 
-        if(networkManager.IsConnectedClient)
+        if (networkManager.IsListening || networkManager.IsConnectedClient)
+        {
             networkManager.Shutdown();
 
-        if (SceneManager.GetActiveScene().name != Loader.Scene.MainMenu.ToString())
-        {
-            Loader.Load(Loader.Scene.MainMenu);
+            while (networkManager.ShutdownInProgress)
+                await Task.Yield();
         }
     }
 

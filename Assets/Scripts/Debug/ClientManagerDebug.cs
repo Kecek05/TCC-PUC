@@ -27,4 +27,9 @@ public class ClientManagerDebug : BaseClientManager
     public override Task<bool> JoinHost(string joinCode) {
         return Task.FromResult(true);
     }
+
+    public override Task LeaveMatchAsync()
+    {
+        return Task.CompletedTask;
+    }
 }
