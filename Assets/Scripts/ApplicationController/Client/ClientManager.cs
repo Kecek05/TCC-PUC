@@ -39,15 +39,33 @@ public class ClientManager : BaseClientManager
         {
             if (await ClientAuth.TryInitAsync())
             {
-                UserData.SetPlayerName(AuthenticationService.Instance.PlayerName); //Temp
+                string playerName = AuthenticationService.Instance.PlayerName;
+
+                // Anonymous accounts have no name — fall back to a generated one and
+                // persist it to Authentication so it becomes the player's real name.
+                if (string.IsNullOrEmpty(playerName))
+                {
+                    playerName = $"Player_{UnityEngine.Random.Range(1000, 10000)}";
+                    try
+                    {
+                        await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
+                    }
+                    catch (Exception e)
+                    {
+                        // Keep the generated name locally even if the remote update fails.
+                        GameLog.Exception(e);
+                    }
+                }
+
+                UserData.SetPlayerName(playerName);
                 UserData.SetPlayerAuthId(AuthenticationService.Instance.PlayerId);
                 UserData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
                 if (useDebugHand)
                 {
                     UserData.SetDeckCards(debugHand.Deck);
                 }
-                
-                GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {AuthenticationService.Instance.PlayerName}");
+
+                GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {playerName}");
                 Loader.Load(Loader.Scene.MainMenu);
             }
         }

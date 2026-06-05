@@ -43,7 +43,7 @@ public class WaitingPlayersCanvas : NetworkBehaviour
 
     private void UpdateCanvasVisibility(GameState newState)
     {
-        if (newState == GameState.InMatch)
+        if (newState == GameState.LoadingMatch)
         {
             waitingCanvas.SetActive(false);
         }

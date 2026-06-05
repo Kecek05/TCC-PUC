@@ -6,7 +6,12 @@
       "Bash(python -c \":*)",
       "mcp__ide__getDiagnostics",
       "mcp__unity-mcp__Unity_GetConsoleLogs",
-      "mcp__unity-mcp__Unity_RunCommand"
+      "mcp__unity-mcp__Unity_RunCommand",
+      "Bash(powershell *)",
+      "Bash(awk '/^--- !u!1 &330717503$/,/^--- !u!\\(1|4|114|224|223\\) &/{print}' Assets/Scenes/GameScene.unity)",
+      "Bash(grep -n \"&330717503$\\\\|&451766805$\" Assets/Scenes/GameScene.unity)",
+      "Bash(awk '/^--- !u!.* &__TRACKED_VAR__$/{f=1} f{print; if\\(/m_Script:/\\){print \"  ^script line\"; exit}}' Assets/Scenes/GameScene.unity)",
+      "Bash(grep -n \"&451766811$\" Assets/Scenes/GameScene.unity)"
     ]
   }
 }
