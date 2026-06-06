@@ -62,7 +62,7 @@ public class ServerManaManager : BaseServerManaManager
     {
         if (!IsServer) return;
 
-        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.DrawingCards) return;
+        if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
 
         RegenerateMana();
     }
