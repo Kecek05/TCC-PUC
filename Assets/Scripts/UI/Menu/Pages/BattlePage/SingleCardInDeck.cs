@@ -30,9 +30,28 @@ public class SingleCardInDeck : MonoBehaviour
         
         cardCost.text = cardData.Cost.ToString();
         cardImage.sprite = cardData.CardImage;
+        cardTypeBackground.sprite = GetTypeBackground(cardData.ExistingType);
+
+        var rarity = cardsRarityData.Get(cardData.Rarity);
+        cardLevelBackground.color = rarity.mainColor;
+        levelText.color = rarity.textColor;
+        
+        if (cardData.UseCustomPositionCardInMenu)
+            cardImage.rectTransform.anchoredPosition = cardData.CustomPositionCardInMenu;
+        
+        if (cardData.UseCustomSizeCardInMenu)
+            cardImage.rectTransform.sizeDelta = cardData.CustomSizeCardInMenu;
         
         InitializeButtons();
     }
+
+    private Sprite GetTypeBackground(ExistingTypesOfCard type) => type switch
+    {
+        ExistingTypesOfCard.Tower => towerBackgroundType,
+        ExistingTypesOfCard.Spell => spellBackgroundType,
+        ExistingTypesOfCard.Enemy => enemyBackgroundType,
+        _ => null
+    };
 
     private void InitializeButtons()
     {

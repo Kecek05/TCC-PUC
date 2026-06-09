@@ -13,4 +13,8 @@ public class CardDataSO : ScriptableObject
     public string Description;
     public Sprite CardImage;
     public int Cost;
+    public bool UseCustomSizeCardInMenu = false;
+    [ShowIf("UseCustomSizeCardInMenu")]public Vector2 CustomSizeCardInMenu;
+    public bool UseCustomPositionCardInMenu = false;
+    [ShowIf("UseCustomPositionCardInMenu")]public Vector2 CustomPositionCardInMenu;
 }

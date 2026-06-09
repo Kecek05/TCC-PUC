@@ -20,6 +20,10 @@ MonoBehaviour:
   Description: MEGA FIREBALL
   CardImage: {fileID: 3161377183836907632, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
   Cost: 2
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
   SpellType: 1
   CanUseInEnemyMap: 0
   CanUseInLocalMap: 1
