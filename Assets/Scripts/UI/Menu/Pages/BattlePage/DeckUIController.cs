@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DeckUIController : MonoBehaviour
 {
@@ -61,6 +62,11 @@ public class DeckUIController : MonoBehaviour
     private void InitializeActionFrame()
     {
         _spawnedActionFrame = Instantiate(actionFramePrefab, allCardsParent);
+        // The action frame parents under the collection grid until a card is selected;
+        // tell the layout to ignore it so it never reserves a collection cell.
+        if (!_spawnedActionFrame.TryGetComponent(out LayoutElement actionFrameLayout))
+            actionFrameLayout = _spawnedActionFrame.gameObject.AddComponent<LayoutElement>();
+        actionFrameLayout.ignoreLayout = true;
         _spawnedActionFrame.Initialize(this);
     }
 
