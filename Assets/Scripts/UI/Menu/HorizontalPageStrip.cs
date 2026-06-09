@@ -30,6 +30,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     [SerializeField, Range(0f, 1f)] private float edgeResistance = 0.5f;
 
     public event Action<int> OnPageChanged;
+    public event Action<int> OnPageSettled;
     public int CurrentPageIndex { get; private set; }
     public int PageCount => pages.Count;
     public IReadOnlyList<MenuPage> Pages => pages;
@@ -62,6 +63,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         InitializeLayout();
         SetStripXPos(GetPageXPos(CurrentPageIndex));
         OnPageChanged?.Invoke(CurrentPageIndex);
+        OnPageSettled?.Invoke(CurrentPageIndex);
     }
 
     private void InitializeLayout()
@@ -152,18 +154,25 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         bool changed = index != CurrentPageIndex;
         CurrentPageIndex = index;
         float targetX = GetPageXPos(index);
+        int settledIndex = index;
 
         _activeTween?.Kill();
+
+        // Activation fires at the start of the snap; OnPageSettled fires once the strip has
+        // finished moving, so listeners can defer "page left" work until the page is off-screen.
+        if (changed) OnPageChanged?.Invoke(CurrentPageIndex);
+
         if (animated)
         {
-            _activeTween = pageStrip.DOAnchorPosX(targetX, snapDuration).SetEase(snapEase);
+            _activeTween = pageStrip.DOAnchorPosX(targetX, snapDuration)
+                .SetEase(snapEase)
+                .OnComplete(() => OnPageSettled?.Invoke(settledIndex));
         }
         else
         {
             SetStripXPos(targetX);
+            OnPageSettled?.Invoke(settledIndex);
         }
-
-        if (changed) OnPageChanged?.Invoke(CurrentPageIndex);
     }
 
     private float GetPageXPos(int index) => -index * PageWidth;

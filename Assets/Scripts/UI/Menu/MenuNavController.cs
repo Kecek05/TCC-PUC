@@ -13,6 +13,7 @@ public class MenuNavController : MonoBehaviour
     [SerializeField, MinValue(0)] private int startingPageIndex = 0;
 
     private int _activePageIndex = -1;
+    private int _pendingInactiveIndex = -1;
 
     private void Start()
     {
@@ -29,6 +30,7 @@ public class MenuNavController : MonoBehaviour
         }
 
         strip.OnPageChanged += HandlePageChanged;
+        strip.OnPageSettled += HandlePageSettled;
 
         int clampedStart = Mathf.Clamp(startingPageIndex, 0, Mathf.Max(0, strip.PageCount - 1));
         strip.GoToPage(clampedStart, animated: false);
@@ -36,7 +38,11 @@ public class MenuNavController : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (strip != null) strip.OnPageChanged -= HandlePageChanged;
+        if (strip != null)
+        {
+            strip.OnPageChanged -= HandlePageChanged;
+            strip.OnPageSettled -= HandlePageSettled;
+        }
 
         for (int i = 0; i < buttons.Count; i++)
         {
@@ -45,24 +51,60 @@ public class MenuNavController : MonoBehaviour
         }
     }
 
+    // Fires at the start of the snap: activate the incoming page and update button highlights
+    // immediately so the nav bar tracks the swipe. The outgoing page's OnPageBecameInactive is
+    // deferred to HandlePageSettled so it runs only once the page has slid off-screen.
     private void HandlePageChanged(int newIndex)
     {
         if (newIndex == _activePageIndex) return;
 
+        // Swiping back to a page that is still waiting to be deactivated: it never actually
+        // left, so cancel its pending deactivation and don't re-activate it.
+        bool returningToPendingPage = newIndex == _pendingInactiveIndex;
+
+        // Any other not-yet-settled page is already off-screen; deactivate it now.
+        if (_pendingInactiveIndex >= 0 && _pendingInactiveIndex != newIndex)
+            SetPageInactive(_pendingInactiveIndex);
+        _pendingInactiveIndex = -1;
+
         if (_activePageIndex >= 0)
         {
-            if (_activePageIndex < buttons.Count)
-                buttons[_activePageIndex].SetSelected(false, animated: true);
-            if (_activePageIndex < strip.PageCount && strip.Pages[_activePageIndex] != null)
-                strip.Pages[_activePageIndex].OnPageBecameInactive();
+            SetButtonSelected(_activePageIndex, false);
+            _pendingInactiveIndex = _activePageIndex; // OnPageBecameInactive runs on settle
         }
 
         _activePageIndex = newIndex;
+        SetButtonSelected(_activePageIndex, true);
 
-        if (_activePageIndex < buttons.Count)
-            buttons[_activePageIndex].SetSelected(true, animated: true);
-        if (_activePageIndex < strip.PageCount && strip.Pages[_activePageIndex] != null)
-            strip.Pages[_activePageIndex].OnPageBecameActive();
+        if (!returningToPendingPage)
+            SetPageActive(_activePageIndex);
+    }
+
+    // Fires when the strip finishes moving: now the outgoing page is off-screen, so deactivate it.
+    private void HandlePageSettled(int settledIndex)
+    {
+        if (settledIndex != _activePageIndex) return;
+        if (_pendingInactiveIndex >= 0 && _pendingInactiveIndex != _activePageIndex)
+            SetPageInactive(_pendingInactiveIndex);
+        _pendingInactiveIndex = -1;
+    }
+
+    private void SetButtonSelected(int index, bool selected)
+    {
+        if (index >= 0 && index < buttons.Count && buttons[index] != null)
+            buttons[index].SetSelected(selected, animated: true);
+    }
+
+    private void SetPageActive(int index)
+    {
+        if (index >= 0 && index < strip.PageCount && strip.Pages[index] != null)
+            strip.Pages[index].OnPageBecameActive();
+    }
+
+    private void SetPageInactive(int index)
+    {
+        if (index >= 0 && index < strip.PageCount && strip.Pages[index] != null)
+            strip.Pages[index].OnPageBecameInactive();
     }
 
     private void OnValidate()

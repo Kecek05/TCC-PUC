@@ -2139,6 +2139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a26a0562720bd3b4184d0785841ca17f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckPage
+  scrollRect: {fileID: 1426938566}
 --- !u!114 &734904294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5341,8 +5342,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 540, y: -1003.45}
-  m_SizeDelta: {x: 1080, y: 0}
+  m_AnchoredPosition: {x: 948.3025, y: -1003.45}
+  m_SizeDelta: {x: 1896.605, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1571833214
 MonoBehaviour:
