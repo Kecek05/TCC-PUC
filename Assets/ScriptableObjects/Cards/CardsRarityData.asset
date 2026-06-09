@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5b83875c61b9d64296ef55cf8c70420, type: 3}
+  m_Name: CardsRarityData
+  m_EditorClassIdentifier: Assembly-CSharp::CardsRarityDataSO
+  rarityData:
+  - rarityType: 0
+    mainColor: {r: 0, g: 0, b: 0, a: 0}
+    secondaryColor: {r: 0, g: 0, b: 0, a: 0}
+    textColor: {r: 0, g: 0, b: 0, a: 0}
+  - rarityType: 1
+    mainColor: {r: 0.60784316, g: 0.80392164, b: 1, a: 1}
+    secondaryColor: {r: 0.78, g: 0.89, b: 1, a: 1}
+    textColor: {r: 0.60784316, g: 0.8039216, b: 1, a: 1}
+  - rarityType: 2
+    mainColor: {r: 0.17254902, g: 0.8117648, b: 0.6117647, a: 1}
+    secondaryColor: {r: 0.36854118, g: 0.8117647, b: 0.6730874, a: 1}
+    textColor: {r: 0.17254902, g: 0.8117647, b: 0.6117647, a: 1}
+  - rarityType: 3
+    mainColor: {r: 0.9960785, g: 0.59607846, b: 0.9960785, a: 1}
+    secondaryColor: {r: 0.99607843, g: 0.7161804, b: 0.99607843, a: 1}
+    textColor: {r: 0.99607843, g: 0.59607846, b: 0.99607843, a: 1}
+  - rarityType: 4
+    mainColor: {r: 0.9921569, g: 0.8235295, b: 0.42352945, a: 1}
+    secondaryColor: {r: 0.99215686, g: 0.88417596, b: 0.6280353, a: 1}
+    textColor: {r: 0.99215686, g: 0.8235294, b: 0.42352942, a: 1}

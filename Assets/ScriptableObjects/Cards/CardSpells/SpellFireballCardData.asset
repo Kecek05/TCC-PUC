@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: SpellFireballCardData
   m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
   CardType: 3
+  ExistingType: 2
+  Rarity: 3
   CardPrefab: {fileID: 2383729291938179494, guid: 2dd5fee0fd2b978478ae8c7aa7185fe0, type: 3}
   CardName: Fireball
   Description: MEGA FIREBALL

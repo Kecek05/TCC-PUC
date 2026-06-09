@@ -28,6 +28,14 @@ public enum CardType
     SpellIce
 }
 
+public enum ExistingTypesOfCard
+{
+    None,
+    Tower,
+    Spell,
+    Enemy
+}
+
 public enum SpellType
 {
     None,
@@ -112,4 +120,13 @@ public enum GameQueue
 {
     Ranked,
     UnRanked,
+}
+
+public enum CardRarityType
+{
+    None,
+    Common,
+    Rare,
+    Epic,
+    Legendary,
 }

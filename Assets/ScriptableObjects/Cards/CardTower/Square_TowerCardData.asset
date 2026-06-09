@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Square_TowerCardData
   m_EditorClassIdentifier: Assembly-CSharp::TowerCardDataSO
   CardType: 2
+  ExistingType: 1
+  Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: 667106bd4d854434bb50be29c0880fe7, type: 3}
   CardName: SQUARE
   Description: Spawn SQUARE  Tower

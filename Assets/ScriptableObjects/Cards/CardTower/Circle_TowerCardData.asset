@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Circle_TowerCardData
   m_EditorClassIdentifier: Assembly-CSharp::TowerCardDataSO
   CardType: 1
+  ExistingType: 1
+  Rarity: 1
   CardPrefab: {fileID: 1325791681110519822, guid: 4e27d0b64bd04c34b94b7f602886048d, type: 3}
   CardName: CIRCLE
   Description: Spawn Circle Tower

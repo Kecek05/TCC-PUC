@@ -8,7 +8,17 @@ public class SingleCardInDeck : MonoBehaviour
     [Title("References")]
     [SerializeField] private TextMeshProUGUI cardCost;
     [SerializeField] private Image cardImage;
+    [SerializeField] private Image cardTypeBackground;
+    [SerializeField] private Image cardLevelBackground;
+    [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private Button cardButton;
+    [SerializeField] private CardsRarityDataSO cardsRarityData;
+
+    [Title("Card Types")] 
+    [SerializeField] private Sprite spellBackgroundType;
+    [SerializeField] private Sprite towerBackgroundType;
+    [SerializeField] private Sprite enemyBackgroundType;
     
     private CardDataSO _cardData;
     private DeckUIController _deckUIController;
