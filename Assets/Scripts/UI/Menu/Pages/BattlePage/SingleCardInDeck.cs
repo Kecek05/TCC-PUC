@@ -10,6 +10,7 @@ public class SingleCardInDeck : MonoBehaviour
     [SerializeField] private Image cardImage;
     [SerializeField] private Image cardTypeBackground;
     [SerializeField] private Image cardLevelBackground;
+    [SerializeField] private Image cardLevelFill;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private Button cardButton;
@@ -35,6 +36,8 @@ public class SingleCardInDeck : MonoBehaviour
         var rarity = cardsRarityData.Get(cardData.Rarity);
         cardLevelBackground.color = rarity.mainColor;
         levelText.color = rarity.textColor;
+
+        SetPlaceholderProgression();
         
         if (cardData.UseCustomPositionCardInMenu)
             cardImage.rectTransform.anchoredPosition = cardData.CustomPositionCardInMenu;
@@ -52,6 +55,18 @@ public class SingleCardInDeck : MonoBehaviour
         ExistingTypesOfCard.Enemy => enemyBackgroundType,
         _ => null
     };
+
+    private void SetPlaceholderProgression()
+    {
+        // TODO: placeholder only — replace with real player-progression data.
+        int level = Random.Range(1, 10);
+        int max = level * 7;
+        int owned = Mathf.RoundToInt(max * Random.Range(0.3f, 0.8f));
+
+        levelText.text = $"Level {level}";
+        quantityText.text = $"{owned}/{max}";
+        cardLevelFill.fillAmount = (float)owned / max;
+    }
 
     private void InitializeButtons()
     {

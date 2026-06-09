@@ -18,8 +18,12 @@ MonoBehaviour:
   CardPrefab: {fileID: 2383729291938179494, guid: 03d01f4710d43a84c8275d2da6fb59ee, type: 3}
   CardName: Ice
   Description: ICE
-  CardImage: {fileID: 21300000, guid: c23294d57f74bea4b9a439f033a6bf15, type: 3}
+  CardImage: {fileID: 21300000, guid: fc7324b43ab6f644da62b6f0f7f95411, type: 3}
   Cost: 4
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 118.54, y: 118.54}
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
   SpellType: 2
   CanUseInEnemyMap: 1
   CanUseInLocalMap: 0
