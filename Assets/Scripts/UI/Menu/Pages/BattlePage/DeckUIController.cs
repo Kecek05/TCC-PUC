@@ -82,11 +82,6 @@ public class DeckUIController : MonoBehaviour
     private void InitializeActionFrame()
     {
         _spawnedActionFrame = Instantiate(actionFramePrefab, allCardsParent);
-        // The action frame parents under the collection grid until a card is selected;
-        // tell the layout to ignore it so it never reserves a collection cell.
-        if (!_spawnedActionFrame.TryGetComponent(out LayoutElement actionFrameLayout))
-            actionFrameLayout = _spawnedActionFrame.gameObject.AddComponent<LayoutElement>();
-        actionFrameLayout.ignoreLayout = true;
         _spawnedActionFrame.Initialize(this);
     }
 
@@ -94,7 +89,7 @@ public class DeckUIController : MonoBehaviour
     {
         _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform);
         _spawnedActionFrame.transform.localPosition = Vector3.zero;
-        _spawnedActionFrame.SelectActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
+        _spawnedActionFrame.ActivateActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
     }
 
     public void SetEquippedCard(CardType cardType, bool isEquipped)
@@ -127,11 +122,6 @@ public class DeckUIController : MonoBehaviour
         _clientManager.UserData.SetDeckCards(DeckCards);
 
         UpdateMedianCost();
-    }
-    
-    private bool IsDeckFull()
-    {
-        return DeckCards.Count == cardHandSettingsSO.DeckSize;
     }
 
     private void UpdateMedianCost()
@@ -195,5 +185,10 @@ public class DeckUIController : MonoBehaviour
         
         GameLog.Warn("Get Card Position ByType not found");
         return null;
+    }
+    
+    private bool IsDeckFull()
+    {
+        return DeckCards.Count == cardHandSettingsSO.DeckSize;
     }
 }

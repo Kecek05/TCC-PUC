@@ -10,7 +10,7 @@ public class UserData
     public string PlayerName;
     public string PlayerAuthId;
     public int UserTrophies;
-    public List<CardType> DeckCards;
+    public List<CardType> DeckCards = new();
 
     public void SetUserTrophies(int userTrophies) => this.UserTrophies = userTrophies;
 

@@ -12,8 +12,7 @@ public class ActionFrame : MonoBehaviour
     [SerializeField] private Button infoButton;
 
     private DeckUIController _deckUIController;
-    private bool _isEquipped;
-    private bool _isVisible;
+    private bool _isCardEquipped;
     
     private CardDataSO _cardData;
     
@@ -25,35 +24,33 @@ public class ActionFrame : MonoBehaviour
         UpdateActionButton();
     }
 
-    public void SelectActionFrame(CardDataSO cardData, bool isEquipped)
+    public void ActivateActionFrame(CardDataSO cardData, bool isCardEquipped)
     {
-        _isEquipped = isEquipped;
+        _isCardEquipped = isCardEquipped;
         UpdateActionButton();
         ToggleVisibility(cardData);
         _cardData = cardData;
     }
-
+    
     private void ToggleVisibility(CardDataSO newCardData)
     {
+        bool isVisible = content.activeInHierarchy;
         if (newCardData == _cardData)
-        {
-            _isVisible = !_isVisible;
-        }
+            isVisible = !isVisible;
         else
-        {
-            _isVisible = true;
-        }
-        content.SetActive(_isVisible);
+            isVisible = true;
+        
+        content.SetActive(isVisible);
     }
     
     private void InitializeButtons()
     {
         actionButton.onClick.AddListener(() =>
         {
-            _isEquipped = !_isEquipped;
-            _deckUIController.SetEquippedCard(_cardData.CardType, _isEquipped);
+            _isCardEquipped = !_isCardEquipped;
+            _deckUIController.SetEquippedCard(_cardData.CardType, _isCardEquipped);
             UpdateActionButton();
-            ResetActionFrame();
+            HideActionFrame();
         });
 
         infoButton.onClick.AddListener(() =>
@@ -64,7 +61,7 @@ public class ActionFrame : MonoBehaviour
     
     private void UpdateActionButton()
     {
-        switch (_isEquipped)
+        switch (_isCardEquipped)
         {
             case true:
                 actionButtonText.text = "Remove";
@@ -75,9 +72,8 @@ public class ActionFrame : MonoBehaviour
         }
     }
 
-    private void ResetActionFrame()
+    private void HideActionFrame()
     {
-        _isVisible = false;
         content.SetActive(false);
         _cardData = null;
     }

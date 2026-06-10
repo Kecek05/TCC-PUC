@@ -237,6 +237,7 @@ GameObject:
   - component: {fileID: 43101940}
   - component: {fileID: 43101939}
   - component: {fileID: 43101938}
+  - component: {fileID: 43101941}
   m_Layer: 0
   m_Name: TypeButton
   m_TagString: Untagged
@@ -346,6 +347,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 43101936}
   m_CullTransparentMesh: 1
+--- !u!114 &43101941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43101936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -2.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &57310565
 GameObject:
   m_ObjectHideFlags: 0
@@ -4023,6 +4039,7 @@ GameObject:
   - component: {fileID: 1067687993}
   - component: {fileID: 1067687992}
   - component: {fileID: 1067687991}
+  - component: {fileID: 1067687994}
   m_Layer: 0
   m_Name: OrderButton
   m_TagString: Untagged
@@ -4132,6 +4149,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067687989}
   m_CullTransparentMesh: 1
+--- !u!114 &1067687994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067687989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -2.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1137407560
 GameObject:
   m_ObjectHideFlags: 0
@@ -4554,7 +4586,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 20, y: 10}
+  m_AnchoredPosition: {x: 30, y: 20}
   m_SizeDelta: {x: 190.3, y: 73.75}
   m_Pivot: {x: 0, y: 0}
 --- !u!1 &1248454427
@@ -6231,7 +6263,7 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 93
-    m_Bottom: 90
+    m_Bottom: 180
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
@@ -8854,7 +8886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5008707500771739295, guid: aa0b43b68e2580c4c8c1b729fa95d08d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 623.53827
+      value: 225
       objectReference: {fileID: 0}
     - target: {fileID: 5008707500771739295, guid: aa0b43b68e2580c4c8c1b729fa95d08d, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9473,6 +9505,14 @@ PrefabInstance:
     - target: {fileID: 2227534237694399598, guid: e730d651a32f7174e9164d6479681588, type: 3}
       propertyPath: m_Name
       value: DeckEntry1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4130345230565103804, guid: e730d651a32f7174e9164d6479681588, type: 3}
+      propertyPath: m_Color.b
+      value: 0.702
+      objectReference: {fileID: 0}
+    - target: {fileID: 4130345230565103804, guid: e730d651a32f7174e9164d6479681588, type: 3}
+      propertyPath: m_Color.g
+      value: 0.92043704
       objectReference: {fileID: 0}
     - target: {fileID: 4966056258583969658, guid: e730d651a32f7174e9164d6479681588, type: 3}
       propertyPath: m_Color.b
