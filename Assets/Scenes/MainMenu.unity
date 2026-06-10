@@ -9292,6 +9292,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: DeckEntry1
       objectReference: {fileID: 0}
+    - target: {fileID: 4966056258583969658, guid: e730d651a32f7174e9164d6479681588, type: 3}
+      propertyPath: m_Color.b
+      value: 0.638
+      objectReference: {fileID: 0}
+    - target: {fileID: 4966056258583969658, guid: e730d651a32f7174e9164d6479681588, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9490739
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
