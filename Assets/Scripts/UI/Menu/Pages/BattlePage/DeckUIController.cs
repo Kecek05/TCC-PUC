@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -12,6 +13,13 @@ public class DeckUIController : MonoBehaviour
         public bool IsEquipped;
         public CardDataSO  CardData;
     }
+
+    [Serializable]
+    private class CardPosition
+    {
+        public Transform PositionTransform;
+        [ReadOnly] public CardType CardTypeOccupied = CardType.None;
+    }
     
     [Title("References")]
     [SerializeField] private Transform deckCardsParent;
@@ -21,6 +29,7 @@ public class DeckUIController : MonoBehaviour
     [SerializeField] private ActionFrame actionFramePrefab;
     [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
     [SerializeField] private TextMeshProUGUI medianCostText; //placeholder
+    [SerializeField] private List<CardPosition> cardPositions;
     
     private List<CardType> DeckCards;
     private Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
@@ -57,12 +66,15 @@ public class DeckUIController : MonoBehaviour
                 SingleCardInDeck cardInDeck = Instantiate(singleCardInDeckPrefab, deckCardsParent);
                 cardInDeck.Initialize(cardType, this);
                 cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInDeck, IsEquipped = true, CardData = cardType });
+                EquipCardIntoPosition(cardInDeck);
             }
             else
             {
                 SingleCardInDeck cardInAllCards = Instantiate(singleCardInDeckPrefab, allCardsParent);
                 cardInAllCards.Initialize(cardType, this);
                 cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInAllCards, IsEquipped = false,  CardData = cardType });
+                cardInAllCards.transform.SetParent(allCardsParent);
+                cardInAllCards.transform.localPosition = Vector3.zero;
             }
         }
     }
@@ -101,12 +113,16 @@ public class DeckUIController : MonoBehaviour
         
         info.IsEquipped = isEquipped;
         
-        info.SingleCardInDeck.transform.SetParent(isEquipped ? deckCardsParent : allCardsParent);
-
         if (isEquipped)
+        {
             DeckCards.Add(cardType);
+            EquipCardIntoPosition(info.SingleCardInDeck);
+        }
         else
+        {
             DeckCards.Remove(cardType);
+            UnequipCardIntoPosition(info.SingleCardInDeck);
+        }
         
         _clientManager.UserData.SetDeckCards(DeckCards);
 
@@ -133,5 +149,51 @@ public class DeckUIController : MonoBehaviour
         totalCost /= cardTypeToCardInDeckInfo.Count;
         
         medianCostText.text = $"{totalCost:0.0}";
+    }
+
+    private void EquipCardIntoPosition(SingleCardInDeck cardInDeck)
+    {
+        CardPosition cardPosition = GetFirstEmptyPosition();
+        if (cardPosition == null) 
+            return;
+
+        cardPosition.CardTypeOccupied = cardInDeck.CardData.CardType;
+        
+        cardInDeck.transform.SetParent(cardPosition.PositionTransform);
+        cardInDeck.transform.localPosition = Vector3.zero;
+    }
+
+    private void UnequipCardIntoPosition(SingleCardInDeck cardInDeck)
+    {
+        CardPosition cardPosition = GetCardPositionByType(cardInDeck.CardData.CardType);
+        if (cardPosition == null)
+            return;
+        
+        cardPosition.CardTypeOccupied = CardType.None;
+        
+        cardInDeck.transform.SetParent(allCardsParent);
+        cardInDeck.transform.localPosition = Vector3.zero;
+    }
+
+    private CardPosition GetFirstEmptyPosition()
+    {
+        foreach (CardPosition cardPosition in cardPositions)
+        {
+            if (cardPosition.CardTypeOccupied == CardType.None) return cardPosition;
+        }
+        
+        GameLog.Warn("Get First Empty Position not found");
+        return null;
+    }
+
+    private CardPosition GetCardPositionByType(CardType cardType)
+    {
+        foreach (CardPosition cardPosition in cardPositions)
+        {
+            if (cardPosition.CardTypeOccupied == cardType) return cardPosition;
+        }
+        
+        GameLog.Warn("Get Card Position ByType not found");
+        return null;
     }
 }

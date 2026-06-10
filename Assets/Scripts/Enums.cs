@@ -18,6 +18,9 @@ public enum TeamType
     Red = 2
 }
 
+/// <summary>
+/// Unique Identifier of a Card
+/// </summary>
 public enum CardType
 {
     None,

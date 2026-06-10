@@ -24,6 +24,8 @@ public class SingleCardInDeck : MonoBehaviour
     private CardDataSO _cardData;
     private DeckUIController _deckUIController;
 
+    public CardDataSO CardData => _cardData;
+    
     public void Initialize(CardDataSO cardData, DeckUIController deckUIController)
     {
         _cardData = cardData;
@@ -75,4 +77,5 @@ public class SingleCardInDeck : MonoBehaviour
             _deckUIController.RequestActionFrame(_cardData);
         });
     }
+    
 }
