@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class DeckUIController : MonoBehaviour
     {
         public SingleCardInDeck SingleCardInDeck;
         public bool IsEquipped;
+        public CardDataSO  CardData;
     }
     
     [Title("References")]
@@ -18,6 +20,7 @@ public class DeckUIController : MonoBehaviour
     [SerializeField] private SingleCardInDeck singleCardInDeckPrefab;
     [SerializeField] private ActionFrame actionFramePrefab;
     [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
+    [SerializeField] private TextMeshProUGUI medianCostText; //placeholder
     
     private List<CardType> DeckCards;
     private Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
@@ -28,6 +31,9 @@ public class DeckUIController : MonoBehaviour
 
     private UserData _userData => _clientManager.UserData;
 
+    //PLACEHOLDER
+    private float totalCost;
+    
     private void Start()
     {
         _clientManager = ServiceLocator.Get<BaseClientManager>();
@@ -38,6 +44,8 @@ public class DeckUIController : MonoBehaviour
         }
         InitializeDeckCards();
         InitializeActionFrame();
+
+        UpdateMedianCost();
     }
 
     private void InitializeDeckCards()
@@ -48,13 +56,13 @@ public class DeckUIController : MonoBehaviour
             {
                 SingleCardInDeck cardInDeck = Instantiate(singleCardInDeckPrefab, deckCardsParent);
                 cardInDeck.Initialize(cardType, this);
-                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInDeck, IsEquipped = true });
+                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInDeck, IsEquipped = true, CardData = cardType });
             }
             else
             {
                 SingleCardInDeck cardInAllCards = Instantiate(singleCardInDeckPrefab, allCardsParent);
                 cardInAllCards.Initialize(cardType, this);
-                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInAllCards, IsEquipped = false });
+                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInAllCards, IsEquipped = false,  CardData = cardType });
             }
         }
     }
@@ -101,10 +109,29 @@ public class DeckUIController : MonoBehaviour
             DeckCards.Remove(cardType);
         
         _clientManager.UserData.SetDeckCards(DeckCards);
+
+        UpdateMedianCost();
     }
     
     private bool IsDeckFull()
     {
         return DeckCards.Count == cardHandSettingsSO.DeckSize;
+    }
+
+    private void UpdateMedianCost()
+    {
+        totalCost = 0f;
+        foreach (var cardEntry in cardTypeToCardInDeckInfo)
+        {
+            if (!cardEntry.Value.IsEquipped)
+            {
+                continue;
+            }
+            
+            totalCost += cardEntry.Value.CardData.Cost;
+        }
+        totalCost /= cardTypeToCardInDeckInfo.Count;
+        
+        medianCostText.text = $"{totalCost:0.0}";
     }
 }
