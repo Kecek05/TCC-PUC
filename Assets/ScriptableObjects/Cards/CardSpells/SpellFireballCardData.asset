@@ -17,7 +17,7 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 2383729291938179494, guid: 2dd5fee0fd2b978478ae8c7aa7185fe0, type: 3}
   CardName: Fireball
-  Description: MEGA FIREBALL
+  Description: Hurl a blazing fireball onto your lane, dealing heavy damage to every enemy caught in the blast.
   CardImage: {fileID: 3161377183836907632, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
   Cost: 2
   UseCustomSizeCardInMenu: 1

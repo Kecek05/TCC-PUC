@@ -3499,13 +3499,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7744cea4c63464419936637bf87ae8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InfoPanelCanvas
+  contentObject: {fileID: 1071445815}
+  panelObject: {fileID: 1237309423}
   panelCanvasGroup: {fileID: 1071445817}
   title: {fileID: 1235492348}
   description: {fileID: 709779071}
   panelImage: {fileID: 952610884}
   closeButton: {fileID: 1833190547}
   fadeInEase: 14
-  fadeInDuration: 1
+  fadeInDuration: 0.2
+  bumpEase: 27
+  bumpDuration: 0.35
+  bumpStartScale: 0.8
 --- !u!1 &848834363
 GameObject:
   m_ObjectHideFlags: 0

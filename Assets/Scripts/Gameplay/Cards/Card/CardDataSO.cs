@@ -10,7 +10,7 @@ public class CardDataSO : ScriptableObject
     public CardRarityType Rarity;
     public AbstractCard CardPrefab;
     public string CardName;
-    public string Description;
+    [TextArea] public string Description;
     public Sprite CardImage;
     public int Cost;
     public bool UseCustomSizeCardInMenu = false;

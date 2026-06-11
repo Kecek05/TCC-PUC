@@ -11,6 +11,7 @@ public class ActionFrame : MonoBehaviour
     [SerializeField] private TextMeshProUGUI actionButtonText;
     [SerializeField] private Button infoButton;
 
+    private BaseInfoPanelService _infoPanelService;
     private DeckUIController _deckUIController;
     private bool _isCardEquipped;
     
@@ -18,6 +19,8 @@ public class ActionFrame : MonoBehaviour
     
     public void Initialize(DeckUIController  deckUIController)
     {
+        _infoPanelService = ServiceLocator.Get<BaseInfoPanelService>();
+        
         _deckUIController = deckUIController;
         InitializeButtons();
         content.SetActive(false);
@@ -55,7 +58,14 @@ public class ActionFrame : MonoBehaviour
 
         infoButton.onClick.AddListener(() =>
         {
-            GameLog.Info($"Card Info: Name: {_cardData.CardName}, Cost: {_cardData.Cost}, Description: {_cardData.Description}");
+            InfoPanelData infoPanelData = new InfoPanelData
+            {
+                Title = _cardData.CardName,
+                Description = _cardData.Description,
+                Icon = _cardData.CardImage
+            };
+            _infoPanelService.ShowInfoPanel(infoPanelData);
+            HideActionFrame();
         });
     }
     
