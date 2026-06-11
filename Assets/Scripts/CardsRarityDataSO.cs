@@ -9,7 +9,9 @@ public class CardsRarityDataSO : ScriptableObject
 {
     [TableList(AlwaysExpanded = true)]
     [ListDrawerSettings(HideAddButton = true, HideRemoveButton = true)]
+    #if UNITY_EDITOR
     [ValidateInput(nameof(IsComplete), "Must contain exactly one entry per CardRarityType.")]
+    #endif
     [SerializeField] private List<RarityData> rarityData = new();
 
     private Dictionary<CardRarityType, RarityData> _lookup;
