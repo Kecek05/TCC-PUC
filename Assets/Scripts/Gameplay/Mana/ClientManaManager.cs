@@ -12,8 +12,6 @@ public class ClientManaManager : BaseClientManaManager
 {
 
     [SerializeField] private ManaSettingsSO manaSettings;
-    [SerializeField] private Image manaBarFill;
-    [SerializeField] private TMP_Text manaText;
     
     private float _serverMana;
     private float _pendingSpendTotal;
@@ -55,8 +53,6 @@ public class ClientManaManager : BaseClientManaManager
             PredictedMana + manaSettings.RegenPerSecond * Time.deltaTime,
             CurrentMaxMana
         );
-
-        UpdateUI();
     }
 
     private IEnumerator WaitForInitialization()
@@ -137,14 +133,5 @@ public class ClientManaManager : BaseClientManaManager
     {
         _pendingSpendTotal = Mathf.Max(0f, _pendingSpendTotal - cost);
         PredictedMana = Mathf.Max(0f, _serverMana - _pendingSpendTotal);
-    }
-
-    private void UpdateUI()
-    {
-        if (manaBarFill != null)
-            manaBarFill.fillAmount = CurrentMaxMana > 0f ? PredictedMana / CurrentMaxMana : 0f;
-
-        if (manaText != null)
-            manaText.text = Mathf.FloorToInt(PredictedMana).ToString();
     }
 }
