@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 3167976796718860805}
   - component: {fileID: 7844695896164365614}
   m_Layer: 0
-  m_Name: Enemy2
+  m_Name: EnemyMiniBoss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -655,7 +655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483fff71ea79ae54b91735c7d89fcf87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyManager
-  enemyData: {fileID: 11400000, guid: af9d0fd50a89a4c4bbaf7b646d8d70bd, type: 2}
+  enemyData: {fileID: 11400000, guid: 081b8f7665b77624fa684b423e16b174, type: 2}
   networkObject: {fileID: 1948863559716120257}
   serverEnemyMovement: {fileID: 8168751350165093352}
   serverEnemyHealth: {fileID: 5174521520604229642}
@@ -673,7 +673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 776793248
+  GlobalObjectIdHash: 1111390491
   InScenePlacedSourceGlobalObjectIdHash: 790438112
   DeferredDespawnTick: 0
   Ownership: 1

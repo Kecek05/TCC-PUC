@@ -166,23 +166,38 @@ var hand = AssetDatabase.LoadAssetAtPath<DebugHand>("Assets/ScriptableObjects/Ca
 hand.Deck.Add(CardType.<X>); EditorUtility.SetDirty(hand);
 ```
 
-### B6. Register a networked prefab (towers/enemies only) in `DefaultNetworkPrefabs`
+### B6. Ensure a networked prefab (towers/enemies) is in `DefaultNetworkPrefabs` — IDEMPOTENT
+**Heads-up (verified the hard way):** this project has NGO **auto-add-on-import** enabled, so the moment you
+`CopyAsset`/create a prefab that has a `NetworkObject`, NGO **already registers it** in
+`DefaultNetworkPrefabs`. If you then blindly append, you get a **duplicate** entry (NGO logs a duplicate
+warning and it can break spawning). So never blind-append — run this idempotent "dedupe + ensure present"
+block, **after** the entity prefab exists:
 ```csharp
-using Unity.Netcode;
-var npl = AssetDatabase.LoadAssetAtPath<NetworkPrefabsList>("Assets/DefaultNetworkPrefabs.asset");
-npl.Add(new NetworkPrefab { Prefab = entityPrefabGo });   // entityPrefabGo = the tower/enemy prefab GameObject
-EditorUtility.SetDirty(npl);
-```
-Fallback if `NetworkPrefabsList.Add` differs across the NGO version — append via SerializedObject:
-```csharp
-var s = new SerializedObject(npl); var L = s.FindProperty("List");
-int i = L.arraySize; L.InsertArrayElementAtIndex(i);
-var e = L.GetArrayElementAtIndex(i);
-e.FindPropertyRelative("Override").enumValueIndex = 0;            // NetworkPrefabOverride.None
-e.FindPropertyRelative("Prefab").objectReferenceValue = entityPrefabGo;
+var npl = AssetDatabase.LoadAssetAtPath<Object>("Assets/DefaultNetworkPrefabs.asset");
+var s = new SerializedObject(npl);
+var L = s.FindProperty("List");
+var seen = new System.Collections.Generic.HashSet<Object>();
+int i = 0; bool present = false;
+while (i < L.arraySize)                                  // strip nulls + duplicate Prefab refs (keep first)
+{
+    var p = L.GetArrayElementAtIndex(i).FindPropertyRelative("Prefab").objectReferenceValue;
+    if (p == entityPrefabGo) present = true;
+    if (p == null || !seen.Add(p)) L.DeleteArrayElementAtIndex(i); else i++;
+}
+if (!present)                                            // only add if auto-add didn't already
+{
+    int idx = L.arraySize; L.InsertArrayElementAtIndex(idx);
+    var e = L.GetArrayElementAtIndex(idx);
+    e.FindPropertyRelative("Override").enumValueIndex = 0;            // NetworkPrefabOverride.None
+    e.FindPropertyRelative("Prefab").objectReferenceValue = entityPrefabGo;
+    e.FindPropertyRelative("SourcePrefabToOverride").objectReferenceValue = null;
+    e.FindPropertyRelative("OverridingTargetPrefab").objectReferenceValue = null;
+}
 s.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(npl);
 ```
-Card (UI) prefabs do **not** go here — only runtime-spawned tower/enemy prefabs.
+(Each `List` element is a `NetworkPrefab` — a Generic property — so `DeleteArrayElementAtIndex` removes it in
+one call, no object-reference null quirk.) In Phase C, confirm the prefab appears **exactly once**. Card (UI)
+prefabs do **not** go here — only runtime-spawned tower/enemy prefabs.
 
 ### Always finish a RunCommand with
 ```csharp

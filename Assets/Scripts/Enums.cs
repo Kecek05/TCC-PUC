@@ -28,7 +28,8 @@ public enum CardType
     TowerSquare,
     SpellFireball,
     SpawnEnemy1,
-    SpellIce
+    SpellIce,
+    SpawnEnemyMiniBoss
 }
 
 public enum ExistingTypesOfCard
@@ -57,7 +58,8 @@ public enum EnemyType
 {
     None,
     Triangle1,
-    Triangle2
+    Triangle2,
+    MiniBoss
 }
 
 public enum CardInvalidReason

@@ -151,3 +151,6 @@ registering there makes a card available to equip; adding to a `DebugHand` makes
 - Enum reordering corrupts existing saved data — append only.
 - Wrong data-SO subclass → card silently unhandled by every sub-factory/deployer.
 - Missing `DefaultNetworkPrefabs` entry → tower/enemy throws at spawn, not at creation.
+- **NGO auto-add-on-import is ON here:** creating/cloning a prefab with a `NetworkObject` auto-registers it in
+  `DefaultNetworkPrefabs`. Do not also append manually or you get a duplicate (NGO warns; can break spawning).
+  Use the idempotent dedupe-and-ensure block (recipes §B6) and verify the prefab appears exactly once.

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
+  m_Name: EnemyDataMiniBoss
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
+  EnemyType: 3
+  EnemyName: Mini Boss
+  MaxHealth: 800
+  MoveSpeed: 2
+  SpawnDuration: 1.5
+  Damage: 20
+  EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
+  EnemyPrefab: {fileID: 5240486951047393607, guid: 45aad7fc11bb763438e7f71ac863ce84, type: 3}
