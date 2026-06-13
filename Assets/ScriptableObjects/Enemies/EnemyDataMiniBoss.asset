@@ -19,4 +19,4 @@ MonoBehaviour:
   SpawnDuration: 1.5
   Damage: 20
   EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
-  EnemyPrefab: {fileID: 5240486951047393607, guid: 45aad7fc11bb763438e7f71ac863ce84, type: 3}
+  EnemyPrefab: {fileID: 1157690352288078179, guid: 45aad7fc11bb763438e7f71ac863ce84, type: 3}
