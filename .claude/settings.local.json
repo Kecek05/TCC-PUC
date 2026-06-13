@@ -11,7 +11,12 @@
       "Bash(awk '/^--- !u!1 &330717503$/,/^--- !u!\\(1|4|114|224|223\\) &/{print}' Assets/Scenes/GameScene.unity)",
       "Bash(grep -n \"&330717503$\\\\|&451766805$\" Assets/Scenes/GameScene.unity)",
       "Bash(awk '/^--- !u!.* &__TRACKED_VAR__$/{f=1} f{print; if\\(/m_Script:/\\){print \"  ^script line\"; exit}}' Assets/Scenes/GameScene.unity)",
-      "Bash(grep -n \"&451766811$\" Assets/Scenes/GameScene.unity)"
+      "Bash(grep -n \"&451766811$\" Assets/Scenes/GameScene.unity)",
+      "Bash(claude mcp *)",
+      "PowerShell(Get-Process *)",
+      "mcp__unity-mcp__Unity_GetProjectData",
+      "Bash(xargs grep -l \"NetworkPrefabsList\\\\|m_NetworkPrefabsLists\\\\|NetworkPrefab\")",
+      "mcp__unity-mcp__Unity_ManageScript"
     ]
   }
 }
