@@ -31,7 +31,17 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
     
     private IEnumerator ExplodeBulletAfterDelay(Transform targetTransform, float explosionRadius, float delayToExplode)
     {
-        yield return new WaitForSeconds(delayToExplode);
+        Vector3 lastKnownPosition = targetTransform != null ? targetTransform.position : transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < delayToExplode)
+        {
+            if (targetTransform != null)
+                lastKnownPosition = targetTransform.position;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
         
         GameObject explosionObject = Instantiate(explosionPrefab, targetTransform.position, Quaternion.identity);
         
