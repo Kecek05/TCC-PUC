@@ -43,7 +43,7 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
             yield return null;
         }
         
-        GameObject explosionObject = Instantiate(explosionPrefab, targetTransform.position, Quaternion.identity);
+        GameObject explosionObject = Instantiate(explosionPrefab, lastKnownPosition, Quaternion.identity);
         
         explosionObject.transform.localScale = Vector3.one * explosionRadius * 2f;
     }
