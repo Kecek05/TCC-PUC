@@ -17,7 +17,8 @@
       "mcp__unity-mcp__Unity_GetProjectData",
       "Bash(xargs grep -l \"NetworkPrefabsList\\\\|m_NetworkPrefabsLists\\\\|NetworkPrefab\")",
       "mcp__unity-mcp__Unity_ManageScript",
-      "PowerShell(try { Remove-Item -Path 'E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs','E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs.meta' -Force -ErrorAction Stop; Write-Output 'deleted IcelExecutor.cs + meta' } catch { Write-Output \"delete note: $_\" })"
+      "PowerShell(try { Remove-Item -Path 'E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs','E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs.meta' -Force -ErrorAction Stop; Write-Output 'deleted IcelExecutor.cs + meta' } catch { Write-Output \"delete note: $_\" })",
+      "mcp__unity-mcp__Unity_ReadConsole"
     ]
   }
 }

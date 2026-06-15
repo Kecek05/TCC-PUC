@@ -8,6 +8,8 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
     [SerializeField] protected ClientTowerGFX clientTowerGFX;
     [SerializeField] protected BaseServerTowerCombat serverTowerCombat;
 
+    private TowerManager _towerManager;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -25,11 +27,18 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
 
         serverTowerCombat.IsHasted.OnValueChanged += OnHastedChanged;
         OnHastedChanged(false, serverTowerCombat.IsHasted.Value);
+
+        // Client-visible towers self-register so the shared range indicator can resolve taps.
+        _towerManager = GetComponent<TowerManager>();
+        ClientTowerRegistry.Register(_towerManager);
     }
 
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+
+        ClientTowerRegistry.Unregister(_towerManager);
+
         if (serverTowerCombat == null) return;
 
         serverTowerCombat.TowerLevel.OnValueChanged -= OnTowerLevelChanged;
