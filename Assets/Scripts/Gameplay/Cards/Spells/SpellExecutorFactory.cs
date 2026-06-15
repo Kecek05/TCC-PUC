@@ -6,6 +6,7 @@ public static class SpellExecutorFactory
     {
         { SpellType.Fireball, new FireballExecutor() },
         { SpellType.Ice, new IceExecutor() },
+        { SpellType.Haste, new HasteExecutor() },
     };
 
     public static ISpellExecutor GetExecutor(SpellType spellType)

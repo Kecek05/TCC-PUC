@@ -3,6 +3,7 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 //Only Exists in Client
 public class ClientPlayersDataCanvas : MonoBehaviour
@@ -13,6 +14,7 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] playersWaves;
     [SerializeField] private GameObject[] localPlayerContents;
     [SerializeField] private GameObject[] enemyPlayerContents;
+    [SerializeField] private Image[] waveFillImage;
     [Space(5f)]
     
     [Title("Tween Settings")]
@@ -20,7 +22,7 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     [SerializeField] private Ease tweenEase = Ease.OutBack;
 
     private BaseServerPlayerHealthManager _playerHealthManager;
-    private Tween[] _sliderTweens = new Tween[2];
+    private Tween[] _waveFillTweens = new Tween[2];
     private BaseTeamManager  _teamManager;
     private BaseServerWaveManager  _waveManager;
     
@@ -43,8 +45,13 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         _waveManager.BlueCurrentWave.OnValueChanged += WaveManager_OnBlueWaveChanged;
         _waveManager.RedCurrentWave.OnValueChanged += WaveManager_OnRedWaveChanged;
         
+        _waveManager.BlueCurrentWaveProgress.OnValueChanged += WaveManager_OnBlueWaveProgressChanged;
+        _waveManager.RedCurrentWaveProgress.OnValueChanged += WaveManager_OnRedWaveProgressChanged;
+        
         WaveManager_OnBlueWaveChanged(0, _waveManager.BlueCurrentWave.Value);
         WaveManager_OnRedWaveChanged(0, _waveManager.RedCurrentWave.Value);
+        WaveManager_OnBlueWaveProgressChanged(0, _waveManager.BlueCurrentWaveProgress.Value);
+        WaveManager_OnRedWaveProgressChanged(0, _waveManager.RedCurrentWaveProgress.Value);
         
         // Named method (not a lambda) so OnDestroy can unsubscribe. SideChanged is a
         // static event; an un-removed subscription survives this scene and fires on the
@@ -84,6 +91,8 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         {
             _waveManager.BlueCurrentWave.OnValueChanged -= WaveManager_OnBlueWaveChanged;
             _waveManager.RedCurrentWave.OnValueChanged -= WaveManager_OnRedWaveChanged;
+            _waveManager.BlueCurrentWaveProgress.OnValueChanged -= WaveManager_OnBlueWaveProgressChanged;
+            _waveManager.RedCurrentWaveProgress.OnValueChanged -= WaveManager_OnRedWaveProgressChanged;
         }
 
         CameraSlide.SideChanged -= HandleCameraSideChanged;
@@ -117,5 +126,26 @@ public class ClientPlayersDataCanvas : MonoBehaviour
     private void ChangeWaveCount(int newWave, bool isLocal)
     {
         playersWaves[isLocal ? 0 : 1].text = isLocal ?  $"{newWave}/{_waveManager.GetTotalWaves()}" : $"{newWave}";
+    }
+    
+    private void WaveManager_OnBlueWaveProgressChanged(float previousValue, float newValue)
+    {
+        ChangeWaveProgress(newValue, _teamManager.GetLocalTeam() == TeamType.Blue);
+    }
+    
+    private void WaveManager_OnRedWaveProgressChanged(float previousValue, float newValue)
+    {
+        ChangeWaveProgress(newValue, _teamManager.GetLocalTeam() == TeamType.Red);
+    }
+    
+    private void ChangeWaveProgress(float newProgress, bool isLocal)
+    {
+        int index = isLocal ? 0 : 1;
+        _waveFillTweens[index]?.Kill();
+        _waveFillTweens[index] = DOTween.To(
+            () => waveFillImage[index].fillAmount, 
+            x => waveFillImage[index].fillAmount = x, 
+            newProgress, sliderTweenDuration)
+            .SetEase(tweenEase);
     }
 }

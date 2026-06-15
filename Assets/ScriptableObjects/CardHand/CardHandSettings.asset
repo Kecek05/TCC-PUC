@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34a01618e944e374ab60fffd76709031, type: 3}
   m_Name: CardHandSettings
   m_EditorClassIdentifier: Assembly-CSharp::CardHandSettingsSO
-  HandSize: 6
-  DeckSize: 6
+  HandSize: 4
+  DeckSize: 8

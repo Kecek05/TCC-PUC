@@ -30,7 +30,8 @@ public enum CardType
     SpawnEnemy1,
     SpellIce,
     SpawnEnemyMiniBoss,
-    SpawnEnemyArmy
+    SpawnEnemyArmy,
+    SpellHaste
 }
 
 public enum ExistingTypesOfCard
@@ -45,7 +46,8 @@ public enum SpellType
 {
     None,
     Fireball,
-    Ice
+    Ice,
+    Haste
 }
 
 public enum TowerType

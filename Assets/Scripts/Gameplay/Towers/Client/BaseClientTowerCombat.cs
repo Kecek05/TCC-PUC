@@ -22,6 +22,9 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
 
         serverTowerCombat.IsFrozen.OnValueChanged += OnFrozenChanged;
         OnFrozenChanged(false, serverTowerCombat.IsFrozen.Value);
+
+        serverTowerCombat.IsHasted.OnValueChanged += OnHastedChanged;
+        OnHastedChanged(false, serverTowerCombat.IsHasted.Value);
     }
 
     public override void OnNetworkDespawn()
@@ -31,6 +34,7 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
 
         serverTowerCombat.TowerLevel.OnValueChanged -= OnTowerLevelChanged;
         serverTowerCombat.IsFrozen.OnValueChanged -= OnFrozenChanged;
+        serverTowerCombat.IsHasted.OnValueChanged -= OnHastedChanged;
     }
 
     protected virtual void OnTowerLevelChanged(int previousValue, int newValue)
@@ -41,5 +45,10 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
     protected virtual void OnFrozenChanged(bool previousValue, bool newValue)
     {
         clientTowerGFX.SetFrozen(newValue);
+    }
+
+    protected virtual void OnHastedChanged(bool previousValue, bool newValue)
+    {
+        clientTowerGFX.SetHasted(newValue);
     }
 }

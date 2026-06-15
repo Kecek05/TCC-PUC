@@ -7,11 +7,6 @@ using Random = UnityEngine.Random;
 public class HandData
 {
     /// <summary>
-    ///  List of Instance Cards in the players hand (populated by UI layer)
-    /// </summary>
-    public List<AbstractCard> CardsInstanceInHand;
-    
-    /// <summary>
     /// Cards currently displayed in the player's hand (data, source of truth for draw cycle)
     /// </summary>
     public List<CardType> CardsTypeInHand;
@@ -40,7 +35,6 @@ public class HandData
     {
         HandData data = new HandData
         {
-            CardsInstanceInHand = new List<AbstractCard>(),
             CardsTypeInHand = new List<CardType>(),
             CardsTypeInDeck = new List<CardType>(deck),
             LockedCardsType = new List<CardType>(),

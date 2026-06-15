@@ -150,6 +150,10 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         {
             projectile.Initialize(localPos, spellData.TravelTime, spellData.Range);
         }
+        else if (visual.TryGetComponent(out CosmeticBuffZone buffZone) && spellData is SpellEffectDataSO effectData)
+        {
+            buffZone.Initialize(localPos, spellData.Range, effectData.Duration);
+        }
     }
 }
 

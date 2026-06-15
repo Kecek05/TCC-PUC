@@ -10,6 +10,8 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected TowerDataSO _towerData => towerManager.Data;
     protected NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
     protected NetworkVariable<bool> _isFrozen = new(writePerm: NetworkVariableWritePermission.Server);
+    protected NetworkVariable<bool> _isHasted = new(writePerm: NetworkVariableWritePermission.Server);
+    protected float _attackSpeedBuffPercent = 0f;
     protected bool _canTickCooldown = true;
     protected bool _setuped = false;
     protected bool _upgradingFlag = false;
@@ -27,6 +29,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
 
     public NetworkVariable<int> TowerLevel => _towerLevel;
     public NetworkVariable<bool> IsFrozen => _isFrozen;
+    public NetworkVariable<bool> IsHasted => _isHasted;
 
     public override void OnNetworkSpawn()
     {
@@ -79,7 +82,9 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         // Frozen by a spell: stop firing and pause the cooldown until it thaws.
         if (_isFrozen.Value) return;
 
-        if (_currentShootCooldown < _shootCooldown)
+        // Effective cooldown shrinks with stacked attack-speed buffs (e.g. +40% -> cooldown / 1.4).
+        float effectiveCooldown = _shootCooldown / (1f + _attackSpeedBuffPercent);
+        if (_currentShootCooldown < effectiveCooldown)
         {
             _currentShootCooldown += Time.deltaTime;
             return;
@@ -142,6 +147,29 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         yield return new WaitForSeconds(duration);
         _isFrozen.Value = false;
         _freezeCoroutine = null;
+    }
+
+    /// <summary>
+    /// Server-only. Adds <paramref name="percent"/> (a fraction, 0.2 = +20%) to this tower's stacked
+    /// attack-speed bonus. Overlapping buff zones stack additively. Kept separate from the base shoot
+    /// cooldown so upgrades (which recompute base stats) never wipe an active buff.
+    /// </summary>
+    public void AddAttackSpeedBuff(float percent)
+    {
+        if (!IsServer) return;
+        _attackSpeedBuffPercent += percent;
+        _isHasted.Value = _attackSpeedBuffPercent > 0.0001f;
+    }
+
+    /// <summary>
+    /// Server-only. Removes a previously-applied attack-speed contribution, clamped at 0 so a stray
+    /// double-remove can never invert the cooldown.
+    /// </summary>
+    public void RemoveAttackSpeedBuff(float percent)
+    {
+        if (!IsServer) return;
+        _attackSpeedBuffPercent = Mathf.Max(0f, _attackSpeedBuffPercent - percent);
+        _isHasted.Value = _attackSpeedBuffPercent > 0.0001f;
     }
 
     protected virtual void UpdateData()

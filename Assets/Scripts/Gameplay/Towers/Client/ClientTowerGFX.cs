@@ -14,10 +14,14 @@ public class ClientTowerGFX : MonoBehaviour
     [SerializeField] private TowerFeedback[] towerFeedbacks;
     [SerializeField] private MMF_Player shootFeedback;
 
-    [Header("Freeze (placeholder)")]
+    [Header("Status tints (placeholder)")]
     [SerializeField] private SpriteRenderer level1Renderer;
     [SerializeField] private Color frozenColor = Color.blue;
+    [SerializeField] private Color hastedColor = Color.yellow;
     [SerializeField] private Color normalColor = Color.white;
+
+    private bool _frozen;
+    private bool _hasted;
 
     public void UpgradeTower(int newLevel)
     {
@@ -40,12 +44,25 @@ public class ClientTowerGFX : MonoBehaviour
     }
 
     /// <summary>
-    /// Placeholder freeze visual: tints the Level 1 tower GFX blue while frozen, white otherwise.
+    /// Placeholder status visual: tints the Level 1 tower GFX blue while frozen, yellow while hasted
+    /// (freeze takes priority when both apply), white otherwise.
     /// </summary>
     public void SetFrozen(bool frozen)
     {
+        _frozen = frozen;
+        RefreshStatusTint();
+    }
+
+    public void SetHasted(bool hasted)
+    {
+        _hasted = hasted;
+        RefreshStatusTint();
+    }
+
+    private void RefreshStatusTint()
+    {
         if (level1Renderer == null) return;
-        level1Renderer.color = frozen ? frozenColor : normalColor;
+        level1Renderer.color = _frozen ? frozenColor : (_hasted ? hastedColor : normalColor);
     }
 
     private bool HasAnyFeedbackPlaying()

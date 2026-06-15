@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa784ba910989f4d8bce13b6405fa8f, type: 3}
+  m_Name: SpellHasteData
+  m_EditorClassIdentifier: Assembly-CSharp::SpellBuffDataSO
+  SpellType: 3
+  Range: 1.2
+  TravelTime: 0.1
+  VisualPrefab: {fileID: 5405131522583894879, guid: 4202044de8b63144e9c916872047437f, type: 3}
+  Duration: 5
+  AttackSpeedBonus: 0.25
