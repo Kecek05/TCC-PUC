@@ -103,7 +103,9 @@ public class CardSpellDeployer : BaseCardSpellDeployer
             CoroutineRunner = this,
         });
 
-        SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, team);
+        // Position the visual by the field it lands on (opponent's for enemy-map spells), not the
+        // caster, so it mirrors to the correct side on every client.
+        SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, spellCardData.GetTargetFieldTeam(team));
 
         PlaceResultRpc(new SpellSpawnResult
         {
@@ -135,12 +137,12 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void SpawnSpellVisualRpc(SpellType spellType, Vector2 serverPosition, TeamType casterTeam)
+    private void SpawnSpellVisualRpc(SpellType spellType, Vector2 serverPosition, TeamType fieldTeam)
     {
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellType);
         if (spellData == null || spellData.VisualPrefab == null) return;
 
-        Vector3 localPos = _mapTranslator.ServerToLocal(serverPosition, casterTeam);
+        Vector3 localPos = _mapTranslator.ServerToLocal(serverPosition, fieldTeam);
 
         GameObject visual = Instantiate(spellData.VisualPrefab, localPos, Quaternion.identity);
 

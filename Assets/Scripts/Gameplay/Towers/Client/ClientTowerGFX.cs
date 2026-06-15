@@ -14,6 +14,11 @@ public class ClientTowerGFX : MonoBehaviour
     [SerializeField] private TowerFeedback[] towerFeedbacks;
     [SerializeField] private MMF_Player shootFeedback;
 
+    [Header("Freeze (placeholder)")]
+    [SerializeField] private SpriteRenderer level1Renderer;
+    [SerializeField] private Color frozenColor = Color.blue;
+    [SerializeField] private Color normalColor = Color.white;
+
     public void UpgradeTower(int newLevel)
     {
         StopAllFeedbacks();
@@ -30,10 +35,19 @@ public class ClientTowerGFX : MonoBehaviour
     public void FireBulletFeedback()
     {
         if (HasAnyFeedbackPlaying()) return;
-        
+
         shootFeedback?.PlayFeedbacks();
     }
-    
+
+    /// <summary>
+    /// Placeholder freeze visual: tints the Level 1 tower GFX blue while frozen, white otherwise.
+    /// </summary>
+    public void SetFrozen(bool frozen)
+    {
+        if (level1Renderer == null) return;
+        level1Renderer.color = frozen ? frozenColor : normalColor;
+    }
+
     private bool HasAnyFeedbackPlaying()
     {
         foreach (TowerFeedback towerFeedback in towerFeedbacks)

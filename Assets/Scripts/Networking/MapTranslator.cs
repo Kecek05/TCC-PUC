@@ -81,6 +81,16 @@ public class MapTranslator : BaseMapTranslator
         return new Vector3(localPos.x,  localPos.y + mapOffset, localPos.z);
     }
 
+    // Team-aware inverse of ServerToLocal: a local point on teamType's field maps back to that
+    // team's server-space side. Needed for enemy-field spells (the single-arg overload above
+    // assumes the caster's own field, which is wrong when targeting the opponent's map).
+    public override Vector3 LocalToServer(Vector3 localPos, TeamType teamType)
+    {
+        if (!_needsTranslation) return localPos;
+        float y = teamType == TeamType.Blue ? localPos.y + mapOffset : localPos.y - mapOffset;
+        return new Vector3(localPos.x, y, localPos.z);
+    }
+
     public override Vector3 ServerToLocal(Vector3 serverPos, TeamType teamType)
     {
         if (!_needsTranslation) return serverPos;

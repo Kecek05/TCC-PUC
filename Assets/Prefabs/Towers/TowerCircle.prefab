@@ -40,6 +40,10 @@ PrefabInstance:
       propertyPath: circleClientTowerCombat
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: level1Renderer
+      value: 
+      objectReference: {fileID: 3124580302357001504}
     - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -141,6 +145,11 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.3
+--- !u!212 &3124580302357001504 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4680447756710118569 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}

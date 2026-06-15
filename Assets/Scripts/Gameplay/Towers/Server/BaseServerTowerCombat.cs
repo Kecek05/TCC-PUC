@@ -9,6 +9,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     [SerializeField] protected TowerManager towerManager;
     protected TowerDataSO _towerData => towerManager.Data;
     protected NetworkVariable<int> _towerLevel = new(writePerm: NetworkVariableWritePermission.Server);
+    protected NetworkVariable<bool> _isFrozen = new(writePerm: NetworkVariableWritePermission.Server);
     protected bool _canTickCooldown = true;
     protected bool _setuped = false;
     protected bool _upgradingFlag = false;
@@ -20,9 +21,12 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected float _bulletSpeed;
     protected float _currentSetupDuration;
 
+    private Coroutine _freezeCoroutine;
+
     protected BaseGameFlowManager _gameFlowManager;
 
     public NetworkVariable<int> TowerLevel => _towerLevel;
+    public NetworkVariable<bool> IsFrozen => _isFrozen;
 
     public override void OnNetworkSpawn()
     {
@@ -40,6 +44,16 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         UpdateData();
         _currentShootCooldown = 0f;
         StartCoroutine(SetupTimeDuration());
+
+        TowerRegistry.Register(towerManager);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        if (!IsServer) return;
+
+        TowerRegistry.Unregister(towerManager);
     }
 
     protected virtual IEnumerator SetupTimeDuration()
@@ -57,11 +71,14 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
 
         if (!_canTickCooldown)  return;
-        
+
         if (!_setuped) return;
-        
+
         if (_upgradingFlag) return;
-        
+
+        // Frozen by a spell: stop firing and pause the cooldown until it thaws.
+        if (_isFrozen.Value) return;
+
         if (_currentShootCooldown < _shootCooldown)
         {
             _currentShootCooldown += Time.deltaTime;
@@ -69,16 +86,16 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         }
 
         if (TryTriggerShot())
-            _currentShootCooldown =  0f; 
+            _currentShootCooldown =  0f;
     }
 
     protected abstract bool TryTriggerShot();
-    
+
     public bool CanUpgradeTower()
     {
         if (_towerLevel.Value >= _towerData.MaxLevel)
             return false;
-        
+
         return true;
     }
 
@@ -102,7 +119,31 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         yield return new WaitForSeconds(_currentSetupDuration);
         _upgradingFlag = false;
     }
-    
+
+    /// <summary>
+    /// Server-only. Freezes the tower for <paramref name="duration"/> seconds: it stops firing and
+    /// its shoot cooldown is paused. Re-calling while already frozen refreshes the timer. The frozen
+    /// flag is a NetworkVariable, so clients react to it to render the freeze GFX.
+    /// </summary>
+    public void Freeze(float duration)
+    {
+        if (!IsServer) return;
+        if (duration <= 0f) return;
+
+        if (_freezeCoroutine != null)
+            StopCoroutine(_freezeCoroutine);
+
+        _freezeCoroutine = StartCoroutine(FreezeRoutine(duration));
+    }
+
+    private IEnumerator FreezeRoutine(float duration)
+    {
+        _isFrozen.Value = true;
+        yield return new WaitForSeconds(duration);
+        _isFrozen.Value = false;
+        _freezeCoroutine = null;
+    }
+
     protected virtual void UpdateData()
     {
         _damage = _towerData.GetDamageByLevel(_towerLevel.Value);
@@ -111,7 +152,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
         _currentSetupDuration = _towerData.GetSetupDurationByLevel(_towerLevel.Value);
     }
-    
+
     protected EnemyManager FindClosestEnemyToEnd()
     {
         EnemyRegistry.Cleanup();
@@ -122,18 +163,18 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         for (int i = activeEnemies.Count - 1; i >= 0; i--)
         {
             EnemyManager enemy = activeEnemies[i];
-            
+
             if (!IsValidEnemy(enemy)) continue;
-            
+
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
             if (dist > _range) continue;
-            
+
             if (closestEnemy == null)
             {
                 closestEnemy = enemy;
                 continue;
             }
-            
+
             if (enemy.ServerMovement.PathProgress.Value > closestEnemy.ServerMovement.PathProgress.Value)
             {
                 closestEnemy = enemy;
@@ -146,11 +187,11 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected virtual bool IsValidEnemy(EnemyManager enemyManager)
     {
         if (enemyManager == null || !enemyManager.NetworkObject.IsSpawned) return false;
-            
+
         if (enemyManager.Team.GetTeamType() != towerManager.Team.GetTeamType()) return false;
-            
+
         if (!enemyManager.ServerMovement.IsTargetable) return false;
-        
+
         return true;
     }
 }

@@ -20,6 +20,11 @@ public class MapTranslator_DEBUG : BaseMapTranslator
         return localPos;
     }
 
+    public override Vector3 LocalToServer(Vector3 localPos, TeamType teamType)
+    {
+        return localPos;
+    }
+
     public override Vector3 ServerToLocal(Vector3 serverPos, TeamType teamType)
     {
         return new Vector3(serverPos.x, serverPos.y, serverPos.z);

@@ -18,4 +18,15 @@ public class SpellCardDataSO : CardDataSO
     public Sprite SpellGhostSprite;
     public SpellDataSO SpellData;
 
+    /// <summary>
+    /// The team whose field this spell lands on, given the caster's team: the opponent for
+    /// enemy-only spells (e.g. freeze), otherwise the caster's own team. Used to map both the
+    /// cast point and the spell visual to the correct server-space side for translating players.
+    /// </summary>
+    public TeamType GetTargetFieldTeam(TeamType casterTeam)
+    {
+        bool enemyField = CanUseInEnemyMap && !CanUseInLocalMap;
+        if (!enemyField) return casterTeam;
+        return casterTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
+    }
 }

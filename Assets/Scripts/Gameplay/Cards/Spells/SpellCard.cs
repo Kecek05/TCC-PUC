@@ -74,7 +74,10 @@ public class SpellCard : AbstractCard
         _cardSpellDeployer.OnSpellResult += HandleSpellResult;
         _clientManaManager.PredictSpend(cardDataSo.Cost);
 
-        Vector2 serverPosition = _mapTranslator.LocalToServer(worldPosition);
+        // Map the cast point using the team whose field it lands on (the opponent's for enemy-map
+        // spells like freeze), so it converts to the correct server-space side for translating players.
+        TeamType fieldTeam = GetSpellCardDataSO().GetTargetFieldTeam(_teamManager.GetLocalTeam());
+        Vector2 serverPosition = _mapTranslator.LocalToServer(worldPosition, fieldTeam);
         _cardSpellDeployer.RequestSpellCardServer(cardDataSo.CardType, serverPosition);
     }
     
