@@ -28,10 +28,11 @@ public class CardContainer : BaseCardContainer
         if (occupiedSlot == null)
         {
             GameLog.Error("All card slots are occupied. Cannot add card to container.");
+            return null;
         }
-        
+
         occupiedSlots[card] = occupiedSlot;
-        GameLog.Info($"Card added to slot: {occupiedSlot?.name ?? "None"}");
+        GameLog.Info($"Card added to slot: {occupiedSlot.name}");
         return occupiedSlot.SlotTransform;
     }
 
@@ -51,7 +52,8 @@ public class CardContainer : BaseCardContainer
     {
         if (occupiedSlots.Remove(card, out CardSlot slot))
         {
-            slot.Unoccupy();
+            if (slot != null)
+                slot.Unoccupy();
             GameLog.Info($"Card removed from slot: {card.name}");
         }
         else

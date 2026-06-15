@@ -52,9 +52,17 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         _blockingRaycaster = factoryData.BlockCardsCanvas;
 
         transform.SetParent(factoryData.CardParent);
-        RectTransform slotTransform = (RectTransform)_cardContainer.AddCardToSlot(this);
-        rectTransform.anchoredPosition = slotTransform.anchoredPosition;
-        originalPosition = slotTransform.anchoredPosition;
+        Transform slotTransform = _cardContainer.AddCardToSlot(this);
+        if (slotTransform == null)
+        {
+            GameLog.Error($"No free card slot available for {cardDataSo?.CardType}; destroying card UI to keep the hand consistent.");
+            Destroy(gameObject);
+            return;
+        }
+
+        RectTransform slotRect = (RectTransform)slotTransform;
+        rectTransform.anchoredPosition = slotRect.anchoredPosition;
+        originalPosition = slotRect.anchoredPosition;
         _originalParent = factoryData.CardParent;
         
         gfxController.Initialize(cardDataSo);

@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -85,7 +86,11 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
             return;
         }
 
-        _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId);
+        int spawnCount = Mathf.Max(1, spawnCardData.SpawnCount);
+        if (spawnCount <= 1)
+            _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId);
+        else
+            StartCoroutine(SendEnemyArmy(spawnCardData.EnemyType, authId, spawnCount, spawnCardData.DelayBetweenSpawns));
 
         SpawnResultRpc(new SpawnEnemyResult
         {
@@ -98,6 +103,18 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
             TeamDeployed = team,
             CardDeployed = cardType
         });
+    }
+
+    // Spawns several enemies of the same type, staggered by the card's own delay so they string out
+    // in a row down the opponent's lane (mana was already spent once for the whole batch).
+    private IEnumerator SendEnemyArmy(EnemyType enemyType, string authId, int count, float delayBetweenSpawns)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            _serverWaveManager.SendEnemyFromPlayer(enemyType, authId);
+            if (i < count - 1 && delayBetweenSpawns > 0f)
+                yield return new WaitForSeconds(delayBetweenSpawns);
+        }
     }
 
     private void SendFailure(ulong clientId, CardType cardType, CardInvalidReason reason)

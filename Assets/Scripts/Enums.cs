@@ -29,7 +29,8 @@ public enum CardType
     SpellFireball,
     SpawnEnemy1,
     SpellIce,
-    SpawnEnemyMiniBoss
+    SpawnEnemyMiniBoss,
+    SpawnEnemyArmy
 }
 
 public enum ExistingTypesOfCard
@@ -59,7 +60,8 @@ public enum EnemyType
     None,
     Triangle1,
     Triangle2,
-    MiniBoss
+    MiniBoss,
+    Fodder
 }
 
 public enum CardInvalidReason
