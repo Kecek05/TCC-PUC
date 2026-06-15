@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class TowerCard : AbstractCard
 {
     private GhostTowerCard _ghostTowerCard;
+    private TowerDataSO _cachedTowerDataSO;
+    private TowerCardDataSO _cachedTowerCardDataSO;
     [Space(5f)]
     
     [Header("GFXs")] 
@@ -39,6 +41,7 @@ public class TowerCard : AbstractCard
         base.OnBeginDrag(eventData);
         DisableGhostTowerGFX();
         _ghostTowerCard.SetSprite(GetTowerCardDataSO().TowerGhostSprite);
+        _ghostTowerCard.SetRange(GetTowerDataSO().RangeLevel1);
     }
 
     public override void OnDrag(PointerEventData eventData)
@@ -90,8 +93,6 @@ public class TowerCard : AbstractCard
         
         if (closestPlaceable == null) return;
         _currentPlaceable = closestPlaceable;
-
-        TowerCardDataSO towerCardData = GetTowerCardDataSO();
         
         _ghostTowerCard.SetVisible(true);
         _ghostTowerCard.SetPosition(closestPlaceable.PlaceablePoint.position);
@@ -232,13 +233,37 @@ public class TowerCard : AbstractCard
 
     private TowerCardDataSO GetTowerCardDataSO()
     {
+        if (_cachedTowerCardDataSO != null)
+            return _cachedTowerCardDataSO;
+        
+        if (cardDataSo is not TowerCardDataSO towerCardData)
+        {
+            GameLog.Error($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
+            return null;
+        }
+        
+        _cachedTowerCardDataSO = towerCardData; 
+        return _cachedTowerCardDataSO;
+    }
+
+    private TowerDataSO GetTowerDataSO()
+    {
+        if (_cachedTowerDataSO != null)
+            return  _cachedTowerDataSO;
+        
         if (cardDataSo is not TowerCardDataSO towerCardData)
         {
             GameLog.Error($"CardDataSO: {cardDataSo.CardType} is not TowerCardDataSO");
             return null;
         }
 
-        return towerCardData;
+        if (towerCardData.TowerPrefab.TryGetComponent(out TowerManager towerManager))
+        {
+            _cachedTowerDataSO = towerManager.Data;
+            return _cachedTowerDataSO;
+        }
+        GameLog.Error($"TowerCardDataSO: {cardDataSo.CardType} prefab doesn't have TowerManager");
+        return null;
     }
     
     #if UNITY_EDITOR

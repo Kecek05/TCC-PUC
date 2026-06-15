@@ -1941,7 +1941,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7256169366091304597}
   - component: {fileID: 6759448331034613719}
-  - component: {fileID: 4246440840294480086}
   m_Layer: 0
   m_Name: GFX
   m_TagString: Untagged
@@ -1987,69 +1986,10 @@ MonoBehaviour:
   - level: 3
     Feedback: {fileID: 6926006680642350526}
   shootFeedback: {fileID: 211216264628474573}
---- !u!114 &4246440840294480086
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4346362303017979155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
-  m_ShadowGroup: 0
-  m_Priority: 0
-  m_ComponentVersion: 5
-  m_HasRenderer: 0
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_AlphaCutoff: 0.1
-  m_ApplyToSortingLayers: 0000000015993818cd2496b83d87caa30b4ad4fc
-  m_ShapePath:
-  - {x: -0.23282743, y: -0.1326654, z: 0}
-  - {x: -0.2646929, y: -0.012001991, z: 0}
-  - {x: -0.2459485, y: 0.09928918, z: 0}
-  - {x: -0.15403658, y: 0.21430397, z: 0}
-  - {x: 0.007165551, y: 0.2611649, z: 0}
-  - {x: 0.10276216, y: 0.2367971, z: 0}
-  - {x: 0.1833632, y: 0.17868948, z: 0}
-  - {x: 0.25030258, y: 0.09741473, z: 0}
-  - {x: 0.27146202, y: 0.04560399, z: 0}
-  - {x: 0.27146202, y: -0.072485924, z: 0}
-  - {x: 0.20210764, y: -0.19807363, z: 0}
-  - {x: 0.07839441, y: -0.26742816, z: 0}
-  - {x: 0.00475055, y: -0.28449535, z: 0}
-  - {x: -0.092179954, y: -0.2655537, z: 0}
-  - {x: -0.17846853, y: -0.20635629, z: 0}
-  m_ShapePathHash: -483200482
-  m_InstanceId: 0
-  m_ShadowShape2DComponent: {fileID: 0}
-  m_ShadowShape2DProvider:
-    rid: -2
-  m_ShadowCastingSource: 1
-  m_ShadowMesh:
-    m_Mesh: {fileID: 0}
-    m_LocalBounds:
-      m_Center: {x: 0.0033845603, y: -0.011665225, z: 0}
-      m_Extent: {x: 0.26807746, y: 0.27283013, z: 0}
-    m_EdgeProcessing: 1
-    m_TrimEdge: 0
-    m_FlipX: 0
-    m_FlipY: 0
-    m_InitialTrim: 0
-  m_CastingOption: 3
-  m_PreviousTrimEdge: 0
-  m_PreviousEdgeProcessing: 1
-  m_PreviousShadowCastingSource: 1
-  m_PreviousShadowShape2DSource: {fileID: 0}
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+  level1Renderer: {fileID: 0}
+  frozenColor: {r: 0, g: 0, b: 1, a: 1}
+  hastedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &5226982642198322698
 GameObject:
   m_ObjectHideFlags: 0
@@ -2923,7 +2863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 590291487
+  GlobalObjectIdHash: 2301864055
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

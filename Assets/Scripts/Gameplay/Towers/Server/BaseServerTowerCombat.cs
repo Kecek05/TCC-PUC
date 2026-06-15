@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
@@ -222,4 +223,12 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
 
         return true;
     }
+    
+    #if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _range);
+    }
+#endif
 }
