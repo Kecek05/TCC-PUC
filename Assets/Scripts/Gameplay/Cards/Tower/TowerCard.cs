@@ -58,11 +58,38 @@ public class TowerCard : AbstractCard
         
         AnimateFadeOut();
         EnableGhostTowerGFX(worldPosition);
-        
+
         if (!IsPlaceableAvailable(worldPosition))
         {
-            _ghostTowerCard.SetVisible(false);
+            // Occupied spot: preview the upgrade (current + next range) if it holds a tower of this
+            // card's type; otherwise there's nothing placeable to show here.
+            if (!TryShowUpgradePreview(worldPosition))
+                _ghostTowerCard.SetVisible(false);
         }
+    }
+
+    private bool TryShowUpgradePreview(Vector2 worldPosition)
+    {
+        IPlaceable placeable = GetClosestPlaceable(worldPosition);
+        if (placeable == null || !placeable.IsOccupied()) return false;
+
+        TowerManager tower = placeable.OccupiedTower;
+        TowerDataSO cardData = GetTowerDataSO();
+        if (tower == null || tower.Data == null || cardData == null) return false;
+
+        // Only a same-type tower can be upgraded by this card (matches the server's LevelUp rule).
+        if (tower.Data.TowerType != cardData.TowerType) return false;
+
+        int level = 1;
+        if (tower.ServerTowerCombat != null)
+            level = Mathf.Clamp(tower.ServerTowerCombat.TowerLevel.Value, 1, tower.Data.MaxLevel);
+
+        bool hasNext = level < tower.Data.MaxLevel;
+        float currentRange = tower.Data.GetRangeByLevel(level);
+        float nextRange = hasNext ? tower.Data.GetRangeByLevel(level + 1) : currentRange;
+
+        _ghostTowerCard.ShowUpgradePreview(placeable.PlaceablePoint.position, currentRange, nextRange, hasNext);
+        return true;
     }
 
     public override void OnEndDrag(PointerEventData eventData)
@@ -93,8 +120,11 @@ public class TowerCard : AbstractCard
         
         if (closestPlaceable == null) return;
         _currentPlaceable = closestPlaceable;
-        
+
         _ghostTowerCard.SetVisible(true);
+        // Reset to the card's base range — an earlier upgrade-hover may have left the ring rescaled.
+        TowerDataSO data = GetTowerDataSO();
+        if (data != null) _ghostTowerCard.SetRange(data.RangeLevel1);
         _ghostTowerCard.SetPosition(closestPlaceable.PlaceablePoint.position);
     }
 

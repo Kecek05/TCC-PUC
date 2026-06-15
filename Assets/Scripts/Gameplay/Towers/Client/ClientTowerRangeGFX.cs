@@ -1,14 +1,14 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 /// <summary>
 /// Single scene-level tower range indicator (one instance, not one per tower — mirrors GhostTowerCard).
-/// Reuses one range-ring GFX for every tower: tapping a tower moves and rescales the ring to that tower's
-/// current range, tapping a different tower retargets it, and re-tapping the selected tower (or empty
-/// ground) hides it. Fed world
-/// taps by <c>TowerSelectionInput</c>, and resolves the tapped tower from the client-side
-/// <see cref="ClientTowerRegistry"/>. Purely cosmetic and client-only.
+/// Reuses one range-ring GFX for every tower: tapping a tower scales the ring in (DOTween) over that
+/// tower's current range, tapping a different tower retargets it, and re-tapping the selected tower (or
+/// empty ground) hides it instantly. Fed world taps by <c>TowerSelectionInput</c>, and resolves the
+/// tapped tower from the client-side <see cref="ClientTowerRegistry"/>. Purely cosmetic and client-only.
 /// </summary>
 public class ClientTowerRangeGFX : MonoBehaviour
 {
@@ -19,17 +19,38 @@ public class ClientTowerRangeGFX : MonoBehaviour
     [Tooltip("World-space radius around a tower centre that counts as a tap on that tower.")]
     [SerializeField] private float selectRadius = 0.5f;
 
+    [Title("Animation")]
+    [Tooltip("Seconds for the range ring to scale in when a tower is selected.")]
+    [SerializeField] private float showDuration = 0.25f;
+    [Tooltip("Easing for the scale-in. Hiding is instant (no tween).")]
+    [SerializeField] private Ease showEase = Ease.OutBack;
+
     private TowerManager _currentTower;
     private bool _levelSubscribed;
+    private Tween _scaleTween;
+
+    private static ClientTowerRangeGFX _instance;
 
     private void Awake()
     {
+        _instance = this;
         SetVisible(false);
     }
 
     private void OnDestroy()
     {
+        if (_instance == this) _instance = null;
+        KillTween();
         UnsubscribeLevel();
+    }
+
+    /// <summary>
+    /// Hides the range readout from anywhere — e.g. when the player grabs a card or interacts with UI,
+    /// so the selection ring doesn't linger over the field during an unrelated action.
+    /// </summary>
+    public static void HideSelection()
+    {
+        if (_instance != null) _instance.Hide();
     }
 
     private void Update()
@@ -67,7 +88,7 @@ public class ClientTowerRangeGFX : MonoBehaviour
         else ShowForTower(best);
     }
 
-    /// <summary>Positions and sizes the shared ring over <paramref name="tower"/> and shows it.</summary>
+    /// <summary>Positions the shared ring over <paramref name="tower"/> and scales it in.</summary>
     public void ShowForTower(TowerManager tower)
     {
         if (tower == null)
@@ -84,32 +105,45 @@ public class ClientTowerRangeGFX : MonoBehaviour
         }
 
         transform.position = tower.transform.position;
-        RefreshRange();
         SetVisible(true);
+        AnimateRange(fromZero: true);
     }
 
     public void Hide()
     {
+        // Hiding is instant — no tween, per design; just stop any in-flight scale-in.
+        KillTween();
         UnsubscribeLevel();
         _currentTower = null;
         SetVisible(false);
     }
 
-    private void RefreshRange()
+    // DOTween scale-in to the tower's diameter (2 x range). fromZero pops it in from nothing on select;
+    // a live upgrade grows from the current size instead. Mirrors GhostTowerCard's localScale = range*2.
+    private void AnimateRange(bool fromZero)
     {
-        if (_currentTower == null) return;
+        if (rangeGfx == null) return;
+
+        KillTween();
+        if (fromZero) rangeGfx.localScale = Vector3.zero;
+        _scaleTween = rangeGfx.DOScale(CurrentRange() * 2f, showDuration).SetEase(showEase);
+    }
+
+    private float CurrentRange()
+    {
+        if (_currentTower == null) return 0f;
 
         int level = 1;
         BaseServerTowerCombat combat = _currentTower.ServerTowerCombat;
         if (combat != null) level = Mathf.Clamp(combat.TowerLevel.Value, 1, _currentTower.Data.MaxLevel);
 
-        SetRange(_currentTower.Data.GetRangeByLevel(level));
+        return _currentTower.Data.GetRangeByLevel(level);
     }
 
-    // Mirrors GhostTowerCard.SetRange so the selection ring and the placement ghost read identically.
-    private void SetRange(float range)
+    private void KillTween()
     {
-        if (rangeGfx != null) rangeGfx.localScale = Vector3.one * (range * 2f);
+        if (_scaleTween != null && _scaleTween.IsActive()) _scaleTween.Kill();
+        _scaleTween = null;
     }
 
     private void SetVisible(bool visible)
@@ -138,10 +172,10 @@ public class ClientTowerRangeGFX : MonoBehaviour
         _levelSubscribed = false;
     }
 
-    // Range grows on upgrade: keep the live ring matched to the tower's current level while it's shown.
+    // Range grows on upgrade: tween the live ring to the new level's range while it's shown.
     private void OnLevelChanged(int previousValue, int newValue)
     {
         if (_currentTower != null) transform.position = _currentTower.transform.position;
-        RefreshRange();
+        AnimateRange(fromZero: false);
     }
 }

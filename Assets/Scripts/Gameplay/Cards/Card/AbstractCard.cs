@@ -70,6 +70,9 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
+        // Grabbing any card dismisses a lingering tower range readout (UI interaction takes over).
+        ClientTowerRangeGFX.HideSelection();
+
         transform.DOKill();
         rectTransform.DOKill();
         transform.SetParent(_safeArea.transform);
