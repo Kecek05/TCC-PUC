@@ -656,6 +656,9 @@ MonoBehaviour:
   titleLabel: {fileID: 8268402456379758233}
   cardIconImage: {fileID: 4271771184897595585}
   cardIconBackground: {fileID: 3991909735576815974}
+  cardCostGfx: {fileID: 4834175355498452699}
+  costDefaultColor: {r: 0.627451, g: 0.8117647, b: 1, a: 1}
+  costNoManaColor: {r: 0.160923, g: 0.2259615, b: 0.291, a: 1}
 --- !u!1 &3031774967596183023
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +729,7 @@ MonoBehaviour:
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0.846
+  m_FillAmount: 0.611
   m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
