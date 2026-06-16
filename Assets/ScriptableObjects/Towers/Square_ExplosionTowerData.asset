@@ -15,7 +15,7 @@ MonoBehaviour:
   TowerType: 2
   SetupDurationLevel1: 0.3
   DamageLevel1: 15
-  RangeLevel1: 0.75
+  RangeLevel1: 0.9
   ShootCooldownLevel1: 2.5
   BulletSpeedLevel1: 10
   SetupDurationLevel2: 0.2

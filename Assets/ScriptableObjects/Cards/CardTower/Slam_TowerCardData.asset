@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 922a90239be3b7640b57fe35bba888c4, type: 3}
+  m_Name: Slam_TowerCardData
+  m_EditorClassIdentifier: Assembly-CSharp::TowerCardDataSO
+  CardType: 9
+  ExistingType: 1
+  Rarity: 4
+  CardPrefab: {fileID: 1325791681110519822, guid: b91785e7fa2cea74a93bc08aa7df9813, type: 3}
+  CardName: Ground Slam
+  Description: A heavy short-range tower that slams the ground, instantly damaging
+    every enemy around it.
+  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  Cost: 5
+  UseCustomSizeCardInMenu: 0
+  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
+  TowerType: 3
+  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerPrefab: {fileID: 8400586856522066902, guid: c8f30fd9364a89c46b66578ecf72645d, type: 3}

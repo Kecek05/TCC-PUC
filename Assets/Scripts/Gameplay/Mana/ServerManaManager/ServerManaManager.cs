@@ -42,6 +42,8 @@ public class ServerManaManager : BaseServerManaManager
             _waveManager = ServiceLocator.Get<BaseServerWaveManager>();
 
         _waveManager.OnNewWave += WaveManager_OnNewWave;
+        WaveManager_OnNewWave(TeamType.Blue, 1);
+        WaveManager_OnNewWave(TeamType.Red, 1);
     }
 
     public override void OnNetworkDespawn()
