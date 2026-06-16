@@ -64,8 +64,11 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         rectTransform.anchoredPosition = slotRect.anchoredPosition;
         originalPosition = slotRect.anchoredPosition;
         _originalParent = factoryData.CardParent;
+
+        if (_clientManaManager == null)
+            _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
         
-        gfxController.Initialize(cardDataSo);
+        gfxController.Initialize(cardDataSo, _clientManaManager);
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)

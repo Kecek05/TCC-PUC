@@ -655,6 +655,7 @@ MonoBehaviour:
   costLabel: {fileID: 6273475188594173838}
   titleLabel: {fileID: 8268402456379758233}
   cardIconImage: {fileID: 4271771184897595585}
+  cardIconBackground: {fileID: 3991909735576815974}
 --- !u!1 &3031774967596183023
 GameObject:
   m_ObjectHideFlags: 0
@@ -720,12 +721,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
+  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Type: 3
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0
+  m_FillAmount: 0.846
   m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -1105,7 +1106,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
+  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
