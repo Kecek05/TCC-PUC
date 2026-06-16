@@ -228,7 +228,7 @@ public class ServerWaveManager : BaseServerWaveManager
     
     private NetworkVariable<float> GetCurrentWaveProgressNetworkVariable(TeamType teamType)
     {
-        return teamType == TeamType.Blue ? BlueCurrentWaveProgress : RedCurrentWaveProgress;
+        return teamType == TeamType.Blue ? BlueCurrentWaveProgressNormalized : RedCurrentWaveProgressNormalized;
     }
     
     private NetworkVariable<int> GetCurrentWaveNetworkVariable(TeamType teamType)

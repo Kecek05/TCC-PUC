@@ -83,12 +83,14 @@ public class ServerEndGameManager : BaseServerEndGameManager
             RedPlayer = new PlayerEndGameData()
             {
                 Health = _playerHealthManager.RedHealth.Value,
-                Wave = _waveManager.RedCurrentWave.Value
+                Wave = _waveManager.RedCurrentWave.Value,
+                WaveProgress = _waveManager.RedCurrentWaveProgressNormalized.Value,
             },
             BluePlayer = new PlayerEndGameData()
             {
                 Health = _playerHealthManager.BlueHealth.Value,
-                Wave = _waveManager.BlueCurrentWave.Value
+                Wave = _waveManager.BlueCurrentWave.Value,
+                WaveProgress = _waveManager.BlueCurrentWaveProgressNormalized.Value,
             }
         };
         

@@ -10,6 +10,7 @@ public class PlayerEndGameCanvasData
     [SerializeField] private TextMeshProUGUI playerUsername;
     [SerializeField] private TextMeshProUGUI playerHealth;
     [SerializeField] private TextMeshProUGUI playerWave;
+    [SerializeField] private Image waveProgress;
 
     public void ChangePlayerHealthText(float newHealth)
     {
@@ -19,6 +20,11 @@ public class PlayerEndGameCanvasData
     public void ChangePlayerWaveText(int newWave)
     {
         playerWave.text = $"{newWave}";
+    }
+
+    public void ChangeWaveProgress(float newProgress)
+    {
+        waveProgress.fillAmount = newProgress;
     }
 }
 
@@ -95,17 +101,21 @@ public class ClientEndGameCanvas : MonoBehaviour
         {
             localPlayerData.ChangePlayerHealthText(endgameSnapshot.BluePlayer.Health);
             localPlayerData.ChangePlayerWaveText(endgameSnapshot.BluePlayer.Wave);
+            localPlayerData.ChangeWaveProgress(endgameSnapshot.BluePlayer.WaveProgress);
             
             enemyPlayerData.ChangePlayerHealthText(endgameSnapshot.RedPlayer.Health);
             enemyPlayerData.ChangePlayerWaveText(endgameSnapshot.RedPlayer.Wave);
+            enemyPlayerData.ChangeWaveProgress(endgameSnapshot.RedPlayer.WaveProgress);
         }
         else
         {
             localPlayerData.ChangePlayerHealthText(endgameSnapshot.RedPlayer.Health);
             localPlayerData.ChangePlayerWaveText(endgameSnapshot.RedPlayer.Wave);
+            localPlayerData.ChangeWaveProgress(endgameSnapshot.RedPlayer.WaveProgress);
             
             enemyPlayerData.ChangePlayerHealthText(endgameSnapshot.BluePlayer.Health);
             enemyPlayerData.ChangePlayerWaveText(endgameSnapshot.BluePlayer.Wave);
+            enemyPlayerData.ChangeWaveProgress(endgameSnapshot.BluePlayer.WaveProgress);
         }
     }
     

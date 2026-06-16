@@ -45,13 +45,13 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         _waveManager.BlueCurrentWave.OnValueChanged += WaveManager_OnBlueWaveChanged;
         _waveManager.RedCurrentWave.OnValueChanged += WaveManager_OnRedWaveChanged;
         
-        _waveManager.BlueCurrentWaveProgress.OnValueChanged += WaveManager_OnBlueWaveProgressChanged;
-        _waveManager.RedCurrentWaveProgress.OnValueChanged += WaveManager_OnRedWaveProgressChanged;
+        _waveManager.BlueCurrentWaveProgressNormalized.OnValueChanged += WaveManager_OnBlueWaveProgressChanged;
+        _waveManager.RedCurrentWaveProgressNormalized.OnValueChanged += WaveManager_OnRedWaveProgressChanged;
         
         WaveManager_OnBlueWaveChanged(0, _waveManager.BlueCurrentWave.Value);
         WaveManager_OnRedWaveChanged(0, _waveManager.RedCurrentWave.Value);
-        WaveManager_OnBlueWaveProgressChanged(0, _waveManager.BlueCurrentWaveProgress.Value);
-        WaveManager_OnRedWaveProgressChanged(0, _waveManager.RedCurrentWaveProgress.Value);
+        WaveManager_OnBlueWaveProgressChanged(0, _waveManager.BlueCurrentWaveProgressNormalized.Value);
+        WaveManager_OnRedWaveProgressChanged(0, _waveManager.RedCurrentWaveProgressNormalized.Value);
         
         // Named method (not a lambda) so OnDestroy can unsubscribe. SideChanged is a
         // static event; an un-removed subscription survives this scene and fires on the
@@ -91,8 +91,8 @@ public class ClientPlayersDataCanvas : MonoBehaviour
         {
             _waveManager.BlueCurrentWave.OnValueChanged -= WaveManager_OnBlueWaveChanged;
             _waveManager.RedCurrentWave.OnValueChanged -= WaveManager_OnRedWaveChanged;
-            _waveManager.BlueCurrentWaveProgress.OnValueChanged -= WaveManager_OnBlueWaveProgressChanged;
-            _waveManager.RedCurrentWaveProgress.OnValueChanged -= WaveManager_OnRedWaveProgressChanged;
+            _waveManager.BlueCurrentWaveProgressNormalized.OnValueChanged -= WaveManager_OnBlueWaveProgressChanged;
+            _waveManager.RedCurrentWaveProgressNormalized.OnValueChanged -= WaveManager_OnRedWaveProgressChanged;
         }
 
         CameraSlide.SideChanged -= HandleCameraSideChanged;

@@ -5,11 +5,13 @@ using Unity.Netcode;
 public struct PlayerEndGameData : INetworkSerializable, IEquatable<PlayerEndGameData>
 {
     public int Wave;
+    public float WaveProgress;
     public float Health;
     
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
         serializer.SerializeValue(ref Wave);
+        serializer.SerializeValue(ref WaveProgress);
         serializer.SerializeValue(ref Health);
     }
 
