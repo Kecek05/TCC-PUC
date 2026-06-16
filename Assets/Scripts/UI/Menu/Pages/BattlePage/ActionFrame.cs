@@ -82,7 +82,7 @@ public class ActionFrame : MonoBehaviour
         }
     }
 
-    private void HideActionFrame()
+    public void HideActionFrame()
     {
         content.SetActive(false);
         _cardData = null;

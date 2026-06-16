@@ -3041,6 +3041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckPage
   scrollRect: {fileID: 1426938566}
+  deckUIController: {fileID: 734904294}
 --- !u!114 &734904294
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@ public class DeckPage : MenuPage
 {
     [Title("References")]
     [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private DeckUIController deckUIController;
 
     public override void OnPageBecameActive()
     {
@@ -18,6 +19,7 @@ public class DeckPage : MenuPage
         base.OnPageBecameInactive();
         Debug.Log("DeckPage became inactive!");
         ResetScrollToTop();
+        ResetActionFrame();
     }
 
     private void ResetScrollToTop()
@@ -25,5 +27,10 @@ public class DeckPage : MenuPage
         if (scrollRect == null) return;
         scrollRect.StopMovement();
         scrollRect.verticalNormalizedPosition = 1f;
+    }
+
+    private void ResetActionFrame()
+    {
+        deckUIController.ActionFrame.HideActionFrame();
     }
 }

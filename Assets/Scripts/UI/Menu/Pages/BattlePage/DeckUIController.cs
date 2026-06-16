@@ -39,6 +39,8 @@ public class DeckUIController : MonoBehaviour
     private ScreenWarning _screenWarning;
 
     private UserData _userData => _clientManager.UserData;
+    
+    public ActionFrame ActionFrame => _spawnedActionFrame;
 
     //PLACEHOLDER
     private float totalCost;
