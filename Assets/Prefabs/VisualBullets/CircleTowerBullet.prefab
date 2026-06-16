@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2484121482645174145}
   - component: {fileID: 7741412165481826483}
   m_Layer: 0
-  m_Name: CircleTowerBullet1
+  m_Name: CircleTowerBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

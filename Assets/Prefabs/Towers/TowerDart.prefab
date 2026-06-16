@@ -8,25 +8,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2606555038004479415, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: serverTowerCombat
-      value: 
-      objectReference: {fileID: 7717670085523773741}
     - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
+      objectReference: {fileID: 7482862587424366802}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.b
+      value: 0.53292567
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.r
+      value: 0.41037738
       objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3515666176
-      objectReference: {fileID: 0}
-    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: SceneMigrationSynchronization
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 590291487
       objectReference: {fileID: 0}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: towerDataSO
@@ -35,19 +35,15 @@ PrefabInstance:
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: clientTowerCombat
       value: 
-      objectReference: {fileID: 7437626524827975165}
+      objectReference: {fileID: 8586801971425471028}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
-      objectReference: {fileID: 7717670085523773741}
-    - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: circleClientTowerCombat
-      value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 7482862587424366802}
     - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: level1Renderer
+      propertyPath: clientTowerCombat
       value: 
-      objectReference: {fileID: 3124580302357001504}
+      objectReference: {fileID: 8586801971425471028}
     - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -99,72 +95,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 7717670085523773741}
-    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      insertIndex: 4
-      addedObject: {fileID: 7437626524827975165}
-    - targetCorrespondingSourceObject: {fileID: 4346362303017979155, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8613548249788466932}
+      addedObject: {fileID: 7482862587424366802}
+    - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8586801971425471028}
   m_SourcePrefab: {fileID: 100100000, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
---- !u!1 &2408099115043839597 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4346362303017979155, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-  m_PrefabInstance: {fileID: 2106039886683820926}
-  m_PrefabAsset: {fileID: 0}
---- !u!58 &8613548249788466932
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2408099115043839597}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.3
---- !u!212 &3124580302357001504 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-  m_PrefabInstance: {fileID: 2106039886683820926}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &4680447756710118569 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-  m_PrefabInstance: {fileID: 2106039886683820926}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2408099115043839597}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cea0f0f844747f4db7ee3510193bdca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientTowerGFX
 --- !u!114 &6640123157349213570 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
@@ -181,7 +117,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
   m_PrefabInstance: {fileID: 2106039886683820926}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7717670085523773741
+--- !u!114 &7482862587424366802
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -190,13 +126,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7615245171005323432}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54eae0cfac601a749aeaada5eb14275e, type: 3}
+  m_Script: {fileID: 11500000, guid: 58a79f58dfbd9554996d96f508c061c2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ServerCircleTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::ServerDartTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   towerManager: {fileID: 6640123157349213570}
-  clientCircleCombat: {fileID: 7437626524827975165}
---- !u!114 &7437626524827975165
+  clientDartCombat: {fileID: 8586801971425471028}
+--- !u!114 &8586801971425471028
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -205,12 +141,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7615245171005323432}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0782542fdf5706a49bcb9faa750c000d, type: 3}
+  m_Script: {fileID: 11500000, guid: b15285b525f18c24bbe91995a1242916, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CircleClientTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::ClientDartTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  clientTowerGFX: {fileID: 4680447756710118569}
-  serverTowerCombat: {fileID: 7717670085523773741}
+  serverTowerCombat: {fileID: 7482862587424366802}
   entityTeam: {fileID: 8086228052843494564}
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:

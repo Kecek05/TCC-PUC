@@ -1987,7 +1987,7 @@ MonoBehaviour:
   - level: 3
     Feedback: {fileID: 6926006680642350526}
   shootFeedback: {fileID: 211216264628474573}
-  level1Renderer: {fileID: 0}
+  level1Renderer: {fileID: 3919984509985760862}
   frozenColor: {r: 0, g: 0, b: 1, a: 1}
   hastedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2864,7 +2864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2542813435
+  GlobalObjectIdHash: 2475381293
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2921,7 +2921,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EmptyClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  clientTowerGFX: {fileID: 6759448331034613719}
   serverTowerCombat: {fileID: 3601178175637536332}
 --- !u!114 &5787397079051057888
 MonoBehaviour:

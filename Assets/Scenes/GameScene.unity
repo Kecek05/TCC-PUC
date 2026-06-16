@@ -627,7 +627,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7222186f175d1145924da2ebdfaaa0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CosmeticBulletPool
-  prefab: {fileID: 7741412165481826483, guid: 422afc02522d25248a40a29349f0d903, type: 3}
+  prefab: {fileID: 7741412165481826483, guid: 9ee615d6ebdfe8e41bbe7651fbba2d30, type: 3}
   initialPoolSize: 20
 --- !u!4 &11994718
 Transform:
@@ -5114,7 +5114,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000011444092
+      value: 0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -12098,12 +12098,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  BlueCurrentWaveProgress:
+  BlueCurrentWaveProgressNormalized:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  RedCurrentWaveProgress:
+  RedCurrentWaveProgressNormalized:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0

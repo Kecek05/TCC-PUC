@@ -20,7 +20,7 @@ MonoBehaviour:
   Description: A heavy short-range tower that slams the ground, instantly damaging
     every enemy around it.
   CardImage: {fileID: 21300000, guid: 4e73ad3cc1d3d684a854f9a666dc2f37, type: 3}
-  Cost: 5
+  Cost: 4
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
   UseCustomPositionCardInMenu: 0
