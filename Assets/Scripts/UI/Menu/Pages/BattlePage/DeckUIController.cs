@@ -89,6 +89,8 @@ public class DeckUIController : MonoBehaviour
     {
         _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform);
         _spawnedActionFrame.transform.localPosition = Vector3.zero;
+        _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform.parent.parent);
+        _spawnedActionFrame.transform.SetAsLastSibling();
         _spawnedActionFrame.ActivateActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
     }
 
