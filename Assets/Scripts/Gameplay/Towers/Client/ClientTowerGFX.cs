@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using MoreMountains.Feedbacks;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 [Serializable]
@@ -11,10 +13,12 @@ public struct TowerFeedback
 
 public class ClientTowerGFX : MonoBehaviour
 {
+    [Title("References")]
+    [SerializeField] private BaseClientTowerCombat clientTowerCombat;
     [SerializeField] private TowerFeedback[] towerFeedbacks;
     [SerializeField] private MMF_Player shootFeedback;
 
-    [Header("Status tints (placeholder)")]
+    [Title("Status tints (placeholder)")]
     [SerializeField] private SpriteRenderer level1Renderer;
     [SerializeField] private Color frozenColor = Color.blue;
     [SerializeField] private Color hastedColor = Color.yellow;
@@ -23,16 +27,31 @@ public class ClientTowerGFX : MonoBehaviour
     private bool _frozen;
     private bool _hasted;
 
-    public void UpgradeTower(int newLevel)
+    private void Start()
+    {
+        clientTowerCombat.OnBulletFired  +=  FireBulletFeedback;
+        clientTowerCombat.OnFrozenChanged += SetFrozen;
+        clientTowerCombat.OnHasteChanged += SetHasted;
+        clientTowerCombat.OnTowerLevelChanged += UpgradeTower;
+    }
+
+    private void OnDestroy()
+    {
+        clientTowerCombat.OnBulletFired  -=  FireBulletFeedback;
+        clientTowerCombat.OnFrozenChanged -= SetFrozen;
+        clientTowerCombat.OnHasteChanged -= SetHasted;
+        clientTowerCombat.OnTowerLevelChanged -= UpgradeTower;
+    }
+
+    private void UpgradeTower(int newLevel)
     {
         StopAllFeedbacks();
         foreach (TowerFeedback towerFeedback in towerFeedbacks)
         {
-            if (towerFeedback.level == newLevel)
-            {
-                towerFeedback.Feedback?.PlayFeedbacks();
-                break;
-            }
+            if (towerFeedback.level != newLevel) continue;
+            
+            towerFeedback.Feedback?.PlayFeedbacks();
+            break;
         }
     }
 
@@ -47,13 +66,13 @@ public class ClientTowerGFX : MonoBehaviour
     /// Placeholder status visual: tints the Level 1 tower GFX blue while frozen, yellow while hasted
     /// (freeze takes priority when both apply), white otherwise.
     /// </summary>
-    public void SetFrozen(bool frozen)
+    private void SetFrozen(bool frozen)
     {
         _frozen = frozen;
         RefreshStatusTint();
     }
 
-    public void SetHasted(bool hasted)
+    private void SetHasted(bool hasted)
     {
         _hasted = hasted;
         RefreshStatusTint();
@@ -67,12 +86,7 @@ public class ClientTowerGFX : MonoBehaviour
 
     private bool HasAnyFeedbackPlaying()
     {
-        foreach (TowerFeedback towerFeedback in towerFeedbacks)
-        {
-            if (towerFeedback.Feedback != null && towerFeedback.Feedback.IsPlaying)
-                return true;
-        }
-        return false;
+        return towerFeedbacks.Any(towerFeedback => towerFeedback.Feedback != null && towerFeedback.Feedback.IsPlaying);
     }
 
     private void StopAllFeedbacks()
@@ -85,10 +99,10 @@ public class ClientTowerGFX : MonoBehaviour
                 towerFeedback.Feedback.RestoreInitialValues();
             }
         }
-        if (shootFeedback != null && shootFeedback.IsPlaying)
-        {
-            shootFeedback.StopFeedbacks();
-            shootFeedback.RestoreInitialValues();
-        }
+
+        if (shootFeedback == null || !shootFeedback.IsPlaying) return;
+        
+        shootFeedback.StopFeedbacks();
+        shootFeedback.RestoreInitialValues();
     }
 }

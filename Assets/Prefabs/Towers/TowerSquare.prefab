@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: level1Renderer
       value: 
       objectReference: {fileID: 3124580302357001504}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: clientTowerCombat
+      value: 
+      objectReference: {fileID: 5912178713787069972}
     - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

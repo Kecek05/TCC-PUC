@@ -27,4 +27,4 @@ MonoBehaviour:
   CustomPositionCardInMenu: {x: 0, y: 0}
   TowerType: 3
   TowerGhostSprite: {fileID: 21300000, guid: bf613714e1e001547933a0fc5fe1db5e, type: 3}
-  TowerPrefab: {fileID: 8400586856522066902, guid: c8f30fd9364a89c46b66578ecf72645d, type: 3}
+  TowerPrefab: {fileID: 8139955226435285990, guid: c8f30fd9364a89c46b66578ecf72645d, type: 3}

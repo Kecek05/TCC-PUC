@@ -29,6 +29,6 @@ public class ClientCircleTowerCombat : BaseClientTowerCombat
 
         CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();
         bullet.Fire(localOrigin, targetTransform, bulletSpeed);
-        clientTowerGFX.FireBulletFeedback();
+        TriggerOnBulletFired();
     }
 }

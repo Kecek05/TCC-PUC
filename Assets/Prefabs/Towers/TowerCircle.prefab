@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 1455048732
+      value: 2542813435
       objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: SceneMigrationSynchronization
@@ -44,6 +44,10 @@ PrefabInstance:
       propertyPath: level1Renderer
       value: 
       objectReference: {fileID: 3124580302357001504}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: clientTowerCombat
+      value: 
+      objectReference: {fileID: 7437626524827975165}
     - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

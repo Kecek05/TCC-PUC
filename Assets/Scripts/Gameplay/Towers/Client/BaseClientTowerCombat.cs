@@ -1,11 +1,16 @@
+using System;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
 using UnityEngine;
 
 public abstract class BaseClientTowerCombat : NetworkBehaviour
 {
+    public event Action OnBulletFired;
+    public event Action<int> OnTowerLevelChanged;
+    public event Action<bool> OnFrozenChanged;
+    public event Action<bool> OnHasteChanged;
+    
     [Title("References")]
-    [SerializeField] protected ClientTowerGFX clientTowerGFX;
     [SerializeField] protected BaseServerTowerCombat serverTowerCombat;
 
     private TowerManager _towerManager;
@@ -19,11 +24,11 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
             return;
         }
 
-        serverTowerCombat.TowerLevel.OnValueChanged += OnTowerLevelChanged;
-        OnTowerLevelChanged(0, serverTowerCombat.TowerLevel.Value);
+        serverTowerCombat.TowerLevel.OnValueChanged += OnTowerLevelValueChanged;
+        OnTowerLevelValueChanged(0, serverTowerCombat.TowerLevel.Value);
 
-        serverTowerCombat.IsFrozen.OnValueChanged += OnFrozenChanged;
-        OnFrozenChanged(false, serverTowerCombat.IsFrozen.Value);
+        serverTowerCombat.IsFrozen.OnValueChanged += OnIsFrozenChanged;
+        OnIsFrozenChanged(false, serverTowerCombat.IsFrozen.Value);
 
         serverTowerCombat.IsHasted.OnValueChanged += OnHastedChanged;
         OnHastedChanged(false, serverTowerCombat.IsHasted.Value);
@@ -41,23 +46,25 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
 
         if (serverTowerCombat == null) return;
 
-        serverTowerCombat.TowerLevel.OnValueChanged -= OnTowerLevelChanged;
-        serverTowerCombat.IsFrozen.OnValueChanged -= OnFrozenChanged;
+        serverTowerCombat.TowerLevel.OnValueChanged -= OnTowerLevelValueChanged;
+        serverTowerCombat.IsFrozen.OnValueChanged -= OnIsFrozenChanged;
         serverTowerCombat.IsHasted.OnValueChanged -= OnHastedChanged;
     }
+    
+    protected void TriggerOnBulletFired() => OnBulletFired?.Invoke();
 
-    protected virtual void OnTowerLevelChanged(int previousValue, int newValue)
+    protected virtual void OnTowerLevelValueChanged(int previousValue, int newValue)
     {
-        clientTowerGFX.UpgradeTower(newValue);
+        OnTowerLevelChanged?.Invoke(newValue);
     }
 
-    protected virtual void OnFrozenChanged(bool previousValue, bool newValue)
+    protected virtual void OnIsFrozenChanged(bool previousValue, bool newValue)
     {
-        clientTowerGFX.SetFrozen(newValue);
+        OnFrozenChanged?.Invoke(newValue);
     }
 
     protected virtual void OnHastedChanged(bool previousValue, bool newValue)
     {
-        clientTowerGFX.SetHasted(newValue);
+        OnHasteChanged?.Invoke(newValue);
     }
 }
