@@ -120,14 +120,15 @@ public class ServerWaveManager : BaseServerWaveManager
             if (currentWave.DelayBeforeWave > 0f)
                 yield return new WaitForSeconds(currentWave.DelayBeforeWave);
 
-            // Spawn all enemies of this wave
+            // Spawn all enemies of this wave. Each enemy line uses ITS OWN spawn interval, so different enemy
+            // types in the same wave can spawn at different cadences. No extra delay is inserted between lines.
             foreach (ResolvedWaveEnemy waveEnemy in currentWave.Enemies)
             {
                 for (int i = 0; i < waveEnemy.Count; i++)
                 {
                     SpawnEnemy(waveEnemy.EnemyData, teamType);
                     if (i < waveEnemy.Count - 1)
-                        yield return new WaitForSeconds(currentWave.SpawnInterval);
+                        yield return new WaitForSeconds(waveEnemy.SpawnInterval);
                 }
             }
 

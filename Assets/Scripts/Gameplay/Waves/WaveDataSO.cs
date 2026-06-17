@@ -56,15 +56,16 @@ public class WaveDataSO : ScriptableObject
             for (int e = 0; e < entry.waveEnemies.Length; e++)
             {
                 WaveEnemy waveEnemy = entry.waveEnemies[e];
-                enemies[e] = new ResolvedWaveEnemy(waveEnemy.enemyData, waveEnemy.count.Resolve(rng));
+                enemies[e] = new ResolvedWaveEnemy(
+                    waveEnemy.enemyData,
+                    waveEnemy.count.Resolve(rng),
+                    waveEnemy.spawnInterval.Resolve(rng));
             }
-
-            float spawnInterval = entry.spawnInterval.Resolve(rng);
 
             // The first wave is preceded by InitialDelay, not by a between-waves delay.
             float delayBeforeWave = waveIndex == 0 ? 0f : DelayBetweenWaves.Resolve(rng);
 
-            resolved.Add(new ResolvedWave(enemies, spawnInterval, delayBeforeWave));
+            resolved.Add(new ResolvedWave(enemies, delayBeforeWave));
         }
 
         return resolved;
@@ -81,6 +82,11 @@ public struct WaveEnemy
     [Tooltip("How many enemies to spawn (inclusive min/max). Rolled once on the server and shared by both players.")]
     [ValidateInput("@$value.min >= 1 && $value.max >= $value.min", "Enemy count: Min must be ≥ 1 and Max ≥ Min.")]
     public IntRange count;
+
+    [Tooltip("Seconds between each spawn of THIS enemy within the wave (inclusive min/max). Rolled once on the " +
+             "server and shared by both players.")]
+    [ValidateInput("@$value.max >= $value.min", "Spawn interval: Max must be ≥ Min.")]
+    public FloatRange spawnInterval;
 }
 
 [Serializable]
@@ -88,11 +94,6 @@ public struct WaveEntry
 {
     [ValidateInput("@$value != null && $value.Length > 0", "A wave must contain at least one enemy entry.")]
     public WaveEnemy[] waveEnemies;
-
-    [Tooltip("Seconds between each enemy spawn within this wave (inclusive min/max). Rolled once on the server " +
-             "and shared by both players.")]
-    [ValidateInput("@$value.max >= $value.min", "Spawn interval: Max must be ≥ Min.")]
-    public FloatRange spawnInterval;
 }
 
 /// <summary>
@@ -145,34 +146,35 @@ public struct FloatRange
 }
 
 /// <summary>
-/// A single enemy line in a wave after its count range has been rolled. Runtime-only (server), never serialized.
+/// A single enemy line in a wave after its count and spawn-interval ranges have been rolled. Runtime-only
+/// (server), never serialized.
 /// </summary>
 public readonly struct ResolvedWaveEnemy
 {
     public readonly EnemyDataSO EnemyData;
     public readonly int Count;
+    public readonly float SpawnInterval;
 
-    public ResolvedWaveEnemy(EnemyDataSO enemyData, int count)
+    public ResolvedWaveEnemy(EnemyDataSO enemyData, int count, float spawnInterval)
     {
         EnemyData = enemyData;
         Count = count;
+        SpawnInterval = spawnInterval;
     }
 }
 
 /// <summary>
-/// A wave after all its ranges (counts, spawn interval, pre-wave delay) have been rolled. Runtime-only (server),
-/// shared by both teams so the two maps spawn identical waves.
+/// A wave after all its ranges (per-enemy counts and spawn intervals, plus the pre-wave delay) have been rolled.
+/// Runtime-only (server), shared by both teams so the two maps spawn identical waves.
 /// </summary>
 public class ResolvedWave
 {
     public readonly ResolvedWaveEnemy[] Enemies;
-    public readonly float SpawnInterval;
     public readonly float DelayBeforeWave;
 
-    public ResolvedWave(ResolvedWaveEnemy[] enemies, float spawnInterval, float delayBeforeWave)
+    public ResolvedWave(ResolvedWaveEnemy[] enemies, float delayBeforeWave)
     {
         Enemies = enemies;
-        SpawnInterval = spawnInterval;
         DelayBeforeWave = delayBeforeWave;
     }
 
