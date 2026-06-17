@@ -27,7 +27,10 @@ public class ClientTowerGFX : MonoBehaviour
     private bool _frozen;
     private bool _hasted;
 
-    private void Start()
+    // Subscribe in Awake, not Start: BaseClientTowerCombat replays the initial tower level (and frozen/haste
+    // state) inside OnNetworkSpawn, which runs AFTER Awake but BEFORE Start. Subscribing in Start would miss
+    // that initial replay, so the level-1 spawn fade-in never fires.
+    private void Awake()
     {
         clientTowerCombat.OnBulletFired  +=  FireBulletFeedback;
         clientTowerCombat.OnFrozenChanged += SetFrozen;
