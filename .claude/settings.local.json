@@ -20,7 +20,8 @@
       "PowerShell(try { Remove-Item -Path 'E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs','E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs.meta' -Force -ErrorAction Stop; Write-Output 'deleted IcelExecutor.cs + meta' } catch { Write-Output \"delete note: $_\" })",
       "mcp__unity-mcp__Unity_ReadConsole",
       "PowerShell(git *)",
-      "mcp__unity-mcp__Unity_CreateScript"
+      "mcp__unity-mcp__Unity_CreateScript",
+      "mcp__unity-mcp__Unity_ManageEditor"
     ]
   }
 }

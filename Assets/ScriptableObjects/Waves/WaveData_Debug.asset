@@ -13,13 +13,23 @@ MonoBehaviour:
   m_Name: WaveData_Debug
   m_EditorClassIdentifier: Assembly-CSharp::WaveDataSO
   InitialDelay: 7
-  DelayBetweenWaves: 3
+  DelayBetweenWaves:
+    min: 3
+    max: 3
   Waves:
   - waveEnemies:
     - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 9
-    spawnInterval: 3
+      count:
+        min: 9
+        max: 9
+    spawnInterval:
+      min: 3
+      max: 3
   - waveEnemies:
     - enemyData: {fileID: 11400000, guid: 5e1c45ceb7687b44fa4f92d13cea7726, type: 2}
-      count: 9
-    spawnInterval: 2
+      count:
+        min: 9
+        max: 9
+    spawnInterval:
+      min: 2
+      max: 2

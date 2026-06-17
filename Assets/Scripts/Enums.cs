@@ -67,7 +67,9 @@ public enum EnemyType
     Triangle1,
     Triangle2,
     MiniBoss,
-    Fodder
+    Fodder,
+    Triangle1Fast,
+    Triangle1Tank
 }
 
 public enum CardInvalidReason

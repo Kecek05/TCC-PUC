@@ -8,13 +8,19 @@ using UnityEngine;
 public class ServerWaveManager : BaseServerWaveManager
 {
     [Title("Wave Configuration")]
-    [SerializeField] private WaveDataSO waveData;
+    [SerializeField, Required] private WaveDataSO waveData;
     [SerializeField, Required]
     private EnemyDataListSO enemyDataListSO;
 
+    [Title("Randomization")]
+    [Tooltip("Off (default): a fresh random wave sequence each match. On: a reproducible sequence from the seed " +
+             "below. Either way both players always face the identical sequence.")]
+    [SerializeField] private bool useFixedSeed;
+    [SerializeField, ShowIf(nameof(useFixedSeed))] private int seed = 12345;
+
     [Title("Paths (one per map)")]
-    [SerializeField] private WaypointPath blueMapPath;
-    [SerializeField] private WaypointPath redMapPath;
+    [SerializeField, Required] private WaypointPath blueMapPath;
+    [SerializeField, Required] private WaypointPath redMapPath;
 
     private BaseGameFlowManager _gameFlowManager;
     private BaseEnemyNetworkPool _enemyNetworkPool;
@@ -23,7 +29,8 @@ public class ServerWaveManager : BaseServerWaveManager
     private List<EnemyManager> _redActiveEnemiesFromWave = new();
     private List<EnemyManager> _blueActiveEnemiesFromWave = new();
     
-    private Dictionary<TeamType, WaveEntry> _currentWaves = new();
+    private List<ResolvedWave> _resolvedWaves;
+    private Dictionary<TeamType, ResolvedWave> _currentWaves = new();
     private Dictionary<TeamType, int> _remainingEnemiesOfWave = new();
 
     private void Awake()
@@ -50,6 +57,11 @@ public class ServerWaveManager : BaseServerWaveManager
 
         ServerEnemyHealth.OnDeath += ServerEnemyHealthOnOnDeath;
         _gameFlowManager.CurrentGameState.OnValueChanged += GameFlowManager_OnCurrentGameStateValueChanged;
+
+        // Roll every wave range ONCE here, on the server. Both teams read this same plan, so the two maps
+        // always get the exact same enemies, counts, spawn intervals and inter-wave delays.
+        System.Random rng = new(useFixedSeed ? seed : Environment.TickCount);
+        _resolvedWaves = waveData.ResolveWaves(rng);
 
         StartCoroutine(RunWaves(TeamType.Blue));
         StartCoroutine(RunWaves(TeamType.Red));
@@ -101,21 +113,21 @@ public class ServerWaveManager : BaseServerWaveManager
 
         yield return new WaitForSeconds(waveData.InitialDelay);
 
-        for (int waveIndex = 0; waveIndex < waveData.Waves.Count; waveIndex++)
+        for (int waveIndex = 0; waveIndex < _resolvedWaves.Count; waveIndex++)
         {
-            WaveEntry currentWave = waveData.Waves[waveIndex];
+            ResolvedWave currentWave = _resolvedWaves[waveIndex];
             SetCurrentWave(teamType, waveIndex + 1, currentWave);
-            if (waveIndex > 0)
-                yield return new WaitForSeconds(waveData.DelayBetweenWaves);
+            if (currentWave.DelayBeforeWave > 0f)
+                yield return new WaitForSeconds(currentWave.DelayBeforeWave);
 
             // Spawn all enemies of this wave
-            foreach (WaveEnemy waveEnemy in currentWave.waveEnemies)
+            foreach (ResolvedWaveEnemy waveEnemy in currentWave.Enemies)
             {
-                for (int i = 0; i < waveEnemy.count; i++)
+                for (int i = 0; i < waveEnemy.Count; i++)
                 {
-                    SpawnEnemy(waveEnemy.enemyData, teamType);
-                    if (i < waveEnemy.count - 1)
-                        yield return new WaitForSeconds(currentWave.spawnInterval);
+                    SpawnEnemy(waveEnemy.EnemyData, teamType);
+                    if (i < waveEnemy.Count - 1)
+                        yield return new WaitForSeconds(currentWave.SpawnInterval);
                 }
             }
 
@@ -175,7 +187,7 @@ public class ServerWaveManager : BaseServerWaveManager
 
     public override int GetTotalWaves() => waveData.Waves.Count;
 
-    private void SetCurrentWave(TeamType teamType, int wave, WaveEntry waveEntry)
+    private void SetCurrentWave(TeamType teamType, int wave, ResolvedWave waveEntry)
     {
         _currentWaves[teamType] = waveEntry;
         _remainingEnemiesOfWave[teamType] = waveEntry.GetTotalEnemiesCount();

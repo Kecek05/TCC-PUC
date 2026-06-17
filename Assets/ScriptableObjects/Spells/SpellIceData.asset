@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpellIceData
   m_EditorClassIdentifier: Assembly-CSharp::SpellEffectDataSO
   SpellType: 2
-  Range: 0.75
+  Range: 0.95
   TravelTime: 0.2
   VisualPrefab: {fileID: 3892989022356757515, guid: d0aba933431a07d4f85e6d38e5151abe, type: 3}
   Duration: 3
