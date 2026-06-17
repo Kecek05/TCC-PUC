@@ -20,7 +20,7 @@ MonoBehaviour:
   Description: 'Drop a haste zone on your own field: ally towers inside gain +20%
     attack speed for 5s. Towers built inside while it lasts are buffed too, and overlapping
     zones stack.'
-  CardImage: {fileID: 3161377183836907632, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
   Cost: 1
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
