@@ -1,18 +1,20 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 
 /// <summary>
 /// Simple object pool for CosmeticBullets to avoid GC allocations on mobile.
 /// Clients use this to recycle bullet visuals instead of Instantiate/Destroy.
 /// </summary>
-public class CosmeticBulletPool : MonoBehaviour
+public class CosmeticBulletPool : SerializedMonoBehaviour 
 {
     public static CosmeticBulletPool Instance { get; private set; }
 
-    [SerializeField] private CosmeticBullet prefab;
+    [OdinSerialize] private Dictionary<CardType, CosmeticBullet> prefabs;
     [SerializeField] private int initialPoolSize = 20;
-
-    private readonly Queue<CosmeticBullet> _pool = new();
+    
+    private Dictionary<CardType, Queue<CosmeticBullet>> _pools = new();
 
     private void Awake()
     {
@@ -29,30 +31,57 @@ public class CosmeticBulletPool : MonoBehaviour
 
     private void Prewarm()
     {
-        for (int i = 0; i < initialPoolSize; i++)
+        foreach (var kvp in prefabs)
         {
-            var bullet = CreateInstance();
-            bullet.gameObject.SetActive(false);
-            _pool.Enqueue(bullet);
+            for (int i = 0; i < initialPoolSize; i++)
+            {
+                CardType cardType = kvp.Key;
+                CosmeticBullet bulletPrefab = kvp.Value;
+                var bulletInstance = CreateInstance(bulletPrefab);
+                bulletInstance.gameObject.SetActive(false);
+            
+                if (!_pools.ContainsKey(cardType))
+                {
+                    _pools.Add(cardType, new Queue<CosmeticBullet>());
+                }
+                _pools[cardType].Enqueue(bulletInstance);
+            }
         }
     }
 
-    public CosmeticBullet Get()
+    public CosmeticBullet Get(CardType cardType)
     {
-        var bullet = _pool.Count > 0 ? _pool.Dequeue() : CreateInstance();
-        bullet.gameObject.SetActive(true);
-        return bullet;
+        if (!_pools.ContainsKey(cardType))
+        {
+            GameLog.Warn($"CosmeticBulletPool CardType {cardType} not found in the pool. Returning null.");
+            return null;
+        }
+
+        if (!prefabs.ContainsKey(cardType))
+        {
+            GameLog.Warn($"CosmeticBulletPool CardType {cardType} not found in the prefabs dictionary. Returning null.");
+            return null;
+        }
+        
+        return _pools[cardType].Count > 0 ? _pools[cardType].Dequeue() : CreateInstance(prefabs[cardType]);
     }
 
     public void Return(CosmeticBullet bullet)
     {
         bullet.gameObject.SetActive(false);
-        _pool.Enqueue(bullet);
+        if (bullet.BulletCardType == CardType.None)
+        {
+            GameLog.Warn($"CosmeticBulletPool CardType is None. Enqueueing Skipped for:  {bullet.name}");
+            return;
+        }
+        
+        _pools[bullet.BulletCardType].Enqueue(bullet);
     }
 
-    private CosmeticBullet CreateInstance()
+    private CosmeticBullet CreateInstance(CosmeticBullet bulletPrefab)
     {
-        var bullet = Instantiate(prefab, transform);
+        var bullet = Instantiate(bulletPrefab, transform);
+        bullet.gameObject.SetActive(true);
         bullet.Initialize(this);
         return bullet;
     }

@@ -27,8 +27,8 @@ public class ClientCircleTowerCombat : BaseClientTowerCombat
             ? mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType())
             : originServerPos;
 
-        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();
-        bullet.Fire(localOrigin, targetTransform, bulletSpeed);
+        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get(CardType.TowerCircle);
+        bullet?.Fire(localOrigin, targetTransform, bulletSpeed);
         TriggerOnBulletFired();
     }
 }

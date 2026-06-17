@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class CosmeticBullet : MonoBehaviour
 {
+    [SerializeField] private CardType bulletCardType;
+    
     private Vector3 _origin;
     private Transform _target;
     private Vector3 _lastTargetPos;
@@ -17,6 +19,8 @@ public class CosmeticBullet : MonoBehaviour
     private float _lastSpeed;
     
     private CosmeticBulletPool _pool;
+    
+    public CardType BulletCardType => bulletCardType;
 
     public void Initialize(CosmeticBulletPool pool)
     {

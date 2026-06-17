@@ -22,8 +22,8 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
         BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
         Vector3 localOrigin = mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType());
 
-        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get();
-        bullet.Fire(localOrigin, targetTransform, bulletSpeed);
+        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get(CardType.TowerSquare);
+        bullet?.Fire(localOrigin, targetTransform, bulletSpeed);
         TriggerOnBulletFired();
         
         StartCoroutine(ExplodeBulletAfterDelay(targetTransform, explosionRadius, delayToExplode));

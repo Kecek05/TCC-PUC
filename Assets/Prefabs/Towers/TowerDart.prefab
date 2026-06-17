@@ -8,13 +8,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: fc668938af8570e4e9b7ae308a49852c, type: 3}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8c217afce9fc2c14ead065cd4d83c169, type: 3}
     - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
       objectReference: {fileID: 7482862587424366802}
     - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 5d9b26e660dd53e46880461452eafb46, type: 3}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Color.b
-      value: 0.53292567
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Color.g
@@ -22,7 +34,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Color.r
-      value: 0.41037738
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash

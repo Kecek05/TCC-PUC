@@ -19,12 +19,12 @@ MonoBehaviour:
   CardName: Dart
   Description: A cheap, rapid-fire tower. Each dart barely stings, but it never stops
     firing -- relentless chip damage against anything that wanders into range.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  CardImage: {fileID: 21300000, guid: ce547fe25a4ab0b47866822b32b0ae8a, type: 3}
   Cost: 2
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   TowerType: 4
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 5d9b26e660dd53e46880461452eafb46, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 4f331372fd2465646889b6b7b45dcac4, type: 3}

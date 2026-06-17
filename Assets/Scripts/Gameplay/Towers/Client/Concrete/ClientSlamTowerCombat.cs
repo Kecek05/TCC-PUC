@@ -31,26 +31,23 @@ public class ClientSlamTowerCombat : BaseClientTowerCombat
 
         GameObject bullet = Instantiate(slamBulletPrefab, transform.position, Quaternion.identity);
 
-        SpriteRenderer sr = bullet.GetComponentInChildren<SpriteRenderer>();
-        if (sr == null)
+        SpriteRenderer spriteRenderer = bullet.GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer == null)
         {
             Destroy(bullet);
             return;
         }
 
-        ScaleBulletToRange(bullet.transform, sr);
+        ScaleBulletToRange(bullet.transform, spriteRenderer);
 
         // Fade the existing sprite alpha down to fully transparent, then clean up. SetLink kills the
         // tween if the bullet is destroyed first (e.g. scene unload) so DOTween never touches a dead object.
-        sr.DOFade(0f, bulletFadeDuration)
+        spriteRenderer.DOFade(0f, bulletFadeDuration)
             .SetEase(bulletFadeEase)
             .SetLink(bullet)
             .OnComplete(() => Destroy(bullet));
     }
-
-    // Scale so the bullet's rendered diameter equals the slam diameter (2 x current range), so the GFX
-    // visually fills the area ServerSlamTowerCombat damages. Derives the factor from the sprite's own
-    // bounds, so it stays correct regardless of the sprite's base size.
+    
     private void ScaleBulletToRange(Transform bulletRoot, SpriteRenderer sr)
     {
         float range = CurrentRange();
@@ -61,8 +58,7 @@ public class ClientSlamTowerCombat : BaseClientTowerCombat
 
         bulletRoot.localScale = Vector3.one * (range * 2f / spriteDiameter);
     }
-
-    // Mirrors ClientTowerRangeGFX: current range = this tower's data range for its current (networked) level.
+    
     private float CurrentRange()
     {
         if (_towerManager == null) _towerManager = GetComponent<TowerManager>();

@@ -627,7 +627,80 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7222186f175d1145924da2ebdfaaa0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CosmeticBulletPool
-  prefab: {fileID: 7741412165481826483, guid: 9ee615d6ebdfe8e41bbe7651fbba2d30, type: 3}
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 7741412165481826483, guid: 9ee615d6ebdfe8e41bbe7651fbba2d30, type: 3}
+    - {fileID: 7741412165481826483, guid: e4c84bbad6b3a3949afca22a621974e0, type: 3}
+    - {fileID: 7741412165481826483, guid: 75bee1d0d38c8ff44b801db53899592e, type: 3}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: prefabs
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[CardType, Assembly-CSharp],[CosmeticBullet,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[CardType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 3
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 10
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 10
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 10
+    - Name: $v
+      Entry: 10
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   initialPoolSize: 20
 --- !u!4 &11994718
 Transform:
@@ -5114,7 +5187,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00002670288
+      value: -0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -18553,7 +18626,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
   m_SortingLayer: 2
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 534fa3ab6b2358548aee6932d4580bb4, type: 3}
   m_Color: {r: 0.874, g: 0.874, b: 0.874, a: 0.23921569}
@@ -34743,7 +34816,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 534fa3ab6b2358548aee6932d4580bb4, type: 3}
   m_Color: {r: 0.4, g: 1, b: 0.4, a: 0.3}
@@ -36249,7 +36322,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -1198119731
   m_SortingLayer: 2
-  m_SortingOrder: 4
+  m_SortingOrder: 5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
   m_Color: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 0.42745098}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2484121482645174145}
   - component: {fileID: 7741412165481826483}
   m_Layer: 0
-  m_Name: CircleTowerBullet
+  m_Name: DartTowerBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd90f607f7f886447890c2d6699cd50d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CosmeticBullet
-  bulletCardType: 1
+  bulletCardType: 10
 --- !u!1 &1474194078690394401
 GameObject:
   m_ObjectHideFlags: 0
@@ -127,7 +127,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 3e65383ee7b72fe4abcfd206d12c2235, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b7c1b437e52d9d343a4aa76ff13b9839, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
