@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
   TowerType: 3
   SetupDurationLevel1: 0.2
-  DamageLevel1: 60
+  DamageLevel1: 10
   RangeLevel1: 1
   ShootCooldownLevel1: 1.2
   BulletSpeedLevel1: 15
   SetupDurationLevel2: 0.5
-  DamageLevel2: 80
+  DamageLevel2: 20
   RangeLevel2: 1
   ShootCooldownLevel2: 1
   BulletSpeedLevel2: 20
   SetupDurationLevel3: 0.5
-  DamageLevel3: 100
+  DamageLevel3: 35
   RangeLevel3: 1.25
   ShootCooldownLevel3: 0.85
   BulletSpeedLevel3: 25

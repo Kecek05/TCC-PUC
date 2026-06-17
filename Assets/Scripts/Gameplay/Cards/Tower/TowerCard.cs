@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 using Unity.Netcode;
 using UnityEngine;
@@ -56,16 +57,18 @@ public class TowerCard : AbstractCard
             return;
         }
         
-        AnimateFadeOut();
-        EnableGhostTowerGFX(worldPosition);
-
         if (!IsPlaceableAvailable(worldPosition))
         {
             // Occupied spot: preview the upgrade (current + next range) if it holds a tower of this
             // card's type; otherwise there's nothing placeable to show here.
             if (!TryShowUpgradePreview(worldPosition))
-                _ghostTowerCard.SetVisible(false);
+            {
+                DisableGhostTowerGFX();
+                return;
+            }
         }
+        AnimateFadeOut();
+        EnableGhostTowerGFX(worldPosition);
     }
 
     private bool TryShowUpgradePreview(Vector2 worldPosition)
@@ -73,7 +76,9 @@ public class TowerCard : AbstractCard
         IPlaceable placeable = GetClosestPlaceable(worldPosition);
         if (placeable == null || !placeable.IsOccupied()) return false;
 
-        TowerManager tower = placeable.OccupiedTower;
+        // OccupiedTower is server-authoritative (clients occupy with a null tower in OccupyPlaceable),
+        // so resolve the occupying tower from the client-side registry — works on host and client alike.
+        TowerManager tower = ResolveTowerAt(placeable.PlaceablePoint.position);
         TowerDataSO cardData = GetTowerDataSO();
         if (tower == null || tower.Data == null || cardData == null) return false;
 
@@ -92,19 +97,47 @@ public class TowerCard : AbstractCard
         return true;
     }
 
+    // Finds the tower occupying a placeable by proximity to its point, using the client-side registry.
+    // The placeable's OccupiedTower is only populated on the server/host, so this is what makes the
+    // upgrade preview resolve the tower on clients too.
+    private TowerManager ResolveTowerAt(Vector2 position)
+    {
+        TowerManager best = null;
+        float bestSqr = layersSettings.PlaceableRadius * layersSettings.PlaceableRadius;
+
+        IReadOnlyList<TowerManager> towers = ClientTowerRegistry.ActiveTowers;
+        for (int i = towers.Count - 1; i >= 0; i--)
+        {
+            TowerManager tower = towers[i];
+            if (tower == null) continue;
+
+            float sqr = ((Vector2)tower.transform.position - position).sqrMagnitude;
+            if (sqr <= bestSqr)
+            {
+                bestSqr = sqr;
+                best = tower;
+            }
+        }
+
+        return best;
+    }
+
     public override void OnEndDrag(PointerEventData eventData)
     {
         base.OnEndDrag(eventData);
         DisableGhostTowerGFX();
     }
 
+    /// <summary>
+    /// This should only be called by the <see cref="DisableGhostTowerGFX"/>
+    /// </summary>
     private void AnimateFadeOut()
     {
         if (_enabledTowerGFX) return;
         fadeInFeedback?.StopFeedbacks();
         fadeOutFeedback?.PlayFeedbacks();
     }
-
+    
     private void AnimateFadeIn()
     {
         if (!_enabledTowerGFX) return;
