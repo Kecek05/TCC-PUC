@@ -59,14 +59,14 @@ public class TowerCard : AbstractCard
         
         if (!IsPlaceableAvailable(worldPosition))
         {
-            // Occupied spot: preview the upgrade (current + next range) if it holds a tower of this
-            // card's type; otherwise there's nothing placeable to show here.
+            // Occupied spot: preview the upgrade (current + next range) if it holds an upgradeable tower of
+            // this card's type; otherwise there's nothing to show here. Return either way so the placement
+            // ghost below doesn't overwrite the upgrade rings (it would re-hide nextRangeGfx).
             if (!TryShowUpgradePreview(worldPosition))
-            {
                 DisableGhostTowerGFX();
-                return;
-            }
+            return;
         }
+
         AnimateFadeOut();
         EnableGhostTowerGFX(worldPosition);
     }
@@ -93,6 +93,12 @@ public class TowerCard : AbstractCard
         float currentRange = tower.Data.GetRangeByLevel(level);
         float nextRange = hasNext ? tower.Data.GetRangeByLevel(level + 1) : currentRange;
 
+        // Enter "upgrade ghost" mode — fade the card out and remember the placeable so the drop resolves to
+        // it (mirrors EnableGhostTowerGFX for placement) — then show the current + next range rings. Must
+        // run before _enabledTowerGFX is set so AnimateFadeOut plays once on the first hover frame.
+        AnimateFadeOut();
+        _enabledTowerGFX = true;
+        _currentPlaceable = placeable;
         _ghostTowerCard.ShowUpgradePreview(placeable.PlaceablePoint.position, currentRange, nextRange, hasNext);
         return true;
     }
