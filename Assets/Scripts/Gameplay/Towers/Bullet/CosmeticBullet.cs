@@ -48,7 +48,7 @@ public class CosmeticBullet : MonoBehaviour
         if (!_active) return;
 
         // Track the moving target if it's still alive
-        if (_target != null)
+        if (_target != null && _target.gameObject.activeInHierarchy)
             _lastTargetPos = _target.position;
 
         _distanceTraveled += _lastSpeed * Time.deltaTime;

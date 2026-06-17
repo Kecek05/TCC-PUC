@@ -31,12 +31,12 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
     
     private IEnumerator ExplodeBulletAfterDelay(Transform targetTransform, float explosionRadius, float delayToExplode)
     {
-        Vector3 lastKnownPosition = targetTransform != null ? targetTransform.position : transform.position;
+        Vector3 lastKnownPosition = targetTransform != null && targetTransform.gameObject.activeInHierarchy ? targetTransform.position : transform.position;
         float elapsed = 0f;
 
         while (elapsed < delayToExplode)
         {
-            if (targetTransform != null)
+            if (targetTransform != null && targetTransform.gameObject.activeInHierarchy)
                 lastKnownPosition = targetTransform.position;
 
             elapsed += Time.deltaTime;
