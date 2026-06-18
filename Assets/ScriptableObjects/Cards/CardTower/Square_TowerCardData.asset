@@ -20,6 +20,7 @@ MonoBehaviour:
   Description: Heavy artillery. Fires slowly, but each shell explodes on impact,
     splashing damage across grouped enemies.
   CardImage: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
+  CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}

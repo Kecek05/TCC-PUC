@@ -54,14 +54,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5240486951047393607, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Name
-      value: EnemyFodder
+      value: EnemyArmyUnit
       objectReference: {fileID: 0}
     - target: {fileID: 6139324921012430164, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: enemyData
-      value:
+      value: 
       objectReference: {fileID: 11400000, guid: 468e307111c603c4b833eaaa1d3e63c6, type: 2}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
-      propertyPath: m_Color.r
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
+      propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
@@ -69,11 +73,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
-      propertyPath: m_Color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
-      propertyPath: m_Color.a
+      propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []

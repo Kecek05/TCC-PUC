@@ -25,6 +25,7 @@ public class CardGFXController : MonoBehaviour
         costLabel.text = _cardCost.ToString();
         titleLabel.text = cardDataSo.CardName;
         cardIconImage.sprite = cardDataSo.CardImage;
+        cardIconImage.color = cardDataSo.CardColor;
         cardIconBackground.sprite = cardDataSo.CardImage;
 
         UpdateCardCostGfx();

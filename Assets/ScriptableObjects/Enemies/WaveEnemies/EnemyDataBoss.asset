@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 7
   EnemyName: Boss
-  MaxHealth: 1200
+  MaxHealth: 2000
   MoveSpeed: 0.5
   SpawnDuration: 2
   Damage: 200
   ArmorColor: 0
-  OffColorResistance: 0.5
+  OffColorResistance: 0
   EnemySprite: {fileID: 0}
   EnemyPrefab: {fileID: 1129339759610760271, guid: e407f2176941b6d4ab9c9331dbd50fc9, type: 3}

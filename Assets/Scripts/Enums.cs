@@ -26,10 +26,9 @@ public enum TeamType
 public enum ArmorColor
 {
     None = 0,
-    Red,
-    Blue,
-    Green,
-    Yellow
+    Purple,
+    Pink,
+    Orange,
 }
 
 /// <summary>

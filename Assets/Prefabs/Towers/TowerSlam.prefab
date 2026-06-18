@@ -16,10 +16,26 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 96b8be3d82fa588469ee4bac57cf12c9, type: 3}
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.r
+      value: 0.44715405
+      objectReference: {fileID: 0}
     - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 1fd7768535179564f98039253e992788, type: 3}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.r
+      value: 0.44715405
+      objectReference: {fileID: 0}
     - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
@@ -28,6 +44,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: bf613714e1e001547933a0fc5fe1db5e, type: 3}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.r
+      value: 0.44715405
+      objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2475381293
@@ -55,6 +79,14 @@ PrefabInstance:
     - target: {fileID: 6723311858672287709, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: normalColor.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: normalColor.r
+      value: 0.44715405
       objectReference: {fileID: 0}
     - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: level1Renderer

@@ -19,6 +19,6 @@ MonoBehaviour:
   SpawnDuration: 1
   Damage: 1
   ArmorColor: 0
-  OffColorResistance: 0.5
+  OffColorResistance: 0
   EnemySprite: {fileID: 0}
   EnemyPrefab: {fileID: 7708427927526269066, guid: fa9a78bf2714b86469b641d64ee40374, type: 3}

@@ -12,6 +12,7 @@ public class CardDataSO : ScriptableObject
     public string CardName;
     [TextArea] public string Description;
     public Sprite CardImage;
+    public Color CardColor = Color.white;
     public int Cost;
     public bool UseCustomSizeCardInMenu = false;
     [ShowIf("UseCustomSizeCardInMenu")]public Vector2 CustomSizeCardInMenu;

@@ -20,6 +20,7 @@ MonoBehaviour:
   Description: A cheap, rapid-fire tower. Each dart barely stings, but it never stops
     firing -- relentless chip damage against anything that wanders into range.
   CardImage: {fileID: 21300000, guid: ce547fe25a4ab0b47866822b32b0ae8a, type: 3}
+  CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}

@@ -18,7 +18,7 @@ public class EnemyDataSO : ScriptableObject
     public ArmorColor ArmorColor = ArmorColor.None;
     [PropertyRange(0f, 1f)]
     [Tooltip("Damage reduction applied to hits whose color does not match this armor. 0 = none, 1 = immune to off-color.")]
-    public float OffColorResistance = 0.5f;
+    public float OffColorResistance = 0.35f;
 
     [Title("Visuals")]
     public Sprite EnemySprite;

@@ -16,10 +16,26 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 549e009a2cc188244adb42dcc4d598aa, type: 3}
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.b
+      value: 0.5031646
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
     - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 5a5d7ce01bec0d946bddbc11303f87b5, type: 3}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.b
+      value: 0.5031646
+      objectReference: {fileID: 0}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
     - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
@@ -28,6 +44,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: b8915b70b470c2141918b8f779a1d141, type: 3}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.b
+      value: 0.5031646
+      objectReference: {fileID: 0}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Color.g
+      value: 0.25943398
+      objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2301864055
@@ -59,6 +83,14 @@ PrefabInstance:
     - target: {fileID: 6723311858672287709, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: normalColor.b
+      value: 0.5031646
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: normalColor.g
+      value: 0.25943398
       objectReference: {fileID: 0}
     - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: level1Renderer
@@ -130,17 +162,6 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
   m_PrefabInstance: {fileID: 2106039886683820926}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4680447756710118569 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-  m_PrefabInstance: {fileID: 2106039886683820926}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cea0f0f844747f4db7ee3510193bdca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientTowerGFX
 --- !u!114 &6640123157349213570 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
@@ -185,7 +206,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClientSquareTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  clientTowerGFX: {fileID: 4680447756710118569}
   serverTowerCombat: {fileID: 5804759541381022721}
   entityTeam: {fileID: 8086228052843494564}
   explosionPrefab: {fileID: 403543111581879614, guid: c128e3994a5a6ea438f35edd2188e77a, type: 3}
