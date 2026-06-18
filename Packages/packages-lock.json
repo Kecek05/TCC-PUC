@@ -29,6 +29,15 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.lunawolfstudios.scriptablesheets": {
+      "version": "file:com.lunawolfstudios.scriptablesheets",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.test-framework": "1.1.33"
+      }
+    },
     "com.singularitygroup.hotreload": {
       "version": "file:com.singularitygroup.hotreload",
       "depth": 0,

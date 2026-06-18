@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 16a8358bb272a6f4eb7b693154289892
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 284559
+  packageName: Scriptable Sheets
+  packageVersion: 1.9.1
+  assetPath: Packages/com.lunawolfstudios.scriptablesheets/Editor/SheetsMultiColumnHeader.cs
+  uploadId: 936264

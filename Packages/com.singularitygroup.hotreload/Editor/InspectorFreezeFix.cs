@@ -14,7 +14,7 @@ public class InspectorFreezeFix
         Selection.selectionChanged += OnSelectionChanged;
     }
     
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_3_OR_NEWER
     private static EntityId _lastInitialEditorId;
 #else
     private static int _lastInitialEditorId;
@@ -60,7 +60,7 @@ public class InspectorFreezeFix
                     continue;
                 }
                 
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_3_OR_NEWER
                 var first = editors[0].GetEntityId();
 #else
                 var first = editors[0].GetInstanceID();

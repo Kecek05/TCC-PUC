@@ -104,7 +104,11 @@ namespace SingularityGroup.HotReload.Editor {
             Translations.LoadDefaultLocalization();
             SingularityGroup.HotReload.Localization.Translations.LoadDefaultLocalization();
             if (File.Exists(PackageConst.ConfigFilePath)) {
-                config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PackageConst.ConfigFilePath));
+                try {
+                    config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PackageConst.ConfigFilePath));
+                } catch {
+                    config = new Config();
+                }
             } else {
                 config = new Config();
             }
