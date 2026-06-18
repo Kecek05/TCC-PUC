@@ -20,7 +20,7 @@ MonoBehaviour:
   Description: 'Cast on the enemy''s field: your attacking troops (wave and summoned)
     surge with +20% move speed for 6s. The fury lingers 1s after they leave, and
     overlapping Rage zones stack.'
-  CardImage: {fileID: 21300000, guid: c1df40d40cc814a5695dee0e707cc03a, type: 3}
+  CardImage: {fileID: 21300000, guid: 61a149b55e66dc04a9a2c6e40fd94b78, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 1
