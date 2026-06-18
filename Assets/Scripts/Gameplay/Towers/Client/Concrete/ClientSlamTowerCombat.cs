@@ -11,8 +11,6 @@ public class ClientSlamTowerCombat : BaseClientTowerCombat
     [SerializeField] private float bulletFadeDuration = 0.5f;
     [SerializeField] private Ease bulletFadeEase = Ease.OutQuad;
 
-    private TowerManager _towerManager;
-
     /// <summary>
     /// Server → clients: play the slam pulse. Cosmetic only — damage is applied server-side in
     /// <see cref="ServerSlamTowerCombat"/>. Spawns a stationary bullet GFX at the tower, scaled to cover the

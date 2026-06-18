@@ -13,7 +13,9 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
     [Title("References")]
     [SerializeField] protected BaseServerTowerCombat serverTowerCombat;
 
-    private TowerManager _towerManager;
+    // Runtime cache (not serialized); protected so concrete combats (e.g. ClientSlamTowerCombat) reuse it
+    // instead of shadowing it with a same-named field, which Unity rejects as a duplicate serialized name.
+    protected TowerManager _towerManager;
 
     public override void OnNetworkSpawn()
     {
