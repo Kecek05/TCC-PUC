@@ -34,6 +34,13 @@ public class ServerEnemyMovement : NetworkBehaviour
     private bool _reversedLocal;
     private float _invincibilityTimer;
 
+    // Current speed is composed from independent sources so they never clobber each other:
+    //   effective = base * slowMultiplier * (1 + speedBuffPercent)
+    // _slowMultiplier is a single multiplicative slow (1 = none); _speedBuffPercent is the additive sum
+    // of every active speed buff (e.g. stacked Rage zones), mirroring the tower attack-speed accumulator.
+    private float _slowMultiplier = 1f;
+    private float _speedBuffPercent = 0f;
+
     /// <summary>
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
     /// Must be called on the server before or right after NetworkObject.Spawn().
@@ -58,7 +65,9 @@ public class ServerEnemyMovement : NetworkBehaviour
         }
         
         _baseSpeed = enemyManager.Data.MoveSpeed;
-        _currentSpeed.Value = _baseSpeed;
+        _slowMultiplier = 1f;
+        _speedBuffPercent = 0f;
+        RecalculateSpeed();
         _reversed.Value = _reversedLocal;
         _localProgress = 0f;
         _pathProgress.Value = 0f;
@@ -112,12 +121,45 @@ public class ServerEnemyMovement : NetworkBehaviour
     }
 
     /// <summary>
-    /// Apply a speed modifier (e.g. slow effect from a tower).
-    /// Pass 1.0 to restore normal speed.
+    /// Recomputes the replicated speed from its independent contributions. Server-only.
+    /// </summary>
+    private void RecalculateSpeed()
+    {
+        if (!IsServer) return;
+        _currentSpeed.Value = _baseSpeed * _slowMultiplier * (1f + _speedBuffPercent);
+    }
+
+    /// <summary>
+    /// Apply a multiplicative speed modifier (e.g. a slow effect from a tower).
+    /// Pass 1.0 to restore normal speed. Composes with any active speed buffs.
     /// </summary>
     public void SetSpeedMultiplier(float multiplier)
     {
         if (!IsServer) return;
-        _currentSpeed.Value = _baseSpeed * multiplier;
+        _slowMultiplier = multiplier;
+        RecalculateSpeed();
+    }
+
+    /// <summary>
+    /// Server-only. Adds <paramref name="percent"/> (a fraction, 0.2 = +20%) to this enemy's stacked
+    /// move-speed bonus. Independent buff sources (e.g. overlapping Rage zones) stack additively. Kept
+    /// separate from the base/slow speed so one source can be removed without disturbing the others.
+    /// </summary>
+    public void AddSpeedBuff(float percent)
+    {
+        if (!IsServer) return;
+        _speedBuffPercent += percent;
+        RecalculateSpeed();
+    }
+
+    /// <summary>
+    /// Server-only. Removes a previously-applied move-speed contribution, clamped at 0 so a stray
+    /// double-remove can never invert the speed.
+    /// </summary>
+    public void RemoveSpeedBuff(float percent)
+    {
+        if (!IsServer) return;
+        _speedBuffPercent = Mathf.Max(0f, _speedBuffPercent - percent);
+        RecalculateSpeed();
     }
 }

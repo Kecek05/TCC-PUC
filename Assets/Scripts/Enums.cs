@@ -46,7 +46,8 @@ public enum CardType
     SpawnEnemyArmy,
     SpellHaste,
     TowerSlam,
-    TowerDart
+    TowerDart,
+    SpellRage
 }
 
 public enum ExistingTypesOfCard
@@ -62,7 +63,8 @@ public enum SpellType
     None,
     Fireball,
     Ice,
-    Haste
+    Haste,
+    Rage
 }
 
 public enum TowerType
