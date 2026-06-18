@@ -12,7 +12,7 @@ public class CosmeticSpellProjectile : MonoBehaviour
     {
         _targetPosition = targetPosition;
         _range = range;
-
+        
         Vector3 startPos = new Vector3(targetPosition.x, targetPosition.y + spawnHeight, 0f);
         transform.position = startPos;
 

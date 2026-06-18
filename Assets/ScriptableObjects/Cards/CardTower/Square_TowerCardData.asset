@@ -17,9 +17,14 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: 667106bd4d854434bb50be29c0880fe7, type: 3}
   CardName: SQUARE
-  Description: Heavy artillery. Fires slowly, but each shell explodes on impact, splashing damage across grouped enemies.
+  Description: Heavy artillery. Fires slowly, but each shell explodes on impact,
+    splashing damage across grouped enemies.
   CardImage: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
   Cost: 6
+  UseCustomSizeCardInMenu: 0
+  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
   TowerType: 2
   TowerGhostSprite: {fileID: 21300000, guid: b8915b70b470c2141918b8f779a1d141, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 465ea1c16710f874fb14b96559cb3af5, type: 3}

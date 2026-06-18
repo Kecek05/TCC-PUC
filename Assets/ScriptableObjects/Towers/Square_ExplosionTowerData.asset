@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Square_ExplosionTowerData
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionTowerDataSO
   TowerType: 2
+  AttackColor: 0
+  ArmorPenetration: 0
   SetupDurationLevel1: 0.3
   DamageLevel1: 35
   RangeLevel1: 1.2
@@ -29,5 +31,5 @@ MonoBehaviour:
   ShootCooldownLevel3: 2
   BulletSpeedLevel3: 20
   ExplosionRangeLevel1: 0.4
-  ExplosionRangeLevel2: 0.7
-  ExplosionRangeLevel3: 1.5
+  ExplosionRangeLevel2: 0.6
+  ExplosionRangeLevel3: 0.7

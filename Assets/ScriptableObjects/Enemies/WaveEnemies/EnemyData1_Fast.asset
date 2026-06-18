@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 5
   EnemyName: Triangle 1 Fast
-  MaxHealth: 80
-  MoveSpeed: 1.4
+  MaxHealth: 95
+  MoveSpeed: 1.6
   SpawnDuration: 0.7
   Damage: 3
   ArmorColor: 0
