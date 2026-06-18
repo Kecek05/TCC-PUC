@@ -26,7 +26,7 @@ public class Bullet : MonoBehaviour
         {
             if (_damaged) return;
             _damaged = true;
-            damageable.TakeDamage(10f);
+            damageable.TakeDamage(DamageInfo.Neutral(10f));
         }
     }
 }

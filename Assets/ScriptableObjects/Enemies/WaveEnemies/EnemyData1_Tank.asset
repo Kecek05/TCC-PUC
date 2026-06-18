@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: PlayerEnemyData2
+  m_Name: EnemyData1_Tank
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  EnemyType: 2
-  EnemyName: Triangle 2
-  MaxHealth: 100
-  MoveSpeed: 4
-  SpawnDuration: 1
-  Damage: 2
-  EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
-  EnemyPrefab: {fileID: 555056346848720212, guid: 3a73665f04981f24e92cb261eb48ee32, type: 3}
+  EnemyType: 6
+  EnemyName: Triangle 1 Tank
+  MaxHealth: 200
+  MoveSpeed: 1
+  SpawnDuration: 1.5
+  Damage: 10
+  ArmorColor: 0
+  OffColorResistance: 0.5
+  EnemySprite: {fileID: 0}
+  EnemyPrefab: {fileID: 972179451941447193, guid: 593ec09ee5edc754ba75674269154d2d, type: 3}

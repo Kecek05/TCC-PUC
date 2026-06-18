@@ -19,6 +19,20 @@ public enum TeamType
 }
 
 /// <summary>
+/// A tower's attack color and an enemy's armor color. A tower deals full damage to enemies of the same
+/// color and reduced damage (the enemy's off-color resistance) to others. <see cref="None"/> is neutral:
+/// a None attacker deals true damage, and a None-armored enemy takes full damage from any color.
+/// </summary>
+public enum ArmorColor
+{
+    None = 0,
+    Red,
+    Blue,
+    Green,
+    Yellow
+}
+
+/// <summary>
 /// Unique Identifier of a Card
 /// </summary>
 public enum CardType
@@ -69,7 +83,9 @@ public enum EnemyType
     MiniBoss,
     Fodder,
     Triangle1Fast,
-    Triangle1Tank
+    Triangle1Tank,
+    Boss,
+    PlayerEnemy,
 }
 
 public enum CardInvalidReason

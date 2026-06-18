@@ -46,12 +46,16 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         OnDeath?.Invoke(enemyManager);
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damage)
     {
         if (!IsServer) return;
         if (enemyManager.ServerMovement.Invincible.Value) return;
 
-        _currentHealth.Value -= damage;
+        // The enemy owns its armor, so resistance is resolved here — every damage source (towers, spells,
+        // anything future) is covered without each one re-implementing the rule.
+        float effective = ArmorResistance.Resolve(damage, enemyManager.Data.ArmorColor, enemyManager.Data.OffColorResistance);
+
+        _currentHealth.Value -= effective;
 
         if (_currentHealth.Value <= 0f)
         {

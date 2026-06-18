@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: EnemyData1_Fast
+  m_Name: EnemyData2
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  EnemyType: 5
-  EnemyName: Triangle 1 Fast
-  MaxHealth: 120
-  MoveSpeed: 5
+  EnemyType: 2
+  EnemyName: Triangle 2
+  MaxHealth: 270
+  MoveSpeed: 1.5
   SpawnDuration: 0.7
-  Damage: 3
+  Damage: 5
+  ArmorColor: 0
+  OffColorResistance: 0.5
   EnemySprite: {fileID: 0}
-  EnemyPrefab: {fileID: 972179451941447193, guid: 7b94b15adcfd6324fa6edfda5cbd4ae3, type: 3}
+  EnemyPrefab: {fileID: 1129339759610760271, guid: 98c0ac6d0229c474e81835af28ce2356, type: 3}

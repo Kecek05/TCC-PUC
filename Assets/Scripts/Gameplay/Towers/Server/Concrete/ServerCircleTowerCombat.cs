@@ -32,7 +32,7 @@ public class ServerCircleTowerCombat : BaseServerTowerCombat
         yield return new WaitForSeconds(delay);
 
         if (target != null && target.NetworkObject != null && target.NetworkObject.IsSpawned)
-            target.ServerHealth.TakeDamage(damage);
+            DealDamage(target, damage);
     }
     
 }

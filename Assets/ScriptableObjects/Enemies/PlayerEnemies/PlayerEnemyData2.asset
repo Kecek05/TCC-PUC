@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: EnemyDataMiniBoss
+  m_Name: PlayerEnemyData2
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  EnemyType: 3
-  EnemyName: Mini Boss
-  MaxHealth: 800
-  MoveSpeed: 2
-  SpawnDuration: 1.5
-  Damage: 20
+  EnemyType: 8
+  EnemyName: Player Enemy
+  MaxHealth: 250
+  MoveSpeed: 2.2
+  SpawnDuration: 2
+  Damage: 5
+  ArmorColor: 0
+  OffColorResistance: 0.5
   EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
-  EnemyPrefab: {fileID: 1157690352288078179, guid: 45aad7fc11bb763438e7f71ac863ce84, type: 3}
+  EnemyPrefab: {fileID: 555056346848720212, guid: 3a73665f04981f24e92cb261eb48ee32, type: 3}

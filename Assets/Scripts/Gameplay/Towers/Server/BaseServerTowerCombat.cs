@@ -182,6 +182,16 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _currentSetupDuration = _towerData.GetSetupDurationByLevel(_towerLevel.Value);
     }
 
+    /// <summary>
+    /// Server-only. Deals damage to an enemy tagged with this tower's attack color and armor penetration, so
+    /// the enemy resolves off-color resistance. Every tower combat funnels through here so a new tower can
+    /// never forget to carry its color.
+    /// </summary>
+    protected void DealDamage(EnemyManager enemy, float damage)
+    {
+        enemy.ServerHealth.TakeDamage(new DamageInfo(damage, _towerData.AttackColor, _towerData.ArmorPenetration));
+    }
+
     protected EnemyManager FindClosestEnemyToEnd()
     {
         EnemyRegistry.Cleanup();

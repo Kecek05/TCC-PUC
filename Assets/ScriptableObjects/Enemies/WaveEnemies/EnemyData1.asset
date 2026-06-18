@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 1
   EnemyName: Triangle 1
-  MaxHealth: 100
-  MoveSpeed: 2
+  MaxHealth: 70
+  MoveSpeed: 1.2
   SpawnDuration: 1
   Damage: 1
+  ArmorColor: 0
+  OffColorResistance: 0.5
   EnemySprite: {fileID: 21300000, guid: eda97507af9876242a76bf4db56f5f5b, type: 3}
   EnemyPrefab: {fileID: 1129339759610760271, guid: dab82b31df5662c469ba4450aa09ecbb, type: 3}

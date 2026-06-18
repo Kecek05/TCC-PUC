@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00d4cef7c2e6c434fb0059fd41a16228, type: 3}
-  m_Name: SpawnEnemyTriangle2CardData
+  m_Name: SpawnEnemyCardData
   m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCardDataSO
   CardType: 4
   ExistingType: 3
@@ -25,6 +25,6 @@ MonoBehaviour:
   CustomSizeCardInMenu: {x: 150, y: 150}
   UseCustomPositionCardInMenu: 1
   CustomPositionCardInMenu: {x: 0, y: 13}
-  EnemyType: 2
+  EnemyType: 8
   SpawnCount: 1
   DelayBetweenSpawns: 0.3

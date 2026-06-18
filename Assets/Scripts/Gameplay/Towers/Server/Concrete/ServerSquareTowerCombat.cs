@@ -64,7 +64,7 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
         foreach (EnemyManager enemy in enemiesInRange)
         {
             if (!IsValidEnemy(enemy)) continue;
-            enemy.ServerHealth.TakeDamage(damage);
+            DealDamage(enemy, damage);
         }
     }
 

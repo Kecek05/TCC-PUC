@@ -8,6 +8,13 @@ public class TowerDataSO : ScriptableObject
     public TowerType TowerType;
 
     public readonly int MaxLevel = 3;
+
+    [Title("Color / Armor")]
+    [Tooltip("This tower deals full damage to enemies of the same color, and reduced damage to others.")]
+    public ArmorColor AttackColor = ArmorColor.None;
+    [PropertyRange(0f, 1f)]
+    [Tooltip("Fraction of an enemy's off-color resistance this tower ignores. 0 = normal, 1 = ignores armor entirely.")]
+    public float ArmorPenetration = 0f;
     
     [Title("Level 1")]
     [Unit(Units.Second)] public float SetupDurationLevel1 = 0.3f;

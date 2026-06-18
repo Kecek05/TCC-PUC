@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
+  m_Name: EnemyData1_Fast
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
+  EnemyType: 5
+  EnemyName: Triangle 1 Fast
+  MaxHealth: 80
+  MoveSpeed: 1.4
+  SpawnDuration: 0.7
+  Damage: 3
+  ArmorColor: 0
+  OffColorResistance: 0.5
+  EnemySprite: {fileID: 0}
+  EnemyPrefab: {fileID: 972179451941447193, guid: 7b94b15adcfd6324fa6edfda5cbd4ae3, type: 3}

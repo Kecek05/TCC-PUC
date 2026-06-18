@@ -29,7 +29,7 @@ public interface ISpellExecutor
 
 public interface IDamageable
 {
-    void TakeDamage(float damage);
+    void TakeDamage(DamageInfo damage);
 }
 
 public interface IPlaceable

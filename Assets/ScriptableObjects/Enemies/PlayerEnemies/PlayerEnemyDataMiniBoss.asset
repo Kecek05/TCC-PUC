@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1793ee1ffef6ac743ab10fce4736f4cc, type: 3}
-  m_Name: EnemyDataFodder
+  m_Name: PlayerEnemyDataMiniBoss
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
-  EnemyType: 4
-  EnemyName: Fodder
-  MaxHealth: 30
-  MoveSpeed: 2.5
-  SpawnDuration: 1
-  Damage: 1
-  EnemySprite: {fileID: 0}
-  EnemyPrefab: {fileID: 5240486951047393607, guid: fa9a78bf2714b86469b641d64ee40374, type: 3}
+  EnemyType: 3
+  EnemyName: Mini Boss
+  MaxHealth: 800
+  MoveSpeed: 1.5
+  SpawnDuration: 1.5
+  Damage: 20
+  ArmorColor: 0
+  OffColorResistance: 0.5
+  EnemySprite: {fileID: 21300006, guid: 358b5d9f23bc9413e87c9948acc67ee1, type: 3}
+  EnemyPrefab: {fileID: 1157690352288078179, guid: 45aad7fc11bb763438e7f71ac863ce84, type: 3}

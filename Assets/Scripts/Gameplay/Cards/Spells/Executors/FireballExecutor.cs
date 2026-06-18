@@ -34,7 +34,7 @@ public class FireballExecutor : ISpellExecutor
             float dist = Vector2.Distance(position, enemy.transform.position);
             if (dist <= data.Range)
             {
-                enemy.ServerHealth.TakeDamage(data.Damage);
+                enemy.ServerHealth.TakeDamage(new DamageInfo(data.Damage, data.AttackColor, data.ArmorPenetration));
                 GameLog.Info($"FireballExecutor: ApplyAoEDamageAfterDelay to enemy: {enemy.name}, damage: {data.Damage}");
             }
         }

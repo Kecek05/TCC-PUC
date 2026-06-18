@@ -24,7 +24,7 @@ public class ServerSlamTowerCombat : BaseServerTowerCombat
             if (!IsValidEnemy(enemy)) continue;
             if (Vector2.Distance(transform.position, enemy.transform.position) > _range) continue;
 
-            enemy.ServerHealth.TakeDamage(_damage);
+            DealDamage(enemy, _damage);
             hitAny = true;
         }
 

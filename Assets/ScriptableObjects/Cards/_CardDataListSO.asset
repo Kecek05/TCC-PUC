@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b1e9e760028c3f64dbe1b78fda4850b2, type: 3}
-  m_Name: CardDataListSO
+  m_Name: _CardDataListSO
   m_EditorClassIdentifier: Assembly-CSharp::CardDataListSO
   CardDataList:
   - {fileID: 11400000, guid: 8028b93dd24cb374cb0190514f55b5ef, type: 2}
