@@ -17,7 +17,7 @@ MonoBehaviour:
   MaxHealth: 95
   MoveSpeed: 1.6
   SpawnDuration: 0.7
-  Damage: 3
+  Damage: 5
   ArmorColor: 3
   OffColorResistance: 0.35
   EnemySprite: {fileID: 0}

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 6
   EnemyName: Triangle 1 Tank
-  MaxHealth: 200
+  MaxHealth: 250
   MoveSpeed: 1
   SpawnDuration: 1.5
-  Damage: 10
+  Damage: 15
   ArmorColor: 2
   OffColorResistance: 0.35
   EnemySprite: {fileID: 0}

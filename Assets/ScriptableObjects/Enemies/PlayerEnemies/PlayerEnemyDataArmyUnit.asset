@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 4
   EnemyName: Army Unit
-  MaxHealth: 30
+  MaxHealth: 120
   MoveSpeed: 2.5
   SpawnDuration: 1
-  Damage: 1
+  Damage: 5
   ArmorColor: 0
   OffColorResistance: 0
   EnemySprite: {fileID: 0}

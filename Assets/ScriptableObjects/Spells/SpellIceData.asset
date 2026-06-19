@@ -16,4 +16,4 @@ MonoBehaviour:
   Range: 1
   TravelTime: 0.2
   VisualPrefab: {fileID: 3892989022356757515, guid: d0aba933431a07d4f85e6d38e5151abe, type: 3}
-  Duration: 3.5
+  Duration: 4.5

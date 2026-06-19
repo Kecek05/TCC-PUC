@@ -20,11 +20,12 @@ MonoBehaviour:
   Description: Send a swift, sturdy Triangle charging into the enemy's lane to pressure
     their defenses while you hold your own.
   CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 150, y: 150}
   UseCustomPositionCardInMenu: 1
   CustomPositionCardInMenu: {x: 0, y: 13}
   EnemyType: 8
-  SpawnCount: 1
-  DelayBetweenSpawns: 0.3
+  SpawnCount: 3
+  DelayBetweenSpawns: 0.2

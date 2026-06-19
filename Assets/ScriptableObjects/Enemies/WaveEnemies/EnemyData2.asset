@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 2
   EnemyName: Triangle 2
-  MaxHealth: 270
+  MaxHealth: 300
   MoveSpeed: 1.5
   SpawnDuration: 0.7
-  Damage: 5
+  Damage: 20
   ArmorColor: 1
   OffColorResistance: 0.35
   EnemySprite: {fileID: 0}
