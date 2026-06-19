@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e9fa7d0cfca3a04682219b793e2a4a5, type: 3}
   m_Name: MapSettingsSO
   m_EditorClassIdentifier: Assembly-CSharp::MapSettingsSO
-  BluePlayerMapY: 12.1
+  BluePlayerMapY: 11
   RedPlayerMapY: -1.1
   TargetWorldWidth: 6
   TargetWorldHeight: 12.1
