@@ -16,6 +16,7 @@ public class ClientEnemyMovement : NetworkBehaviour
     private ServerEnemyMovement _serverMovement;
     private WaypointPath _path;
     private bool _initialized;
+    private Vector3 _prevSamplePos;
 
     private BaseMapTranslator _mapTranslator;
 
@@ -54,7 +55,9 @@ public class ClientEnemyMovement : NetworkBehaviour
         float progress = _serverMovement.PathProgress.Value;
         float sampleT = _serverMovement.Reversed.Value ? 1f - progress : progress;
         Vector3 serverPos = _path.SamplePosition(sampleT);
-        transform.position = _mapTranslator.ServerToLocal(serverPos, entityTeam.GetTeamType());
+        Vector3 localPos = _mapTranslator.ServerToLocal(serverPos, entityTeam.GetTeamType());
+        transform.position = localPos;
+        _prevSamplePos = localPos;
         _initialized = true;
     }
 
@@ -67,13 +70,20 @@ public class ClientEnemyMovement : NetworkBehaviour
         Vector3 serverPos = _path.SamplePosition(sampleT);
         Vector3 localPos = _mapTranslator.ServerToLocal(serverPos, entityTeam.GetTeamType());
 
-        // Rotate to face movement direction
-        Vector3 direction = localPos - transform.position;
+        // Face the actual travel direction, derived from successive path samples — NOT from
+        // (localPos - transform.position). On the host the server's ServerEnemyMovement also
+        // writes transform.position every frame using the un-throttled _localProgress, which
+        // LEADS the throttled PathProgress this reads, so there the direction pointed backward;
+        // pure clients (no server component) pointed forward. With the fixed -90 sprite offset
+        // those two used to cancel differently, leaving clients facing 180 off. Sampling
+        // progress deltas is identical on host and client.
+        Vector3 direction = localPos - _prevSamplePos;
         if (direction.sqrMagnitude > 0.0001f)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            GFXObject.transform.rotation = Quaternion.Euler(0f, 0f, angle + 90f);
+            GFXObject.transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
         }
+        _prevSamplePos = localPos;
 
         // Smooth interpolation to avoid snapping between network updates
         transform.position = Vector3.Lerp(
