@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class TowerCardSubFactory : BaseCardSubFactory
-{did you fini
+{
     [SerializeField] private GhostTowerCard ghostTowerCard;
 
     public override bool CanHandle(CardDataSO data) => data is TowerCardDataSO;
