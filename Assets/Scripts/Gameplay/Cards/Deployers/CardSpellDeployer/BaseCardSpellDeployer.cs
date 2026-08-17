@@ -9,6 +9,9 @@ public abstract class BaseCardSpellDeployer : NetworkBehaviour, ICardDeployer
 
     public abstract void RequestSpellCardServer(CardType cardType, Vector2 serverPosition, RpcParams rpcParams = default);
 
+    /// <summary>Server-side deploy core (no RPC/clientId) so a bot can cast this spell directly.</summary>
+    public abstract SpellValidation TryDeploySpell(TeamType team, CardType cardType, Vector2 serverPosition);
+
     public void TriggerOnCardDeployed(CardDeployedEventArgs args) => OnCardDeployed?.Invoke(args);
 
     protected void TriggerOnSpellResult(SpellSpawnResult result) => OnSpellResult?.Invoke(result);

@@ -4,6 +4,14 @@ using Unity.Netcode;
 public abstract class BaseTeamManager : NetworkBehaviour
 {
     public abstract bool BothTeamsAssigned();
+
+    /// <summary>
+    /// Server-side seat assignment for an authId that did not arrive through the normal
+    /// connection/scene-load flow (i.e. a bot). Runs the same first-free-slot logic a real
+    /// player would. Default no-op so stand-in managers keep compiling.
+    /// </summary>
+    public virtual void AssignTeamForAuthId(string authId) { }
+
     public abstract TeamType GetTeam(string authId);
     public abstract bool IsOnTeam(string authId, TeamType team);
 

@@ -28,6 +28,15 @@ public class PlayersDataManager : BasePlayersDataManager
         GameLog.Info($"Registered player: {playerData.UserData.PlayerName}, AuthId: {playerData.UserData.PlayerAuthId}, ClientId: {playerData.ClientId}");
     }
 
+    public override void RegisterBot(string authId, PlayerData playerData)
+    {
+        // A bot has no network client, so we only populate the auth->data map (used by the deck
+        // pipeline). It intentionally never enters _authToClientId/_clientIdToAuthId, so
+        // GetClientIdByTeamType returns ulong.MaxValue for the bot team (callers guard on that).
+        _authIdToPlayerData[authId] = playerData;
+        GameLog.Info($"Registered BOT player: {playerData.UserData.PlayerName}, AuthId: {authId}");
+    }
+
     public override void RegisterTeam(TeamType teamType, string authId)
     {
         if (_teamDataToAuthId.ContainsKey(teamType))

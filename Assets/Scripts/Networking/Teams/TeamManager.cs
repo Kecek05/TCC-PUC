@@ -50,6 +50,10 @@ public class TeamManager : BaseTeamManager
                (_bluePlayer.Value.Team != TeamType.None && _bluePlayer.Value.AuthId == authId);
     }
 
+    // Server-side seam for seating a bot: reuses the exact first-free-slot assignment a real player
+    // gets. The host (Red) is already assigned, so this deterministically lands the bot on Blue.
+    public override void AssignTeamForAuthId(string authId) => AssignTeam(authId);
+
     private void AssignTeam(string authId)
     {
         if (string.IsNullOrEmpty(authId))

@@ -98,7 +98,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         {
             if (!handData.Draw(out CardType drawnCard)) break;
             OnDrawACard?.Invoke(teamType, drawnCard);
-            SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+            SendDrawnCardToClient(teamType, drawnCard);
         }
 
         PushSyncedState(teamType);
@@ -139,7 +139,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         }
         
         OnDrawACard?.Invoke(teamType, drawnCard);
-        SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+        SendDrawnCardToClient(teamType, drawnCard);
         PushSyncedState(teamType);
     }
 
@@ -156,7 +156,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             {
                 if (!handData.Draw(out CardType drawnCard)) break;
                 OnDrawACard?.Invoke(teamType, drawnCard);
-                SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+                SendDrawnCardToClient(teamType, drawnCard);
             }
             
             PushSyncedState(teamType);
@@ -165,11 +165,30 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
     private void PushSyncedState(TeamType teamType)
     {
+        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        if (!IsRealClient(clientId)) return;
+
         HandData handData = GetServerHandData(teamType);
 
         CardType nextVar = handData.QueuedCardsType.Count > 0 ? handData.QueuedCardsType.Peek() : CardType.None;
-        
-        SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(_playersDataManager.GetClientIdByTeamType(teamType), RpcTargetUse.Temp));
+
+        SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
+
+    // A bot team has no network client, so GetClientIdByTeamType returns ulong.MaxValue for it. The
+    // draw / next-card sync is purely client-side UI, so skip it silently when there is no real client
+    // to receive it (the server-side HandData is unaffected, so the bot's hand still deals and advances).
+    private void SendDrawnCardToClient(TeamType teamType, CardType drawnCard)
+    {
+        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        if (!IsRealClient(clientId)) return;
+
+        SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
+
+    private bool IsRealClient(ulong clientId)
+    {
+        return clientId != ulong.MaxValue && NetworkManager != null && NetworkManager.ConnectedClients.ContainsKey(clientId);
     }
 
     private HandData GetServerHandData(TeamType teamType) => teamType == TeamType.Blue ? BlueHandData : RedHandData;

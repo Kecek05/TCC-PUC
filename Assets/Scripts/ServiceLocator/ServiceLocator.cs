@@ -25,6 +25,21 @@ public static class ServiceLocator
         }
     }
 
+    /// <summary>
+    /// Non-throwing lookup for optional services (e.g. the bot controller, absent in some scenes).
+    /// </summary>
+    public static bool TryGet<T>(out T service) where T : class
+    {
+        if (services.TryGetValue(typeof(T), out object found))
+        {
+            service = found as T;
+            return service != null;
+        }
+
+        service = null;
+        return false;
+    }
+
     public static void Unregister<T> () where T : class
     {
         services.Remove(typeof(T));

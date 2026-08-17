@@ -67,9 +67,16 @@ public class MapTranslator : BaseMapTranslator
     [Rpc(SendTo.Server)]
     private void InitializeTeamServerRpc(TeamType teamType)
     {
-        if  (teamType == TeamType.Blue)
+        MarkPlayerInitialized(teamType);
+    }
+
+    // Server-side: set a team's init flag directly. A real client reaches this via InitializeTeamServerRpc;
+    // a bot (no client) is marked here by the BotController so the FSM leaves LoadingMatch.
+    public override void MarkPlayerInitialized(TeamType team)
+    {
+        if (team == TeamType.Blue)
             _playerBlueInitialized = true;
-        else if   (teamType == TeamType.Red)
+        else if (team == TeamType.Red)
             _playerRedInitialized = true;
         else
             GameLog.Error("Team Type not supported");

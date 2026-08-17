@@ -59,32 +59,42 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         string authId = _playersDataManager.GetAuthIdByClientId(clientId);
         TeamType team = _teamManager.GetTeam(authId);
 
+        CardValidation result = TryDeploySpawnEnemy(team, authId, cardType);
+        if (result.IsValid)
+            SpawnResultRpc(new SpawnEnemyResult
+            {
+                CardType = cardType,
+                Validation = CardValidation.Valid,
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        else
+            SendFailure(clientId, cardType, result.Reason);
+    }
+
+    /// <summary>
+    /// Server-side "play this spawn-enemy card" core, callable directly (no RPC/clientId) so a bot can
+    /// drive it. Runs the same hand/mana/spawn/hand-advance path a human's RPC uses. Caller feedback
+    /// (SpawnResultRpc) is the wrapper's job; this returns the validation instead.
+    /// </summary>
+    public override CardValidation TryDeploySpawnEnemy(TeamType team, string authId, CardType cardType)
+    {
         if (team == TeamType.None)
         {
-            GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
-            SendFailure(clientId, cardType, CardInvalidReason.NoTeam);
-            return;
+            GameLog.Error($"AuthId {authId} does not have a team.");
+            return CardValidation.Invalid(CardInvalidReason.NoTeam);
         }
 
         if (!_cardHandManager.TeamHasCardInHand(team, cardType))
         {
-            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
-            SendFailure(clientId, cardType, CardInvalidReason.NotInHand);
-            return;
+            GameLog.Error($"Team {team} tried to play {cardType} but it's not in hand.");
+            return CardValidation.Invalid(CardInvalidReason.NotInHand);
         }
 
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpawnEnemyCardDataSO spawnCardData)
-        {
-            SendFailure(clientId, cardType, CardInvalidReason.None);
-            return;
-        }
+            return CardValidation.Invalid(CardInvalidReason.None);
 
         if (!_serverManaManager.TrySpendMana(team, spawnCardData.Cost))
-        {
-            SendFailure(clientId, cardType, CardInvalidReason.NotEnoughMana);
-            return;
-        }
+            return CardValidation.Invalid(CardInvalidReason.NotEnoughMana);
 
         int spawnCount = Mathf.Max(1, spawnCardData.SpawnCount);
         if (spawnCount <= 1)
@@ -92,17 +102,13 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         else
             StartCoroutine(SendEnemyArmy(spawnCardData.EnemyType, authId, spawnCount, spawnCardData.DelayBetweenSpawns));
 
-        SpawnResultRpc(new SpawnEnemyResult
-        {
-            CardType = cardType,
-            Validation = CardValidation.Valid,
-        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
             TeamDeployed = team,
             CardDeployed = cardType
         });
+
+        return CardValidation.Valid;
     }
 
     // Spawns several enemies of the same type, staggered by the card's own delay so they string out

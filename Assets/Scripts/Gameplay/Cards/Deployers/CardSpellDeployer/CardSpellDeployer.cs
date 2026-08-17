@@ -60,40 +60,46 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         string authId = _playersDataManager.GetAuthIdByClientId(clientId);
         TeamType team = _teamManager.GetTeam(authId);
 
+        SpellValidation result = TryDeploySpell(team, cardType, serverPosition);
+        if (result.IsValid)
+            PlaceResultRpc(new SpellSpawnResult
+            {
+                CardType = cardType,
+                Validation = SpellValidation.Valid,
+                Position = serverPosition,
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        else
+            SendFailure(clientId, cardType, result.Reason);
+    }
+
+    /// <summary>
+    /// Server-side "cast this spell card" core, callable directly (no RPC/clientId) so a bot can drive it.
+    /// The spell-visual broadcast stays here (every client needs it); only the caller-facing
+    /// PlaceResultRpc is left to the wrapper.
+    /// </summary>
+    public override SpellValidation TryDeploySpell(TeamType team, CardType cardType, Vector2 serverPosition)
+    {
         if (team == TeamType.None)
-        {
-            SendFailure(clientId, cardType, SpellInvalidReason.NoTeam);
-            return;
-        }
+            return SpellValidation.Invalid(SpellInvalidReason.NoTeam);
 
         if (!_cardHandManager.TeamHasCardInHand(team, cardType))
         {
-            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
-            SendFailure(clientId, cardType, SpellInvalidReason.NotInHand);
-            return;
+            GameLog.Error($"Team {team} tried to play {cardType} but it's not in hand.");
+            return SpellValidation.Invalid(SpellInvalidReason.NotInHand);
         }
 
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not SpellCardDataSO spellCardData)
-        {
-            SendFailure(clientId, cardType, SpellInvalidReason.NotSuccess);
-            return;
-        }
+            return SpellValidation.Invalid(SpellInvalidReason.NotSuccess);
 
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellCardData.SpellType);
         ISpellExecutor executor = SpellExecutorFactory.GetExecutor(spellCardData.SpellType);
 
         if (spellData == null || executor == null)
-        {
-            SendFailure(clientId, cardType, SpellInvalidReason.NotSuccess);
-            return;
-        }
+            return SpellValidation.Invalid(SpellInvalidReason.NotSuccess);
 
         if (!_serverManaManager.TrySpendMana(team, spellCardData.Cost))
-        {
-            SendFailure(clientId, cardType, SpellInvalidReason.NotEnoughMana);
-            return;
-        }
+            return SpellValidation.Invalid(SpellInvalidReason.NotEnoughMana);
 
         executor.Execute(new SpellExecutionContext
         {
@@ -107,18 +113,13 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         // caster, so it mirrors to the correct side on every client.
         SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, spellCardData.GetTargetFieldTeam(team));
 
-        PlaceResultRpc(new SpellSpawnResult
-        {
-            CardType = cardType,
-            Validation = SpellValidation.Valid,
-            Position = serverPosition,
-        }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
             TeamDeployed = team,
             CardDeployed = cardType
         });
+
+        return SpellValidation.Valid;
     }
 
     private void SendFailure(ulong clientId, CardType cardType, SpellInvalidReason reason)

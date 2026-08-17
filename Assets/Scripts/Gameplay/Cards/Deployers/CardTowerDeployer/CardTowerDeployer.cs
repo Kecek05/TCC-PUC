@@ -59,47 +59,59 @@ public class CardTowerDeployer : BaseCardTowerDeployer
         string authId = _playersDataManager.GetAuthIdByClientId(clientId);
         TeamType team = _teamManager.GetTeam(authId);
 
+        TowerValidation result = TryDeployTower(team, cardType, placePosition, clientId, out Vector2 resolvedPosition);
+        if (result.IsValid)
+            PlaceResultRpc(new TowerPlaceResult
+            {
+                CardType = cardType,
+                Validation = result,
+                Position = resolvedPosition
+            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        else
+            SendFailure(clientId, cardType, result.Reason, resolvedPosition);
+    }
+
+    /// <summary>
+    /// Server-side "place/upgrade this tower card" core, callable directly (no RPC/clientId) so a bot can
+    /// drive it. The tower NetworkObject replicates on Spawn, so no extra broadcast is needed; only the
+    /// caller-facing PlaceResultRpc is left to the wrapper.
+    /// </summary>
+    /// <param name="ownerClientId">Owner the tower spawns with. Bots pass NetworkManager.ServerClientId.</param>
+    /// <param name="resolvedPosition">Snapped placeable position on success; the requested position otherwise.</param>
+    public override TowerValidation TryDeployTower(TeamType team, CardType cardType, Vector2 placePosition,
+        ulong ownerClientId, out Vector2 resolvedPosition)
+    {
+        resolvedPosition = placePosition;
+
         if (team == TeamType.None)
         {
-            GameLog.Error($"Client {clientId} (AuthId {authId}) does not have a team.");
-            SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
-            return;
+            GameLog.Error($"Team None cannot play {cardType}.");
+            return TowerValidation.Invalid(TowerReason.NotSuccess);
         }
 
         if (!_cardHandManager.TeamHasCardInHand(team, cardType))
         {
-            GameLog.Error($"Client {clientId} (Team {team}) tried to play {cardType} but it's not in hand.");
-            SendFailure(clientId, cardType, TowerReason.NotInHand, placePosition);
-            return;
+            GameLog.Error($"Team {team} tried to play {cardType} but it's not in hand.");
+            return TowerValidation.Invalid(TowerReason.NotInHand);
         }
 
         CardDataSO cardData = cardDataListSO.GetCardDataByType(cardType);
         if (cardData is not TowerCardDataSO towerCardData)
-        {
-            SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
-            return;
-        }
+            return TowerValidation.Invalid(TowerReason.NotSuccess);
 
         var hit = FindClosestValidPlaceable(placePosition, team);
 
         if (hit.placeable == null)
         {
-            GameLog.Warn($"Client {clientId} (Team {team}) tried to place a tower at {placePosition} but no valid placeable was found.");
-            SendFailure(clientId, cardType, TowerReason.NotSuccess, placePosition);
-            return;
+            GameLog.Warn($"Team {team} tried to place a tower at {placePosition} but no valid placeable was found.");
+            return TowerValidation.Invalid(TowerReason.NotSuccess);
         }
-        
+
         if (!_serverManaManager.CanAfford(team, towerCardData.Cost))
-        {
-            SendFailure(clientId, cardType, TowerReason.NotEnoughMana, placePosition);
-            return;
-        }
-        
+            return TowerValidation.Invalid(TowerReason.NotEnoughMana);
+
         if (hit.placeable.IsOccupied() && hit.placeable.OccupiedTower.Data.TowerType != towerCardData.TowerType)
-        {
-            SendFailure(clientId, cardType, TowerReason.AlreadyOccupied, placePosition);
-            return;
-        }
+            return TowerValidation.Invalid(TowerReason.AlreadyOccupied);
 
         if (hit.placeable.IsOccupied())
         {
@@ -107,31 +119,21 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             TowerManager towerManager = hit.placeable.OccupiedTower.GetComponent<TowerManager>();
 
             if (!towerManager.ServerTowerCombat.CanUpgradeTower())
-            {
-                SendFailure(clientId, cardType, TowerReason.NotSuccessMaxLevel, placePosition);
-                return;
-            }
+                return TowerValidation.Invalid(TowerReason.NotSuccessMaxLevel);
 
             if (!_serverManaManager.TrySpendMana(team, towerCardData.Cost))
-            {
-                SendFailure(clientId, cardType, TowerReason.NotEnoughMana, placePosition);
-                return;
-            }
+                return TowerValidation.Invalid(TowerReason.NotEnoughMana);
 
             towerManager.ServerTowerCombat.IncrementTowerLevel(1);
 
-            PlaceResultRpc(new TowerPlaceResult
-            {
-                CardType = cardType,
-                Validation = TowerValidation.LevelUp,
-                Position = hit.placeable.PlaceablePoint.position
-            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-
+            resolvedPosition = hit.placeable.PlaceablePoint.position;
             TriggerOnCardDeployed(new CardDeployedEventArgs()
             {
                 TeamDeployed = team,
                 CardDeployed = cardType
             });
+
+            return TowerValidation.LevelUp;
         }
         else
         {
@@ -139,30 +141,23 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             GameObject newTower = Instantiate(towerCardData.TowerPrefab, hit.placeable.PlaceablePoint.position, Quaternion.identity);
             TowerManager towerManager = newTower.GetComponent<TowerManager>();
             hit.placeable.Occupy(towerManager);
-            
+
             if (!_serverManaManager.TrySpendMana(team, towerCardData.Cost))
-            {
-                SendFailure(clientId, cardType, TowerReason.NotEnoughMana, placePosition);
-                return;
-            }
+                return TowerValidation.Invalid(TowerReason.NotEnoughMana);
 
             if (towerManager.Team != null)
                 towerManager.Team.SetTeamType(team);
 
-            towerManager.NetworkObject.SpawnWithOwnership(clientId);
+            towerManager.NetworkObject.SpawnWithOwnership(ownerClientId);
 
-            PlaceResultRpc(new TowerPlaceResult
-            {
-                CardType = cardType,
-                Validation = TowerValidation.Success,
-                Position = hit.placeable.PlaceablePoint.position
-            }, RpcTarget.Single(clientId, RpcTargetUse.Temp));
-
+            resolvedPosition = hit.placeable.PlaceablePoint.position;
             TriggerOnCardDeployed(new CardDeployedEventArgs()
             {
                 TeamDeployed = team,
                 CardDeployed = cardType
             });
+
+            return TowerValidation.Success;
         }
     }
     
