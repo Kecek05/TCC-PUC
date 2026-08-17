@@ -17,6 +17,7 @@ public class MatchServerControllers : IDisposable
 
         ServiceLocator.Register<IOnPlayerLoaded>(_networkConnectionServer);
         ServiceLocator.Register<BasePlayersDataManager>(_playersDataManager);
+        ServiceLocator.Register<IMatchAdmission>(_networkConnectionServer);
     }
 
     public void Dispose()
@@ -29,5 +30,6 @@ public class MatchServerControllers : IDisposable
         
         ServiceLocator.Unregister<IOnPlayerLoaded>();
         ServiceLocator.Unregister<BasePlayersDataManager>();
+        ServiceLocator.Unregister<IMatchAdmission>();
     }
 }

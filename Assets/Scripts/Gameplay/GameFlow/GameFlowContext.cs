@@ -10,5 +10,11 @@ public class GameFlowContext
     public BaseMapTranslator MapTranslator;
     public BaseServerEndGameManager EndGameManager;
 
+    /// <summary>Optional fallback-bot controller. Null when no bot is present (e.g. debug scenes).</summary>
+    public BaseBotController BotController;
+
+    /// <summary>Commit the match — stop admitting new players (approval + lobby). Invoked on leaving WaitingForPlayers.</summary>
+    public Action CommitMatch;
+
     public Action<GameState> RequestTransition;
 }

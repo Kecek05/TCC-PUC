@@ -44,6 +44,7 @@ public class HostManager : BaseHostManager
     
     private BaseClientManager _clientManager;
     private Coroutine _heartbeatCoroutine;
+    private bool _lobbyClosedToNewPlayers;
 
     private void Awake()
     {
@@ -218,6 +219,38 @@ public class HostManager : BaseHostManager
         OnHostShutdown?.Invoke();
     }
     
+    // Stop advertising to new players without tearing down the host: stop the heartbeat and delete the
+    // discovery lobby. The host keeps running on relay for the current session (host + bot). Idempotent.
+    public override void CloseLobbyToNewPlayers()
+    {
+        if (_lobbyClosedToNewPlayers) return;
+        _lobbyClosedToNewPlayers = true;
+
+        if (_heartbeatCoroutine != null)
+        {
+            StopCoroutine(_heartbeatCoroutine);
+            _heartbeatCoroutine = null;
+        }
+
+        string lobbyId = CurrentHostConnectionData?.LobbyId;
+        if (!string.IsNullOrEmpty(lobbyId))
+            _ = DeleteLobbySafeAsync(lobbyId);
+
+        GameLog.Info("HostManager: lobby closed to new players (match committed).");
+    }
+
+    private async Task DeleteLobbySafeAsync(string lobbyId)
+    {
+        try
+        {
+            await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+        }
+        catch (LobbyServiceException e)
+        {
+            GameLog.Exception(e);
+        }
+    }
+
     private IEnumerator HeartbeatLobby(float delayHeartbeatSeconds, string lobbyId)
     {
         WaitForSecondsRealtime delay = new WaitForSecondsRealtime(delayHeartbeatSeconds); //optimization

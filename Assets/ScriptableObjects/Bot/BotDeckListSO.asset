@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 559ec25065bfb2e43a5d7e61fd829d46, type: 3}
+  m_Name: BotDeckListSO
+  m_EditorClassIdentifier: Assembly-CSharp::BotDeckListSO
+  Decks:
+  - Name: Balanced
+    Cards: 01000000020000000a000000090000000300000005000000080000000b0000000400000007000000060000000a000000
+  - Name: Aggressive
+    Cards: 040000000400000007000000060000000b00000005000000030000000a00000001000000090000000800000002000000
+  - Name: Defensive
+    Cards: 01000000020000000a000000090000000a0000000100000008000000030000000500000004000000070000000b000000

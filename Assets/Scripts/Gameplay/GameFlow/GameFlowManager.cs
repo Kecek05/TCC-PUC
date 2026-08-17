@@ -62,6 +62,8 @@ public class GameFlowManager : BaseGameFlowManager
             TeamManager = ServiceLocator.Get<BaseTeamManager>(),
             MapTranslator = ServiceLocator.Get<BaseMapTranslator>(),
             EndGameManager = ServiceLocator.Get<BaseServerEndGameManager>(),
+            BotController = ServiceLocator.TryGet<BaseBotController>(out var botController) ? botController : null,
+            CommitMatch = CommitMatchAdmission,
         };
 
         _fsm = new GameFlowFsm(ctx,
@@ -80,5 +82,15 @@ public class GameFlowManager : BaseGameFlowManager
     {
         CurrentGameState.Value = state;
         GameLog.Info($"GameFlowManager: Game state changed to {state}");
+    }
+
+    // Match committed (leaving WaitingForPlayers): reject new connections at approval and close the
+    // discovery lobby, so a late joiner can't enter an in-progress match (bot or 2-human).
+    private void CommitMatchAdmission()
+    {
+        if (ServiceLocator.TryGet<IMatchAdmission>(out var admission))
+            admission.StopAcceptingPlayers();
+        if (ServiceLocator.TryGet<BaseHostManager>(out var host))
+            host.CloseLobbyToNewPlayers();
     }
 }
