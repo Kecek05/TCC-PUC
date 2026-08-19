@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e15ae2f4373114640a3feb991b1d54a9, type: 3}
+  m_Name: PlayerSaveSettings
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSaveSettingsSO
+  DeckSlotCount: 5
+  DeckNameFormat: Deck {0}
+  SaveFileName: player_save.json
+  CardHandSettings: {fileID: 11400000, guid: e000621b4c83905469856f83e430592b, type: 2}
+  CardDataList: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
+  StarterDeck: 0100000003000000020000000500000008000000090000000a0000000b000000

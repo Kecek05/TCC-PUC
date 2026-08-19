@@ -50,8 +50,13 @@ public class ActionFrame : MonoBehaviour
     {
         actionButton.onClick.AddListener(() =>
         {
-            _isCardEquipped = !_isCardEquipped;
-            _deckUIController.SetEquippedCard(_cardData.CardType, _isCardEquipped);
+            bool wantEquipped = !_isCardEquipped;
+
+            // Only adopt the new state when the controller accepted it: a refused equip (deck full) must
+            // not leave this popup reading "Remove" for a card that never entered the deck.
+            if (_deckUIController.SetEquippedCard(_cardData.CardType, wantEquipped))
+                _isCardEquipped = wantEquipped;
+
             UpdateActionButton();
             HideActionFrame();
         });

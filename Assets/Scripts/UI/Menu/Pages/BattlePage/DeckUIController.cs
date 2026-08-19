@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
+/// <summary>
+/// Drives the deck page: one <see cref="SingleCardInDeck"/> widget per card in the game, reparented
+/// between the Card Collection grid and the eight deck positions. Deck state itself lives in
+/// <see cref="BasePlayerSaveManager"/> — this class only presents it, so switching deck slots is a
+/// relayout rather than a rebuild.
+/// </summary>
 public class DeckUIController : MonoBehaviour
 {
     private class CardInDeckInfo
     {
         public SingleCardInDeck SingleCardInDeck;
         public bool IsEquipped;
-        public CardDataSO  CardData;
+        public CardDataSO CardData;
     }
 
     [Serializable]
@@ -20,64 +25,89 @@ public class DeckUIController : MonoBehaviour
         public Transform PositionTransform;
         [ReadOnly] public CardType CardTypeOccupied = CardType.None;
     }
-    
+
     [Title("References")]
-    [SerializeField] private Transform deckCardsParent;
     [SerializeField] private Transform allCardsParent;
     [SerializeField] private CardDataListSO cardDataListSO;
     [SerializeField] private SingleCardInDeck singleCardInDeckPrefab;
     [SerializeField] private ActionFrame actionFramePrefab;
-    [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
-    [SerializeField] private TextMeshProUGUI medianCostText; //placeholder
+    [SerializeField] private TextMeshProUGUI medianCostText;
     [SerializeField] private List<CardPosition> cardPositions;
-    
-    private List<CardType> DeckCards;
-    private Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
 
-    private BaseClientManager _clientManager;
+    [Title("Deck Slots and Ordering")]
+    [SerializeField] private DeckSlotBar deckSlotBar;
+    [SerializeField] private CardSortController cardSortController;
+
+    private readonly Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
+    private readonly List<CardDataSO> _sortBuffer = new();
+
+    private BasePlayerSaveManager _playerSaveManager;
     private ActionFrame _spawnedActionFrame;
     private ScreenWarning _screenWarning;
 
-    private UserData _userData => _clientManager.UserData;
-    
     public ActionFrame ActionFrame => _spawnedActionFrame;
 
-    //PLACEHOLDER
-    private float totalCost;
-    
     private void Start()
     {
-        _clientManager = ServiceLocator.Get<BaseClientManager>();
         _screenWarning = ServiceLocator.Get<ScreenWarning>();
-        DeckCards = _clientManager.UserData.DeckCards;
-        if (DeckCards == null || DeckCards.Count == 0) {
-            DeckCards = new List<CardType>();
-        }
-        InitializeDeckCards();
+        _playerSaveManager = ServiceLocator.Get<BasePlayerSaveManager>();
+
+        if (cardPositions.Count != _playerSaveManager.DeckSize)
+            GameLog.Error(
+                $"[{nameof(DeckUIController)}] {cardPositions.Count} card positions wired but DeckSize is " +
+                $"{_playerSaveManager.DeckSize}; the deck area cannot show a full deck.", this);
+
+        BuildCardWidgets();
         InitializeActionFrame();
 
-        UpdateMedianCost();
+        if (deckSlotBar != null)
+        {
+            deckSlotBar.OnSlotSelected += HandleSlotSelected;
+            deckSlotBar.Initialize(_playerSaveManager.DeckSlotCount, _playerSaveManager.ActiveDeckIndex);
+        }
+
+        if (cardSortController != null)
+        {
+            cardSortController.OnSortChanged += HandleSortChanged;
+            cardSortController.Initialize(_playerSaveManager.SortKey, _playerSaveManager.SortAscending);
+        }
+
+        _playerSaveManager.OnActiveDeckSlotChanged += HandleActiveDeckSlotChanged;
+
+        ApplyDeck(_playerSaveManager.ActiveDeck);
     }
 
-    private void InitializeDeckCards()
+    private void OnDestroy()
     {
-        foreach (CardDataSO cardType in cardDataListSO.CardDataList)
+        if (deckSlotBar != null) deckSlotBar.OnSlotSelected -= HandleSlotSelected;
+        if (cardSortController != null) cardSortController.OnSortChanged -= HandleSortChanged;
+        if (_playerSaveManager != null) _playerSaveManager.OnActiveDeckSlotChanged -= HandleActiveDeckSlotChanged;
+    }
+
+    /// <summary>Instantiates one widget per card, all starting in the collection. Runs once.</summary>
+    private void BuildCardWidgets()
+    {
+        foreach (CardDataSO cardData in cardDataListSO.CardDataList)
         {
-            if (DeckCards.Contains(cardType.CardType))
+            if (cardData == null) continue;
+
+            if (cardTypeToCardInDeckInfo.ContainsKey(cardData.CardType))
             {
-                SingleCardInDeck cardInDeck = Instantiate(singleCardInDeckPrefab, deckCardsParent);
-                cardInDeck.Initialize(cardType, this);
-                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInDeck, IsEquipped = true, CardData = cardType });
-                EquipCardIntoPosition(cardInDeck);
+                GameLog.Warn($"[{nameof(DeckUIController)}] Duplicate CardType {cardData.CardType} in " +
+                             $"{cardDataListSO.name}; only the first entry is shown.", this);
+                continue;
             }
-            else
+
+            SingleCardInDeck widget = Instantiate(singleCardInDeckPrefab, allCardsParent);
+            widget.Initialize(cardData, this);
+            widget.transform.localPosition = Vector3.zero;
+
+            cardTypeToCardInDeckInfo.Add(cardData.CardType, new CardInDeckInfo
             {
-                SingleCardInDeck cardInAllCards = Instantiate(singleCardInDeckPrefab, allCardsParent);
-                cardInAllCards.Initialize(cardType, this);
-                cardTypeToCardInDeckInfo.Add(cardType.CardType, new CardInDeckInfo { SingleCardInDeck = cardInAllCards, IsEquipped = false,  CardData = cardType });
-                cardInAllCards.transform.SetParent(allCardsParent);
-                cardInAllCards.transform.localPosition = Vector3.zero;
-            }
+                SingleCardInDeck = widget,
+                IsEquipped = false,
+                CardData = cardData
+            });
         }
     }
 
@@ -85,6 +115,72 @@ public class DeckUIController : MonoBehaviour
     {
         _spawnedActionFrame = Instantiate(actionFramePrefab, allCardsParent);
         _spawnedActionFrame.Initialize(this);
+    }
+
+    /// <summary>
+    /// Lays the page out for one deck slot. Widgets are never re-instantiated — a slot switch only
+    /// reparents the existing ones, so this is cheap enough to run on every tap.
+    /// </summary>
+    private void ApplyDeck(DeckSaveData deck)
+    {
+        _spawnedActionFrame.HideActionFrame();
+
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
+        {
+            info.IsEquipped = false;
+            info.SingleCardInDeck.transform.SetParent(allCardsParent);
+            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+        }
+
+        if (deck != null)
+        {
+            foreach (CardType cardType in deck.Cards)
+                if (cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info)) info.IsEquipped = true;
+        }
+
+        LayoutDeckArea(deck);
+        ApplySort();
+        UpdateAverageCost();
+    }
+
+    /// <summary>
+    /// Places the equipped cards into the deck positions in saved-list order, so position i always shows
+    /// <c>deck.Cards[i]</c>. Keeping the two in lockstep is what makes the deck area survive a restart
+    /// looking exactly as the player left it.
+    /// </summary>
+    private void LayoutDeckArea(DeckSaveData deck)
+    {
+        foreach (CardPosition cardPosition in cardPositions)
+            cardPosition.CardTypeOccupied = CardType.None;
+
+        if (deck == null) return;
+
+        int count = Mathf.Min(deck.Cards.Count, cardPositions.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (!cardTypeToCardInDeckInfo.TryGetValue(deck.Cards[i], out CardInDeckInfo info)) continue;
+
+            cardPositions[i].CardTypeOccupied = deck.Cards[i];
+            info.SingleCardInDeck.transform.SetParent(cardPositions[i].PositionTransform);
+            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+        }
+    }
+
+    /// <summary>Reorders the collection grid. Equipped cards are not in it, so they keep the player order.</summary>
+    private void ApplySort()
+    {
+        _sortBuffer.Clear();
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
+            if (!info.IsEquipped) _sortBuffer.Add(info.CardData);
+
+        _sortBuffer.Sort(CardSortComparer.GetComparison(_playerSaveManager.SortKey, _playerSaveManager.SortAscending));
+
+        for (int i = 0; i < _sortBuffer.Count; i++)
+            cardTypeToCardInDeckInfo[_sortBuffer[i].CardType].SingleCardInDeck.transform.SetSiblingIndex(i);
+
+        // The popup ignores layout, but it still has to draw on top of the grid it sits in.
+        if (_spawnedActionFrame != null && _spawnedActionFrame.transform.parent == allCardsParent)
+            _spawnedActionFrame.transform.SetAsLastSibling();
     }
 
     public void RequestActionFrame(CardDataSO cardData)
@@ -96,103 +192,71 @@ public class DeckUIController : MonoBehaviour
         _spawnedActionFrame.ActivateActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
     }
 
-    public void SetEquippedCard(CardType cardType, bool isEquipped)
+    /// <summary>
+    /// Moves a card into or out of the active deck. Returns false when the change was refused, so the
+    /// caller does not adopt a state the deck never entered.
+    /// </summary>
+    public bool SetEquippedCard(CardType cardType, bool isEquipped)
     {
         if (!cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info))
         {
             GameLog.Warn($"CardType {cardType} not found in cardTypeToCardInDeckInfo.");
-            return;
+            return false;
         }
-        
-        if (IsDeckFull() && isEquipped)
-        {
-            _screenWarning.ShowWarning(WarningMessages.CannotEquipCard);
-            return;
-        }
-        
-        info.IsEquipped = isEquipped;
-        
+
         if (isEquipped)
         {
-            DeckCards.Add(cardType);
-            EquipCardIntoPosition(info.SingleCardInDeck);
+            if (!_playerSaveManager.TryEquipCard(cardType))
+            {
+                _screenWarning.ShowWarning(WarningMessages.CannotEquipCard);
+                return false;
+            }
+
+            info.IsEquipped = true;
         }
         else
         {
-            DeckCards.Remove(cardType);
-            UnequipCardIntoPosition(info.SingleCardInDeck);
-        }
-        
-        _clientManager.UserData.SetDeckCards(DeckCards);
+            _playerSaveManager.UnequipCard(cardType);
+            info.IsEquipped = false;
 
-        UpdateMedianCost();
+            info.SingleCardInDeck.transform.SetParent(allCardsParent);
+            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+
+            ApplySort(); // the returned card must land in its sorted place, not at the end of the grid
+        }
+
+        LayoutDeckArea(_playerSaveManager.ActiveDeck);
+        UpdateAverageCost();
+        return true;
     }
 
-    private void UpdateMedianCost()
+    private void UpdateAverageCost()
     {
-        totalCost = 0f;
-        foreach (var cardEntry in cardTypeToCardInDeckInfo)
+        float totalCost = 0f;
+        int equippedCount = 0;
+
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
         {
-            if (!cardEntry.Value.IsEquipped)
-            {
-                continue;
-            }
-            
-            totalCost += cardEntry.Value.CardData.Cost;
+            if (!info.IsEquipped) continue;
+
+            totalCost += info.CardData.Cost;
+            equippedCount++;
         }
-        totalCost /= cardTypeToCardInDeckInfo.Count;
-        
-        medianCostText.text = $"{totalCost:0.0}";
+
+        medianCostText.text = equippedCount > 0 ? $"{totalCost / equippedCount:0.0}" : "0.0";
     }
 
-    private void EquipCardIntoPosition(SingleCardInDeck cardInDeck)
-    {
-        CardPosition cardPosition = GetFirstEmptyPosition();
-        if (cardPosition == null) 
-            return;
+    private void HandleSlotSelected(int index) => _playerSaveManager.SetActiveDeck(index);
 
-        cardPosition.CardTypeOccupied = cardInDeck.CardData.CardType;
-        
-        cardInDeck.transform.SetParent(cardPosition.PositionTransform);
-        cardInDeck.transform.localPosition = Vector3.zero;
+    private void HandleActiveDeckSlotChanged(int index)
+    {
+        if (deckSlotBar != null) deckSlotBar.SetSelected(index);
+        ApplyDeck(_playerSaveManager.ActiveDeck);
     }
 
-    private void UnequipCardIntoPosition(SingleCardInDeck cardInDeck)
+    private void HandleSortChanged(CardSortKey key, bool ascending)
     {
-        CardPosition cardPosition = GetCardPositionByType(cardInDeck.CardData.CardType);
-        if (cardPosition == null)
-            return;
-        
-        cardPosition.CardTypeOccupied = CardType.None;
-        
-        cardInDeck.transform.SetParent(allCardsParent);
-        cardInDeck.transform.localPosition = Vector3.zero;
-    }
-
-    private CardPosition GetFirstEmptyPosition()
-    {
-        foreach (CardPosition cardPosition in cardPositions)
-        {
-            if (cardPosition.CardTypeOccupied == CardType.None) return cardPosition;
-        }
-        
-        GameLog.Warn("Get First Empty Position not found");
-        return null;
-    }
-
-    private CardPosition GetCardPositionByType(CardType cardType)
-    {
-        foreach (CardPosition cardPosition in cardPositions)
-        {
-            if (cardPosition.CardTypeOccupied == cardType) return cardPosition;
-        }
-        
-        GameLog.Warn("Get Card Position ByType not found");
-        return null;
-    }
-    
-    private bool IsDeckFull()
-    {
-        return DeckCards.Count == cardHandSettingsSO.DeckSize;
+        _playerSaveManager.SetSortPreference(key, ascending);
+        ApplySort();
     }
 }

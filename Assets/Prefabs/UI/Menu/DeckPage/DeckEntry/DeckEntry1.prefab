@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 85845636358533668}
   - component: {fileID: 1163958662151539152}
   - component: {fileID: 8269322660827141335}
+  - component: {fileID: 5913170596565248917}
   m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
@@ -326,3 +327,28 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
+--- !u!114 &5913170596565248917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8666206090396782142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286b5e75b7df1c7478ef93ae0db827d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuNavButton
+  button: {fileID: 85845636358533668}
+  scaleTarget: {fileID: 2702102847780998208}
+  colorTarget: {fileID: 4130345230565103804}
+  selectedScale: 1.15
+  selectedColor: {r: 1, g: 1, b: 1, a: 1}
+  deselectedScale: 1
+  deselectedColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  selectScaleDuration: 0.3
+  selectScaleEase: 27
+  deselectScaleDuration: 0.25
+  deselectScaleEase: 6
+  colorDuration: 0.25
+  colorEase: 6

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using Unity.Mathematics;
@@ -15,9 +16,14 @@ public class ClientManager : BaseClientManager
     private NetworkClient networkClient;
     private bool _isLeavingMatch;
 
+    [Title("Player Save")]
+    [SerializeField] private PlayerSaveSettingsSO playerSaveSettings;
+
     [Title("Debug")]
     [SerializeField] private bool useDebugHand = false;
     [SerializeField] private DebugHand debugHand;
+
+    private BasePlayerSaveManager _playerSaveManager;
 
     private void Awake()
     {
@@ -26,11 +32,36 @@ public class ClientManager : BaseClientManager
 
         UserData = new UserData();
 
+        InitializePlayerSave();
+
         ClientAuth = new ClientAuth();
         //TODO: Refactor the creation of NetworkClient too.
         networkClient = new NetworkClient(NetworkManager.Singleton, this);
 
         DoAuth();
+    }
+
+    /// <summary>
+    /// Hydrates the persistent player save before the Main Menu loads, since the deck page reads it in
+    /// <c>Start</c>. <see cref="UserData.DeckCards"/> is only ever a mirror of the active deck slot, so the
+    /// save manager stays the single owner of deck state.
+    /// </summary>
+    private void InitializePlayerSave()
+    {
+        _playerSaveManager = new PlayerSaveManager(
+            playerSaveSettings,
+            new FilePlayerSaveRepository(playerSaveSettings != null ? playerSaveSettings.SaveFileName : null));
+
+        ServiceLocator.Register<BasePlayerSaveManager>(_playerSaveManager);
+
+        _playerSaveManager.OnActiveDeckContentChanged += HandleActiveDeckContentChanged;
+        _playerSaveManager.Load();
+    }
+
+    private void HandleActiveDeckContentChanged(DeckSaveData deck)
+    {
+        // Copy, never alias: the connection payload must not be able to mutate the save.
+        UserData.SetDeckCards(new List<CardType>(deck.Cards));
     }
 
     private async void DoAuth()
@@ -60,9 +91,10 @@ public class ClientManager : BaseClientManager
                 UserData.SetPlayerName(playerName);
                 UserData.SetPlayerAuthId(AuthenticationService.Instance.PlayerId);
                 UserData.SetUserTrophies(UnityEngine.Random.Range(0, 1000)); //Temp
-                if (useDebugHand)
+                if (useDebugHand && debugHand != null)
                 {
-                    UserData.SetDeckCards(debugHand.Deck);
+                    // Push through the save manager so the deck page and the match can never disagree.
+                    _playerSaveManager.SetDeckCards(_playerSaveManager.ActiveDeckIndex, debugHand.Deck);
                 }
 
                 GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {playerName}");
@@ -128,8 +160,12 @@ public class ClientManager : BaseClientManager
 
     private void OnDestroy()
     {
+        if (_playerSaveManager != null)
+            _playerSaveManager.OnActiveDeckContentChanged -= HandleActiveDeckContentChanged;
+
         ClientAuth?.Dispose();
         networkClient?.Dispose();
+        ServiceLocator.Unregister<BasePlayerSaveManager>();
         ServiceLocator.Unregister<BaseClientManager>();
     }
 }

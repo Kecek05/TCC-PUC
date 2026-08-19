@@ -162,3 +162,15 @@ public enum CardRarityType
     Epic,
     Legendary,
 }
+
+/// <summary>
+/// How the Card Collection grid on the deck page is ordered. Paired with a bool for the direction
+/// (ascending = A-Z / Common-first / cheapest-first / Tower-first).
+/// </summary>
+public enum CardSortKey
+{
+    Name,
+    Rarity,
+    Cost,
+    Type,
+}

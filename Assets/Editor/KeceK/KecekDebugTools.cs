@@ -16,6 +16,8 @@ namespace Editor.KeceK
         private const string START_SCENE_NAME = "StartScene";
         private const string DEBUG_MODE_MENU_PATH = "Kecek/Debug Tools/Debug Mode";
         private const string AUTO_ENABLED_SESSION_KEY = "KecekDebugTools.AutoEnabledForGameScene";
+        private const string PLAYER_SAVE_SETTINGS_ASSET_PATH = "Assets/ScriptableObjects/PlayerSave/PlayerSaveSettings.asset";
+        private const string PLAYER_SAVE_FALLBACK_FILE_NAME = "player_save.json";
 
         [InitializeOnLoadMethod]
         private static void RegisterPlayModeHook()
@@ -76,6 +78,39 @@ namespace Editor.KeceK
         {
             PlayerPrefs.DeleteAll();
             Debug.Log("PlayerPrefs cleared.");
+        }
+
+        [MenuItem("Kecek/Debug Tools/Delete Player Save")]
+        public static void DeletePlayerSave()
+        {
+            string path = GetPlayerSavePath();
+
+            if (!System.IO.File.Exists(path))
+            {
+                Debug.Log($"No player save to delete at {path}");
+                return;
+            }
+
+            System.IO.File.Delete(path);
+            Debug.Log($"Player save deleted: {path}. The next play session starts from the starter deck.");
+        }
+
+        [MenuItem("Kecek/Debug Tools/Open Save Folder")]
+        public static void OpenSaveFolder()
+        {
+            EditorUtility.RevealInFinder(GetPlayerSavePath());
+        }
+
+        private static string GetPlayerSavePath()
+        {
+            PlayerSaveSettingsSO settings =
+                AssetDatabase.LoadAssetAtPath<PlayerSaveSettingsSO>(PLAYER_SAVE_SETTINGS_ASSET_PATH);
+
+            string fileName = settings != null && !string.IsNullOrWhiteSpace(settings.SaveFileName)
+                ? settings.SaveFileName
+                : PLAYER_SAVE_FALLBACK_FILE_NAME;
+
+            return System.IO.Path.Combine(Application.persistentDataPath, fileName);
         }
 
         [MenuItem(DEBUG_MODE_MENU_PATH)]

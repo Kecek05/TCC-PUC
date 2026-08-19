@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa66e25268e709f4eb0f94ba75240e41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClientSingleton
+  playerSaveSettings: {fileID: 11400000, guid: 69ab5f0cd8bd23244b008658a8a0154b, type: 2}
   useDebugHand: 1
   debugHand: {fileID: 11400000, guid: 4c60fb23b29542446946ac1e7aa71aba, type: 2}
