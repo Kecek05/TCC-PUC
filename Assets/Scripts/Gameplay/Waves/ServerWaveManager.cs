@@ -136,7 +136,8 @@ public class ServerWaveManager : BaseServerWaveManager
         }
     }
 
-    public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false)
+    public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
+        CardLevelScale? cardScale = null)
     {
         if (!IsServer) return;
 
@@ -152,13 +153,17 @@ public class ServerWaveManager : BaseServerWaveManager
         enemyManager.PathAssignment.SetTargetMap(targetTeam);
         enemyManager.Team.SetTeamType(targetTeam);
 
+        // Before Spawn, like every other pre-spawn write here: OnNetworkSpawn is where the stats are read.
+        enemyManager.SetCardLevelScale(cardScale ?? MatchCardLevels.WaveScale());
+
         if (!fromPlayer)
             AddEnemyToList(targetTeam, enemyManager);
 
         enemyManager.NetworkObject.Spawn();
     }
 
-    public override void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId)
+    public override void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId,
+        CardLevelScale? cardScale = null)
     {
         TeamType senderTeam = _teamManager.GetTeam(senderAuthId);
 
@@ -168,7 +173,8 @@ public class ServerWaveManager : BaseServerWaveManager
         EnemyDataSO enemyData = enemyDataListSO.GetEnemyDataByType(enemyType);
         if (enemyData == null) return;
 
-        SpawnEnemy(enemyData, targetMap, true);
+        // targetMap is the VICTIM's map, so the scale has to be passed in - it cannot be derived here.
+        SpawnEnemy(enemyData, targetMap, true, cardScale);
     }
 
     public override WaypointPath GetPath(TeamType map)

@@ -174,3 +174,30 @@ public enum CardSortKey
     Cost,
     Type,
 }
+
+/// <summary>
+/// A stat that can scale with a card's persistent level. Kept deliberately small: one entry per stat that
+/// actually exists on a TowerDataSO / EnemyDataSO / SpellDataSO today.
+/// </summary>
+public enum CardStatId
+{
+    Damage,
+    Health,
+    Range,
+    /// <summary>Higher is better: it divides a tower's shoot cooldown.</summary>
+    AttackSpeed,
+    MoveSpeed,
+    Duration,
+    /// <summary>A buff spell's bonus fraction (Haste attack speed, Rage move speed).</summary>
+    EffectBonus,
+}
+
+/// <summary>Why a card upgrade was refused, so the UI can say which requirement is missing.</summary>
+public enum CardUpgradeInvalidReason
+{
+    None,
+    NotOwned,
+    MaxLevel,
+    NotEnoughCopies,
+    NotEnoughGold,
+}

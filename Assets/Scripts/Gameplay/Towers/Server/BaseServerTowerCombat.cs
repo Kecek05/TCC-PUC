@@ -17,6 +17,13 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected bool _setuped = false;
     protected bool _upgradingFlag = false;
 
+    /// <summary>
+    /// Multipliers from the deploying player's persistent CARD level. Set once before the tower spawns and
+    /// never changes afterwards. Entirely separate from <see cref="_towerLevel"/>, the in-match placement
+    /// upgrade: the two compose, card level scaling whatever tier the placement upgrade selected.
+    /// </summary>
+    protected CardLevelScale _cardScale = CardLevelScale.One;
+
     protected float _currentShootCooldown = 0f;
     protected float _shootCooldown;
     protected float _range;
@@ -58,6 +65,16 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         if (!IsServer) return;
 
         TowerRegistry.Unregister(towerManager);
+    }
+
+    /// <summary>
+    /// Server-only. Must be called before <c>NetworkObject.Spawn</c>, because <see cref="OnNetworkSpawn"/>
+    /// is what first reads the stats through <see cref="UpdateData"/>.
+    /// </summary>
+    public void SetCardLevelScale(CardLevelScale scale)
+    {
+        _cardScale = scale;
+        if (IsSpawned) UpdateData();
     }
 
     protected virtual IEnumerator SetupTimeDuration()
@@ -173,11 +190,18 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
         _isHasted.Value = _attackSpeedBuffPercent > 0.0001f;
     }
 
+    /// <summary>
+    /// The one place tower stats are read. Card-level multipliers are applied here so every stat, and every
+    /// subclass that calls <c>base.UpdateData()</c>, gets them for free.
+    /// </summary>
     protected virtual void UpdateData()
     {
-        _damage = _towerData.GetDamageByLevel(_towerLevel.Value);
-        _range = _towerData.GetRangeByLevel(_towerLevel.Value);
-        _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value);
+        _damage = _towerData.GetDamageByLevel(_towerLevel.Value) * _cardScale.Damage;
+        _range = _towerData.GetRangeByLevel(_towerLevel.Value) * _cardScale.Range;
+
+        // Attack speed shrinks the cooldown, the same way the haste buff does in Update().
+        _shootCooldown = _towerData.GetShootCooldownByLevel(_towerLevel.Value) / Mathf.Max(0.01f, _cardScale.AttackSpeed);
+
         _bulletSpeed = _towerData.GetBulletSpeedByLevel(_towerLevel.Value);
         _currentSetupDuration = _towerData.GetSetupDurationByLevel(_towerLevel.Value);
     }

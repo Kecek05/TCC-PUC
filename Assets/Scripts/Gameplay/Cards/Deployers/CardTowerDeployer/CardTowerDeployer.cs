@@ -148,6 +148,10 @@ public class CardTowerDeployer : BaseCardTowerDeployer
             if (towerManager.Team != null)
                 towerManager.Team.SetTeamType(team);
 
+            // Before Spawn: OnNetworkSpawn is what first reads the stats, so the card level has to be in
+            // place by then. Same pre-spawn write pattern as SetTeamType above.
+            towerManager.ServerTowerCombat.SetCardLevelScale(MatchCardLevels.ScaleFor(team, cardType));
+
             towerManager.NetworkObject.SpawnWithOwnership(ownerClientId);
 
             resolvedPosition = hit.placeable.PlaceablePoint.position;

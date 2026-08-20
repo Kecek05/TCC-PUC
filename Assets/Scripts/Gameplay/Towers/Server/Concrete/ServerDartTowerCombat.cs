@@ -24,7 +24,7 @@ public class ServerDartTowerCombat : BaseServerTowerCombat
 
         clientDartCombat.FireBulletRpc(
             transform.position,
-            _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
+            _bulletSpeed,
             target.GetComponent<NetworkObject>()
         );
 

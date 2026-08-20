@@ -12,6 +12,13 @@ public class UserData
     public int UserTrophies;
     public List<CardType> DeckCards = new();
 
+    /// <summary>
+    /// Persistent card level for each entry of <see cref="DeckCards"/>, index-aligned with it. Rides the
+    /// existing connection payload so the server can scale what this player deploys without any new RPC.
+    /// Client-authored, like the deck itself, so the server treats a mismatched length as "level 1".
+    /// </summary>
+    public List<int> DeckCardLevels = new();
+
     public void SetUserTrophies(int userTrophies) => this.UserTrophies = userTrophies;
 
     public void SetPlayerName(string playerName) => this.PlayerName = playerName;
@@ -19,6 +26,8 @@ public class UserData
     public void SetPlayerAuthId(string playerAuthId) => this.PlayerAuthId = playerAuthId;
     
     public void SetDeckCards(List<CardType> deckCards) => this.DeckCards = deckCards;
+
+    public void SetDeckCardLevels(List<int> deckCardLevels) => this.DeckCardLevels = deckCardLevels;
 
     public GameInfo userGamePreferences = new();
 

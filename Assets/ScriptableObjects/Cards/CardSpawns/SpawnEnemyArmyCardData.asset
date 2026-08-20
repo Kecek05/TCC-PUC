@@ -20,11 +20,15 @@ MonoBehaviour:
   Description: Summon a swarm of 10 fragile fodder that floods the enemy's lane to
     overwhelm their defenses.
   CardImage: {fileID: 21300000, guid: 21fb6714fde0b41b9ba9639d03f5a2a6, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
   EnemyType: 4
   SpawnCount: 10
   DelayBetweenSpawns: 0.3
+  EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

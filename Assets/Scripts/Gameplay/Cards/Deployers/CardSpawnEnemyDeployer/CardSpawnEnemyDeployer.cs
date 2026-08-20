@@ -96,11 +96,15 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         if (!_serverManaManager.TrySpendMana(team, spawnCardData.Cost))
             return CardValidation.Invalid(CardInvalidReason.NotEnoughMana);
 
+        // Resolved once per cast: an army's troops all share the level the card had when it was played.
+        CardLevelScale cardScale = MatchCardLevels.ScaleFor(team, cardType);
+
         int spawnCount = Mathf.Max(1, spawnCardData.SpawnCount);
         if (spawnCount <= 1)
-            _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId);
+            _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId, cardScale);
         else
-            StartCoroutine(SendEnemyArmy(spawnCardData.EnemyType, authId, spawnCount, spawnCardData.DelayBetweenSpawns));
+            StartCoroutine(SendEnemyArmy(spawnCardData.EnemyType, authId, spawnCount,
+                spawnCardData.DelayBetweenSpawns, cardScale));
 
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
@@ -113,11 +117,12 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
 
     // Spawns several enemies of the same type, staggered by the card's own delay so they string out
     // in a row down the opponent's lane (mana was already spent once for the whole batch).
-    private IEnumerator SendEnemyArmy(EnemyType enemyType, string authId, int count, float delayBetweenSpawns)
+    private IEnumerator SendEnemyArmy(EnemyType enemyType, string authId, int count, float delayBetweenSpawns,
+        CardLevelScale cardScale)
     {
         for (int i = 0; i < count; i++)
         {
-            _serverWaveManager.SendEnemyFromPlayer(enemyType, authId);
+            _serverWaveManager.SendEnemyFromPlayer(enemyType, authId, cardScale);
             if (i < count - 1 && delayBetweenSpawns > 0f)
                 yield return new WaitForSeconds(delayBetweenSpawns);
         }

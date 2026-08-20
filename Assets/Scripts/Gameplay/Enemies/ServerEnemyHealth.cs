@@ -11,9 +11,16 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         writePerm: NetworkVariableWritePermission.Server
     );
 
-    private float _maxHealth;
+    /// <summary>
+    /// Replicated because it is scaled by the summoner's card level: the client health bar normalises
+    /// against this, and reading the shared EnemyDataSO instead would draw the wrong fill.
+    /// </summary>
+    private NetworkVariable<float> _maxHealth = new(
+        writePerm: NetworkVariableWritePermission.Server
+    );
 
     public NetworkVariable<float> CurrentHealth => _currentHealth;
+    public NetworkVariable<float> MaxHealth => _maxHealth;
     public static event Action<EnemyManager> OnDeath;
     public override void OnNetworkSpawn()
     {
@@ -23,8 +30,8 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
             return;
         }
         
-        _maxHealth = enemyManager.Data.MaxHealth;
-        _currentHealth.Value = _maxHealth;
+        _maxHealth.Value = enemyManager.Data.MaxHealth * enemyManager.CardScale.Health;
+        _currentHealth.Value = _maxHealth.Value;
 
         EnemyRegistry.Register(enemyManager);
     }

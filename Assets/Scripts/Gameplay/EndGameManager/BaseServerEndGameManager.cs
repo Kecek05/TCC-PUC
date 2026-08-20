@@ -39,9 +39,21 @@ public struct EndGameSnapshot : INetworkSerializable,  IEquatable<EndGameSnapsho
 public abstract class BaseServerEndGameManager : NetworkBehaviour
 {
     public event Action<EndGameSnapshot> OnGameEnded;
-    
+
+    /// <summary>
+    /// Raised on a client with <b>that client's own</b> match reward. Separate from
+    /// <see cref="OnGameEnded"/> because the snapshot is a broadcast both players see, while a reward is
+    /// private to one of them.
+    /// </summary>
+    public event Action<MatchReward> OnRewardGranted;
+
     protected void TriggerOnGameEnded(EndGameSnapshot snapshot)
     {
         OnGameEnded?.Invoke(snapshot);
+    }
+
+    protected void TriggerOnRewardGranted(MatchReward reward)
+    {
+        OnRewardGranted?.Invoke(reward);
     }
 }

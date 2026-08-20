@@ -76,6 +76,7 @@ public class BotController : BaseBotController
                 PlayerAuthId = BotAuthId,
                 UserTrophies = 0,
                 DeckCards = deck,
+                DeckCardLevels = BuildBotLevels(deck.Count),
             }
         };
 
@@ -84,11 +85,22 @@ public class BotController : BaseBotController
         _botTeam = teamManager.GetTeam(BotAuthId);
         mapTranslator.MarkPlayerInitialized(_botTeam);  // satisfy the LoadingMatch -> MatchReady gate
 
-        GameLog.Info($"[BotController] Bot '{botSettings.BotName}' seated as {_botTeam}.");
+        GameLog.Info($"[BotController] Bot '{botSettings.BotName}' seated as {_botTeam} " +
+                     $"at card level {Mathf.Max(1, botSettings.CardLevel)}.");
 
         // The match commits (admission gate + lobby close) when the FSM leaves WaitingForPlayers, which
         // happens next tick once this Blue assignment flips BothTeamsAssigned() true.
         StartCoroutine(DecisionLoop());
+    }
+
+    /// <summary>The bot has no save, so every card it holds sits at the single level from its settings.</summary>
+    private List<int> BuildBotLevels(int count)
+    {
+        int level = Mathf.Max(1, botSettings.CardLevel);
+
+        List<int> levels = new(count);
+        for (int i = 0; i < count; i++) levels.Add(level);
+        return levels;
     }
 
     private IEnumerator DecisionLoop()

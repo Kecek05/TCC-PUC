@@ -107,6 +107,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
             CasterTeam = team,
             SpellData = spellData,
             CoroutineRunner = this,
+            Scale = MatchCardLevels.ScaleFor(team, cardType),
         });
 
         // Position the visual by the field it lands on (opponent's for enemy-map spells), not the

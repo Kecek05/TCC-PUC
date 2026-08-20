@@ -18,12 +18,16 @@ public class IceExecutor : ISpellExecutor
         }
 
         context.CoroutineRunner.StartCoroutine(
-            FreezeTowersAfterDelay(context.ServerPosition, context.CasterTeam, effectData)
+            FreezeTowersAfterDelay(context.ServerPosition, context.CasterTeam, effectData, context.Scale)
         );
     }
 
-    private IEnumerator FreezeTowersAfterDelay(Vector2 position, TeamType casterTeam, SpellEffectDataSO data)
+    private IEnumerator FreezeTowersAfterDelay(Vector2 position, TeamType casterTeam, SpellEffectDataSO data,
+        CardLevelScale scale)
     {
+        float radius = data.Range * scale.Range;
+        float duration = data.Duration * scale.Duration;
+
         yield return new WaitForSeconds(data.TravelTime);
 
         TowerRegistry.Cleanup();
@@ -38,8 +42,8 @@ public class IceExecutor : ISpellExecutor
             TeamType towerTeam = tower.Team.GetTeamType();
             if (towerTeam == TeamType.None || towerTeam == casterTeam) continue;
 
-            if (Vector2.Distance(position, tower.transform.position) <= data.Range)
-                tower.ServerTowerCombat.Freeze(data.Duration);
+            if (Vector2.Distance(position, tower.transform.position) <= radius)
+                tower.ServerTowerCombat.Freeze(duration);
         }
     }
 }

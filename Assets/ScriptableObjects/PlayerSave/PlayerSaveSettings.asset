@@ -17,4 +17,6 @@ MonoBehaviour:
   SaveFileName: player_save.json
   CardHandSettings: {fileID: 11400000, guid: e000621b4c83905469856f83e430592b, type: 2}
   CardDataList: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
+  CardProgression: {fileID: 11400000, guid: 27e67ca7b285c634093a2ad21ee8fbee, type: 2}
   StarterDeck: 0100000003000000020000000500000008000000090000000a0000000b000000
+  StartingGold: 200

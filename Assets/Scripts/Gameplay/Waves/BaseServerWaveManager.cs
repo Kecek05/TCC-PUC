@@ -15,8 +15,16 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     public NetworkVariable<int> RedCurrentWave = new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<float> BlueCurrentWaveProgressNormalized =  new(writePerm: NetworkVariableWritePermission.Server);
     public NetworkVariable<float> RedCurrentWaveProgressNormalized =  new(writePerm: NetworkVariableWritePermission.Server);
-    public abstract void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false);
-    public abstract void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId);
+    /// <param name="cardScale">
+    /// Multipliers from the summoning player's card level. Null means "nobody summoned this" - the AI wave
+    /// horde - which falls back to the wave level on CardProgressionSettings. Nullable rather than a
+    /// default of CardLevelScale.One because a struct cannot be a compile-time default.
+    /// </param>
+    public abstract void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
+        CardLevelScale? cardScale = null);
+
+    public abstract void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId,
+        CardLevelScale? cardScale = null);
     public abstract WaypointPath GetPath(TeamType map);
     public abstract NetworkVariable<int> GetLocalCurrentWave();
     public abstract NetworkVariable<int> GetEnemyCurrentWave();

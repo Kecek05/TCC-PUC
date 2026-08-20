@@ -9,12 +9,14 @@ public class ServerWaveManager_DEBUG : BaseServerWaveManager
         ServiceLocator.Register<BaseServerWaveManager>(this);
     }
     
-    public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false)
+    public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
+        CardLevelScale? cardScale = null)
     {
 
     }
 
-    public override void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId)
+    public override void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId,
+        CardLevelScale? cardScale = null)
     {
 
     }

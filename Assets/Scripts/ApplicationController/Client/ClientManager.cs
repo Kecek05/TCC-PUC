@@ -62,6 +62,11 @@ public class ClientManager : BaseClientManager
     {
         // Copy, never alias: the connection payload must not be able to mutate the save.
         UserData.SetDeckCards(new List<CardType>(deck.Cards));
+
+        // Levels travel index-aligned with the cards, so the server can scale what this player deploys.
+        List<int> levels = new(deck.Cards.Count);
+        foreach (CardType cardType in deck.Cards) levels.Add(_playerSaveManager.GetCardLevel(cardType));
+        UserData.SetDeckCardLevels(levels);
     }
 
     private async void DoAuth()

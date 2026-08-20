@@ -19,6 +19,11 @@ public class ClientEnemyHealth : NetworkBehaviour
 
     private static readonly int HealthNormalized = Shader.PropertyToID("_HealthNormalized");
 
+    /// <summary>Scaled by the summoner's card level, so it comes from the server, not the shared SO.</summary>
+    private float MaxHealth => _serverHealth != null && _serverHealth.MaxHealth.Value > 0f
+        ? _serverHealth.MaxHealth.Value
+        : enemyManager.Data.MaxHealth;
+
     public override void OnNetworkSpawn()
     {
         if (IsServer && !IsClient)
@@ -33,7 +38,7 @@ public class ClientEnemyHealth : NetworkBehaviour
         _serverHealth = GetComponent<ServerEnemyHealth>();
         _serverHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
         
-        _currentDisplayHealth = Mathf.Clamp01(_serverHealth.CurrentHealth.Value / enemyManager.Data.MaxHealth);
+        _currentDisplayHealth = Mathf.Clamp01(_serverHealth.CurrentHealth.Value / MaxHealth);
         SetHealthProperty(_currentDisplayHealth);
     }
 
@@ -51,11 +56,11 @@ public class ClientEnemyHealth : NetworkBehaviour
         _gfxTween = DOTween.To(
             () => enemyGfxRenderer.color,
             x => enemyGfxRenderer.color = x,
-            Color.Lerp(_healthColor, Color.white, Mathf.Clamp01(newValue / enemyManager.Data.MaxHealth)),
+            Color.Lerp(_healthColor, Color.white, Mathf.Clamp01(newValue / MaxHealth)),
             0.15f
         ).SetEase(tweenEase).OnComplete(() => enemyGfxRenderer.color = _healthColor);
         
-        float target = Mathf.Clamp01(newValue / enemyManager.Data.MaxHealth);
+        float target = Mathf.Clamp01(newValue / MaxHealth);
         _healthTween?.Kill();
         _healthTween = DOTween.To(
             () => _currentDisplayHealth,

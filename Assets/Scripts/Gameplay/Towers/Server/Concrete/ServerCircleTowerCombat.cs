@@ -20,7 +20,7 @@ public class ServerCircleTowerCombat : BaseServerTowerCombat
         
         clientCircleCombat.FireBulletRpc(
             transform.position,
-            _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
+            _bulletSpeed,
             target.GetComponent<NetworkObject>()
         );
         

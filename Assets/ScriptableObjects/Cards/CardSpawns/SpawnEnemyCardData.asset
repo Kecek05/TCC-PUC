@@ -26,6 +26,9 @@ MonoBehaviour:
   CustomSizeCardInMenu: {x: 150, y: 150}
   UseCustomPositionCardInMenu: 1
   CustomPositionCardInMenu: {x: 0, y: 13}
+  OverrideStatGrowth: 0
+  StatGrowth: []
   EnemyType: 8
   SpawnCount: 3
   DelayBetweenSpawns: 0.2
+  EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

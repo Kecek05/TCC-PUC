@@ -28,8 +28,16 @@ public class PlayerSaveSettingsSO : ScriptableObject
     [Required, Tooltip("Every card in the game. Saved CardTypes missing from this list are dropped on load.")]
     public CardDataListSO CardDataList;
 
+    [Required, Tooltip("Level caps, upgrade costs and stat growth. Drives the Upgrade button on the deck page.")]
+    public CardProgressionSettingsSO CardProgression;
+
     [Title("New Save")]
     [Tooltip("Seeds deck slot 1 on a brand-new save, so a fresh player can press Battle right away. " +
-             "The remaining slots start empty. Should hold CardHandSettings.DeckSize cards.")]
+             "The remaining slots start empty. Should hold CardHandSettings.DeckSize cards. " +
+             "These cards are also the ones a new player OWNS at level 1; everything else starts locked.")]
     public List<CardType> StarterDeck = new();
+
+    [MinValue(0)]
+    [Tooltip("Gold a brand-new save starts with.")]
+    public int StartingGold = 200;
 }

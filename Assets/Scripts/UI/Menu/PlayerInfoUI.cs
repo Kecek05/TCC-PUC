@@ -15,22 +15,37 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentTrophiesLabel;
     
     private BaseClientManager _clientManager;
+    private BasePlayerSaveManager _playerSaveManager;
 
     private void Start()
     {
         _clientManager = ServiceLocator.Get<BaseClientManager>();
+
+        // Gold is real now and changes while the menu is open (upgrades, match rewards), so this panel
+        // has to react rather than read once. It lives on the persistent header, visible from every page.
+        if (ServiceLocator.TryGet(out _playerSaveManager))
+            _playerSaveManager.OnGoldChanged += HandleGoldChanged;
+
         UpdatePlayerInfo();
     }
 
+    private void OnDestroy()
+    {
+        if (_playerSaveManager != null) _playerSaveManager.OnGoldChanged -= HandleGoldChanged;
+    }
+
+    private void HandleGoldChanged() => UpdateCurrentMoneyLabel(_playerSaveManager.Gold);
+
     private void UpdatePlayerInfo()
     {
-        //PLACE HOLDERS
+        UpdateCurrentMoneyLabel(_playerSaveManager != null ? _playerSaveManager.Gold : 0);
+        UpdatePlayerNameLabel(_clientManager.UserData.PlayerName);
+
+        //PLACE HOLDERS - account level, xp, gems and trophies are still stubs.
         UpdateCurrentGemsLabel(Random.Range(0, 1000));
         UpdateCurrentLevelLabel(Random.Range(0, 100));
-        UpdateCurrentMoneyLabel(Random.Range(0, 100));
         UpdateCurrentXpLabel(Random.Range(0, 100), 100);
         UpdateCurrentTrophiesLabel(Random.Range(0, 10000));
-        UpdatePlayerNameLabel(_clientManager.UserData.PlayerName);
     }
 
     private void UpdateCurrentLevelLabel(int level)

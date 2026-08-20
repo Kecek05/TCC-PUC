@@ -92,3 +92,61 @@ backend later without touching the deck page. `JsonUtility` + a `[Serializable]`
   `Assets/Scripts/Services/PlayerSave/`); `DeckSlotBar.cs`, `CardSortController.cs`, `CardSortComparer.cs`
   (under `Assets/Scripts/UI/Menu/Pages/Deck/`); `DeckUIController.cs`, `ActionFrame.cs`; asset at
   `Assets/ScriptableObjects/PlayerSave/PlayerSaveSettings.asset`.
+
+### Card Upgrade + Rewards — persistent card level and match payouts
+
+Cards have a **persistent level and a copy count** in the player save. Upgrading spends copies + gold and
+makes that card's own stats better in the match. Finishing a match pays gold to both players and a random
+card to the winner, unlocking it at level 1 if new.
+
+**Why:** every progression surface was a `Random.Range` placeholder (`SingleCardInDeck.SetPlaceholderProgression`,
+`PlayerInfoUI`, and a `// TODO: Handle trophies and rewards` in `ServerEndGameManager`). Stat growth is a
+**compounding percent per stat** rather than a hand-authored value per level, because 11 cards x ~10 levels x
+3-5 stats is several hundred numbers to keep balanced; the percentages live per card so a card can still
+diverge from its rarity's default. Rewards are rolled **server-side** and applied client-side because the save
+is a local file — the server owns the decision, the client owns the storage.
+
+**Two level axes — do not confuse them:**
+- `BaseServerTowerCombat._towerLevel` (NetworkVariable, 1-3, reset every spawn) is the **in-match placement
+  upgrade**, selecting between `TowerDataSO`'s `DamageLevel1/2/3` tiers.
+- `CardLevelScale` is the **persistent card level**, a multiplier applied on top of whichever tier that
+  selected. They compose; nothing in this feature touches `_towerLevel` or `TowerReason.LevelUp`.
+
+**How it works:**
+- **Authoring:** `CardProgressionSettingsSO` holds one `RarityProgression` per rarity (MaxLevel + a `[TableList]`
+  of `CardLevelStep{CopiesRequired, GoldCost}`, with an Odin `[Button] AutoFill` that generates a geometric
+  ramp) plus a default `CardStatGrowth` table. A card overrides growth only when it differs (`CardDataSO.OverrideStatGrowth`).
+  `CardDataSO` carries an editor-only `[ShowInInspector, ReadOnly, TableList]` **live preview** of every level's
+  costs and resulting stats — pure derived data, no extra state.
+- **One stats API, three consumers:** `CardDataSO.GetStats(CardLevelScale)` is overridden per card family
+  (tower reads its prefab's `TowerDataSO`, spell its `SpellData`, troop its `EnemyDataListSO`). It feeds the
+  inspector preview today and the Clash Royale-style current-vs-next panel later, so they cannot disagree.
+- **Transport, zero new plumbing:** `UserData.DeckCardLevels` is index-aligned with `DeckCards` and rides the
+  existing Netcode connection payload. `DrawingCardsState` fills `MatchCardLevels` (server-only lookup) in the
+  same loop that deals the decks. Deployers call `MatchCardLevels.ScaleFor(team, cardType)`.
+- **Applying the scale, one choke point per family:** towers in `BaseServerTowerCombat.UpdateData()` (attack
+  speed *divides* the cooldown, matching the existing haste maths); enemies via `EnemyManager.SetCardLevelScale`
+  written **before `Spawn()`**, since pooled instances only re-initialise in `OnNetworkSpawn`; spells via
+  `SpellExecutionContext.Scale`, because `SpellExecutorFactory` hands out shared stateless singletons.
+- **Buff symmetry:** Haste/Rage resolve the scaled bonus into a local **once per cast** — `Add*Buff` and
+  `Remove*Buff` must pass the identical value or the tower/troop keeps a stack it can never shed.
+- **Enemy max health is now replicated** (`ServerEnemyHealth.MaxHealth`): `ClientEnemyHealth` normalised its
+  bar against the shared `EnemyDataSO`, which is wrong once health scales.
+- **Range deliberately does not scale by default.** `ClientTowerRangeGFX`, `ClientSlamTowerCombat` and
+  `TowerCard` read range straight off the SO client-side, so scaled range would draw the wrong ring. Clash
+  Royale does not scale range either. Turning it on means replicating range too.
+- **Rewards:** `ServerEndGameManager` rolls per player at the old TODO and delivers each with a **targeted**
+  Rpc (`RpcTarget.Single`) — the `EndGameSnapshot` broadcast is shared, a reward is private. The bot is skipped
+  by its `ClientId == ulong.MaxValue` sentinel. `ClientRewardHandler` banks it into the save;
+  `ClientEndGameCanvas` subscribes separately for display only, so the UI never writes the save.
+  `WeightedRewardRoller` picks rarity first, then a card uniformly within it, and takes a `System.Random` so
+  the distribution is seedable and testable.
+- **Save:** `PlayerSaveData` v2 adds `Gold` and `List<CardProgressSaveData>`; presence in that list *is*
+  ownership. `NormalizeCards` migrates a v1 save by granting whatever its decks already reference, so nobody
+  loses a deck. `TryEquipCard` refuses unowned cards and `SanitizeCards` drops them from decks.
+  `CardUpgradeValidation` mirrors the `CardValidation`/`TowerValidation` idiom so the UI gets a typed reason.
+- Editor helpers: `Kecek/Debug Tools/Progression/Grant 5000 Gold` and `Grant 100 Copies To Every Card` (play mode only).
+- Key files: `CardProgressionSettingsSO.cs`, `CardLevelScale.cs`, `CardStatGrowth.cs`, `CardUpgradeValidation.cs`,
+  `MatchCardLevels.cs` (under `Assets/Scripts/Gameplay/Progression/`); `MatchReward.cs`, `IRewardRoller.cs`,
+  `WeightedRewardRoller.cs`, `RewardSettingsSO.cs`, `ClientRewardHandler.cs` (under `Assets/Scripts/Gameplay/Rewards/`);
+  assets at `Assets/ScriptableObjects/Progression/` and `Assets/ScriptableObjects/Rewards/`.

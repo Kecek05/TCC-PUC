@@ -21,19 +21,27 @@ public class HasteExecutor : ISpellExecutor
             return;
         }
 
-        context.CoroutineRunner.StartCoroutine(RunBuffZone(context.ServerPosition, context.CasterTeam, data));
+        context.CoroutineRunner.StartCoroutine(
+            RunBuffZone(context.ServerPosition, context.CasterTeam, data, context.Scale));
     }
 
-    private IEnumerator RunBuffZone(Vector2 position, TeamType casterTeam, SpellBuffDataSO data)
+    private IEnumerator RunBuffZone(Vector2 position, TeamType casterTeam, SpellBuffDataSO data,
+        CardLevelScale scale)
     {
+        // Resolved ONCE for the whole cast. Add and Remove must pass the identical value or the tower keeps
+        // a stack it can never shed, so the scaled bonus can never be recomputed mid-zone.
+        float bonus = data.AttackSpeedBonus * scale.EffectBonus;
+        float radius = data.Range * scale.Range;
+        float duration = data.Duration * scale.Duration;
+
         yield return new WaitForSeconds(data.TravelTime);
 
         HashSet<TowerManager> buffed = new HashSet<TowerManager>();
         float elapsed = 0f;
 
-        while (elapsed < data.Duration)
+        while (elapsed < duration)
         {
-            ApplyToNewTowersInRange(position, casterTeam, data, buffed);
+            ApplyToNewTowersInRange(position, casterTeam, radius, bonus, buffed);
             yield return new WaitForSeconds(TickInterval);
             elapsed += TickInterval;
         }
@@ -42,11 +50,12 @@ public class HasteExecutor : ISpellExecutor
         foreach (TowerManager tower in buffed)
         {
             if (tower == null || tower.NetworkObject == null || !tower.NetworkObject.IsSpawned) continue;
-            tower.ServerTowerCombat.RemoveAttackSpeedBuff(data.AttackSpeedBonus);
+            tower.ServerTowerCombat.RemoveAttackSpeedBuff(bonus);
         }
     }
 
-    private void ApplyToNewTowersInRange(Vector2 position, TeamType casterTeam, SpellBuffDataSO data, HashSet<TowerManager> buffed)
+    private void ApplyToNewTowersInRange(Vector2 position, TeamType casterTeam, float radius, float bonus,
+        HashSet<TowerManager> buffed)
     {
         TowerRegistry.Cleanup();
         IReadOnlyList<TowerManager> towers = TowerRegistry.ActiveTowers;
@@ -62,9 +71,9 @@ public class HasteExecutor : ISpellExecutor
             // Already buffed by THIS zone — apply each zone's bonus to a tower exactly once.
             if (buffed.Contains(tower)) continue;
 
-            if (Vector2.Distance(position, tower.transform.position) > data.Range) continue;
+            if (Vector2.Distance(position, tower.transform.position) > radius) continue;
 
-            tower.ServerTowerCombat.AddAttackSpeedBuff(data.AttackSpeedBonus);
+            tower.ServerTowerCombat.AddAttackSpeedBuff(bonus);
             buffed.Add(tower);
         }
     }

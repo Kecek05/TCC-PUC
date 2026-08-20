@@ -21,6 +21,10 @@ public class BotSettingsSO : ScriptableObject
     [Tooltip("Display name shown to the human as the opponent.")]
     public string BotName = "Bot";
 
+    [Tooltip("Persistent card level the bot plays every card at. Raise it to make the bot hit harder " +
+             "without touching its deck or decision loop.")]
+    [Min(1)] public int CardLevel = 1;
+
     [Title("Decision Loop")]
     [Tooltip("Base seconds between bot decisions. Lower = faster/harder.")]
     [Min(0.1f)] public float DecisionInterval = 1.0f;

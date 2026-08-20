@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76de777bea593224bab6858f6569c919, type: 3}
+  m_Name: CardProgressionSettings
+  m_EditorClassIdentifier: Assembly-CSharp::CardProgressionSettingsSO
+  rarities:
+  - Rarity: 0
+    MaxLevel: 1
+    Steps: []
+  - Rarity: 1
+    MaxLevel: 12
+    Steps:
+    - FromLevel: 1
+      CopiesRequired: 2
+      GoldCost: 40
+    - FromLevel: 2
+      CopiesRequired: 4
+      GoldCost: 74
+    - FromLevel: 3
+      CopiesRequired: 7
+      GoldCost: 137
+    - FromLevel: 4
+      CopiesRequired: 14
+      GoldCost: 253
+    - FromLevel: 5
+      CopiesRequired: 26
+      GoldCost: 469
+    - FromLevel: 6
+      CopiesRequired: 50
+      GoldCost: 867
+    - FromLevel: 7
+      CopiesRequired: 94
+      GoldCost: 1604
+    - FromLevel: 8
+      CopiesRequired: 179
+      GoldCost: 2967
+    - FromLevel: 9
+      CopiesRequired: 340
+      GoldCost: 5488
+    - FromLevel: 10
+      CopiesRequired: 645
+      GoldCost: 10153
+    - FromLevel: 11
+      CopiesRequired: 1226
+      GoldCost: 18784
+  - Rarity: 2
+    MaxLevel: 10
+    Steps:
+    - FromLevel: 1
+      CopiesRequired: 2
+      GoldCost: 80
+    - FromLevel: 2
+      CopiesRequired: 4
+      GoldCost: 152
+    - FromLevel: 3
+      CopiesRequired: 6
+      GoldCost: 289
+    - FromLevel: 4
+      CopiesRequired: 12
+      GoldCost: 549
+    - FromLevel: 5
+      CopiesRequired: 21
+      GoldCost: 1043
+    - FromLevel: 6
+      CopiesRequired: 38
+      GoldCost: 1981
+    - FromLevel: 7
+      CopiesRequired: 68
+      GoldCost: 3764
+    - FromLevel: 8
+      CopiesRequired: 122
+      GoldCost: 7151
+    - FromLevel: 9
+      CopiesRequired: 220
+      GoldCost: 13587
+  - Rarity: 3
+    MaxLevel: 8
+    Steps:
+    - FromLevel: 1
+      CopiesRequired: 2
+      GoldCost: 200
+    - FromLevel: 2
+      CopiesRequired: 3
+      GoldCost: 380
+    - FromLevel: 3
+      CopiesRequired: 6
+      GoldCost: 722
+    - FromLevel: 4
+      CopiesRequired: 10
+      GoldCost: 1372
+    - FromLevel: 5
+      CopiesRequired: 17
+      GoldCost: 2606
+    - FromLevel: 6
+      CopiesRequired: 28
+      GoldCost: 4952
+    - FromLevel: 7
+      CopiesRequired: 48
+      GoldCost: 9409
+  - Rarity: 4
+    MaxLevel: 6
+    Steps:
+    - FromLevel: 1
+      CopiesRequired: 1
+      GoldCost: 800
+    - FromLevel: 2
+      CopiesRequired: 2
+      GoldCost: 1520
+    - FromLevel: 3
+      CopiesRequired: 3
+      GoldCost: 2888
+    - FromLevel: 4
+      CopiesRequired: 6
+      GoldCost: 5487
+    - FromLevel: 5
+      CopiesRequired: 10
+      GoldCost: 10426
+  defaultStatGrowth:
+  - Stat: 0
+    PercentPerLevel: 0.1
+  - Stat: 1
+    PercentPerLevel: 0.1
+  - Stat: 6
+    PercentPerLevel: 0.05
+  - Stat: 5
+    PercentPerLevel: 0.03
+  - Stat: 3
+    PercentPerLevel: 0.02
+  WaveEnemyCardLevel: 1

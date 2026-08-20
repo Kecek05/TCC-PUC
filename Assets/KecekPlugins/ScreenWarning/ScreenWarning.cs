@@ -35,4 +35,8 @@ public static class WarningMessages
 {
     public static string CannotEquipCard = "Cannot equip card. Deck is full.";
     public static string DeckNotFull = "Cannot play. Deck is not full.";
+    public static string CardLocked = "You don't own this card yet.";
+    public static string UpgradeNotEnoughCards = "Not enough cards to upgrade.";
+    public static string UpgradeNotEnoughGold = "Not enough gold to upgrade.";
+    public static string UpgradeMaxLevel = "This card is already at max level.";
 }

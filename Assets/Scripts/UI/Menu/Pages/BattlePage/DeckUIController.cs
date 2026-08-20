@@ -73,7 +73,9 @@ public class DeckUIController : MonoBehaviour
         }
 
         _playerSaveManager.OnActiveDeckSlotChanged += HandleActiveDeckSlotChanged;
+        _playerSaveManager.OnCardProgressChanged += HandleCardProgressChanged;
 
+        RefreshAllProgression();
         ApplyDeck(_playerSaveManager.ActiveDeck);
     }
 
@@ -81,7 +83,11 @@ public class DeckUIController : MonoBehaviour
     {
         if (deckSlotBar != null) deckSlotBar.OnSlotSelected -= HandleSlotSelected;
         if (cardSortController != null) cardSortController.OnSortChanged -= HandleSortChanged;
-        if (_playerSaveManager != null) _playerSaveManager.OnActiveDeckSlotChanged -= HandleActiveDeckSlotChanged;
+        if (_playerSaveManager != null)
+        {
+            _playerSaveManager.OnActiveDeckSlotChanged -= HandleActiveDeckSlotChanged;
+            _playerSaveManager.OnCardProgressChanged -= HandleCardProgressChanged;
+        }
     }
 
     /// <summary>Instantiates one widget per card, all starting in the collection. Runs once.</summary>
@@ -173,7 +179,19 @@ public class DeckUIController : MonoBehaviour
         foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
             if (!info.IsEquipped) _sortBuffer.Add(info.CardData);
 
-        _sortBuffer.Sort(CardSortComparer.GetComparison(_playerSaveManager.SortKey, _playerSaveManager.SortAscending));
+        CardSortKey key = _playerSaveManager.SortKey;
+        bool ascending = _playerSaveManager.SortAscending;
+
+        // Owned cards first whatever the key is: what the player can actually use should never be pushed
+        // below what they cannot.
+        _sortBuffer.Sort((a, b) =>
+        {
+            bool ownedA = _playerSaveManager.IsCardOwned(a.CardType);
+            bool ownedB = _playerSaveManager.IsCardOwned(b.CardType);
+            if (ownedA != ownedB) return ownedA ? -1 : 1;
+
+            return CardSortComparer.Compare(a, b, key, ascending);
+        });
 
         for (int i = 0; i < _sortBuffer.Count; i++)
             cardTypeToCardInDeckInfo[_sortBuffer[i].CardType].SingleCardInDeck.transform.SetSiblingIndex(i);
@@ -206,6 +224,12 @@ public class DeckUIController : MonoBehaviour
 
         if (isEquipped)
         {
+            if (!_playerSaveManager.IsCardOwned(cardType))
+            {
+                _screenWarning.ShowWarning(WarningMessages.CardLocked);
+                return false;
+            }
+
             if (!_playerSaveManager.TryEquipCard(cardType))
             {
                 _screenWarning.ShowWarning(WarningMessages.CannotEquipCard);
@@ -244,6 +268,63 @@ public class DeckUIController : MonoBehaviour
         }
 
         medianCostText.text = equippedCount > 0 ? $"{totalCost / equippedCount:0.0}" : "0.0";
+    }
+
+    /// <summary>Pushes one card's saved level and copy count into its widget.</summary>
+    private void RefreshProgression(CardType cardType)
+    {
+        if (!cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info)) return;
+
+        info.SingleCardInDeck.SetProgression(
+            _playerSaveManager.GetCardLevel(cardType),
+            _playerSaveManager.GetCardProgress(cardType)?.Copies ?? 0,
+            _playerSaveManager.GetCopiesRequired(cardType),
+            _playerSaveManager.IsCardOwned(cardType));
+    }
+
+    private void RefreshAllProgression()
+    {
+        foreach (CardType cardType in cardTypeToCardInDeckInfo.Keys) RefreshProgression(cardType);
+    }
+
+    /// <summary>Whether the next level is affordable, and what it costs. Read by the ActionFrame.</summary>
+    public CardUpgradeValidation GetUpgradeState(CardType cardType) => _playerSaveManager.CanUpgradeCard(cardType);
+
+    /// <summary>
+    /// Buys the next level of a card, or explains why it cannot. The rules live in the save manager; this
+    /// only turns a refusal into player-facing feedback.
+    /// </summary>
+    public bool TryUpgradeCard(CardType cardType)
+    {
+        CardUpgradeValidation upgrade = _playerSaveManager.CanUpgradeCard(cardType);
+
+        if (!upgrade)
+        {
+            _screenWarning.ShowWarning(upgrade.Reason switch
+            {
+                CardUpgradeInvalidReason.NotOwned => WarningMessages.CardLocked,
+                CardUpgradeInvalidReason.MaxLevel => WarningMessages.UpgradeMaxLevel,
+                CardUpgradeInvalidReason.NotEnoughCopies => WarningMessages.UpgradeNotEnoughCards,
+                CardUpgradeInvalidReason.NotEnoughGold => WarningMessages.UpgradeNotEnoughGold,
+                _ => WarningMessages.UpgradeMaxLevel
+            });
+
+            return false;
+        }
+
+        return _playerSaveManager.TryUpgradeCard(cardType);
+    }
+
+    /// <summary>A card levelled up, or a reward unlocked it. Relayout only when ownership actually changed.</summary>
+    private void HandleCardProgressChanged(CardType cardType)
+    {
+        bool wasInCollection = cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info)
+                               && !info.SingleCardInDeck.IsOwned;
+
+        RefreshProgression(cardType);
+
+        // A newly unlocked card stops sorting with the locked ones.
+        if (wasInCollection && _playerSaveManager.IsCardOwned(cardType)) ApplySort();
     }
 
     private void HandleSlotSelected(int index) => _playerSaveManager.SetActiveDeck(index);

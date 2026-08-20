@@ -14,12 +14,17 @@ public class FireballExecutor : ISpellExecutor
     
         GameLog.Info("FireballExecutor: Execute");
         context.CoroutineRunner.StartCoroutine(
-            ApplyAoEDamageAfterDelay(context.ServerPosition, context.CasterTeam, offensiveData)
+            ApplyAoEDamageAfterDelay(context.ServerPosition, context.CasterTeam, offensiveData, context.Scale)
         );
     }
 
-    private IEnumerator ApplyAoEDamageAfterDelay(Vector2 position, TeamType team, SpellOffensiveDataSO data)
+    private IEnumerator ApplyAoEDamageAfterDelay(Vector2 position, TeamType team, SpellOffensiveDataSO data,
+        CardLevelScale scale)
     {
+        // Resolved once, before the wait: the cast is locked in at the level it was played at.
+        float damage = data.Damage * scale.Damage;
+        float radius = data.Range * scale.Range;
+
         yield return new WaitForSeconds(data.TravelTime);
 
         IReadOnlyList<EnemyManager> enemies = EnemyRegistry.ActiveEnemies;
@@ -32,10 +37,10 @@ public class FireballExecutor : ISpellExecutor
             if (enemy.Team.GetTeamType() != team) continue;
 
             float dist = Vector2.Distance(position, enemy.transform.position);
-            if (dist <= data.Range)
+            if (dist <= radius)
             {
-                enemy.ServerHealth.TakeDamage(new DamageInfo(data.Damage, data.AttackColor, data.ArmorPenetration));
-                GameLog.Info($"FireballExecutor: ApplyAoEDamageAfterDelay to enemy: {enemy.name}, damage: {data.Damage}");
+                enemy.ServerHealth.TakeDamage(new DamageInfo(damage, data.AttackColor, data.ArmorPenetration));
+                GameLog.Info($"FireballExecutor: ApplyAoEDamageAfterDelay to enemy: {enemy.name}, damage: {damage}");
             }
         }
     }

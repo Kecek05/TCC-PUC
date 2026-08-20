@@ -24,7 +24,7 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
         
         clientSquareCombat.FireBulletRpc(
             transform.position,
-            _towerData.GetBulletSpeedByLevel(_towerLevel.Value),
+            _bulletSpeed,
             target.GetComponent<NetworkObject>(),
             travelTime,
             _explosionRadius
@@ -42,7 +42,7 @@ public class ServerSquareTowerCombat : BaseServerTowerCombat
             return;
         }
         
-        _explosionRadius = explosionTowerDataSO.GetExplosionRangeByLevel(_towerLevel.Value);
+        _explosionRadius = explosionTowerDataSO.GetExplosionRangeByLevel(_towerLevel.Value) * _cardScale.Range;
     }
 
     private IEnumerator ApplyExplosionAfterDelay(EnemyManager target, float damage, float delay)

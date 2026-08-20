@@ -101,6 +101,61 @@ namespace Editor.KeceK
             EditorUtility.RevealInFinder(GetPlayerSavePath());
         }
 
+        private const string GRANT_GOLD_MENU_PATH = "Kecek/Debug Tools/Progression/Grant 5000 Gold";
+        private const string GRANT_COPIES_MENU_PATH = "Kecek/Debug Tools/Progression/Grant 100 Copies To Every Card";
+        private const int DEBUG_GOLD_GRANT = 5000;
+        private const int DEBUG_COPIES_GRANT = 100;
+
+        // Progression lives in the running save, not in an asset, so these only work in play mode.
+        [MenuItem(GRANT_GOLD_MENU_PATH)]
+        public static void GrantGold()
+        {
+            if (!TryGetPlayerSave(out BasePlayerSaveManager save)) return;
+
+            save.AddGold(DEBUG_GOLD_GRANT);
+            Debug.Log($"[Kecek] Granted {DEBUG_GOLD_GRANT} gold. Total: {save.Gold}.");
+        }
+
+        [MenuItem(GRANT_GOLD_MENU_PATH, true)]
+        public static bool GrantGoldValidate() => EditorApplication.isPlaying;
+
+        /// <summary>Also unlocks every locked card, which is the fast way to test the whole collection.</summary>
+        [MenuItem(GRANT_COPIES_MENU_PATH)]
+        public static void GrantCopiesToEveryCard()
+        {
+            if (!TryGetPlayerSave(out BasePlayerSaveManager save)) return;
+
+            PlayerSaveSettingsSO settings =
+                AssetDatabase.LoadAssetAtPath<PlayerSaveSettingsSO>(PLAYER_SAVE_SETTINGS_ASSET_PATH);
+
+            if (settings == null || settings.CardDataList == null)
+            {
+                Debug.LogError($"[Kecek] No PlayerSaveSettings (or CardDataList) at {PLAYER_SAVE_SETTINGS_ASSET_PATH}");
+                return;
+            }
+
+            int granted = 0;
+            foreach (CardDataSO card in settings.CardDataList.CardDataList)
+            {
+                if (card == null) continue;
+                save.AddCardCopies(card.CardType, DEBUG_COPIES_GRANT);
+                granted++;
+            }
+
+            Debug.Log($"[Kecek] Granted {DEBUG_COPIES_GRANT} copies to {granted} cards.");
+        }
+
+        [MenuItem(GRANT_COPIES_MENU_PATH, true)]
+        public static bool GrantCopiesValidate() => EditorApplication.isPlaying;
+
+        private static bool TryGetPlayerSave(out BasePlayerSaveManager save)
+        {
+            if (ServiceLocator.TryGet(out save)) return true;
+
+            Debug.LogError("[Kecek] No BasePlayerSaveManager registered. Enter play mode from StartScene first.");
+            return false;
+        }
+
         private static string GetPlayerSavePath()
         {
             PlayerSaveSettingsSO settings =

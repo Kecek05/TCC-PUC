@@ -22,11 +22,19 @@ public class RageExecutor : ISpellExecutor
             return;
         }
 
-        context.CoroutineRunner.StartCoroutine(RunRageZone(context.ServerPosition, context.CasterTeam, data));
+        context.CoroutineRunner.StartCoroutine(
+            RunRageZone(context.ServerPosition, context.CasterTeam, data, context.Scale));
     }
 
-    private IEnumerator RunRageZone(Vector2 position, TeamType casterTeam, SpellRageDataSO data)
+    private IEnumerator RunRageZone(Vector2 position, TeamType casterTeam, SpellRageDataSO data,
+        CardLevelScale scale)
     {
+        // Resolved ONCE for the whole cast: AddSpeedBuff and RemoveSpeedBuff must cancel exactly, or a
+        // troop keeps a permanent speed stack. Linger is a feel knob and deliberately does not scale.
+        float bonus = data.MoveSpeedBonus * scale.EffectBonus;
+        float radius = data.Range * scale.Range;
+        float duration = data.Duration * scale.Duration;
+
         yield return new WaitForSeconds(data.TravelTime);
 
         // troop -> Time.time at which this zone's bonus is removed if it is still outside.
@@ -35,7 +43,7 @@ public class RageExecutor : ISpellExecutor
         HashSet<EnemyManager> insideNow = new HashSet<EnemyManager>();
         List<EnemyManager> scratch = new List<EnemyManager>();
 
-        float zoneEnd = Time.time + data.Duration;
+        float zoneEnd = Time.time + duration;
 
         while (true)
         {
@@ -51,11 +59,11 @@ public class RageExecutor : ISpellExecutor
                 {
                     EnemyManager enemy = enemies[i];
                     if (!IsEligible(enemy, casterTeam)) continue;
-                    if (Vector2.Distance(position, enemy.transform.position) > data.Range) continue;
+                    if (Vector2.Distance(position, enemy.transform.position) > radius) continue;
 
                     insideNow.Add(enemy);
                     if (!buffed.ContainsKey(enemy))
-                        enemy.ServerMovement.AddSpeedBuff(data.MoveSpeedBonus); // apply once per zone
+                        enemy.ServerMovement.AddSpeedBuff(bonus); // apply once per zone
                     buffed[enemy] = Mathf.Infinity;                             // inside: not lingering
                 }
             }
@@ -83,7 +91,7 @@ public class RageExecutor : ISpellExecutor
                     buffed[enemy] = now + data.LingerDuration;                 // just left: start the linger
                 else if (now >= deadline)
                 {
-                    enemy.ServerMovement.RemoveSpeedBuff(data.MoveSpeedBonus);  // linger elapsed: remove our stack
+                    enemy.ServerMovement.RemoveSpeedBuff(bonus);                // linger elapsed: remove our stack
                     buffed.Remove(enemy);
                 }
             }

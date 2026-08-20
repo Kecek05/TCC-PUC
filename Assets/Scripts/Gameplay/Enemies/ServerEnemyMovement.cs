@@ -64,7 +64,7 @@ public class ServerEnemyMovement : NetworkBehaviour
             return;
         }
         
-        _baseSpeed = enemyManager.Data.MoveSpeed;
+        _baseSpeed = enemyManager.Data.MoveSpeed * enemyManager.CardScale.MoveSpeed;
         _slowMultiplier = 1f;
         _speedBuffPercent = 0f;
         RecalculateSpeed();
@@ -116,7 +116,8 @@ public class ServerEnemyMovement : NetworkBehaviour
     private void OnReachedEnd()
     {
         // TODO: Apply damage to the player's base, then despawn
-        ServiceLocator.Get<BaseServerPlayerHealthManager>().DamageBase(enemyManager.Data.Damage, enemyManager.Team.GetTeamType());
+        ServiceLocator.Get<BaseServerPlayerHealthManager>()
+            .DamageBase(enemyManager.Data.Damage * enemyManager.CardScale.Damage, enemyManager.Team.GetTeamType());
         NetworkObject.Despawn();
     }
 
