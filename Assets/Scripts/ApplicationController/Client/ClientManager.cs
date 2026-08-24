@@ -24,6 +24,7 @@ public class ClientManager : BaseClientManager
     [SerializeField] private DebugHand debugHand;
 
     private BasePlayerSaveManager _playerSaveManager;
+    private BaseRewardService _rewardService;
 
     private void Awake()
     {
@@ -33,6 +34,7 @@ public class ClientManager : BaseClientManager
         UserData = new UserData();
 
         InitializePlayerSave();
+        InitializeRewards();
 
         ClientAuth = new ClientAuth();
         //TODO: Refactor the creation of NetworkClient too.
@@ -56,6 +58,17 @@ public class ClientManager : BaseClientManager
 
         _playerSaveManager.OnActiveDeckContentChanged += HandleActiveDeckContentChanged;
         _playerSaveManager.Load();
+    }
+
+    /// <summary>
+    /// Registers the one place a reward can be banked, reachable from every scene. It depends on the save,
+    /// so it is created right after <see cref="InitializePlayerSave"/> and lives exactly as long: a daily
+    /// claim or a shop purchase in the Main Menu grants through this, the same as the end of a match does.
+    /// </summary>
+    private void InitializeRewards()
+    {
+        _rewardService = new RewardService(_playerSaveManager);
+        ServiceLocator.Register<BaseRewardService>(_rewardService);
     }
 
     private void HandleActiveDeckContentChanged(DeckSaveData deck)
@@ -170,6 +183,7 @@ public class ClientManager : BaseClientManager
 
         ClientAuth?.Dispose();
         networkClient?.Dispose();
+        ServiceLocator.Unregister<BaseRewardService>();
         ServiceLocator.Unregister<BasePlayerSaveManager>();
         ServiceLocator.Unregister<BaseClientManager>();
     }

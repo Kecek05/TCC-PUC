@@ -28,23 +28,17 @@ public class WeightedRewardRoller : IRewardRoller
         if (_settings == null) GameLog.Error($"[{nameof(WeightedRewardRoller)}] No RewardSettingsSO assigned.");
     }
 
-    public MatchReward Roll(bool won)
+    public Reward Roll(bool won)
     {
-        if (_settings == null) return MatchReward.GoldOnly(won, 0);
+        if (_settings == null) return Reward.GoldOnly(RewardSource.Match, 0);
 
         int gold = RollGold(won);
-        if (!won) return MatchReward.GoldOnly(false, gold);
+        if (!won) return Reward.GoldOnly(RewardSource.Match, gold);
 
         CardType card = RollCard();
-        if (card == CardType.None) return MatchReward.GoldOnly(true, gold);
+        if (card == CardType.None) return Reward.GoldOnly(RewardSource.Match, gold);
 
-        return new MatchReward
-        {
-            Won = true,
-            Gold = gold,
-            Card = card,
-            Copies = Mathf.Max(1, _settings.WinCardCopies)
-        };
+        return Reward.WithCard(RewardSource.Match, card, _settings.WinCardCopies, gold);
     }
 
     private int RollGold(bool won)

@@ -45,14 +45,19 @@ public abstract class BaseServerEndGameManager : NetworkBehaviour
     /// <see cref="OnGameEnded"/> because the snapshot is a broadcast both players see, while a reward is
     /// private to one of them.
     /// </summary>
-    public event Action<MatchReward> OnRewardGranted;
+    /// <remarks>
+    /// This is the match payout's <i>transport</i>, not its destination: <c>ClientRewardHandler</c> forwards
+    /// it into <see cref="BaseRewardService"/>, which banks it. Subscribe there, not here, unless you
+    /// specifically care that a reward came from a match.
+    /// </remarks>
+    public event Action<Reward> OnRewardGranted;
 
     protected void TriggerOnGameEnded(EndGameSnapshot snapshot)
     {
         OnGameEnded?.Invoke(snapshot);
     }
 
-    protected void TriggerOnRewardGranted(MatchReward reward)
+    protected void TriggerOnRewardGranted(Reward reward)
     {
         OnRewardGranted?.Invoke(reward);
     }

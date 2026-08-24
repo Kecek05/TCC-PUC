@@ -26045,8 +26045,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1203351777}
-  - component: {fileID: 1203351778}
   - component: {fileID: 1203351779}
+  - component: {fileID: 1203351778}
   m_Layer: 0
   m_Name: ServerEndGameManager
   m_TagString: Untagged
@@ -27573,8 +27573,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1317842726}
-  - component: {fileID: 1317842727}
   - component: {fileID: 1317842728}
+  - component: {fileID: 1317842727}
   m_Layer: 0
   m_Name: GameFlowManager
   m_TagString: Untagged

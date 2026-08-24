@@ -135,18 +135,36 @@ is a local file — the server owns the decision, the client owns the storage.
 - **Range deliberately does not scale by default.** `ClientTowerRangeGFX`, `ClientSlamTowerCombat` and
   `TowerCard` read range straight off the SO client-side, so scaled range would draw the wrong ring. Clash
   Royale does not scale range either. Turning it on means replicating range too.
-- **Rewards:** `ServerEndGameManager` rolls per player at the old TODO and delivers each with a **targeted**
-  Rpc (`RpcTarget.Single`) — the `EndGameSnapshot` broadcast is shared, a reward is private. The bot is skipped
-  by its `ClientId == ulong.MaxValue` sentinel. `ClientRewardHandler` banks it into the save;
-  `ClientEndGameCanvas` subscribes separately for display only, so the UI never writes the save.
-  `WeightedRewardRoller` picks rarity first, then a card uniformly within it, and takes a `System.Random` so
-  the distribution is seedable and testable.
+- **Rewards — one grant path, many sources.** `BaseRewardService.Grant(Reward)` is the single door: it banks
+  into the save, *then* raises `OnRewardGranted`, so a listener never reads a stale balance. It is plain C#,
+  created beside `PlayerSaveManager` in `ClientManager.InitializeRewards()` and registered in `ServiceLocator`,
+  so it lives as long as the save and works in **every scene** — which is the point: a daily claim or a shop
+  purchase in the Main Menu grants exactly the way a finished match does. `Reward` carries a `RewardSource`
+  (`Match`/`DailyReward`/`Shop`/`Debug`) for presentation and logging only; banking never branches on it.
+- **The match is just one source.** `ServerEndGameManager` rolls per player and delivers each with a
+  **targeted** Rpc (`RpcTarget.Single`) — the `EndGameSnapshot` broadcast is shared, a reward is private; the
+  bot is skipped by its `ClientId == ulong.MaxValue` sentinel. `ClientRewardHandler` (GameScene) is an
+  **adapter**, not a destination: it forwards that Rpc into `BaseRewardService` and nothing else.
+  `ClientEndGameCanvas` displays off the *service*, not the Rpc, so it can only ever show a payout that
+  actually banked. `WeightedRewardRoller` is the **match** roller — `Roll(bool won)` is win/lose-shaped, and
+  other sources build a `Reward` themselves rather than going through `IRewardRoller`. It picks rarity first,
+  then a card uniformly within it, and takes a `System.Random` so the distribution is seedable and testable.
 - **Save:** `PlayerSaveData` v2 adds `Gold` and `List<CardProgressSaveData>`; presence in that list *is*
   ownership. `NormalizeCards` migrates a v1 save by granting whatever its decks already reference, so nobody
   loses a deck. `TryEquipCard` refuses unowned cards and `SanitizeCards` drops them from decks.
   `CardUpgradeValidation` mirrors the `CardValidation`/`TowerValidation` idiom so the UI gets a typed reason.
-- Editor helpers: `Kecek/Debug Tools/Progression/Grant 5000 Gold` and `Grant 100 Copies To Every Card` (play mode only).
+- **Debug helpers:** `Kecek/Debug Tools/Progression/Grant 5000 Gold` / `Grant 100 Copies To Every Card` write
+  the save directly. The Quantum Console (in `GameScene`) drives the *real* pipeline instead —
+  two tiers matching the two ways a reward arrives. **Match path** (server-side, GameScene, leaning on the
+  pass-through seams `ServerEndGameManager.DebugGrantRewards`/`DebugSendRewardTo`): `grant-reward [team]` rolls
+  and pays everyone as if that team had just won; `grant-reward-to <team> <gold> <card> <copies>` sends one
+  exact reward for deterministic unlock testing. **Service path** (any scene, no server): `claim-reward <gold>
+  <card> <copies> [source]` grants straight through `BaseRewardService` — the daily/shop door — so it is how
+  you test rewards from the Main Menu. `reward-status` reads the save back anywhere. Bodies live in
+  `RewardDebugCommands.cs` (under `Assets/Scripts/Debug/`).
 - Key files: `CardProgressionSettingsSO.cs`, `CardLevelScale.cs`, `CardStatGrowth.cs`, `CardUpgradeValidation.cs`,
-  `MatchCardLevels.cs` (under `Assets/Scripts/Gameplay/Progression/`); `MatchReward.cs`, `IRewardRoller.cs`,
-  `WeightedRewardRoller.cs`, `RewardSettingsSO.cs`, `ClientRewardHandler.cs` (under `Assets/Scripts/Gameplay/Rewards/`);
-  assets at `Assets/ScriptableObjects/Progression/` and `Assets/ScriptableObjects/Rewards/`.
+  `MatchCardLevels.cs` (under `Assets/Scripts/Gameplay/Progression/`); `Reward.cs`, `BaseRewardService.cs`,
+  `RewardService.cs` (under `Assets/Scripts/Services/Rewards/` — scene-independent, beside `Services/PlayerSave/`);
+  `IRewardRoller.cs`, `WeightedRewardRoller.cs`, `RewardSettingsSO.cs`, `ClientRewardHandler.cs` (under
+  `Assets/Scripts/Gameplay/Rewards/` — the match payout specifically); assets at
+  `Assets/ScriptableObjects/Progression/` and `Assets/ScriptableObjects/Rewards/`.

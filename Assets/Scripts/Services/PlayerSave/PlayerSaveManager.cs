@@ -204,7 +204,7 @@ public class PlayerSaveManager : BasePlayerSaveManager
         return true;
     }
 
-    public override void GrantReward(MatchReward reward)
+    public override void GrantReward(Reward reward)
     {
         bool goldMoved = false;
 

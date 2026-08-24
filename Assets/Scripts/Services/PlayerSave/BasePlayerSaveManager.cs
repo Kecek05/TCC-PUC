@@ -77,8 +77,9 @@ public abstract class BasePlayerSaveManager
     /// <summary>Spends the copies and gold and raises the level. False if <see cref="CanUpgradeCard"/> refuses.</summary>
     public abstract bool TryUpgradeCard(CardType cardType);
 
-    /// <summary>Banks a finished match: gold, copies, and unlocking a brand-new card at level 1.</summary>
-    public abstract void GrantReward(MatchReward reward);
+    /// <summary>Banks a payout: gold, copies, and unlocking a brand-new card at level 1. Prefer
+    /// <see cref="BaseRewardService.Grant"/> — it is the one path that also announces the reward.</summary>
+    public abstract void GrantReward(Reward reward);
 
     /// <summary>Editor/debug affordance. Negative amounts are clamped at 0 gold.</summary>
     public abstract void AddGold(int amount);

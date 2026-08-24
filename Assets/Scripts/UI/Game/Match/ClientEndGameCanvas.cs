@@ -50,6 +50,7 @@ public class ClientEndGameCanvas : MonoBehaviour
     [SerializeField] private CardDataListSO cardDataListSO;
 
     private BaseServerEndGameManager _endGameManager;
+    private BaseRewardService _rewardService;
     private BaseTeamManager _teamManager;
     private BaseClientManager _clientManager;
 
@@ -70,17 +71,17 @@ public class ClientEndGameCanvas : MonoBehaviour
 
         _endGameManager.OnGameEnded += EndGameManager_OnGameEnded;
 
-        // Display only. ClientRewardHandler is what actually banks the reward into the save.
-        _endGameManager.OnRewardGranted += EndGameManager_OnRewardGranted;
+        // Display only, and deliberately hung off the reward service rather than the end-game Rpc: the
+        // service raises after the save is written, so the panel can never show a payout that failed to bank.
+        // Absent in debug scenes that have no ClientManager, hence TryGet.
+        if (ServiceLocator.TryGet(out _rewardService))
+            _rewardService.OnRewardGranted += RewardService_OnRewardGranted;
     }
 
     private void OnDestroy()
     {
-        if (_endGameManager != null)
-        {
-            _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
-            _endGameManager.OnRewardGranted -= EndGameManager_OnRewardGranted;
-        }
+        if (_endGameManager != null) _endGameManager.OnGameEnded -= EndGameManager_OnGameEnded;
+        if (_rewardService != null) _rewardService.OnRewardGranted -= RewardService_OnRewardGranted;
 
         okButton.onClick.RemoveListener(OnOkButtonClicked);
         playAgainButton.onClick.RemoveListener(OnPlayAgainButtonClicked);
@@ -94,10 +95,10 @@ public class ClientEndGameCanvas : MonoBehaviour
     }
 
     /// <summary>
-    /// The reward arrives on its own targeted Rpc, which can land before or after the snapshot, so this
+    /// The reward is banked on its own targeted Rpc, which can land before or after the snapshot, so this
     /// only touches the reward widgets and never the win/lose layout.
     /// </summary>
-    private void EndGameManager_OnRewardGranted(MatchReward reward)
+    private void RewardService_OnRewardGranted(Reward reward)
     {
         if (rewardRoot != null) rewardRoot.SetActive(true);
         if (rewardGoldLabel != null) rewardGoldLabel.text = $"+{reward.Gold}";

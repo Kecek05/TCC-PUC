@@ -1,46 +1,47 @@
 using UnityEngine;
 
 /// <summary>
-/// Banks the match reward the server sent this client into the local player save. Deliberately separate
-/// from <see cref="ClientEndGameCanvas"/>: the canvas subscribes to the same event to <i>show</i> the
-/// reward, while writing the save stays out of the UI layer entirely.
+/// Bridges the match payout into the shared reward pipeline: <see cref="ServerEndGameManager"/> delivers
+/// this client's reward on a targeted Rpc, and this hands it to <see cref="BaseRewardService"/>, which banks
+/// it and announces it.
 /// </summary>
 /// <remarks>
-/// Lives in GameScene. Harmless on a dedicated server or in debug scenes — with no
-/// <see cref="BasePlayerSaveManager"/> registered it simply does nothing.
+/// It is an adapter, not the destination — menu-side sources (a daily claim, a shop purchase) call the
+/// service directly and never come through here. Lives in GameScene, the only scene the Rpc can arrive in.
+/// Harmless on a dedicated server or in a debug scene: with no service registered it simply does nothing.
 /// </remarks>
 public class ClientRewardHandler : MonoBehaviour
 {
     private BaseServerEndGameManager _endGameManager;
-    private BasePlayerSaveManager _playerSaveManager;
+    private BaseRewardService _rewardService;
 
     private void Start()
     {
         if (!ServiceLocator.TryGet(out _endGameManager))
         {
-            GameLog.Warn($"[{nameof(ClientRewardHandler)}] No end-game manager; rewards will not be banked.");
+            GameLog.Warn($"[{nameof(ClientRewardHandler)}] No end-game manager; match rewards will not be banked.");
             return;
         }
 
-        // A dedicated server has no local player save, and that is fine: it never receives the Rpc either.
-        ServiceLocator.TryGet(out _playerSaveManager);
+        // A dedicated server has no local save or reward service, and that is fine: it never receives the Rpc.
+        ServiceLocator.TryGet(out _rewardService);
 
-        _endGameManager.OnRewardGranted += HandleRewardGranted;
+        _endGameManager.OnRewardGranted += HandleMatchReward;
     }
 
     private void OnDestroy()
     {
-        if (_endGameManager != null) _endGameManager.OnRewardGranted -= HandleRewardGranted;
+        if (_endGameManager != null) _endGameManager.OnRewardGranted -= HandleMatchReward;
     }
 
-    private void HandleRewardGranted(MatchReward reward)
+    private void HandleMatchReward(Reward reward)
     {
-        if (_playerSaveManager == null)
+        if (_rewardService == null)
         {
-            GameLog.Warn($"[{nameof(ClientRewardHandler)}] Received {reward} but there is no player save to bank it in.");
+            GameLog.Warn($"[{nameof(ClientRewardHandler)}] Received {reward} but there is no reward service to bank it.");
             return;
         }
 
-        _playerSaveManager.GrantReward(reward);
+        _rewardService.Grant(reward);
     }
 }

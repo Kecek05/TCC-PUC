@@ -141,7 +141,7 @@ public class ServerEndGameManager : BaseServerEndGameManager
             TeamType team = teamManager.GetTeam(entry.Key);
             if (team == TeamType.None) continue;
 
-            MatchReward reward = _rewardRoller.Roll(team == winnerTeam);
+            Reward reward = _rewardRoller.Roll(team == winnerTeam);
             GameLog.Info($"[ServerEndGameManager] {team} reward: {reward}");
 
             SendRewardRpc(reward, RpcTarget.Single(clientId, RpcTargetUse.Temp));
@@ -149,9 +149,47 @@ public class ServerEndGameManager : BaseServerEndGameManager
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
-    private void SendRewardRpc(MatchReward reward, RpcParams rpcParams)
+    private void SendRewardRpc(Reward reward, RpcParams rpcParams)
     {
         TriggerOnRewardGranted(reward);
+    }
+
+    // ---- Debug ---------------------------------------------------------------------------------
+    // Entry points for the Quantum Console reward commands (see RewardDebugCommands). They exist so a
+    // payout can be exercised without playing a match to its end; nothing in the game calls them.
+
+    /// <summary>Rolls and delivers a payout to every seated player exactly as a finished match would,
+    /// without ending the match.</summary>
+    public void DebugGrantRewards(TeamType winnerTeam) => GrantRewards(winnerTeam);
+
+    /// <summary>Delivers one exact, unrolled reward to a single team — the way to test a specific card
+    /// unlock without fighting the roller. False when that team has nobody to pay.</summary>
+    public bool DebugSendRewardTo(TeamType team, Reward reward)
+    {
+        if (!TryGetClientIdForTeam(team, out ulong clientId)) return false;
+
+        SendRewardRpc(reward, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        return true;
+    }
+
+    /// <summary>Walks the seated players rather than asking <c>GetClientIdByTeamType</c>, for the same
+    /// reason <see cref="GrantRewards"/> does: the bot has no clientId and that lookup logs an error for it.</summary>
+    private bool TryGetClientIdForTeam(TeamType team, out ulong clientId)
+    {
+        clientId = ulong.MaxValue;
+
+        BasePlayersDataManager playersData = ServiceLocator.Get<BasePlayersDataManager>();
+        BaseTeamManager teamManager = ServiceLocator.Get<BaseTeamManager>();
+
+        foreach (KeyValuePair<string, PlayerData> entry in playersData.GetAuthIdToPlayerData())
+        {
+            if (teamManager.GetTeam(entry.Key) != team) continue;
+
+            clientId = entry.Value.ClientId;
+            return clientId != ulong.MaxValue;
+        }
+
+        return false;
     }
 
     [Rpc(SendTo.NotServer)]

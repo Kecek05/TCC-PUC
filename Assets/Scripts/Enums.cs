@@ -164,6 +164,20 @@ public enum CardRarityType
 }
 
 /// <summary>
+/// Where a reward came from. The grant path is identical for every source — the save is written the same
+/// way — so this exists for presentation and logging: it is what a UI branches on to decide whether to show
+/// an end-of-match panel, a daily-claim popup or a shop receipt.
+/// </summary>
+public enum RewardSource
+{
+    None,
+    Match,
+    DailyReward,
+    Shop,
+    Debug,
+}
+
+/// <summary>
 /// How the Card Collection grid on the deck page is ordered. Paired with a bool for the direction
 /// (ascending = A-Z / Common-first / cheapest-first / Tower-first).
 /// </summary>
