@@ -5,8 +5,6 @@
       "Bash(python -c \"import zipfile; z = zipfile.ZipFile\\(''.claude/skills/unity-td-netcode.skill''\\); print\\(z.namelist\\(\\)\\)\")",
       "Bash(python -c \":*)",
       "mcp__ide__getDiagnostics",
-      "mcp__unity-mcp__Unity_GetConsoleLogs",
-      "mcp__unity-mcp__Unity_RunCommand",
       "Bash(powershell *)",
       "Bash(awk '/^--- !u!1 &330717503$/,/^--- !u!\\(1|4|114|224|223\\) &/{print}' Assets/Scenes/GameScene.unity)",
       "Bash(grep -n \"&330717503$\\\\|&451766805$\" Assets/Scenes/GameScene.unity)",
@@ -14,14 +12,11 @@
       "Bash(grep -n \"&451766811$\" Assets/Scenes/GameScene.unity)",
       "Bash(claude mcp *)",
       "PowerShell(Get-Process *)",
-      "mcp__unity-mcp__Unity_GetProjectData",
       "Bash(xargs grep -l \"NetworkPrefabsList\\\\|m_NetworkPrefabsLists\\\\|NetworkPrefab\")",
-      "mcp__unity-mcp__Unity_ManageScript",
       "PowerShell(try { Remove-Item -Path 'E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs','E:\\\\UnityProjects\\\\TCC-PUC\\\\Assets\\\\Scripts\\\\Gameplay\\\\Cards\\\\Spells\\\\Executors\\\\IcelExecutor.cs.meta' -Force -ErrorAction Stop; Write-Output 'deleted IcelExecutor.cs + meta' } catch { Write-Output \"delete note: $_\" })",
-      "mcp__unity-mcp__Unity_ReadConsole",
       "PowerShell(git *)",
-      "mcp__unity-mcp__Unity_CreateScript",
-      "mcp__unity-mcp__Unity_ManageEditor"
+      "Bash(unity command:*)",
+      "Bash(unity pipeline:*)"
     ]
   }
 }

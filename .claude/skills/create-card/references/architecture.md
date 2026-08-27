@@ -47,31 +47,50 @@ Legend: ✅ always · ⤳ only if that enum value / entity is new · — n/a
 
 ## Enums (`Assets/Scripts/Enums.cs`) — APPEND ONLY
 
-Serialized by integer in assets, so order == value and must never change. Current state (append the next value):
+Serialized by integer in assets, so order == value and must never change. **Read the file for the current
+members — do not trust a snapshot here.** An earlier version of this document listed a `CardType` that ended at
+`SpellIce=5`; the enum has grown well past that, and acting on the stale list would have appended a duplicate
+value. `cat Assets/Scripts/Enums.cs` takes a second and is always right.
 
-- `CardType`: None=0, TowerCircle=1, TowerSquare=2, SpellFireball=3, SpawnEnemy1=4, SpellIce=5 → next **6**.
+Only these mappings are stable enough to write down, because other code depends on the exact numbers:
+
 - `ExistingTypesOfCard`: None=0, **Tower=1, Spell=2, Enemy=3**. (Set `CardDataSO.ExistingType` to match the family.)
-- `SpellType`: None=0, Fireball=1, Ice=2.
-- `TowerType`: None=0, Circle=1, Square=2.
-- `EnemyType`: None=0, Triangle1=1, Triangle2=2.
 - `CardRarityType`: None=0, Common=1, Rare=2, Epic=3, Legendary=4. (Set `CardDataSO.Rarity`.)
 
-## Serialized field names (for `Unity_RunCommand`)
+`CardType`, `SpellType`, `TowerType` and `EnemyType` are append-only and read live. `CardType` in particular is
+also serialized into the player save as an int (`JsonUtility`), so inserting mid-enum silently remaps every
+saved deck.
 
-Data SO fields are **public** → set by typed assignment after `ScriptableObject.CreateInstance`. The prefab's
-`cardDataSo` is **protected** → set via `SerializedObject.FindProperty("cardDataSo")`.
+## Serialized field names (for `set_serialized_field`)
+
+Data SO fields are **public**, so the serialized name is just the field name. The card prefab's `cardDataSo` is
+**protected**, but `set_serialized_field` reaches it the same way (it goes through `SerializedObject`):
+`--target <prefabPath> --component SpellCard --field cardDataSo --value <cardAssetPath>`.
 
 - `CardDataSO` (base): `CardType`, `ExistingType`, `Rarity`, `CardPrefab` (typed `AbstractCard`!), `CardName`,
-  `Description`, `CardImage`, `Cost`, `UseCustomSizeCardInMenu`, `CustomSizeCardInMenu`,
-  `UseCustomPositionCardInMenu`, `CustomPositionCardInMenu`.
+  `Description`, `CardImage`, `CardColor`, `Cost`, `UseCustomSizeCardInMenu`, `CustomSizeCardInMenu`,
+  `UseCustomPositionCardInMenu`, `CustomPositionCardInMenu`, plus the progression pair `OverrideStatGrowth`
+  and `StatGrowth` (`List<CardStatGrowth>`). Leave the override **off** unless the card must diverge from its
+  rarity's default table in `CardProgressionSettings`. `GetStats(CardLevelScale)` is overridden per family and
+  feeds the inspector level preview — a new family field that should scale belongs in that override too.
 - `SpellCardDataSO` adds: `SpellType`, `CanUseInEnemyMap`, `CanUseInLocalMap`, `SpellGhostSprite`, `SpellData` (→`SpellDataSO`).
 - `TowerCardDataSO` adds: `TowerType`, `TowerGhostSprite`, `TowerPrefab` (→`GameObject`).
 - `SpawnEnemyCardDataSO` adds: `EnemyType`.
-- `SpellDataSO`: `SpellType`, `Range`, `TravelTime`, `VisualPrefab`. `SpellOffensiveDataSO` adds `Damage`; `SpellEffectDataSO` adds `Duration`.
+- `SpellDataSO`: `SpellType`, `Range`, `TravelTime`, `VisualPrefab`. Subclasses each add their own stat:
+  `SpellOffensiveDataSO`→`Damage`, `SpellEffectDataSO`→`Duration`, `SpellBuffDataSO`→`AttackSpeedBonus`
+  (Haste), `SpellRageDataSO`→`MoveSpeedBonus` (Rage). Pick the subclass that already carries the stat you
+  need rather than adding a field to the base.
 - `TowerDataSO`: `TowerType`, per-level `{Setup,Damage,Range,ShootCooldown,BulletSpeed}Level{1,2,3}` (note `MaxLevel` is `readonly`=3). `ExplosionTowerDataSO` adds `ExplosionRangeLevel{1,2,3}`.
 - `EnemyDataSO`: `EnemyType`, `EnemyName`, `MaxHealth`, `MoveSpeed`, `SpawnDuration`, `Damage`, `EnemySprite`, `EnemyPrefab` (→`GameObject`, self-reference to its own prefab).
-- List SOs: `CardDataListSO.CardDataList`, `SpellDataListSO.SpellDataList`, `TowerDataListSO.TowerDataList`, `EnemyDataListSO.EnemyDataList`.
+- List SOs — **field name, then the asset it lives on** (note the `_` prefixes; they are inconsistent, so
+  always resolve the path with `unity command find_assets --type <ListSOType>` instead of typing it):
+  `CardDataListSO.CardDataList` → `Assets/ScriptableObjects/Cards/_CardDataListSO.asset`;
+  `SpellDataListSO.SpellDataList` → `Assets/ScriptableObjects/Spells/SpellDataListSO.asset` (no underscore);
+  `TowerDataListSO.TowerDataList` → `Assets/ScriptableObjects/Towers/_TowerDataListSO.asset`;
+  `EnemyDataListSO.EnemyDataList` → `Assets/ScriptableObjects/Enemies/_EnemyDataListSO.asset`.
 - `DebugHand.Deck` (`List<CardType>`). `NetworkPrefabsList.List` (each element `{ Override, Prefab, ... }`).
+- Appending to any of these from the CLI is the array-path recipe in `recipes.md` §B4: read
+  `<Field>.Array.size`, set it to N+1, then write `<Field>.Array.data[N]`.
 
 **`CardDataSO.CardPrefab` is typed `AbstractCard`** (a Component), so assign the card prefab's
 `GetComponent<AbstractCard>()`, not the GameObject. `TowerPrefab` / `EnemyPrefab` are `GameObject`.
@@ -84,8 +103,11 @@ Card prefabs are **variants of `Assets/Prefabs/Cards/CardBase.prefab`** with the
 `fadeOutFeedback` (`MMF_Player` with nested feedback graphs). The only per-card-unique field is `cardDataSo`.
 So **clone the closest existing card prefab and repoint `cardDataSo`** — it preserves all the feedback wiring.
 
-Card prefabs: `Assets/Prefabs/Cards/CardSpellFireball.prefab`, `.../CardSpellIce.prefab`,
-`.../CardEnemySpawn.prefab`, `.../Towers/CardCircleTower.prefab`, `.../Towers/CardSquareTower.prefab`.
+Card prefabs, all under `Assets/Prefabs/Cards/` — spells and enemies at the top level, **towers in a
+`Towers/` subfolder**: `CardSpellFireball`, `CardSpellIce`, `CardSpellHaste`, `CardSpellRage`,
+`CardEnemySpawn`, `CardEnemyMiniBoss`, `CardSpawnEnemyArmy`, and `Towers/CardCircleTower`,
+`Towers/CardSquareTower`, `Towers/CardSlamTower`, `Towers/CardDartTower`. `CardBase.prefab` is the base
+they all vary from — clone a sibling, never `CardBase` directly.
 
 ## Gameplay-entity systems (the "full end-to-end" parts)
 
@@ -127,10 +149,16 @@ runtime via `NetworkObject.Spawn()`/`SpawnWithOwnership()` (towers, enemies) mus
 
 ## Decks / hands (so the card is actually drawn)
 
-`DebugHand` SO (`Assets/ScriptableObjects/CardHand/DEBUG_Hand.asset`, field `Deck : List<CardType>`) is the dev
-deck that gets distributed and drawn. `HandData.Distribute` shuffles the deck, locks cards whose `Cost > maxMana`,
-and draws from the queue. The real deck-builder UI (`DeckUIController`) lists everything in `CardDataListSO`, so
+`DebugHand` SOs (field `Deck : List<CardType>`) are the dev decks that get distributed and drawn. They live in
+`Assets/ScriptableObjects/CardHand/` — **list them live** (`unity command find_assets --type DebugHand`) and ask
+the user which one to touch; there is no single canonical `DEBUG_Hand.asset` (an older version of this document
+named one that no longer exists). `HandData.Distribute` shuffles the deck, locks cards whose `Cost > maxMana`,
+and draws from the queue. The real deck-builder UI (`DeckUIController`) lists everything in the card list SO, so
 registering there makes a card available to equip; adding to a `DebugHand` makes it appear immediately in dev play.
+
+Registering in the card list SO also makes the card **rollable as a match reward** — `WeightedRewardRoller`
+picks a rarity and then a card within it, so a new card starts appearing in end-of-match payouts as soon as it
+is in the list. That is usually what you want; if not, say so at the manifest gate.
 
 ## File index
 
@@ -140,14 +168,20 @@ registering there makes a card available to equip; adding to a `DebugHand` makes
 - Gameplay entities: `Assets/Scripts/Gameplay/Towers/*`, `Assets/Scripts/Gameplay/Enemies/*`, `Assets/Scripts/Gameplay/Waves/*`.
 - Enums: `Assets/Scripts/Enums.cs`. Interfaces: `Assets/Scripts/Interfaces.cs`.
 - Assets: card data `Assets/ScriptableObjects/Cards/**`, spells `Assets/ScriptableObjects/Spells/**`, towers
-  `Assets/ScriptableObjects/Towers/**`, registries `CardDataListSO.asset` / `SpellDataListSO.asset` /
-  `TowerDataListSO.asset` / `EnemyDataListSO.asset`, `Assets/DefaultNetworkPrefabs.asset`.
-- Prefabs: `Assets/Prefabs/Cards/**` (card UI), tower/enemy prefabs under `Assets/Prefabs/**`.
+  `Assets/ScriptableObjects/Towers/**`, enemies `Assets/ScriptableObjects/Enemies/**`; registries
+  `_CardDataListSO.asset` / `SpellDataListSO.asset` / `_TowerDataListSO.asset` / `_EnemyDataListSO.asset`
+  (see the list-SO entry above for full paths — the `_` prefix is inconsistent), plus
+  `Assets/DefaultNetworkPrefabs.asset`.
+- Prefabs: `Assets/Prefabs/Cards/**` (card UI, towers under `Cards/Towers/`), tower/enemy gameplay prefabs
+  under `Assets/Prefabs/**`.
 
 ## Known gotchas
 
-- **Ice is dead weight:** `SpellType.Ice` + `IceExecutor` exist but `IceExecutor` is **not** in
-  `SpellExecutorFactory`, so casting Ice would fail server-side. Always register new executors.
+- **An unregistered executor fails silently.** `SpellExecutorFactory.GetExecutor` returns `null` for a
+  `SpellType` that is not in its dictionary, and the spell just does nothing server-side — no exception, no
+  log. Ice used to be exactly this bug (the type and `IceExecutor` existed, the registration did not); it has
+  since been fixed, and today Fireball, Ice, Haste and Rage are all registered. **Keep that invariant: every
+  `SpellType` appears in `_executors`.**
 - Enum reordering corrupts existing saved data — append only.
 - Wrong data-SO subclass → card silently unhandled by every sub-factory/deployer.
 - Missing `DefaultNetworkPrefabs` entry → tower/enemy throws at spawn, not at creation.
