@@ -8,78 +8,50 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Sprite
+    - target: {fileID: 2606555038004479415, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: serverTowerCombat
       value: 
-      objectReference: {fileID: 21300000, guid: fc668938af8570e4e9b7ae308a49852c, type: 3}
-    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.b
-      value: 0.25943398
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.g
-      value: 0.5095688
-      objectReference: {fileID: 0}
-    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 8c217afce9fc2c14ead065cd4d83c169, type: 3}
-    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.b
-      value: 0.25943398
-      objectReference: {fileID: 0}
-    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.g
-      value: 0.5095688
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 7717670085523773741}
     - target: {fileID: 3797430115819096027, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
-      objectReference: {fileID: 7482862587424366802}
-    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 07febdd92f4d3834486b34ff6589b7e4, type: 3}
-    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.b
-      value: 0.25943398
-      objectReference: {fileID: 0}
-    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.g
-      value: 0.5095688
-      objectReference: {fileID: 0}
-    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: m_Color.r
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3515666176
+      value: 99217395
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 590291487
       objectReference: {fileID: 0}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: towerDataSO
       value: 
-      objectReference: {fileID: 11400000, guid: f93265d2bec23ff4ca7d119c73b5120f, type: 2}
+      objectReference: {fileID: 11400000, guid: 078b0411883c66a45ae7526336cdabe7, type: 2}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: clientTowerCombat
       value: 
-      objectReference: {fileID: 8586801971425471028}
+      objectReference: {fileID: 7437626524827975165}
     - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
-      objectReference: {fileID: 7482862587424366802}
-    - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: normalColor.b
-      value: 0.25943398
+      objectReference: {fileID: 7717670085523773741}
+    - target: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: circleClientTowerCombat
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      propertyPath: normalColor.g
-      value: 0.5095688
-      objectReference: {fileID: 0}
+      propertyPath: level1Renderer
+      value: 
+      objectReference: {fileID: 3124580302357001504}
     - target: {fileID: 6759448331034613719, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: clientTowerCombat
       value: 
-      objectReference: {fileID: 8586801971425471028}
+      objectReference: {fileID: 7437626524827975165}
     - target: {fileID: 7534808882448730159, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -122,7 +94,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: m_Name
-      value: TowerDart
+      value: TowerNeedle
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3601178175637536332, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
@@ -131,12 +103,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7482862587424366802}
+      insertIndex: 3
+      addedObject: {fileID: 7717670085523773741}
     - targetCorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8586801971425471028}
+      insertIndex: 4
+      addedObject: {fileID: 7437626524827975165}
   m_SourcePrefab: {fileID: 100100000, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+--- !u!212 &3124580302357001504 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+  m_PrefabInstance: {fileID: 2106039886683820926}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6640123157349213570 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4691726937858701052, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
@@ -153,7 +130,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8400586856522066902, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
   m_PrefabInstance: {fileID: 2106039886683820926}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7482862587424366802
+--- !u!114 &7717670085523773741
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,13 +139,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7615245171005323432}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58a79f58dfbd9554996d96f508c061c2, type: 3}
+  m_Script: {fileID: 11500000, guid: 54eae0cfac601a749aeaada5eb14275e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ServerDartTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::ServerCircleTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   towerManager: {fileID: 6640123157349213570}
-  clientDartCombat: {fileID: 8586801971425471028}
---- !u!114 &8586801971425471028
+  clientCircleCombat: {fileID: 7437626524827975165}
+--- !u!114 &7437626524827975165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,12 +154,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 7615245171005323432}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b15285b525f18c24bbe91995a1242916, type: 3}
+  m_Script: {fileID: 11500000, guid: 0782542fdf5706a49bcb9faa750c000d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientDartTowerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::CircleClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
-  serverTowerCombat: {fileID: 7482862587424366802}
-  bulletCardType: 10
+  serverTowerCombat: {fileID: 7717670085523773741}
+  bulletCardType: 12
   entityTeam: {fileID: 8086228052843494564}
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:

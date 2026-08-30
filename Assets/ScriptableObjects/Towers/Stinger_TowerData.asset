@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79aa1b8b3d09e14c826bad2e5538876, type: 3}
+  m_Name: Stinger_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
+  TowerType: 6
+  AttackColor: 0
+  ArmorPenetration: 1
+  SetupDurationLevel1: 0.25
+  DamageLevel1: 16
+  RangeLevel1: 1.15
+  ShootCooldownLevel1: 0.75
+  BulletSpeedLevel1: 20
+  SetupDurationLevel2: 0.3
+  DamageLevel2: 21
+  RangeLevel2: 1.25
+  ShootCooldownLevel2: 0.7
+  BulletSpeedLevel2: 24
+  SetupDurationLevel3: 0.3
+  DamageLevel3: 27
+  RangeLevel3: 1.35
+  ShootCooldownLevel3: 0.65
+  BulletSpeedLevel3: 28

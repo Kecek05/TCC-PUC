@@ -207,6 +207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ClientSquareTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   serverTowerCombat: {fileID: 5804759541381022721}
+  bulletCardType: 2
   entityTeam: {fileID: 8086228052843494564}
   explosionPrefab: {fileID: 403543111581879614, guid: c128e3994a5a6ea438f35edd2188e77a, type: 3}
 --- !u!114 &8086228052843494564 stripped

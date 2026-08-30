@@ -155,6 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CircleClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   serverTowerCombat: {fileID: 7717670085523773741}
+  bulletCardType: 1
   entityTeam: {fileID: 8086228052843494564}
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:

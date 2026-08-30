@@ -31,7 +31,7 @@ public class ClientDartTowerCombat : BaseClientTowerCombat
             ? mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType())
             : originServerPos;
 
-        CosmeticBullet bullet = CosmeticBulletPool.Instance.Get(CardType.TowerDart);
+        CosmeticBullet bullet = GetPooledBullet();
         bullet?.Fire(localOrigin, targetTransform, bulletSpeed);
         TriggerOnBulletFired();
     }

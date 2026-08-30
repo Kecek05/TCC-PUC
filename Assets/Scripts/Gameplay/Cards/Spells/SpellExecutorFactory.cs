@@ -8,6 +8,8 @@ public static class SpellExecutorFactory
         { SpellType.Ice, new IceExecutor() },
         { SpellType.Haste, new HasteExecutor() },
         { SpellType.Rage, new RageExecutor() },
+        { SpellType.Rift, new RiftExecutor() },
+        { SpellType.Lance, new LanceExecutor() },
     };
 
     public static ISpellExecutor GetExecutor(SpellType spellType)

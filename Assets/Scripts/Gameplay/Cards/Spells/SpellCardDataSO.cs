@@ -57,6 +57,10 @@ public class SpellCardDataSO : CardDataSO
             stats.Add(new CardStatValue(CardStatId.EffectBonus, "Move Speed",
                 rage.MoveSpeedBonus * scale.EffectBonus, "0.#%"));
 
+        if (SpellData is SpellSlowDataSO slowData)
+            stats.Add(new CardStatValue(CardStatId.EffectBonus, "Slow",
+                slowData.SlowPercent * scale.EffectBonus, "0.#%"));
+
         return stats;
     }
 }

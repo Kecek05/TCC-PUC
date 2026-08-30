@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39b4f95e583d2f4da12840317496ea7, type: 3}
+  m_Name: SpellLanceCardData
+  m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
+  CardType: 16
+  ExistingType: 2
+  Rarity: 3
+  CardPrefab: {fileID: 2383729291938179494, guid: 3e4fc85b259088b48b39e1438777efbf, type: 3}
+  CardName: Lance
+  Description: Drive a narrow lance of damage down your own lane. It shreds a wave
+    strung out in single file and barely scratches one that has already spread.
+  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Cost: 5
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
+  SpellType: 6
+  CanUseInEnemyMap: 0
+  CanUseInLocalMap: 1
+  SpellGhostSprite: {fileID: 21300000, guid: b1693711932bbf94fbf08e7cd7a1d9fe, type: 3}
+  SpellData: {fileID: 11400000, guid: 848719e8e3393264c8c9175b2ab3caf9, type: 2}

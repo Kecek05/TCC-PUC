@@ -47,7 +47,12 @@ public enum CardType
     SpellHaste,
     TowerSlam,
     TowerDart,
-    SpellRage
+    SpellRage,
+    TowerNeedle,
+    TowerStinger,
+    TowerPrism,
+    SpellRift,
+    SpellLance
 }
 
 public enum ExistingTypesOfCard
@@ -64,7 +69,9 @@ public enum SpellType
     Fireball,
     Ice,
     Haste,
-    Rage
+    Rage,
+    Rift,
+    Lance
 }
 
 public enum TowerType
@@ -73,7 +80,10 @@ public enum TowerType
     Circle,
     Square,
     Slam,
-    Dart
+    Dart,
+    Needle,
+    Stinger,
+    Prism
 }
 
 public enum EnemyType

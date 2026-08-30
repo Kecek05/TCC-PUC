@@ -24,6 +24,12 @@ public class ServerEnemyMovement : NetworkBehaviour
 
     public bool IsTargetable => !_invincible.Value;
 
+    /// <summary>
+    /// The lane this enemy walks. Read by lane-shaped effects (e.g. the Lance strip) that need to tell
+    /// "same path" apart from "same progress on a different path".
+    /// </summary>
+    public WaypointPath Path => _path;
+
     // Only sync PathProgress when the change exceeds this threshold.
     private const float SyncThreshold = 0.005f;
 
@@ -35,11 +41,19 @@ public class ServerEnemyMovement : NetworkBehaviour
     private float _invincibilityTimer;
 
     // Current speed is composed from independent sources so they never clobber each other:
-    //   effective = base * slowMultiplier * (1 + speedBuffPercent)
-    // _slowMultiplier is a single multiplicative slow (1 = none); _speedBuffPercent is the additive sum
-    // of every active speed buff (e.g. stacked Rage zones), mirroring the tower attack-speed accumulator.
+    //   effective = base * slowMultiplier * (1 - slowPercent) * (1 + speedBuffPercent)
+    // _slowMultiplier is a single multiplicative slow (1 = none) owned by whoever sets the base speed;
+    // _slowPercent is the additive sum of every active slow SOURCE (a Prism aura, a Rift zone) and
+    // _speedBuffPercent the additive sum of every speed buff (stacked Rage zones). Both accumulators
+    // mirror the tower attack-speed one: a source adds and removes only its own contribution, so a zone
+    // expiring can never wipe an aura that is still holding the enemy.
     private float _slowMultiplier = 1f;
+    private float _slowPercent = 0f;
     private float _speedBuffPercent = 0f;
+
+    // Stacked slows can never fully stop an enemy: at the cap it still crawls, so control has to be paired
+    // with damage rather than replace it.
+    private const float MaxSlowPercent = 0.85f;
 
     /// <summary>
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
@@ -66,6 +80,7 @@ public class ServerEnemyMovement : NetworkBehaviour
         
         _baseSpeed = enemyManager.Data.MoveSpeed * enemyManager.CardScale.MoveSpeed;
         _slowMultiplier = 1f;
+        _slowPercent = 0f;
         _speedBuffPercent = 0f;
         RecalculateSpeed();
         _reversed.Value = _reversedLocal;
@@ -127,7 +142,10 @@ public class ServerEnemyMovement : NetworkBehaviour
     private void RecalculateSpeed()
     {
         if (!IsServer) return;
-        _currentSpeed.Value = _baseSpeed * _slowMultiplier * (1f + _speedBuffPercent);
+        _currentSpeed.Value = _baseSpeed
+                              * _slowMultiplier
+                              * (1f - Mathf.Min(_slowPercent, MaxSlowPercent))
+                              * (1f + _speedBuffPercent);
     }
 
     /// <summary>
@@ -161,6 +179,29 @@ public class ServerEnemyMovement : NetworkBehaviour
     {
         if (!IsServer) return;
         _speedBuffPercent = Mathf.Max(0f, _speedBuffPercent - percent);
+        RecalculateSpeed();
+    }
+
+    /// <summary>
+    /// Server-only. Adds <paramref name="percent"/> (a fraction, 0.4 = -40% speed) to this enemy's stacked
+    /// slow. Independent sources - a Prism aura and a Rift zone, or two overlapping Rifts - accumulate, and
+    /// each removes only what it added. The total is capped by <see cref="MaxSlowPercent"/>.
+    /// </summary>
+    public void AddSlow(float percent)
+    {
+        if (!IsServer) return;
+        _slowPercent += percent;
+        RecalculateSpeed();
+    }
+
+    /// <summary>
+    /// Server-only. Removes a previously-applied slow contribution, clamped at 0 so a stray double-remove
+    /// can never make the enemy faster than its base speed.
+    /// </summary>
+    public void RemoveSlow(float percent)
+    {
+        if (!IsServer) return;
+        _slowPercent = Mathf.Max(0f, _slowPercent - percent);
         RecalculateSpeed();
     }
 }
