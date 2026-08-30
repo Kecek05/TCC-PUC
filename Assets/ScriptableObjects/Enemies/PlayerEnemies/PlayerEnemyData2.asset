@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDataSO
   EnemyType: 8
   EnemyName: Player Enemy
-  MaxHealth: 250
+  MaxHealth: 100
   MoveSpeed: 2.2
   SpawnDuration: 2
   Damage: 10

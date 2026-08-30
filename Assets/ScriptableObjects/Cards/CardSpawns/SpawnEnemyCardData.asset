@@ -29,6 +29,6 @@ MonoBehaviour:
   OverrideStatGrowth: 0
   StatGrowth: []
   EnemyType: 8
-  SpawnCount: 3
+  SpawnCount: 2
   DelayBetweenSpawns: 0.2
   EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}
