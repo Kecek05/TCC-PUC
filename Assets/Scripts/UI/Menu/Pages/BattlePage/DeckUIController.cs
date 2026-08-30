@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Drives the deck page: one <see cref="SingleCardInDeck"/> widget per card in the game, reparented
@@ -106,7 +107,6 @@ public class DeckUIController : MonoBehaviour
 
             SingleCardInDeck widget = Instantiate(singleCardInDeckPrefab, allCardsParent);
             widget.Initialize(cardData, this);
-            widget.transform.localPosition = Vector3.zero;
 
             cardTypeToCardInDeckInfo.Add(cardData.CardType, new CardInDeckInfo
             {
@@ -134,8 +134,7 @@ public class DeckUIController : MonoBehaviour
         foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
         {
             info.IsEquipped = false;
-            info.SingleCardInDeck.transform.SetParent(allCardsParent);
-            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+            MoveToCollection(info.SingleCardInDeck);
         }
 
         if (deck != null)
@@ -147,6 +146,10 @@ public class DeckUIController : MonoBehaviour
         LayoutDeckArea(deck);
         ApplySort();
         UpdateAverageCost();
+
+        // Every widget changed container, so the grid has to run again before the next draw. Asking for
+        // the rebuild here does not rely on one of the reparents above having happened to dirty it.
+        LayoutRebuilder.MarkLayoutForRebuild((RectTransform)allCardsParent);
     }
 
     /// <summary>
@@ -167,9 +170,32 @@ public class DeckUIController : MonoBehaviour
             if (!cardTypeToCardInDeckInfo.TryGetValue(deck.Cards[i], out CardInDeckInfo info)) continue;
 
             cardPositions[i].CardTypeOccupied = deck.Cards[i];
-            info.SingleCardInDeck.transform.SetParent(cardPositions[i].PositionTransform);
-            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+            MoveToDeckPosition(info.SingleCardInDeck, cardPositions[i].PositionTransform);
         }
+    }
+
+    /// <summary>
+    /// Hands a card back to the Card Collection. The grid there is a <see cref="GridLayoutGroup"/>, so it
+    /// owns every card's anchors, size and position — writing any of them here would only stack the whole
+    /// collection on the grid's pivot until the next layout pass.
+    /// </summary>
+    private void MoveToCollection(SingleCardInDeck card) => card.transform.SetParent(allCardsParent, false);
+
+    /// <summary>
+    /// Drops a card into one of the deck positions. Nothing lays those out, so the card has to carry its
+    /// own rect — restore the prefab's, since the collection grid overwrote it while the card sat there.
+    /// </summary>
+    private void MoveToDeckPosition(SingleCardInDeck card, Transform position)
+    {
+        RectTransform rect = (RectTransform)card.transform;
+        RectTransform prefabRect = (RectTransform)singleCardInDeckPrefab.transform;
+
+        rect.SetParent(position, false);
+        rect.anchorMin = prefabRect.anchorMin;
+        rect.anchorMax = prefabRect.anchorMax;
+        rect.pivot = prefabRect.pivot;
+        rect.sizeDelta = prefabRect.sizeDelta;
+        rect.anchoredPosition = Vector2.zero;
     }
 
     /// <summary>Reorders the collection grid. Equipped cards are not in it, so they keep the player order.</summary>
@@ -243,8 +269,7 @@ public class DeckUIController : MonoBehaviour
             _playerSaveManager.UnequipCard(cardType);
             info.IsEquipped = false;
 
-            info.SingleCardInDeck.transform.SetParent(allCardsParent);
-            info.SingleCardInDeck.transform.localPosition = Vector3.zero;
+            MoveToCollection(info.SingleCardInDeck);
 
             ApplySort(); // the returned card must land in its sorted place, not at the end of the grid
         }
