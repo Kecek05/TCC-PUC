@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8329dc6239c5e51479ec6f3083c714bf, type: 3}
+  m_Name: Shard_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::ShardTowerDataSO
+  TowerType: 8
+  AttackColor: 0
+  ArmorPenetration: 0
+  SetupDurationLevel1: 0.3
+  DamageLevel1: 30
+  RangeLevel1: 1.2
+  ShootCooldownLevel1: 1.1
+  BulletSpeedLevel1: 18
+  SetupDurationLevel2: 0.3
+  DamageLevel2: 40
+  RangeLevel2: 1.3
+  ShootCooldownLevel2: 1.05
+  BulletSpeedLevel2: 20
+  SetupDurationLevel3: 0.3
+  DamageLevel3: 55
+  RangeLevel3: 1.45
+  ShootCooldownLevel3: 1
+  BulletSpeedLevel3: 22
+  ExplosionRangeLevel1: 0.5
+  ExplosionRangeLevel2: 0.6
+  ExplosionRangeLevel3: 0.7
+  FragmentDamagePercent: 0.5

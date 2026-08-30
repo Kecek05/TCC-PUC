@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba35e9ac0000a9745a841070665188a5, type: 3}
+  m_Name: Mortar_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::MortarTowerDataSO
+  TowerType: 10
+  AttackColor: 0
+  ArmorPenetration: 0
+  SetupDurationLevel1: 0.5
+  DamageLevel1: 90
+  RangeLevel1: 1.6
+  ShootCooldownLevel1: 0.6
+  BulletSpeedLevel1: 8
+  SetupDurationLevel2: 0.4
+  DamageLevel2: 115
+  RangeLevel2: 1.7
+  ShootCooldownLevel2: 0.55
+  BulletSpeedLevel2: 9
+  SetupDurationLevel3: 0.4
+  DamageLevel3: 145
+  RangeLevel3: 1.85
+  ShootCooldownLevel3: 0.5
+  BulletSpeedLevel3: 10
+  ExplosionRangeLevel1: 0.7
+  ExplosionRangeLevel2: 0.8
+  ExplosionRangeLevel3: 0.9
+  ShotsAtLevel1: 3
+  ExtraShotsPerLevel: 1
+  ReloadDurationLevel1: 6
+  ReloadDurationLevel2: 5.5
+  ReloadDurationLevel3: 5

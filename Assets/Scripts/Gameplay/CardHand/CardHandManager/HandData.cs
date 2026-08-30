@@ -72,19 +72,19 @@ public class HandData
     }
 
     /// <summary>
-    /// Resolves a "card played" event: moves the played card to the back of the queue,
-    /// then draws the front of the queue into the hand. Returns false if the played
-    /// card wasn't actually in the hand.
+    /// Resolves a "card played" event: takes the card out of the hand and puts it at the back of the
+    /// queue. Drawing the replacement is deliberately left to the caller — one rule decides how full a
+    /// hand is (see <c>ServerCardHandManager.RefillHand</c>), instead of this method topping up by
+    /// exactly one and a separate loop topping up the rest. Queueing the played card first also keeps
+    /// the degenerate case working: even when it was the only drawable card, there is one to draw.
+    /// Returns false if the card wasn't actually in the hand.
     /// </summary>
-    public bool Play(CardType cardType, out CardType drawnCard)
+    public bool Play(CardType cardType)
     {
-        drawnCard = CardType.None;
         if (!CardsTypeInHand.Remove(cardType)) return false;
 
-        // Played -> back of queue -> then draw the front. Guarantees a draw even in
-        // the degenerate case where the played card is the only drawable one.
         QueuedCardsType.Enqueue(cardType);
-        return Draw(out drawnCard);
+        return true;
     }
 
     /// <summary>

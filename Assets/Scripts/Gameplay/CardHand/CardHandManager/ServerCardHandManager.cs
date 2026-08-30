@@ -94,13 +94,7 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
         SetServerHandData(teamType, handData);
 
-        for (int i = 0; i < cardHandSettingsSO.HandSize; i++)
-        {
-            if (!handData.Draw(out CardType drawnCard)) break;
-            OnDrawACard?.Invoke(teamType, drawnCard);
-            SendDrawnCardToClient(teamType, drawnCard);
-        }
-
+        RefillHand(teamType, handData);
         PushSyncedState(teamType);
     }
 
@@ -132,14 +126,13 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
             return;
         }
 
-        if (!handData.Play(cardType, out CardType drawnCard))
+        if (!handData.Play(cardType))
         {
             GameLog.Warn($"[CardHandManager] Played card {cardType} not found in {teamType} hand.");
             return;
         }
-        
-        OnDrawACard?.Invoke(teamType, drawnCard);
-        SendDrawnCardToClient(teamType, drawnCard);
+
+        RefillHand(teamType, handData);
         PushSyncedState(teamType);
     }
 
@@ -150,16 +143,29 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         HandData handData = GetServerHandData(teamType);
         if (handData == null) return;
 
-        if (handData.Unlock(newMax, _costs))
+        // Unlocking is what usually makes room to grow, but refill either way: a hand left short because
+        // the drawable pool was smaller than the hand at deal time should not have to wait for the next
+        // unlock to catch up.
+        handData.Unlock(newMax, _costs);
+
+        RefillHand(teamType, handData);
+        PushSyncedState(teamType);
+    }
+
+    /// <summary>
+    /// Tops a hand up to <see cref="CardHandSettingsSO.HandSize"/>, or to whatever the drawable queue can
+    /// supply when that is fewer. This is the single rule for how many cards a hand holds, so a hand that
+    /// is short — the deck had fewer cards under the mana cap than there are slots, or an earlier draw
+    /// found the queue empty — grows on its own the moment cards become drawable again.
+    /// </summary>
+    private void RefillHand(TeamType teamType, HandData handData)
+    {
+        while (handData.CardsTypeInHand.Count < cardHandSettingsSO.HandSize)
         {
-            for (int i = handData.CardsTypeInHand.Count; i < cardHandSettingsSO.HandSize; i++)
-            {
-                if (!handData.Draw(out CardType drawnCard)) break;
-                OnDrawACard?.Invoke(teamType, drawnCard);
-                SendDrawnCardToClient(teamType, drawnCard);
-            }
-            
-            PushSyncedState(teamType);
+            if (!handData.Draw(out CardType drawnCard)) break;
+
+            OnDrawACard?.Invoke(teamType, drawnCard);
+            SendDrawnCardToClient(teamType, drawnCard);
         }
     }
 

@@ -52,7 +52,11 @@ public enum CardType
     TowerStinger,
     TowerPrism,
     SpellRift,
-    SpellLance
+    SpellLance,
+    TowerShard,
+    TowerBeacon,
+    TowerMortar,
+    TowerChain
 }
 
 public enum ExistingTypesOfCard
@@ -83,7 +87,11 @@ public enum TowerType
     Dart,
     Needle,
     Stinger,
-    Prism
+    Prism,
+    Shard,
+    Beacon,
+    Mortar,
+    Chain
 }
 
 public enum EnemyType

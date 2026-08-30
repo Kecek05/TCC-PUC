@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Default competent bot. Each tick it defends its own lane first (place/upgrade a tower at the biggest
-/// threat, Fireball a dangerous cluster, Haste its towers when under pressure), then attacks with spare
-/// mana (send troops, Ice the opponent's towers, Rage the opponent's lane), otherwise keeps a mana
-/// reserve. Pure decision logic — all mutation happens in the BotController via the shared deployer cores.
+/// Default competent bot. Each tick it works its own lane first — build or level a tower, then Fireball
+/// a dangerous cluster or Haste its towers when the lane is under real pressure — and only spends what
+/// is left on the offence (troops, Ice on the opponent's towers, Rage on their lane). A tower it wants
+/// but cannot afford yet makes it hold the mana rather than leak it into a cheap troop. Pure decision
+/// logic — all mutation happens in the BotController via the shared deployer cores.
 /// </summary>
 public class HeuristicBotBrain : IBotBrain
 {
@@ -41,33 +42,37 @@ public class HeuristicBotBrain : IBotBrain
         }
         bool underPressure = threats.Count >= 3 || worstProgress >= 0.5f || lowHealth;
 
-        // ---------- 1) DEFENCE ----------
-        if (threats.Count > 0)
+        // ---------- 1) THE LANE: build and level the defence, threat or no threat ----------
+        // Not gated on being attacked. Towers are the bot's whole defence and cost 4-6 while a troop
+        // costs 2, so leaving them below the offence meant the bot spent every 2 mana it had on the
+        // cheapest troop, never banked a tower card, and left its lane bare for the whole match.
+        CardType tower = FindTowerPlay(ctx, worstThreat, ctx.CurrentMana, out Vector2 towerPos);
+        if (tower != CardType.None)
+            return BotDecision.Tower(tower, towerPos);
+
+        // ---------- 2) DEFENCE: spells, once the lane is under real pressure ----------
+        if (underPressure && threats.Count > 0)
         {
-            CardType tower = FindTowerPlay(ctx, worstThreat, out Vector2 towerPos);
-            if (tower != CardType.None)
-                return BotDecision.Tower(tower, towerPos);
+            CardType fireball = FindSpell(ctx, SpellType.Fireball);
+            if (fireball != CardType.None)
+                return BotDecision.Spell(fireball, worstThreat.transform.position);
 
-            if (underPressure && worstThreat != null)
+            List<TowerManager> ownTowers = ctx.TowersOf(ctx.Team);
+            if (ownTowers.Count > 0)
             {
-                CardType fireball = FindSpell(ctx, SpellType.Fireball);
-                if (fireball != CardType.None)
-                    return BotDecision.Spell(fireball, worstThreat.transform.position);
-            }
-
-            if (underPressure)
-            {
-                List<TowerManager> ownTowers = ctx.TowersOf(ctx.Team);
-                if (ownTowers.Count > 0)
-                {
-                    CardType haste = FindSpell(ctx, SpellType.Haste);
-                    if (haste != CardType.None)
-                        return BotDecision.Spell(haste, ownTowers[0].transform.position);
-                }
+                CardType haste = FindSpell(ctx, SpellType.Haste);
+                if (haste != CardType.None)
+                    return BotDecision.Spell(haste, ownTowers[0].transform.position);
             }
         }
 
-        // ---------- 2) OFFENCE (keep a mana reserve) ----------
+        // ---------- 3) SAVE UP: hold mana for a tower the bot cannot pay for yet ----------
+        // Only for a card it can actually reach at full mana, so it never waits on something it could
+        // never afford. This is what stops the offence below from spending the bank.
+        if (FindTowerPlay(ctx, worstThreat, ctx.MaxMana, out _) != CardType.None)
+            return BotDecision.None;
+
+        // ---------- 4) OFFENCE (keep a mana reserve) ----------
         if (ctx.CurrentMana >= _settings.ManaReserve)
         {
             CardType troop = FindCheapestSpawnEnemy(ctx);
@@ -91,13 +96,11 @@ public class HeuristicBotBrain : IBotBrain
             }
         }
 
-        // ---------- 3) ECONOMY: near max mana, spend so it doesn't overflow ----------
+        // ---------- 5) ECONOMY: near max mana, spend so it doesn't overflow ----------
+        // Only reachable when ManaReserve is set above the cap, which skips the offence entirely; the
+        // tower play it used to try here is already covered by step 1 at the same mana.
         if (ctx.CurrentMana >= ctx.MaxMana - 0.5f)
         {
-            CardType tower = FindTowerPlay(ctx, worstThreat, out Vector2 towerPos);
-            if (tower != CardType.None)
-                return BotDecision.Tower(tower, towerPos);
-
             CardType troop = FindCheapestSpawnEnemy(ctx);
             if (troop != CardType.None)
                 return BotDecision.SpawnEnemy(troop);
@@ -106,32 +109,63 @@ public class HeuristicBotBrain : IBotBrain
         return BotDecision.None;
     }
 
-    // Prefers placing a new tower on the free slot nearest the threat; falls back to upgrading a
-    // same-type tower when no slot is free.
-    private CardType FindTowerPlay(BotContext ctx, EnemyManager focus, out Vector2 pos)
+    /// <summary>
+    /// Chooses how to spend a tower card within <paramref name="budget"/> mana: take new ground while
+    /// the bot holds fewer than <see cref="BotSettingsSO.TowerTarget"/> towers, level up what is already
+    /// standing once it holds that many. Returns None when the line is both up and fully levelled, and
+    /// that is deliberate — it is what stops the bot pouring mana into towers and frees it to attack.
+    /// </summary>
+    /// <param name="budget">Mana to plan against: what the bot holds now for a play it is about to
+    /// make, its cap when asking whether a card is worth waiting for.</param>
+    private CardType FindTowerPlay(BotContext ctx, EnemyManager focus, float budget, out Vector2 pos)
     {
-        pos = default;
         Vector2? near = focus != null ? (Vector2?)(Vector2)focus.transform.position : null;
 
-        AbstractPlaceable freeSlot = ctx.NearestFreePlaceable(near);
-        if (freeSlot != null)
+        if (CountOwnTowers(ctx) < _settings.TowerTarget)
         {
-            foreach (CardType card in ctx.HandCards)
+            CardType placement = FindTowerPlacement(ctx, near, budget, out pos);
+            if (placement != CardType.None) return placement;
+        }
+
+        return FindTowerUpgrade(ctx, near, budget, out pos);
+    }
+
+    /// <summary>A tower card in hand within budget, plus the free own slot nearest the threat.</summary>
+    private CardType FindTowerPlacement(BotContext ctx, Vector2? near, float budget, out Vector2 pos)
+    {
+        pos = default;
+
+        AbstractPlaceable freeSlot = ctx.NearestFreePlaceable(near);
+        if (freeSlot == null) return CardType.None;
+
+        foreach (CardType card in ctx.HandCards)
+        {
+            if (ctx.Cards.GetCardDataByType(card) is TowerCardDataSO tc && Affordable(tc.Cost, budget))
             {
-                if (ctx.Cards.GetCardDataByType(card) is TowerCardDataSO tc && ctx.CanAfford(tc.Cost))
-                {
-                    pos = freeSlot.PlaceablePoint.position;
-                    return card;
-                }
+                pos = freeSlot.PlaceablePoint.position;
+                return card;
             }
         }
 
-        // Upgrade path: play a tower card whose type matches an upgradeable own tower.
+        return CardType.None;
+    }
+
+    /// <summary>
+    /// A tower card in hand within budget that matches one of the bot's own upgradeable towers, aimed at
+    /// the closest such tower to the threat. None once every matching tower sits at max level.
+    /// </summary>
+    private CardType FindTowerUpgrade(BotContext ctx, Vector2? near, float budget, out Vector2 pos)
+    {
+        pos = default;
+        if (ctx.OwnPlaceables == null) return CardType.None;
+
+        CardType best = CardType.None;
+        float bestDist = float.MaxValue;
+
         foreach (CardType card in ctx.HandCards)
         {
-            if (ctx.Cards.GetCardDataByType(card) is not TowerCardDataSO tc || !ctx.CanAfford(tc.Cost))
+            if (ctx.Cards.GetCardDataByType(card) is not TowerCardDataSO tc || !Affordable(tc.Cost, budget))
                 continue;
-            if (ctx.OwnPlaceables == null) continue;
 
             foreach (AbstractPlaceable pl in ctx.OwnPlaceables)
             {
@@ -139,12 +173,33 @@ public class HeuristicBotBrain : IBotBrain
                 if (pl.OccupiedTower.Data.TowerType != tc.TowerType) continue;
                 if (pl.OccupiedTower.ServerTowerCombat == null || !pl.OccupiedTower.ServerTowerCombat.CanUpgradeTower()) continue;
 
-                pos = pl.PlaceablePoint.position;
-                return card;
+                // With no threat to rank against every candidate scores 0, so the first match wins.
+                Vector2 point = pl.PlaceablePoint.position;
+                float dist = near == null ? 0f : (point - near.Value).sqrMagnitude;
+                if (dist >= bestDist) continue;
+
+                bestDist = dist;
+                best = card;
+                pos = point;
             }
         }
 
-        return CardType.None;
+        return best;
+    }
+
+    // Mirrors the server's spend rule (ServerManaManager.CanAfford), which floors the mana pool.
+    private static bool Affordable(int cost, float budget) => cost <= Mathf.FloorToInt(budget);
+
+    /// <summary>How many of the bot's own tower slots currently hold a tower.</summary>
+    private static int CountOwnTowers(BotContext ctx)
+    {
+        if (ctx.OwnPlaceables == null) return 0;
+
+        int count = 0;
+        foreach (AbstractPlaceable pl in ctx.OwnPlaceables)
+            if (pl != null && pl.IsOccupied()) count++;
+
+        return count;
     }
 
     private CardType FindSpell(BotContext ctx, SpellType type)

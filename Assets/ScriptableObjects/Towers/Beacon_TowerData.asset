@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67848a557ed9c449ba130d0cba7184e, type: 3}
+  m_Name: Beacon_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::BeaconTowerDataSO
+  TowerType: 9
+  AttackColor: 2
+  ArmorPenetration: 0
+  SetupDurationLevel1: 0.5
+  DamageLevel1: 9
+  RangeLevel1: 1.9
+  ShootCooldownLevel1: 0.35
+  BulletSpeedLevel1: 30
+  SetupDurationLevel2: 0.4
+  DamageLevel2: 12
+  RangeLevel2: 2
+  ShootCooldownLevel2: 0.33
+  BulletSpeedLevel2: 32
+  SetupDurationLevel3: 0.4
+  DamageLevel3: 16
+  RangeLevel3: 2.15
+  ShootCooldownLevel3: 0.3
+  BulletSpeedLevel3: 35
+  RampPerSecond: 0.35
+  MaxRampMultiplier: 3

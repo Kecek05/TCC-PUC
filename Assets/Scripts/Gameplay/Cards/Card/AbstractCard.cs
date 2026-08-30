@@ -52,23 +52,38 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         _blockingRaycaster = factoryData.BlockCardsCanvas;
 
         transform.SetParent(factoryData.CardParent);
-        Transform slotTransform = _cardContainer.AddCardToSlot(this);
-        if (slotTransform == null)
-        {
-            GameLog.Error($"No free card slot available for {cardDataSo?.CardType}; destroying card UI to keep the hand consistent.");
-            Destroy(gameObject);
-            return;
-        }
-
-        RectTransform slotRect = (RectTransform)slotTransform;
-        rectTransform.anchoredPosition = slotRect.anchoredPosition;
-        originalPosition = slotRect.anchoredPosition;
         _originalParent = factoryData.CardParent;
 
         if (_clientManaManager == null)
             _clientManaManager = ServiceLocator.Get<BaseClientManaManager>();
         
         gfxController.Initialize(cardDataSo, _clientManaManager);
+
+        // A free slot is not guaranteed yet: the server announces the replacement card before it answers
+        // the play that retires the one still holding the slot. The container parks this card and calls
+        // PlaceInSlot the moment a slot opens - destroying it here would shrink the hand for good.
+        PlaceInSlot(_cardContainer.AddCardToSlot(this));
+    }
+
+    /// <summary>
+    /// Puts this card on a hand slot. A null slot parks it out of sight and out of reach instead, until
+    /// the container hands it a real one.
+    /// </summary>
+    public void PlaceInSlot(Transform slotTransform)
+    {
+        if (slotTransform == null)
+        {
+            selfCanvasGroup.alpha = 0f;
+            selfCanvasGroup.blocksRaycasts = false;
+            return;
+        }
+
+        RectTransform slotRect = (RectTransform)slotTransform;
+        rectTransform.anchoredPosition = slotRect.anchoredPosition;
+        originalPosition = slotRect.anchoredPosition;
+
+        selfCanvasGroup.alpha = 1f;
+        selfCanvasGroup.blocksRaycasts = true;
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)

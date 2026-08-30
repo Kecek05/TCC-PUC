@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d9925e309027942b27d98010c16584, type: 3}
+  m_Name: Chain_TowerData
+  m_EditorClassIdentifier: Assembly-CSharp::ChainTowerDataSO
+  TowerType: 11
+  AttackColor: 3
+  ArmorPenetration: 0
+  SetupDurationLevel1: 0.4
+  DamageLevel1: 45
+  RangeLevel1: 1.5
+  ShootCooldownLevel1: 1.3
+  BulletSpeedLevel1: 22
+  SetupDurationLevel2: 0.3
+  DamageLevel2: 58
+  RangeLevel2: 1.6
+  ShootCooldownLevel2: 1.2
+  BulletSpeedLevel2: 24
+  SetupDurationLevel3: 0.3
+  DamageLevel3: 75
+  RangeLevel3: 1.75
+  ShootCooldownLevel3: 1.1
+  BulletSpeedLevel3: 26
+  MaxHopsLevel1: 2
+  MaxHopsLevel2: 3
+  MaxHopsLevel3: 4
+  HopRadius: 0.9
+  DamageFalloffPercent: 0.25

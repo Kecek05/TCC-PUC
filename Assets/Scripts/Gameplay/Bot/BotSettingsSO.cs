@@ -34,4 +34,11 @@ public class BotSettingsSO : ScriptableObject
 
     [Tooltip("Mana the bot tries to keep in reserve instead of spending, so it can react to threats.")]
     [Min(0f)] public float ManaReserve = 2f;
+
+    [Title("Towers")]
+    [Tooltip("Towers the bot wants standing on its lane. It builds up to this many, then puts further " +
+             "tower cards into levelling them instead of taking more ground, and rebuilds if one is " +
+             "lost. Once the line is up and fully levelled it has no tower play left, which is what " +
+             "releases its mana to the offence. Raise it for a bot that turtles harder.")]
+    [Min(0)] public int TowerTarget = 3;
 }
