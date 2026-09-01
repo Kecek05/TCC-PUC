@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00d4cef7c2e6c434fb0059fd41a16228, type: 3}
+  m_Name: SpawnEnemyRamCardData
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCardDataSO
+  CardType: 24
+  ExistingType: 3
+  Rarity: 2
+  CardPrefab: {fileID: 2770033394772179350, guid: eb538f60ada102740b906efb5f2176a2, type: 3}
+  CardName: Ram
+  Description: "Slow and heavy \u2014 but every 4 seconds it lunges into a 0.5s dash
+    at 5x speed. Great at punishing towers clumped in one spot."
+  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Cost: 6
+  UseCustomSizeCardInMenu: 0
+  CustomSizeCardInMenu: {x: 0, y: 0}
+  ShowPlaceholderNameOverlay: 1
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
+  EnemyType: 10
+  SpawnCount: 1
+  DelayBetweenSpawns: 0.3
+  EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

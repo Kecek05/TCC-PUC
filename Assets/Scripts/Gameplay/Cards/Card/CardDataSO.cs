@@ -19,6 +19,12 @@ public class CardDataSO : ScriptableObject
     public int Cost;
     public bool UseCustomSizeCardInMenu = false;
     [ShowIf("UseCustomSizeCardInMenu")]public Vector2 CustomSizeCardInMenu;
+    [Title("Debug")]
+    [Tooltip("Debug/testing crutch. On: renders a bright CardName strip over the icon on this card in the menu " +
+             "and in-match so cards that share placeholder art are still visually distinguishable. Turn OFF once " +
+             "the real CardImage is in.")]
+    public bool ShowPlaceholderNameOverlay = false;
+
     public bool UseCustomPositionCardInMenu = false;
     [ShowIf("UseCustomPositionCardInMenu")]public Vector2 CustomPositionCardInMenu;
 

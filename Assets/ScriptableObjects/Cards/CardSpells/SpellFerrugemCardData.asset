@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39b4f95e583d2f4da12840317496ea7, type: 3}
+  m_Name: SpellFerrugemCardData
+  m_EditorClassIdentifier: Assembly-CSharp::SpellCardDataSO
+  CardType: 21
+  ExistingType: 2
+  Rarity: 1
+  CardPrefab: {fileID: 2383729291938179494, guid: 27638d9e601db9149861c8c6e0574769, type: 3}
+  CardName: Ferrugem
+  Description: Corrode the armor of every enemy on your lane for 6s. Latecomers are
+    caught as they walk in, overlapping zones stack.
+  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Cost: 3
+  UseCustomSizeCardInMenu: 0
+  CustomSizeCardInMenu: {x: 0, y: 0}
+  ShowPlaceholderNameOverlay: 1
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
+  SpellType: 7
+  CanUseInEnemyMap: 0
+  CanUseInLocalMap: 1
+  SpellGhostSprite: {fileID: 21300000, guid: b1693711932bbf94fbf08e7cd7a1d9fe, type: 3}
+  SpellData: {fileID: 11400000, guid: 317416391c9ca72448aebba0203a1b39, type: 2}

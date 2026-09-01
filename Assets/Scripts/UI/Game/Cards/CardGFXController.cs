@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class CardGFXController : MonoBehaviour
 {
-    [Title("References")] 
+    [Title("References")]
     [SerializeField] private TextMeshProUGUI costLabel;
     [SerializeField] private TextMeshProUGUI titleLabel;
     [SerializeField] private Image cardIconImage;
@@ -13,6 +13,9 @@ public class CardGFXController : MonoBehaviour
     [SerializeField] private Image cardCostGfx;
     [SerializeField] private Color costDefaultColor;
     [SerializeField] private Color costNoManaColor;
+    [Tooltip("Debug crutch: shown only when CardDataSO.ShowPlaceholderNameOverlay is on. Overlays the CardName " +
+             "on top of the icon so cards that share placeholder art are still visually distinguishable.")]
+    [SerializeField] private TextMeshProUGUI debugPlaceholderLabel;
     
     private BaseClientManaManager _clientManaManager;
     private int _cardCost;
@@ -27,6 +30,13 @@ public class CardGFXController : MonoBehaviour
         cardIconImage.sprite = cardDataSo.CardImage;
         cardIconImage.color = cardDataSo.CardColor;
         cardIconBackground.sprite = cardDataSo.CardImage;
+
+        if (debugPlaceholderLabel != null)
+        {
+            debugPlaceholderLabel.gameObject.SetActive(cardDataSo.ShowPlaceholderNameOverlay);
+            if (cardDataSo.ShowPlaceholderNameOverlay)
+                debugPlaceholderLabel.text = cardDataSo.CardName;
+        }
 
         UpdateCardCostGfx();
     }

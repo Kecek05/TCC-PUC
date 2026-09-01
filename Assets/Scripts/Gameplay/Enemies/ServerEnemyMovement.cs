@@ -55,6 +55,14 @@ public class ServerEnemyMovement : NetworkBehaviour
     // with damage rather than replace it.
     private const float MaxSlowPercent = 0.85f;
 
+    // Dash state (per-enemy, driven by EnemyDataSO.Dash* fields). _dashCooldown counts down between
+    // dashes; when it reaches 0 the enemy enters a dash of DashDuration seconds during which _dashActive
+    // is true and RecalculateSpeed multiplies the effective speed by DashSpeedMultiplier. The multiplier
+    // composes with slows: a 50%-slowed dasher accelerates FROM its slowed speed, not from base.
+    private float _dashCooldown;
+    private float _dashRemaining;
+    private bool _dashActive;
+
     /// <summary>
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
     /// Must be called on the server before or right after NetworkObject.Spawn().
@@ -82,6 +90,12 @@ public class ServerEnemyMovement : NetworkBehaviour
         _slowMultiplier = 1f;
         _slowPercent = 0f;
         _speedBuffPercent = 0f;
+        // Pooled instances re-enter OnNetworkSpawn on reuse; a dash mid-flight from a previous life would
+        // otherwise carry into the next spawn. Start the interval fresh so the first dash lands one full
+        // interval after spawn rather than the instant the enemy appears.
+        _dashCooldown = enemyManager.Data.DashInterval;
+        _dashRemaining = 0f;
+        _dashActive = false;
         RecalculateSpeed();
         _reversed.Value = _reversedLocal;
         _localProgress = 0f;
@@ -104,6 +118,8 @@ public class ServerEnemyMovement : NetworkBehaviour
                 _invincible.Value = false;
             return;
         }
+
+        TickDash();
 
         float totalLength = _path.TotalLength;
         if (totalLength <= 0f) return;
@@ -142,10 +158,42 @@ public class ServerEnemyMovement : NetworkBehaviour
     private void RecalculateSpeed()
     {
         if (!IsServer) return;
+        float dashFactor = _dashActive ? Mathf.Max(1f, enemyManager.Data.DashSpeedMultiplier) : 1f;
         _currentSpeed.Value = _baseSpeed
                               * _slowMultiplier
                               * (1f - Mathf.Min(_slowPercent, MaxSlowPercent))
-                              * (1f + _speedBuffPercent);
+                              * (1f + _speedBuffPercent)
+                              * dashFactor;
+    }
+
+    /// <summary>
+    /// Data-driven dash: if DashInterval > 0, the enemy alternates between waiting DashInterval seconds
+    /// and dashing for DashDuration seconds. The dash surfaces through RecalculateSpeed as a multiplicative
+    /// speed boost, so it composes with slows and buffs rather than replacing them.
+    /// </summary>
+    private void TickDash()
+    {
+        if (enemyManager.Data.DashInterval <= 0f) return;
+
+        if (_dashActive)
+        {
+            _dashRemaining -= Time.deltaTime;
+            if (_dashRemaining <= 0f)
+            {
+                _dashActive = false;
+                _dashCooldown = enemyManager.Data.DashInterval;
+                RecalculateSpeed();
+            }
+            return;
+        }
+
+        _dashCooldown -= Time.deltaTime;
+        if (_dashCooldown <= 0f)
+        {
+            _dashActive = true;
+            _dashRemaining = enemyManager.Data.DashDuration;
+            RecalculateSpeed();
+        }
     }
 
     /// <summary>
@@ -186,21 +234,26 @@ public class ServerEnemyMovement : NetworkBehaviour
     /// Server-only. Adds <paramref name="percent"/> (a fraction, 0.4 = -40% speed) to this enemy's stacked
     /// slow. Independent sources - a Prism aura and a Rift zone, or two overlapping Rifts - accumulate, and
     /// each removes only what it added. The total is capped by <see cref="MaxSlowPercent"/>.
+    /// Enemies flagged <see cref="EnemyDataSO.ImmuneToSlow"/> silently ignore the call so callers do not
+    /// need special-cases and RemoveSlow stays a symmetric no-op.
     /// </summary>
     public void AddSlow(float percent)
     {
         if (!IsServer) return;
+        if (enemyManager.Data.ImmuneToSlow) return;
         _slowPercent += percent;
         RecalculateSpeed();
     }
 
     /// <summary>
     /// Server-only. Removes a previously-applied slow contribution, clamped at 0 so a stray double-remove
-    /// can never make the enemy faster than its base speed.
+    /// can never make the enemy faster than its base speed. No-op on slow-immune enemies, mirroring
+    /// <see cref="AddSlow"/> so the source's paired Add/Remove stays balanced without branching per enemy.
     /// </summary>
     public void RemoveSlow(float percent)
     {
         if (!IsServer) return;
+        if (enemyManager.Data.ImmuneToSlow) return;
         _slowPercent = Mathf.Max(0f, _slowPercent - percent);
         RecalculateSpeed();
     }

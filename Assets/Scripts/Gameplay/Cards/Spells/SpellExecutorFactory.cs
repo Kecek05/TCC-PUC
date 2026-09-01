@@ -10,6 +10,7 @@ public static class SpellExecutorFactory
         { SpellType.Rage, new RageExecutor() },
         { SpellType.Rift, new RiftExecutor() },
         { SpellType.Lance, new LanceExecutor() },
+        { SpellType.Ferrugem, new FerrugemExecutor() },
     };
 
     public static ISpellExecutor GetExecutor(SpellType spellType)

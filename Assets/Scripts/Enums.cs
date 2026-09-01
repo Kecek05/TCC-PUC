@@ -56,7 +56,11 @@ public enum CardType
     TowerShard,
     TowerBeacon,
     TowerMortar,
-    TowerChain
+    TowerChain,
+    SpellFerrugem,
+    TowerTorniquete,
+    SpawnEnemyShadow,
+    SpawnEnemyRam
 }
 
 public enum ExistingTypesOfCard
@@ -75,7 +79,8 @@ public enum SpellType
     Haste,
     Rage,
     Rift,
-    Lance
+    Lance,
+    Ferrugem
 }
 
 public enum TowerType
@@ -91,7 +96,8 @@ public enum TowerType
     Shard,
     Beacon,
     Mortar,
-    Chain
+    Chain,
+    Torniquete
 }
 
 public enum EnemyType
@@ -105,6 +111,8 @@ public enum EnemyType
     Triangle1Tank,
     Boss,
     PlayerEnemy,
+    Shadow,
+    Ram,
 }
 
 public enum CardInvalidReason

@@ -20,6 +20,21 @@ public class EnemyDataSO : ScriptableObject
     [Tooltip("Damage reduction applied to hits whose color does not match this armor. 0 = none, 1 = immune to off-color.")]
     public float OffColorResistance = 0.35f;
 
+    [Title("Modifiers")]
+    [Tooltip("If true, this enemy ignores every stackable slow (Prism aura, Rift zone, and future slows that route through ServerEnemyMovement.AddSlow). Set for Shadow-style enemies whose whole point is punishing slow-based defenses.")]
+    public bool ImmuneToSlow = false;
+
+    [Title("Dash")]
+    [Min(0f)]
+    [Tooltip("Seconds between dashes. 0 disables dash entirely — the enemy never dashes.")]
+    public float DashInterval = 0f;
+    [Min(0f)]
+    [Tooltip("How long each dash lasts (seconds).")]
+    public float DashDuration = 0f;
+    [Min(1f)]
+    [Tooltip("Speed multiplier applied to the enemy's effective speed while dashing. 1 = no boost, 5 = 5x speed.")]
+    public float DashSpeedMultiplier = 1f;
+
     [Title("Visuals")]
     public Sprite EnemySprite;
 
