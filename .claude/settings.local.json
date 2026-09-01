@@ -22,7 +22,8 @@
       "mcp__claude_ai_Notion__notion-fetch",
       "Skill(create-card)",
       "PowerShell(unity command *)",
-      "mcp__unity-mcp__Unity_GetConsoleLogs"
+      "mcp__unity-mcp__Unity_GetConsoleLogs",
+      "mcp__claude_ai_Notion__notion-update-page"
     ]
   }
 }

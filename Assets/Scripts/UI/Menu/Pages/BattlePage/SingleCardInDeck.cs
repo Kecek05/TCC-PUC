@@ -15,6 +15,9 @@ public class SingleCardInDeck : MonoBehaviour
     [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private Button cardButton;
     [SerializeField] private CardsRarityDataSO cardsRarityData;
+    [Tooltip("Debug crutch: shown only when CardDataSO.ShowPlaceholderNameOverlay is on. Overlays the CardName " +
+             "on top of the icon so cards that share placeholder art are still distinguishable in the deck menu.")]
+    [SerializeField] private TextMeshProUGUI debugPlaceholderLabel;
 
     [Title("Card Types")]
     [SerializeField] private Sprite spellBackgroundType;
@@ -55,6 +58,13 @@ public class SingleCardInDeck : MonoBehaviour
 
         if (cardData.UseCustomSizeCardInMenu)
             cardImage.rectTransform.sizeDelta = cardData.CustomSizeCardInMenu;
+
+        if (debugPlaceholderLabel != null)
+        {
+            debugPlaceholderLabel.gameObject.SetActive(cardData.ShowPlaceholderNameOverlay);
+            if (cardData.ShowPlaceholderNameOverlay)
+                debugPlaceholderLabel.text = cardData.CardName;
+        }
 
         InitializeButtons();
     }
