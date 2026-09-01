@@ -18,6 +18,14 @@ public abstract class BasePlayersDataManager
     public abstract string GetAuthIdByClientId(ulong clientId);
 
     public abstract ulong GetClientIdByTeamType(TeamType teamType);
-    
+
+    /// <summary>
+    /// Silent variant of <see cref="GetClientIdByTeamType"/>: returns false when the team has no network
+    /// client mapped (a bot, or a not-yet-seated slot) instead of logging an error. Use this on paths that
+    /// legitimately fire for a bot — hand-sync RPCs, per-client UI notifications — so the guard doesn't
+    /// paint the console red every card play.
+    /// </summary>
+    public abstract bool TryGetClientIdByTeamType(TeamType teamType, out ulong clientId);
+
     public abstract Dictionary<string, PlayerData> GetAuthIdToPlayerData();
 }

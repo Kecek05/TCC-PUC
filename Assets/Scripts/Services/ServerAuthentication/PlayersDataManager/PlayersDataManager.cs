@@ -59,16 +59,22 @@ public class PlayersDataManager : BasePlayersDataManager
     
     public override ulong GetClientIdByTeamType(TeamType teamType)
     {
-        if (_teamDataToAuthId.TryGetValue(teamType, out string authId))
-        {
-            if (_authToClientId.TryGetValue(authId, out ulong clientId))
-            {
-                return clientId;
-            }
-        }
-        
+        if (TryGetClientIdByTeamType(teamType, out ulong clientId)) return clientId;
+
         GameLog.Error("Error Trying to get client ID for team type: " + teamType);
         return ulong.MaxValue;
+    }
+
+    public override bool TryGetClientIdByTeamType(TeamType teamType, out ulong clientId)
+    {
+        if (_teamDataToAuthId.TryGetValue(teamType, out string authId)
+            && _authToClientId.TryGetValue(authId, out clientId))
+        {
+            return true;
+        }
+
+        clientId = ulong.MaxValue;
+        return false;
     }
 
     public override Dictionary<string, PlayerData> GetAuthIdToPlayerData() => _authIdToPlayerData;

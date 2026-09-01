@@ -171,7 +171,9 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
 
     private void PushSyncedState(TeamType teamType)
     {
-        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        // Try-variant: a bot team legitimately has no client mapped, and the loud GetClientIdByTeamType
+        // would paint an error line for every card the bot plays.
+        if (!_playersDataManager.TryGetClientIdByTeamType(teamType, out ulong clientId)) return;
         if (!IsRealClient(clientId)) return;
 
         HandData handData = GetServerHandData(teamType);
@@ -181,12 +183,12 @@ public class ServerCardHandManager : BaseCardHandManager, IOnDrawACard, IOnLocal
         SendOnLocalNextCardChangedRpc(nextVar, RpcTarget.Single(clientId, RpcTargetUse.Temp));
     }
 
-    // A bot team has no network client, so GetClientIdByTeamType returns ulong.MaxValue for it. The
+    // A bot team has no network client, so TryGetClientIdByTeamType returns false for it. The
     // draw / next-card sync is purely client-side UI, so skip it silently when there is no real client
     // to receive it (the server-side HandData is unaffected, so the bot's hand still deals and advances).
     private void SendDrawnCardToClient(TeamType teamType, CardType drawnCard)
     {
-        ulong clientId = _playersDataManager.GetClientIdByTeamType(teamType);
+        if (!_playersDataManager.TryGetClientIdByTeamType(teamType, out ulong clientId)) return;
         if (!IsRealClient(clientId)) return;
 
         SendOnDrawLocalACardRpc(drawnCard, RpcTarget.Single(clientId, RpcTargetUse.Temp));

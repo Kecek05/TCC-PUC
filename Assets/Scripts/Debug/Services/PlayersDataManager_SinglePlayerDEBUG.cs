@@ -28,6 +28,12 @@ public class PlayersDataManager_SinglePlayerDEBUG : BasePlayersDataManager
 
     public override ulong GetClientIdByTeamType(TeamType teamType) => NetworkManager.Singleton.LocalClientId;
 
+    public override bool TryGetClientIdByTeamType(TeamType teamType, out ulong clientId)
+    {
+        clientId = NetworkManager.Singleton.LocalClientId;
+        return true;
+    }
+
     public override Dictionary<string, PlayerData> GetAuthIdToPlayerData()
     {
         Dictionary<string, PlayerData> authIdToPlayerDataDEBUG = new();
