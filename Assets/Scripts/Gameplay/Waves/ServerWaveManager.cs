@@ -26,6 +26,10 @@ public class ServerWaveManager : BaseServerWaveManager
     private BaseEnemyNetworkPool _enemyNetworkPool;
     private BaseTeamManager _teamManager;
 
+    // Normalised gap between successive split children. Deliberately tiny - they should read as a cluster
+    // breaking apart, not as a fresh column.
+    private const float SplitSpreadProgress = 0.006f;
+
     private List<EnemyManager> _redActiveEnemiesFromWave = new();
     private List<EnemyManager> _blueActiveEnemiesFromWave = new();
     
@@ -83,8 +87,68 @@ public class ServerWaveManager : BaseServerWaveManager
 
     private void ServerEnemyHealthOnOnDeath(EnemyManager enemyManager)
     {
+        TrySplit(enemyManager);
         RemoveEnemyFromList(enemyManager.Team.GetTeamType(), enemyManager);
         CheckLastWaveEnded(enemyManager.Team.GetTeamType());
+    }
+
+    /// <summary>
+    /// Breaks a dying Cisma-style enemy into its children. Runs before the wave bookkeeping above so the
+    /// children are already spawned by the time <see cref="CheckLastWaveEnded"/> asks whether the field is
+    /// empty.
+    /// </summary>
+    /// <remarks>
+    /// OnDeath fires for EVERY despawn, a leak into the base included, so the kill is identified by the
+    /// health actually being at zero - the same "read the health, don't trust the event" reasoning
+    /// ServerShardTowerCombat documents. Everything the children need is read synchronously here, because
+    /// the parent has already despawned and its instance may be recycled at any point after this returns.
+    ///
+    /// Children inherit the parent's reversed flag through <c>fromPlayer</c>, which also keeps them out of
+    /// the wave list. A splitting enemy placed in a WaveDataSO would therefore need the wave counter taught
+    /// about children first; every splitter today is a player card.
+    /// </remarks>
+    private void TrySplit(EnemyManager parent)
+    {
+        if (parent == null) return;
+
+        EnemyDataSO data = parent.Data;
+        if (data == null || data.SplitCount <= 0) return;
+        if (parent.SplitGenerationsLeft <= 0) return;
+
+        // Reached the base rather than being killed - no reward for letting it through.
+        if (parent.ServerHealth.CurrentHealth.Value > 0f) return;
+
+        TeamType targetMap = parent.Team.GetTeamType();
+        bool reversed = parent.ServerMovement.Reversed.Value;
+        float progress = parent.ServerMovement.Progress;
+        CardLevelScale scale = parent.CardScale;
+
+        int generationsLeft = parent.SplitGenerationsLeft - 1;
+        float statMultiplier = parent.SplitStatMultiplier * data.SplitChildStatPercent;
+
+        StartCoroutine(SpawnSplitChildren(data, targetMap, reversed, scale, progress, generationsLeft,
+            statMultiplier));
+    }
+
+    /// <summary>
+    /// Spawns the children one frame after the parent's despawn. TrySplit runs inside
+    /// <c>OnNetworkDespawn</c>, and calling <c>NetworkObject.Spawn</c> from there mutates NGO's spawn
+    /// tables while it is still walking them for the despawn - so the whole parent state is captured into
+    /// arguments first and the spawn itself waits for the frame to finish.
+    /// </summary>
+    private IEnumerator SpawnSplitChildren(EnemyDataSO data, TeamType targetMap, bool reversed,
+        CardLevelScale scale, float progress, int generationsLeft, float statMultiplier)
+    {
+        yield return null;
+
+        // Fanned out a little way back down the lane instead of stacked on the death point: three bodies at
+        // the identical progress render as one sprite and get area-damaged as one target, which would undo
+        // the whole reason the card exists.
+        for (int i = 0; i < data.SplitCount; i++)
+        {
+            float childProgress = Mathf.Max(0f, progress - i * SplitSpreadProgress);
+            SpawnEnemy(data, targetMap, reversed, scale, childProgress, (generationsLeft, statMultiplier));
+        }
     }
 
     private void CheckLastWaveEnded(TeamType teamType)
@@ -137,24 +201,32 @@ public class ServerWaveManager : BaseServerWaveManager
     }
 
     public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
-        CardLevelScale? cardScale = null)
+        CardLevelScale? cardScale = null, float startProgress = 0f,
+        (int generationsLeft, float statMultiplier)? splitState = null)
     {
         if (!IsServer) return;
 
         WaypointPath path = GetPath(targetTeam);
         if (path == null || path.WaypointCount < 2) return;
 
-        Vector3 spawnPos = path.SamplePosition(0f);
+        // A split child enters where its parent died, so the spawn transform has to be sampled at the same
+        // point Initialize will start it from - not at the mouth of the lane.
+        startProgress = Mathf.Clamp01(startProgress);
+        float sampleT = fromPlayer ? 1f - startProgress : startProgress;
+        Vector3 spawnPos = path.SamplePosition(sampleT);
         GameObject enemyObj = Instantiate(enemyData.EnemyPrefab, spawnPos, Quaternion.identity);
 
         EnemyManager enemyManager = enemyObj.GetComponent<EnemyManager>();
 
-        enemyManager.ServerMovement.Initialize(path, fromPlayer);
+        enemyManager.ServerMovement.Initialize(path, fromPlayer, startProgress);
         enemyManager.PathAssignment.SetTargetMap(targetTeam);
         enemyManager.Team.SetTeamType(targetTeam);
 
         // Before Spawn, like every other pre-spawn write here: OnNetworkSpawn is where the stats are read.
         enemyManager.SetCardLevelScale(cardScale ?? MatchCardLevels.WaveScale());
+        enemyManager.SetSplitState(
+            splitState?.generationsLeft ?? enemyData.SplitGenerations,
+            splitState?.statMultiplier ?? 1f);
 
         if (!fromPlayer)
             AddEnemyToList(targetTeam, enemyManager);

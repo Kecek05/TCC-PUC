@@ -25,6 +25,16 @@ public class ServerEnemyMovement : NetworkBehaviour
     public bool IsTargetable => !_invincible.Value;
 
     /// <summary>
+    /// Un-throttled progress along the path, 0..1. <see cref="PathProgress"/> only syncs past
+    /// <see cref="SyncThreshold"/>, so anything server-side that needs the exact spot an enemy is standing
+    /// on - a Cisma split placing its children where the parent died - has to read this instead.
+    /// </summary>
+    public float Progress => _localProgress;
+
+    /// <summary>True while at least one source (an Ancora tower) is holding this enemy in place.</summary>
+    public bool IsHeld => _holdCount > 0;
+
+    /// <summary>
     /// The lane this enemy walks. Read by lane-shaped effects (e.g. the Lance strip) that need to tell
     /// "same path" apart from "same progress on a different path".
     /// </summary>
@@ -51,6 +61,16 @@ public class ServerEnemyMovement : NetworkBehaviour
     private float _slowPercent = 0f;
     private float _speedBuffPercent = 0f;
 
+    // A HOLD is deliberately not a slow. Slows are capped at MaxSlowPercent so control can never fully
+    // replace damage, which is exactly the rule an Ancora is meant to break for one enemy at a time. It is
+    // a counter rather than a bool for the same reason every other modifier here is: two Ancoras gripping
+    // the same enemy must each release only their own grip.
+    private int _holdCount = 0;
+
+    // Where this enemy enters the lane. 0 for everything that spawns at the mouth of the path; a split
+    // child inherits its parent's progress so the pieces appear where the parent actually died.
+    private float _startProgress = 0f;
+
     // Stacked slows can never fully stop an enemy: at the cap it still crawls, so control has to be paired
     // with damage rather than replace it.
     private const float MaxSlowPercent = 0.85f;
@@ -67,10 +87,15 @@ public class ServerEnemyMovement : NetworkBehaviour
     /// Called by the spawner (e.g. ServerWaveManager) after instantiating to assign the path.
     /// Must be called on the server before or right after NetworkObject.Spawn().
     /// </summary>
-    public void Initialize(WaypointPath path, bool reversed = false)
+    /// <param name="startProgress">
+    /// Normalised point on the path to enter at. Defaults to the start of the lane; a Cisma split passes
+    /// the dying parent's <see cref="Progress"/> so its children carry on from there.
+    /// </param>
+    public void Initialize(WaypointPath path, bool reversed = false, float startProgress = 0f)
     {
         _path = path;
         _reversedLocal = reversed;
+        _startProgress = Mathf.Clamp01(startProgress);
     }
 
     private void Start()
@@ -98,8 +123,10 @@ public class ServerEnemyMovement : NetworkBehaviour
         _dashActive = false;
         RecalculateSpeed();
         _reversed.Value = _reversedLocal;
-        _localProgress = 0f;
-        _pathProgress.Value = 0f;
+        // Pooled instances re-enter OnNetworkSpawn on reuse; a grip from a previous life must not carry over.
+        _holdCount = 0;
+        _localProgress = _startProgress;
+        _pathProgress.Value = _startProgress;
 
         _invincibilityTimer = enemyManager.Data.SpawnDuration;
         _invincible.Value = _invincibilityTimer > 0f;
@@ -120,6 +147,10 @@ public class ServerEnemyMovement : NetworkBehaviour
         }
 
         TickDash();
+
+        // Held: the enemy stays exactly where it is. Dash and the speed accumulators keep ticking so the
+        // grip only costs it the distance it would have walked, never its buffs.
+        if (_holdCount > 0) return;
 
         float totalLength = _path.TotalLength;
         if (totalLength <= 0f) return;
@@ -148,7 +179,9 @@ public class ServerEnemyMovement : NetworkBehaviour
     {
         // TODO: Apply damage to the player's base, then despawn
         ServiceLocator.Get<BaseServerPlayerHealthManager>()
-            .DamageBase(enemyManager.Data.Damage * enemyManager.CardScale.Damage, enemyManager.Team.GetTeamType());
+            .DamageBase(
+                enemyManager.Data.Damage * enemyManager.CardScale.Damage * enemyManager.SplitStatMultiplier,
+                enemyManager.Team.GetTeamType());
         NetworkObject.Despawn();
     }
 
@@ -228,6 +261,52 @@ public class ServerEnemyMovement : NetworkBehaviour
         if (!IsServer) return;
         _speedBuffPercent = Mathf.Max(0f, _speedBuffPercent - percent);
         RecalculateSpeed();
+    }
+
+    /// <summary>
+    /// Server-only. Grips the enemy in place until the matching <see cref="RemoveHold"/>. Unlike a slow this
+    /// is absolute - a held enemy makes no progress at all - so it is metered by the holder (an Ancora takes
+    /// one enemy at a time for a fixed duration) rather than by a cap here.
+    /// </summary>
+    public void AddHold()
+    {
+        if (!IsServer) return;
+        _holdCount++;
+    }
+
+    /// <summary>
+    /// Server-only. Releases one grip, clamped at 0 so a stray double-release can never leave the enemy
+    /// permanently un-holdable.
+    /// </summary>
+    public void RemoveHold()
+    {
+        if (!IsServer) return;
+        if (_holdCount > 0) _holdCount--;
+    }
+
+    /// <summary>
+    /// Server-only. Drags the enemy <paramref name="worldDistance"/> back down its own lane. Pulling toward
+    /// the tower is not expressible here - enemies are pinned to a path, not free agents - so an Ancora's
+    /// pull is backwards ALONG that path, which produces the same effect the card is after: the wave
+    /// bunches up behind the one that got yanked.
+    /// </summary>
+    /// <remarks>
+    /// Writes <see cref="PathProgress"/> directly instead of leaving it to the throttle in Update, which
+    /// only ever syncs an INCREASE - a pull that just lowered _localProgress would never reach the clients.
+    /// </remarks>
+    public void PullBack(float worldDistance)
+    {
+        if (!IsServer) return;
+        if (worldDistance <= 0f || _path == null) return;
+
+        float totalLength = _path.TotalLength;
+        if (totalLength <= 0f) return;
+
+        _localProgress = Mathf.Max(0f, _localProgress - worldDistance / totalLength);
+        _pathProgress.Value = _localProgress;
+
+        float sampleT = _reversed.Value ? 1f - _localProgress : _localProgress;
+        transform.position = _path.SamplePosition(sampleT);
     }
 
     /// <summary>

@@ -32,8 +32,34 @@ public class EnemyManager : MonoBehaviour
     public CardLevelScale CardScale { get; private set; } = CardLevelScale.One;
 
     /// <summary>
+    /// Splits this instance still has left in it. Seeded from <see cref="EnemyDataSO.SplitGenerations"/> at
+    /// spawn and decremented for each child, so the lineage terminates without needing a separate data
+    /// asset and prefab per generation.
+    /// </summary>
+    public int SplitGenerationsLeft { get; private set; }
+
+    /// <summary>
+    /// Compounding stat fraction inherited from being a split child (1 for anything spawned normally).
+    /// Kept apart from <see cref="CardScale"/> because the two mean different things - card level is the
+    /// summoning player's investment, this is how far down the split chain this particular body sits - and
+    /// folding them together would make a level-5 Cisma's grandchildren indistinguishable from a level-1's.
+    /// </summary>
+    public float SplitStatMultiplier { get; private set; } = 1f;
+
+    /// <summary>
     /// Server-only, and must be called before <c>NetworkObject.Spawn</c>: OnNetworkSpawn is the only
     /// re-initialisation hook a recycled instance gets, and that is where the stats are read.
     /// </summary>
     public void SetCardLevelScale(CardLevelScale scale) => CardScale = scale;
+
+    /// <summary>
+    /// Server-only, and must be called before <c>NetworkObject.Spawn</c> for the same reason as
+    /// <see cref="SetCardLevelScale"/>. Pooled instances are reused, so this is always written explicitly -
+    /// a fresh spawn passes the data's own generation count and a multiplier of 1.
+    /// </summary>
+    public void SetSplitState(int generationsLeft, float statMultiplier)
+    {
+        SplitGenerationsLeft = Mathf.Max(0, generationsLeft);
+        SplitStatMultiplier = Mathf.Max(0.01f, statMultiplier);
+    }
 }

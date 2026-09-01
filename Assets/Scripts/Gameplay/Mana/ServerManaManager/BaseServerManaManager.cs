@@ -22,6 +22,13 @@ public abstract class BaseServerManaManager : NetworkBehaviour, IMaxManaProvider
     public abstract bool CanAfford(TeamType team, int cost);
     public abstract bool TrySpendMana(TeamType team, int cost);
 
+    /// <summary>
+    /// Server-only. Banks <paramref name="amount"/> mana for a team, clamped to that team's current max.
+    /// The counterpart to <see cref="TrySpendMana"/>, and the door any generator uses - a Fonte tower
+    /// today, a refund or a pickup later - so nothing outside this class ever touches the pools directly.
+    /// </summary>
+    public abstract void GrantMana(TeamType team, float amount);
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();

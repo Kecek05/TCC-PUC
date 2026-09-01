@@ -24,6 +24,21 @@ public class EnemyDataSO : ScriptableObject
     [Tooltip("If true, this enemy ignores every stackable slow (Prism aura, Rift zone, and future slows that route through ServerEnemyMovement.AddSlow). Set for Shadow-style enemies whose whole point is punishing slow-based defenses.")]
     public bool ImmuneToSlow = false;
 
+    [Title("Split")]
+    [Min(0)]
+    [Tooltip("How many children this enemy breaks into when KILLED. 0 disables splitting. A leak into the " +
+             "base never splits - only a kill does, which is the whole point of the card: it punishes area " +
+             "damage that fires too early.")]
+    public int SplitCount = 0;
+    [Min(0)]
+    [Tooltip("How many times the LINEAGE may split. 2 means big -> 2 medium -> 2 small each (7 bodies " +
+             "total). Counted down per instance, so one data asset and one prefab cover every generation.")]
+    public int SplitGenerations = 0;
+    [PropertyRange(0.05f, 1f)]
+    [Tooltip("Fraction of health and base damage a child inherits, compounding per generation. 0.5 means " +
+             "the medium pieces have half the parent's health and the small ones a quarter.")]
+    public float SplitChildStatPercent = 0.5f;
+
     [Title("Dash")]
     [Min(0f)]
     [Tooltip("Seconds between dashes. 0 disables dash entirely — the enemy never dashes.")]

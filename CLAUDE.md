@@ -168,3 +168,71 @@ is a local file — the server owns the decision, the client owns the storage.
   `IRewardRoller.cs`, `WeightedRewardRoller.cs`, `RewardSettingsSO.cs`, `ClientRewardHandler.cs` (under
   `Assets/Scripts/Gameplay/Rewards/` — the match payout specifically); assets at
   `Assets/ScriptableObjects/Progression/` and `Assets/ScriptableObjects/Rewards/`.
+
+### Cartas v2 — support towers, the hold, and splitting troops
+
+Six cards from the *Cartas v2* Notion table (Anel, Ancora, Espelho, Fonte, Cisma, Miragem). None of them
+needed a new deployer, sub-factory or client combat: every one is a data SO + a prefab + (for the towers)
+one server combat class. Realocar is deliberately **not** built — see the note at the end.
+
+**Why these shapes:**
+- **Buffs go where the existing accumulators already are.** Anel needed towers to take a *damage* bonus, so
+  `BaseServerTowerCombat` gained `AddDamageBuff`/`RemoveDamageBuff` as the exact twin of the attack-speed
+  pair. It is applied in **`DealDamage`**, not in `UpdateData`, because Beacon's ramp, Shard's fragments and
+  Chain's bounces each derive their own number from `_damage` — multiplying at the point of the hit is the
+  only place all of them pick the aura up without every combat re-implementing it.
+- **A hold is not a slow.** `ServerEnemyMovement` caps stacked slows at `MaxSlowPercent` (0.85) precisely so
+  control can never replace damage. Ancora is the deliberate exception, so it gets its own
+  `AddHold`/`RemoveHold` counter that freezes path progress outright. Its `PullBack` drags an enemy backwards
+  **along its own lane** — enemies are pinned to a path, so pulling one *toward the tower* is not expressible,
+  and pulling it back down the path produces the effect the card actually wants (the wave bunching up behind
+  it). `PullBack` writes `PathProgress` directly: the throttle in `Update` only ever syncs an *increase*, so a
+  pull that merely lowered `_localProgress` would never reach clients.
+- **Ancora restarts its cooldown on RELEASE, not on the grab.** `TryTriggerShot` returns false for the whole
+  hold, which leaves the cooldown sitting full — without the explicit reset the anchor re-grabs on the next
+  frame and the authored cadence gates nothing, an unbreakable lock with no window to push through.
+- **Support towers reuse Prism's shape.** Anel/Ancora/Espelho/Fonte are all clones of `TowerPrism.prefab` with
+  the server combat swapped and `EmptyClientTowerCombat` kept. They never shoot, so `ShootCooldown` is
+  repurposed as the tick interval — which means haste, upgrades and Anel itself speed up an aura re-scan, a
+  mana payout or a mirror send for free.
+- **Fonte grants through `BaseServerManaManager.GrantMana`**, never by touching the pools, so the max-mana
+  clamp stays in one place: a Fonte raises how *fast* the ceiling is reached, never the ceiling. Base regen is
+  0.357/s, so the authored 1-per-5s is about +56% at level 1. **These numbers are first-pass and want
+  playtesting.**
+- **Espelho calls `SpawnEnemy` directly**, not `SendEnemyFromPlayer` — that one resolves the destination from a
+  sending player's auth id, and a tower only knows its own team.
+- **Cisma splits with a per-instance counter, not a prefab per generation.** `EnemyDataSO` carries
+  `SplitCount`/`SplitGenerations`/`SplitChildStatPercent`; `EnemyManager` carries the remaining generations and
+  a compounding `SplitStatMultiplier`. One data asset and one prefab therefore cover big -> 2 medium -> 4 small.
+  The multiplier is kept **separate from `CardLevelScale`** because they mean different things (player
+  investment vs. depth down the split chain), and folding them together would make a level-5 Cisma's
+  grandchildren indistinguishable from a level-1's.
+- **A kill is identified by reading the health, not by the event.** `ServerEnemyHealth.OnDeath` is static and
+  fires for *every* despawn, a leak into the base included — the same trap `ServerShardTowerCombat` documents.
+  `ServerWaveManager.TrySplit` checks `CurrentHealth <= 0`, and **defers the spawn by one frame**: it runs
+  inside `OnNetworkDespawn`, and calling `NetworkObject.Spawn` there mutates NGO's spawn tables while it is
+  still walking them for the despawn. All parent state is captured into arguments before the yield.
+  Children are fanned out by `SplitSpreadProgress` so they do not stack into a single sprite and a single
+  area-damage target.
+- **`SpawnEnemy` gained `startProgress`** so a split child enters where its parent died rather than at the
+  mouth of the lane. Children inherit the parent's reversed flag via `fromPlayer`, which also keeps them out of
+  wave bookkeeping — **a splitter placed in a `WaveDataSO` would need the wave counter taught about children
+  first**; every splitter today is a player card.
+- **Miragem's decoys are a card-level concern.** `SpawnEnemyCardDataSO.BuildSpawnOrder` returns the whole
+  column, real troops and decoys **shuffled together**, because a fixed order would let the defender learn
+  which position is real and read straight through the bluff. The decoy is an ordinary enemy with 1 HP and 0
+  damage whose `MoveSpeed` and `SpawnDuration` **must** match the real body or the bluff is readable at a
+  glance.
+- **`TowerCardDataSO.GetStats` now walks the data hierarchy** the way `SpellCardDataSO.GetStats` already did,
+  and hides the Damage row when a tower deals none — four of these six show "Damage 0" otherwise, which reads
+  as a bug rather than as a design.
+- **Realocar (Feitico def., 2) is intentionally unbuilt.** Moving a tower needs a *source* and a *destination*,
+  and the spell path carries exactly one position; every player-controlled version needs a second position on
+  the RPC plus client selection plumbing. Left out by decision rather than oversight.
+- Placeholder art throughout (Circle / BaseEnemy1 sprites + `ShowPlaceholderNameOverlay`), matching what Prism
+  and Shadow already do.
+- Key files: `AuraTowerDataSO.cs`, `AnchorTowerDataSO.cs`, `MirrorTowerDataSO.cs`, `ManaTowerDataSO.cs` (under
+  `Assets/Scripts/Gameplay/Towers/SOs/TowerData/`); `ServerAnelTowerCombat.cs`, `ServerAncoraTowerCombat.cs`,
+  `ServerEspelhoTowerCombat.cs`, `ServerFonteTowerCombat.cs` (under
+  `Assets/Scripts/Gameplay/Towers/Server/Concrete/`); test deck at
+  `Assets/ScriptableObjects/CardHand/DEBUG_Hand_CartasV2.asset`.

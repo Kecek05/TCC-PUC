@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
     private BasePlayersDataManager _playersDataManager;
     private BaseCardHandManager _cardHandManager;
     private CardDeploymentBus _cardDeploymentBus;
+
+    // Server-side only, and shared across casts: the shuffle just needs to be unguessable to the defender,
+    // not reproducible, so one instance is enough and avoids re-seeding on every play.
+    private readonly System.Random _spawnOrderRng = new();
 
     public void Awake()
     {
@@ -99,12 +104,14 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         // Resolved once per cast: an army's troops all share the level the card had when it was played.
         CardLevelScale cardScale = MatchCardLevels.ScaleFor(team, cardType);
 
-        int spawnCount = Mathf.Max(1, spawnCardData.SpawnCount);
-        if (spawnCount <= 1)
-            _serverWaveManager.SendEnemyFromPlayer(spawnCardData.EnemyType, authId, cardScale);
+        // One column covers every shape this card can take: a single troop, an army of the same troop, or a
+        // Miragem's real unit shuffled in among its decoys.
+        List<EnemyType> order = spawnCardData.BuildSpawnOrder(_spawnOrderRng);
+
+        if (order.Count <= 1)
+            _serverWaveManager.SendEnemyFromPlayer(order[0], authId, cardScale);
         else
-            StartCoroutine(SendEnemyArmy(spawnCardData.EnemyType, authId, spawnCount,
-                spawnCardData.DelayBetweenSpawns, cardScale));
+            StartCoroutine(SendEnemyColumn(order, authId, spawnCardData.DelayBetweenSpawns, cardScale));
 
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
@@ -115,15 +122,16 @@ public class CardSpawnEnemyDeployer : BaseCardSpawnEnemyDeployer
         return CardValidation.Valid;
     }
 
-    // Spawns several enemies of the same type, staggered by the card's own delay so they string out
-    // in a row down the opponent's lane (mana was already spent once for the whole batch).
-    private IEnumerator SendEnemyArmy(EnemyType enemyType, string authId, int count, float delayBetweenSpawns,
+    // Sends a pre-built column, staggered by the card's own delay so it strings out in a row down the
+    // opponent's lane (mana was already spent once for the whole batch). The column is ordered by the card,
+    // so a Miragem's decoys arrive interleaved with the real troop rather than in a tell-tale block.
+    private IEnumerator SendEnemyColumn(List<EnemyType> order, string authId, float delayBetweenSpawns,
         CardLevelScale cardScale)
     {
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < order.Count; i++)
         {
-            _serverWaveManager.SendEnemyFromPlayer(enemyType, authId, cardScale);
-            if (i < count - 1 && delayBetweenSpawns > 0f)
+            _serverWaveManager.SendEnemyFromPlayer(order[i], authId, cardScale);
+            if (i < order.Count - 1 && delayBetweenSpawns > 0f)
                 yield return new WaitForSeconds(delayBetweenSpawns);
         }
     }

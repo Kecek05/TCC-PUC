@@ -20,8 +20,17 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     /// horde - which falls back to the wave level on CardProgressionSettings. Nullable rather than a
     /// default of CardLevelScale.One because a struct cannot be a compile-time default.
     /// </param>
+    /// <param name="startProgress">
+    /// Where on the lane the enemy enters, 0..1. Everything spawns at the mouth of the path except a split
+    /// child, which inherits the spot its parent died on.
+    /// </param>
+    /// <param name="splitState">
+    /// Generations of splitting left and the compounding stat fraction for this body. Null means "spawned
+    /// normally" - the data's own generation count at full stats.
+    /// </param>
     public abstract void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
-        CardLevelScale? cardScale = null);
+        CardLevelScale? cardScale = null, float startProgress = 0f,
+        (int generationsLeft, float statMultiplier)? splitState = null);
 
     public abstract void SendEnemyFromPlayer(EnemyType enemyType, string senderAuthId,
         CardLevelScale? cardScale = null);

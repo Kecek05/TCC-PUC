@@ -60,7 +60,13 @@ public enum CardType
     SpellFerrugem,
     TowerTorniquete,
     SpawnEnemyShadow,
-    SpawnEnemyRam
+    SpawnEnemyRam,
+    TowerAnel,
+    TowerAncora,
+    TowerEspelho,
+    TowerFonte,
+    SpawnEnemyCisma,
+    SpawnEnemyMiragem
 }
 
 public enum ExistingTypesOfCard
@@ -97,7 +103,11 @@ public enum TowerType
     Beacon,
     Mortar,
     Chain,
-    Torniquete
+    Torniquete,
+    Anel,
+    Ancora,
+    Espelho,
+    Fonte
 }
 
 public enum EnemyType
@@ -113,6 +123,9 @@ public enum EnemyType
     PlayerEnemy,
     Shadow,
     Ram,
+    Cisma,
+    Miragem,
+    MiragemDecoy,
 }
 
 public enum CardInvalidReason

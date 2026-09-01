@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00d4cef7c2e6c434fb0059fd41a16228, type: 3}
+  m_Name: SpawnEnemyMiragemCardData
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnEnemyCardDataSO
+  CardType: 30
+  ExistingType: 3
+  Rarity: 3
+  CardPrefab: {fileID: 2770033394772179350, guid: d3a40bd5d58358b49b4fa97cd0cb9a06, type: 3}
+  CardName: Miragem
+  Description: One real attacker and two copies that vanish to the first hit they
+    take. A slow, hard-hitting tower wastes its shot on a ghost; a fast one reveals
+    all three almost immediately.
+  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
+  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Cost: 5
+  UseCustomSizeCardInMenu: 0
+  CustomSizeCardInMenu: {x: 0, y: 0}
+  ShowPlaceholderNameOverlay: 1
+  UseCustomPositionCardInMenu: 0
+  CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
+  EnemyType: 12
+  SpawnCount: 1
+  DelayBetweenSpawns: 0.25
+  DecoyEnemyType: 13
+  DecoyCount: 2
+  EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

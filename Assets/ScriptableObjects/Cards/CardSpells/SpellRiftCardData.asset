@@ -24,6 +24,7 @@ MonoBehaviour:
   Cost: 3
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  ShowPlaceholderNameOverlay: 1
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

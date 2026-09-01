@@ -10,7 +10,8 @@ public class ServerWaveManager_DEBUG : BaseServerWaveManager
     }
     
     public override void SpawnEnemy(EnemyDataSO enemyData, TeamType targetTeam, bool fromPlayer = false,
-        CardLevelScale? cardScale = null)
+        CardLevelScale? cardScale = null, float startProgress = 0f,
+        (int generationsLeft, float statMultiplier)? splitState = null)
     {
 
     }

@@ -13,6 +13,7 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     protected NetworkVariable<bool> _isFrozen = new(writePerm: NetworkVariableWritePermission.Server);
     protected NetworkVariable<bool> _isHasted = new(writePerm: NetworkVariableWritePermission.Server);
     protected float _attackSpeedBuffPercent = 0f;
+    protected float _damageBuffPercent = 0f;
     protected bool _canTickCooldown = true;
     protected bool _setuped = false;
     protected bool _upgradingFlag = false;
@@ -191,6 +192,27 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server-only. Adds <paramref name="percent"/> (a fraction, 0.2 = +20%) to this tower's stacked damage
+    /// bonus - the Anel aura's other half, and the exact twin of <see cref="AddAttackSpeedBuff"/>: separate
+    /// from the base stats so a placement upgrade recomputing <c>_damage</c> can never wipe a live buff.
+    /// </summary>
+    public void AddDamageBuff(float percent)
+    {
+        if (!IsServer) return;
+        _damageBuffPercent += percent;
+    }
+
+    /// <summary>
+    /// Server-only. Removes a previously-applied damage contribution, clamped at 0 so a stray double-remove
+    /// can never push a tower below its own base damage.
+    /// </summary>
+    public void RemoveDamageBuff(float percent)
+    {
+        if (!IsServer) return;
+        _damageBuffPercent = Mathf.Max(0f, _damageBuffPercent - percent);
+    }
+
+    /// <summary>
     /// The one place tower stats are read. Card-level multipliers are applied here so every stat, and every
     /// subclass that calls <c>base.UpdateData()</c>, gets them for free.
     /// </summary>
@@ -209,11 +231,15 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     /// <summary>
     /// Server-only. Deals damage to an enemy tagged with this tower's attack color and armor penetration, so
     /// the enemy resolves off-color resistance. Every tower combat funnels through here so a new tower can
-    /// never forget to carry its color.
+    /// never forget to carry its color - which is also why the stacked damage buff is applied here and not
+    /// in <see cref="UpdateData"/>: a Beacon ramp, a Shard fragment and a Chain bounce all derive their own
+    /// number from <c>_damage</c>, and multiplying at the point of the hit is the only way every one of them
+    /// picks the aura up without each combat re-implementing it.
     /// </summary>
     protected void DealDamage(EnemyManager enemy, float damage)
     {
-        enemy.ServerHealth.TakeDamage(new DamageInfo(damage, _towerData.AttackColor, _towerData.ArmorPenetration));
+        float buffed = damage * (1f + _damageBuffPercent);
+        enemy.ServerHealth.TakeDamage(new DamageInfo(buffed, _towerData.AttackColor, _towerData.ArmorPenetration));
     }
 
     protected EnemyManager FindClosestEnemyToEnd()

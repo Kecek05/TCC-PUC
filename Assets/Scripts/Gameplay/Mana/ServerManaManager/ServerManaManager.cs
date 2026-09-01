@@ -173,6 +173,31 @@ public class ServerManaManager : BaseServerManaManager
         return true;
     }
 
+    public override void GrantMana(TeamType team, float amount)
+    {
+        if (!IsServer) return;
+        if (amount <= 0f) return;
+
+        float max = GetMaxMana(team);
+
+        switch (team)
+        {
+            case TeamType.Blue:
+                _blueLocalMana = Mathf.Min(_blueLocalMana + amount, max);
+                break;
+            case TeamType.Red:
+                _redLocalMana = Mathf.Min(_redLocalMana + amount, max);
+                break;
+            default:
+                GameLog.Error($"Invalid team: {team}");
+                return;
+        }
+
+        // Pushed immediately rather than left to RegenerateMana's threshold: a Fonte tick is a discrete,
+        // player-visible event, and waiting for the drip to cross _syncThreshold would make the bar lag it.
+        SyncMana(team);
+    }
+
     private void SyncMana(TeamType team)
     {
         switch (team)

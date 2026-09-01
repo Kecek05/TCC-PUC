@@ -38,7 +38,9 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
             return;
         }
 
-        _maxHealth.Value = enemyManager.Data.MaxHealth * enemyManager.CardScale.Health;
+        _maxHealth.Value = enemyManager.Data.MaxHealth
+                           * enemyManager.CardScale.Health
+                           * enemyManager.SplitStatMultiplier;
         _currentHealth.Value = _maxHealth.Value;
         // Pooled instances re-enter OnNetworkSpawn on reuse; clears from a previous life must not carry over.
         _colorResistCleared = 0;
