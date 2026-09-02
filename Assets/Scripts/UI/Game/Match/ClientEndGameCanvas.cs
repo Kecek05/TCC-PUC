@@ -40,13 +40,11 @@ public class ClientEndGameCanvas : MonoBehaviour
     [SerializeField] private Button playAgainButton;
 
     [Title("Reward")]
-    [InfoBox("Optional. Unassigned fields are skipped, so the end screen keeps working before the reward " +
-             "art exists.")]
-    [SerializeField] private GameObject rewardRoot;
-    [SerializeField] private TextMeshProUGUI rewardGoldLabel;
-    [SerializeField] private GameObject rewardCardRoot;
-    [SerializeField] private Image rewardCardIcon;
-    [SerializeField] private TextMeshProUGUI rewardCardLabel;
+    [InfoBox("One RewardEntryUI is instantiated into the area per line of the payout — gold is one tile, the " +
+             "card another. Optional: with no area or prefab assigned the end screen simply shows no tiles.")]
+    [SerializeField] private Transform rewardsArea;
+    [SerializeField] private RewardEntryUI rewardEntryPrefab;
+    [SerializeField] private Sprite coinSprite;
     [SerializeField] private CardDataListSO cardDataListSO;
 
     private BaseServerEndGameManager _endGameManager;
@@ -57,7 +55,6 @@ public class ClientEndGameCanvas : MonoBehaviour
     private void Awake()
     {
         rootCanvas.SetActive(false);
-        if (rewardRoot != null) rewardRoot.SetActive(false);
 
         okButton.onClick.AddListener(OnOkButtonClicked);
         playAgainButton.onClick.AddListener(OnPlayAgainButtonClicked);
@@ -100,22 +97,25 @@ public class ClientEndGameCanvas : MonoBehaviour
     /// </summary>
     private void RewardService_OnRewardGranted(Reward reward)
     {
-        if (rewardRoot != null) rewardRoot.SetActive(true);
-        if (rewardGoldLabel != null) rewardGoldLabel.text = $"+{reward.Gold}";
+        if (rewardsArea == null || rewardEntryPrefab == null) return;
 
-        if (rewardCardRoot != null) rewardCardRoot.SetActive(reward.HasCard);
+        // A grant is one whole payout, so rebuild rather than append: a second grant (the debug commands do
+        // exactly this) must replace the tiles, not stack a second row on top of them.
+        ClearRewardsArea();
+
+        if (reward.Gold > 0)
+            Instantiate(rewardEntryPrefab, rewardsArea).SetGold(reward.Gold, coinSprite);
+
         if (!reward.HasCard) return;
 
         CardDataSO cardData = cardDataListSO != null ? cardDataListSO.GetCardDataByType(reward.Card) : null;
+        Instantiate(rewardEntryPrefab, rewardsArea).SetCard(cardData, reward.Copies);
+    }
 
-        if (rewardCardIcon != null && cardData != null)
-        {
-            rewardCardIcon.sprite = cardData.CardImage;
-            rewardCardIcon.color = cardData.CardColor;
-        }
-
-        if (rewardCardLabel != null)
-            rewardCardLabel.text = cardData != null ? $"+{reward.Copies} {cardData.CardName}" : $"+{reward.Copies}";
+    private void ClearRewardsArea()
+    {
+        for (int i = rewardsArea.childCount - 1; i >= 0; i--)
+            Destroy(rewardsArea.GetChild(i).gameObject);
     }
 
     private void SetupEndGameUI(EndGameSnapshot endgameSnapshot)

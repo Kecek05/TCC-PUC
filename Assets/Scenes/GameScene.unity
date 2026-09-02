@@ -26099,11 +26099,9 @@ MonoBehaviour:
   defeatLabel: {fileID: 1501830318}
   okButton: {fileID: 1651641192}
   playAgainButton: {fileID: 356197394}
-  rewardRoot: {fileID: 0}
-  rewardGoldLabel: {fileID: 0}
-  rewardCardRoot: {fileID: 0}
-  rewardCardIcon: {fileID: 0}
-  rewardCardLabel: {fileID: 0}
+  rewardsArea: {fileID: 2045766207}
+  rewardEntryPrefab: {fileID: 3237355190804004712, guid: 0abe912585fbc6248b37bd746bf76e07, type: 3}
+  coinSprite: {fileID: 21300000, guid: 07d8a11678f7ceb41bd5e40843848c9e, type: 3}
   cardDataListSO: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
 --- !u!1652712579 &1188246452
 MultiplayerRolesData:
@@ -41146,6 +41144,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2045766207}
+  - component: {fileID: 2045766208}
   m_Layer: 5
   m_Name: RewardsArea
   m_TagString: Untagged
@@ -41172,6 +41171,30 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2045766208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045766206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 250, y: 250}
+  m_Spacing: {x: 30, y: 30}
+  m_Constraint: 0
+  m_ConstraintCount: 2
 --- !u!1001 &2047987516
 PrefabInstance:
   m_ObjectHideFlags: 0
