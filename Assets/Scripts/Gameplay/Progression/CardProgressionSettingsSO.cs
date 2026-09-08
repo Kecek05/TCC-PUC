@@ -92,6 +92,45 @@ public class CardProgressionSettingsSO : ScriptableObject
         return card.GetStats(GetScale(card, level));
     }
 
+    /// <summary>
+    /// A card's stats at <paramref name="level"/>, each paired with what the next level would make it —
+    /// the Clash Royale-style current-vs-next table the card info panel draws. Both halves come from the
+    /// same <c>GetStats</c> call twice over, so the two can never disagree about which stats a card has.
+    /// </summary>
+    public IReadOnlyList<CardStatProgress> GetStatProgress(CardDataSO card, int level)
+    {
+        if (card == null) return Array.Empty<CardStatProgress>();
+
+        int maxLevel = GetMaxLevel(card.Rarity);
+        int currentLevel = Mathf.Clamp(level, 1, maxLevel);
+        bool hasNext = currentLevel < maxLevel;
+
+        IReadOnlyList<CardStatValue> current = card.GetStats(GetScale(card, currentLevel));
+        if (current == null || current.Count == 0) return Array.Empty<CardStatProgress>();
+
+        IReadOnlyList<CardStatValue> next = hasNext ? card.GetStats(GetScale(card, currentLevel + 1)) : current;
+
+        CardStatProgress[] rows = new CardStatProgress[current.Count];
+        for (int i = 0; i < current.Count; i++)
+        {
+            // GetStats builds the same rows in the same order for any level, so index i is the same stat
+            // in both lists. Checked anyway: a card that ever varied its rows by level would otherwise
+            // pair two unrelated numbers and quietly print a nonsense upgrade. The LABEL is what is
+            // compared, not just the id — a tower emits "Damage Lvl 1/2/3" as three rows sharing
+            // CardStatId.Damage, so the id alone would happily pair tier 1 with tier 2.
+            CardStatValue upgraded = hasNext
+                                     && i < next.Count
+                                     && next[i].Id == current[i].Id
+                                     && next[i].Label == current[i].Label
+                ? next[i]
+                : current[i];
+
+            rows[i] = new CardStatProgress(current[i], upgraded, hasNext);
+        }
+
+        return rows;
+    }
+
     private RarityProgression Find(CardRarityType rarity)
     {
         _lookup ??= BuildLookup();

@@ -61,6 +61,11 @@ public class SpellCardDataSO : CardDataSO
             stats.Add(new CardStatValue(CardStatId.EffectBonus, "Slow",
                 slowData.SlowPercent * scale.EffectBonus, "0.#%"));
 
+        // Clamped to match what the zone actually applies — see the same row on TowerCardDataSO.
+        if (SpellData is SpellResistDataSO resistData)
+            stats.Add(new CardStatValue(CardStatId.EffectBonus, "Armor Break",
+                Mathf.Clamp01(resistData.ResistClearPercent * scale.EffectBonus), "0.#%"));
+
         return stats;
     }
 }

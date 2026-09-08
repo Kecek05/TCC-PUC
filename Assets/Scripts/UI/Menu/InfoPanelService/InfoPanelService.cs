@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -14,7 +15,17 @@ public class InfoPanelCanvas : BaseInfoPanelService
     [SerializeField] private TextMeshProUGUI description;
     [SerializeField] private Image panelImage;
     [SerializeField] private Button closeButton;
-    
+
+    [Tooltip("Optional. The dimmed area behind the panel — tapping it closes, the standard modal gesture. " +
+             "Leave empty and only the close button dismisses.")]
+    [SerializeField] private Button backgroundButton;
+
+    [Title("Stats")]
+    [InfoBox("One StatPrefab is instantiated into StatsParent per stat the card reports. Optional: with " +
+             "either reference empty the panel simply shows no stat table.")]
+    [SerializeField] private Transform statsParent;
+    [SerializeField] private StatEntryUI statEntryPrefab;
+
     [Title("Settings")]
     [SerializeField] private Ease fadeInEase =  Ease.OutBack;
     [SerializeField] private float fadeInDuration = 1f;
@@ -26,7 +37,10 @@ public class InfoPanelCanvas : BaseInfoPanelService
     
     private Tween fadeInTween;
     private Tween bumpTween;
-    
+
+    /// <summary>Spawned stat rows, kept between shows rather than destroyed — see <see cref="BuildStats"/>.</summary>
+    private readonly List<StatEntryUI> statEntries = new();
+
     private void Awake()
     {
         ServiceLocator.Register<BaseInfoPanelService>(this);
@@ -47,6 +61,10 @@ public class InfoPanelCanvas : BaseInfoPanelService
         {
             HideInfoPanel();
         });
+
+        // Tapping the dimmed backdrop dismisses too. A tap on the card itself can never reach this: the
+        // Panel's own Background is a raycast target, so it absorbs the click before it falls through.
+        if (backgroundButton != null) backgroundButton.onClick.AddListener(HideInfoPanel);
     }
 
     [Button]
@@ -89,5 +107,30 @@ public class InfoPanelCanvas : BaseInfoPanelService
         title.text = infoPanelData.Title;
         description.text = infoPanelData.Description;
         panelImage.sprite = infoPanelData.Icon;
+
+        BuildStats(infoPanelData.Stats);
+    }
+
+    /// <summary>
+    /// Fills the stat grid, one row per stat. Rows are reused and deactivated rather than destroyed and
+    /// re-instantiated: this panel opens on every card tap, cards differ by only a row or two, and a
+    /// GridLayoutGroup skips inactive children, so a surplus row leaves no hole in the layout.
+    /// </summary>
+    private void BuildStats(IReadOnlyList<CardStatProgress> stats)
+    {
+        if (statsParent == null || statEntryPrefab == null) return;
+
+        int count = stats?.Count ?? 0;
+
+        while (statEntries.Count < count)
+            statEntries.Add(Instantiate(statEntryPrefab, statsParent));
+
+        for (int i = 0; i < statEntries.Count; i++)
+        {
+            bool used = i < count;
+
+            statEntries[i].gameObject.SetActive(used);
+            if (used) statEntries[i].SetStat(stats[i]);
+        }
     }
 }

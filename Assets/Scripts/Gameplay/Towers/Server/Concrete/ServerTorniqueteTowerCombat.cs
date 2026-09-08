@@ -7,12 +7,13 @@ using UnityEngine;
 /// or the tower is removed. Mirrors ServerPrismTowerCombat's acquire-and-release shape, but changes the
 /// enemy's armor exposure instead of its speed.
 ///
-/// The clear is a per-source flag (no percentage), so a per-enemy set is enough — no need to track a
-/// numeric amount to remove exactly what was added, the way Prism does.
+/// The applied fraction is stored PER ENEMY rather than recomputed, exactly as the Prism stores its slow: a
+/// placement upgrade that changes the aura strength mid-hold would otherwise strand a contribution the
+/// tower is unable to remove, and the enemy would keep part of its armor stripped forever.
 /// </summary>
 public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
 {
-    private readonly HashSet<EnemyManager> _cleared = new();
+    private readonly Dictionary<EnemyManager, float> _cleared = new();
     private readonly List<EnemyManager> _toRelease = new();
 
     public override void OnNetworkDespawn()
@@ -24,8 +25,17 @@ public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
 
     protected override bool TryTriggerShot()
     {
+        if (_towerData is not ResistTowerDataSO resistData)
+        {
+            GameLog.Error("ServerTorniqueteTowerCombat: TowerData is not ResistTowerDataSO");
+            return false;
+        }
+
+        float clear = Mathf.Clamp01(
+            resistData.GetResistClearPercentByLevel(_towerLevel.Value) * _cardScale.EffectBonus);
+
         ReleaseEnemiesOutOfRange();
-        AcquireEnemiesInRange();
+        AcquireEnemiesInRange(clear);
 
         // Always "fires" — the cooldown paces the re-scan instead of gating a shot.
         return true;
@@ -35,8 +45,10 @@ public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
     {
         _toRelease.Clear();
 
-        foreach (EnemyManager enemy in _cleared)
+        foreach (KeyValuePair<EnemyManager, float> entry in _cleared)
         {
+            EnemyManager enemy = entry.Key;
+
             if (enemy == null || enemy.NetworkObject == null || !enemy.NetworkObject.IsSpawned)
             {
                 _toRelease.Add(enemy);
@@ -51,10 +63,10 @@ public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
         {
             EnemyManager enemy = _toRelease[i];
 
-            // Despawned enemies already reset their counter in OnNetworkSpawn (pooled reuse), so only a live
-            // one needs the explicit release; a dead one just gets forgotten.
+            // Despawned enemies already reset their accumulator in OnNetworkSpawn (pooled reuse), so only a
+            // live one needs the explicit release; a dead one just gets forgotten.
             if (enemy != null && enemy.NetworkObject != null && enemy.NetworkObject.IsSpawned)
-                enemy.ServerHealth.RemoveColorResistClear();
+                enemy.ServerHealth.RemoveColorResistClear(_cleared[enemy]);
 
             _cleared.Remove(enemy);
         }
@@ -62,7 +74,7 @@ public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
         _toRelease.Clear();
     }
 
-    private void AcquireEnemiesInRange()
+    private void AcquireEnemiesInRange(float clear)
     {
         EnemyRegistry.Cleanup();
         IReadOnlyList<EnemyManager> enemies = EnemyRegistry.ActiveEnemies;
@@ -72,20 +84,22 @@ public class ServerTorniqueteTowerCombat : BaseServerTowerCombat
             EnemyManager enemy = enemies[i];
 
             if (!IsValidEnemy(enemy)) continue;
-            if (_cleared.Contains(enemy)) continue;
+            if (_cleared.ContainsKey(enemy)) continue;
             if (Vector2.Distance(transform.position, enemy.transform.position) > _range) continue;
 
-            enemy.ServerHealth.AddColorResistClear();
-            _cleared.Add(enemy);
+            enemy.ServerHealth.AddColorResistClear(clear);
+            _cleared[enemy] = clear;
         }
     }
 
     private void ReleaseAll()
     {
-        foreach (EnemyManager enemy in _cleared)
+        foreach (KeyValuePair<EnemyManager, float> entry in _cleared)
         {
+            EnemyManager enemy = entry.Key;
             if (enemy == null || enemy.NetworkObject == null || !enemy.NetworkObject.IsSpawned) continue;
-            enemy.ServerHealth.RemoveColorResistClear();
+
+            enemy.ServerHealth.RemoveColorResistClear(entry.Value);
         }
 
         _cleared.Clear();

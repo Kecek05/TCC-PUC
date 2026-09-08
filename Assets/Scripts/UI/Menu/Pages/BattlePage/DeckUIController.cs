@@ -315,6 +315,11 @@ public class DeckUIController : MonoBehaviour
     /// <summary>Whether the next level is affordable, and what it costs. Read by the ActionFrame.</summary>
     public CardUpgradeValidation GetUpgradeState(CardType cardType) => _playerSaveManager.CanUpgradeCard(cardType);
 
+    /// <summary>This card's stats at the player's level, and what the next level adds. Read by the
+    /// ActionFrame when it opens the info panel.</summary>
+    public IReadOnlyList<CardStatProgress> GetCardStats(CardType cardType) =>
+        _playerSaveManager.GetCardStatProgress(cardType);
+
     /// <summary>
     /// Buys the next level of a card, or explains why it cannot. The rules live in the save manager; this
     /// only turns a refusal into player-facing feedback.

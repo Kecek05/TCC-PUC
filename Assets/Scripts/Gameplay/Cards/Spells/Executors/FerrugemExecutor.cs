@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ferrugem spell. Cast on the caster's own field, it drops a zone that lasts Duration seconds and clears
+/// Ferrugem spell. Cast on the caster's own field, it drops a zone that lasts Duration seconds and strips
 /// the off-color armor resistance of every inbound enemy inside Range — including enemies that walk in
 /// after the cast, since the zone re-scans each tick. It deals no damage; the zone's whole contribution is
-/// making the towers around it hit for full damage regardless of color. Independent Ferrugem casts stack
-/// through the color-resist accumulator on ServerEnemyHealth, so overlapping zones never interfere, and on
-/// expiry the zone removes exactly its own contribution from each enemy it touched.
+/// making the towers around it hit closer to full damage regardless of color. Independent Ferrugem casts
+/// stack through the color-resist accumulator on ServerEnemyHealth, so overlapping zones never interfere,
+/// and on expiry the zone removes exactly its own contribution from each enemy it touched.
 ///
 /// This is the disposable, spell-form twin of the Torniquete tower's aura: same acquire-and-release shape,
 /// bounded in time instead of by the tower's presence.
@@ -19,9 +19,9 @@ public class FerrugemExecutor : ISpellExecutor
 
     public void Execute(SpellExecutionContext context)
     {
-        if (context.SpellData is not SpellEffectDataSO data)
+        if (context.SpellData is not SpellResistDataSO data)
         {
-            GameLog.Error("FerrugemExecutor: SpellData is not SpellEffectDataSO");
+            GameLog.Error("FerrugemExecutor: SpellData is not SpellResistDataSO");
             return;
         }
 
@@ -29,13 +29,15 @@ public class FerrugemExecutor : ISpellExecutor
             RunClearZone(context.ServerPosition, context.CasterTeam, data, context.Scale));
     }
 
-    private IEnumerator RunClearZone(Vector2 position, TeamType casterTeam, SpellEffectDataSO data,
+    private IEnumerator RunClearZone(Vector2 position, TeamType casterTeam, SpellResistDataSO data,
         CardLevelScale scale)
     {
-        // Resolved ONCE for the whole cast. Range and duration are the only knobs the level scale touches;
-        // the clear itself is binary (present or absent), so nothing about the effect can drift mid-zone.
+        // Resolved ONCE for the whole cast, the same way Haste and Rage resolve their bonus: every enemy
+        // this zone touches must be handed the identical number, because the release below pairs against
+        // it. A clear recomputed per tick would strand a contribution the zone could never remove.
         float radius = data.Range * scale.Range;
         float duration = data.Duration * scale.Duration;
+        float clear = Mathf.Clamp01(data.ResistClearPercent * scale.EffectBonus);
 
         yield return new WaitForSeconds(data.TravelTime);
 
@@ -44,7 +46,7 @@ public class FerrugemExecutor : ISpellExecutor
 
         while (elapsed < duration)
         {
-            ApplyToNewEnemiesInRange(position, casterTeam, radius, cleared);
+            ApplyToNewEnemiesInRange(position, casterTeam, radius, clear, cleared);
             yield return new WaitForSeconds(TickInterval);
             elapsed += TickInterval;
         }
@@ -52,11 +54,11 @@ public class FerrugemExecutor : ISpellExecutor
         foreach (EnemyManager enemy in cleared)
         {
             if (enemy == null || enemy.NetworkObject == null || !enemy.NetworkObject.IsSpawned) continue;
-            enemy.ServerHealth.RemoveColorResistClear();
+            enemy.ServerHealth.RemoveColorResistClear(clear);
         }
     }
 
-    private void ApplyToNewEnemiesInRange(Vector2 position, TeamType casterTeam, float radius,
+    private void ApplyToNewEnemiesInRange(Vector2 position, TeamType casterTeam, float radius, float clear,
         HashSet<EnemyManager> cleared)
     {
         EnemyRegistry.Cleanup();
@@ -76,7 +78,7 @@ public class FerrugemExecutor : ISpellExecutor
 
             if (Vector2.Distance(position, enemy.transform.position) > radius) continue;
 
-            enemy.ServerHealth.AddColorResistClear();
+            enemy.ServerHealth.AddColorResistClear(clear);
             cleared.Add(enemy);
         }
     }

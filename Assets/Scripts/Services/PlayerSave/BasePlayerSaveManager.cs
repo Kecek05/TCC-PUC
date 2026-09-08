@@ -71,6 +71,12 @@ public abstract class BasePlayerSaveManager
     /// <summary>Copies needed to reach the next level, 0 at max level. For the <c>owned/needed</c> label.</summary>
     public abstract int GetCopiesRequired(CardType cardType);
 
+    /// <summary>
+    /// This card's stats at the level the player owns, each paired with what the next level would make it.
+    /// Empty for a card with no stats to show. Feeds the card info panel.
+    /// </summary>
+    public abstract IReadOnlyList<CardStatProgress> GetCardStatProgress(CardType cardType);
+
     /// <summary>Whether the next level is affordable right now, and what it would cost.</summary>
     public abstract CardUpgradeValidation CanUpgradeCard(CardType cardType);
 

@@ -17,9 +17,9 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: 8282e7830b4d47b43aad1c13c33509f5, type: 3}
   CardName: Tourniquet
-  Description: "Aura that zeroes off-color resistance for every enemy in radius.
+  Description: "Aura that corrodes the off-color resistance of every enemy in radius.
     Deals no damage \u2014 its whole contribution is making the towers around it
-    hit for full damage."
+    hit harder, and every level strips more of the armor."
   CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5

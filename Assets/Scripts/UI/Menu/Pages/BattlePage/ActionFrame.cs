@@ -78,7 +78,10 @@ public class ActionFrame : MonoBehaviour
             {
                 Title = _cardData.CardName,
                 Description = _cardData.Description,
-                Icon = _cardData.CardImage
+                Icon = _cardData.CardImage,
+                // The controller owns every save lookup on this page, so the stat table is resolved to the
+                // player's level here rather than by the panel.
+                Stats = _deckUIController.GetCardStats(_cardData.CardType)
             };
             _infoPanelService.ShowInfoPanel(infoPanelData);
             HideActionFrame();

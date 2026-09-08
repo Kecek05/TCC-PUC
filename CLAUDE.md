@@ -120,7 +120,7 @@ is a local file — the server owns the decision, the client owns the storage.
   costs and resulting stats — pure derived data, no extra state.
 - **One stats API, three consumers:** `CardDataSO.GetStats(CardLevelScale)` is overridden per card family
   (tower reads its prefab's `TowerDataSO`, spell its `SpellData`, troop its `EnemyDataListSO`). It feeds the
-  inspector preview today and the Clash Royale-style current-vs-next panel later, so they cannot disagree.
+  inspector preview and the Clash Royale-style current-vs-next panel (below), so they cannot disagree.
 - **Transport, zero new plumbing:** `UserData.DeckCardLevels` is index-aligned with `DeckCards` and rides the
   existing Netcode connection payload. `DrawingCardsState` fills `MatchCardLevels` (server-only lookup) in the
   same loop that deals the decks. Deployers call `MatchCardLevels.ScaleFor(team, cardType)`.
@@ -236,3 +236,103 @@ one server combat class. Realocar is deliberately **not** built — see the note
   `ServerEspelhoTowerCombat.cs`, `ServerFonteTowerCombat.cs` (under
   `Assets/Scripts/Gameplay/Towers/Server/Concrete/`); test deck at
   `Assets/ScriptableObjects/CardHand/DEBUG_Hand_CartasV2.asset`.
+
+### Card Info Panel — the Clash Royale stat table
+
+The Details button on a card in the Main Menu opens `InfoPanelCanvas` with the card's name, art and a grid
+of stat rows: one `StatPrefab` per stat, each showing the value **at the level the player owns** and the
+gain the **next** level buys.
+
+**Why:** the third consumer of `CardDataSO.GetStats(CardLevelScale)` that the progression feature was built
+for. Calling it twice — at level *n* and *n+1* — is the whole feature; nothing re-derives growth, so the
+panel, the inspector preview and the server can never disagree about a card's numbers. Rows are shaped
+per card family by the existing `GetStats` overrides, so a spell showing Radius/Duration and a troop
+showing Health/Damage/Speed cost no branching in the UI at all.
+
+**How it works:**
+- **One pure computation, one player-facing lookup.** `CardProgressionSettingsSO.GetStatProgress(card, level)`
+  is the balance-only half: it pairs `GetStats` at *level* with `GetStats` at *level+1* by index (both come
+  from the same override, so row i is the same stat; checked by `CardStatId` anyway) and reports `hasNext = false`
+  at the rarity's cap. `BasePlayerSaveManager.GetCardStatProgress(cardType)` is the per-player half: it joins
+  that with the saved level, exactly as `CanUpgradeCard` already joins the save with the cost table. A **locked**
+  card previews at level 1 — the level it would unlock at — so the collection can explain a card before it is owned.
+- **`CardStatProgress` decides whether there is an upgrade to announce, and it decides on the FORMATTED
+  values, not the raw floats.** A Prism's 0.25s hit speed grows to 0.2451s, which still prints "0.25";
+  captioning that with "-0.00" reads as a bug. If the number the player sees does not change, there is no
+  upgrade — which also covers Range, sitting at 0% growth on every card.
+- **Towers are authored in seconds-between-shots but displayed as "Hits Per Second"** — inverted in
+  `TowerCardDataSO.GetStats`, the one place numbers become text, so `BaseServerTowerCombat` keeps reading
+  `GetShootCooldownByLevel` untouched. A cooldown is a lower-is-better stat, which reads backwards in a
+  table whose every other row rewards a bigger number; inverting makes every upgrade in the panel a `+`.
+  It also buys precision where it matters: at 2 dp a 0.25s cooldown could not show its 2%/level gain at
+  all, while 4.00/s shows `+0.08`. The two slowest support towers (Espelho 0.13/s, Fonte 0.20/s) are now
+  the ones too coarse to show a per-level change.
+- **A tower reports every stat once per in-match tier** — "Damage Lvl 1/2/3" — because the two level axes
+  are independent and the player pays for them separately: the card level is bought in the menu, the tier
+  on the board. This table is the only place the two can be seen composing. `AddPerTier` in
+  `TowerCardDataSO` walks 1..`MaxLevel` through the existing `GetXByLevel` accessors, so the panel reads
+  the same path combat does rather than the `*Level1` fields.
+- **A stat that is flat across tiers collapses to one unlabelled row.** Three identical "Lvl 1/2/3" rows
+  say nothing and cost three of the panel's ten slots, which is what pushes the rows that *do* differ out
+  of view. Torniquete's and Anel's hit rate and Espelho's range are flat by design, so this is the common
+  case for support towers, not an edge one. It also keeps the row **shape** a property of the authored data
+  alone (the card level multiplies every tier by the same number), which is what lets
+  `GetStatProgress` keep pairing current with next by index.
+- That pairing now compares the **label**, not just the `CardStatId`: three "Damage Lvl n" rows share
+  `CardStatId.Damage`, so the id alone would happily pair tier 1 with tier 2.
+- **The grid was sized to the real worst case** (Anel, 10 rows = 5 grid rows). `StatsParent` grew
+  455 -> 495 with row spacing 30 -> 22, positioned to start just under the card art; measured in canvas
+  units it leaves 53 above and 52 below. Grow it again if a future tower adds a fourth stat — a 12-row card
+  would need 6 grid rows, which does not fit this panel.
+- **`InfoPanelData` stays generic.** It carries pre-resolved `IReadOnlyList<CardStatProgress>` rows rather
+  than a `CardDataSO`, so the panel service knows nothing about cards, levels or growth tables and stays
+  reusable for anything with a stat table. `ActionFrame` fills it via `DeckUIController.GetCardStats`,
+  beside the `GetUpgradeState` it already calls — the controller owns every save lookup on that page.
+- `StatEntryUI` is deliberately dumb, the twin of `RewardEntryUI`: three labels, no knowledge of the card.
+- Rows are **pooled, not rebuilt** (unlike `ClientEndGameCanvas`'s rewards area, which runs once a match):
+  this panel opens on every card tap and cards differ by a row or two. Surplus rows are deactivated, and a
+  `GridLayoutGroup` skips inactive children so they leave no hole.
+- Key files: `CardStatProgress.cs` (under `Assets/Scripts/Gameplay/Progression/`), `StatEntryUI.cs`,
+  `BaseInfoPanelService.cs`, `InfoPanelService.cs` (under `Assets/Scripts/UI/Menu/InfoPanelService/`);
+  prefab at `Assets/Prefabs/UI/Elements/StatPrefab.prefab`, wired into
+  `MainMenu/UI/InfoPanelCanvas/.../Panel/StatsParent`.
+
+### Armor Break — the color-resist clear became a scalable fraction
+
+Torniquete (tower) and Ferrugem (spell) used to strip off-color armor resistance **completely, at every
+level**. Both now strip a *fraction* of it that grows with the card's persistent level.
+
+**Why:** the card info panel made it visible that Torniquete was the only card in the set whose defining
+ability gained nothing from a level — its whole table was Range (0% growth by design) and a 0.25s aura
+re-scan. `ServerEnemyHealth` held `_colorResistCleared` as a count of *sources* and read it as
+`cleared > 0 ? 0f : OffColorResistance`, so there was no magnitude anywhere to scale. Levelling it bought
+nothing.
+
+**How it works:**
+- `_colorResistClearPercent` is now the **additive sum of each source's fraction**, the exact twin of
+  `ServerEnemyMovement._slowPercent`: a source adds and removes only its own contribution, so overlapping
+  auras and zones never clobber each other on expiry. `TakeDamage` reads
+  `OffColorResistance * (1 - Clamp01(sum))`. At 1 the armor stops mattering entirely — bit-for-bit the old
+  behaviour — so the change is a pure generalisation, not a new rule.
+- **Clamped on read, not on the accumulator.** Stacked sources may over-subscribe; they simply cannot push
+  resistance below zero and start healing the target. Clamping on write would break the add/remove pairing.
+- `ResistTowerDataSO` / `SpellResistDataSO` are clones of `SlowTowerDataSO` / `SpellSlowDataSO` — same
+  shape, the fraction just means armor stripped rather than speed removed. Both scale by
+  `CardLevelScale.EffectBonus`, like every other percentage effect in the game.
+- **The tower stores the applied amount PER ENEMY** (`Dictionary<EnemyManager, float>`, copied from
+  `ServerPrismTowerCombat`); the spell resolves it **once per cast** into a local (copied from Haste/Rage).
+  Both exist for the same reason: `Add` and `Remove` must be handed the identical number or the enemy keeps
+  a strip it can never shed. A placement upgrade mid-hold is exactly what would strand one.
+- **This is a level-1 nerf and a max-level wash, deliberately.** Against the 0.35-resistance wave enemies a
+  Torniquete used to turn 65% damage into 100% (+53%); it now gives +32% at level 1 and +50% at level 10.
+  That gap is the whole point — it is what a level buys. **First-pass numbers, want playtesting**: tower
+  0.60/0.75/0.90 per placement tier, spell 0.50.
+- Both cards gained an **"Armor Break"** row in the info panel, clamped to 100% so it can never promise more
+  than the aura applies. Tourniquet reads `60% (+3%)` at level 1, `93.1%` at 10.
+- **Migrating an SO's script type leaves already-loaded referencing objects holding a dead pointer** —
+  `TowerManager.Data` and `SpellCardDataSO.SpellData` both read null until a domain reload, even though the
+  YAML guid/fileID never changed and `SerializedObject` resolved fine. Reimport is not enough;
+  `EditorUtility.RequestScriptReload()` (or any recompile) is what fixes it.
+- Key files: `ResistTowerDataSO.cs`, `SpellResistDataSO.cs`, `ServerTorniqueteTowerCombat.cs`,
+  `FerrugemExecutor.cs`, `ServerEnemyHealth.cs`; assets `Torniquete_TowerData.asset`,
+  `SpellFerrugemData.asset`.

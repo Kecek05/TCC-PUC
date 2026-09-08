@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -163,6 +164,17 @@ public class PlayerSaveManager : BasePlayerSaveManager
         if (progress == null) return 0;
 
         return TryGetNextStep(cardType, progress.Level, out CardLevelStep step) ? step.CopiesRequired : 0;
+    }
+
+    public override IReadOnlyList<CardStatProgress> GetCardStatProgress(CardType cardType)
+    {
+        CardProgressionSettingsSO progression = _settings != null ? _settings.CardProgression : null;
+        CardDataSO card = ResolveCard(cardType);
+        if (progression == null || card == null) return Array.Empty<CardStatProgress>();
+
+        // A locked card has no saved level. Preview it at 1 — the level it would unlock at — rather than
+        // showing nothing, so the collection can explain what a card does before the player owns it.
+        return progression.GetStatProgress(card, Mathf.Max(1, GetCardLevel(cardType)));
     }
 
     public override CardUpgradeValidation CanUpgradeCard(CardType cardType)

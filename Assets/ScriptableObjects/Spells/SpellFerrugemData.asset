@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 755d65c31c2d71a4b939a2aaa9353854, type: 3}
+  m_Script: {fileID: 11500000, guid: dd37532c5729d23499ba6388eda54734, type: 3}
   m_Name: SpellFerrugemData
-  m_EditorClassIdentifier: Assembly-CSharp::SpellEffectDataSO
+  m_EditorClassIdentifier: Assembly-CSharp::SpellResistDataSO
   SpellType: 7
   Range: 1.3
   TravelTime: 0.2
   VisualPrefab: {fileID: 5405131522583894879, guid: 4202044de8b63144e9c916872047437f, type: 3}
   Duration: 6
+  ResistClearPercent: 0.5
