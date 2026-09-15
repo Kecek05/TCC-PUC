@@ -237,11 +237,12 @@ one server combat class. Realocar is deliberately **not** built — see the note
   `Assets/Scripts/Gameplay/Towers/Server/Concrete/`); test deck at
   `Assets/ScriptableObjects/CardHand/DEBUG_Hand_CartasV2.asset`.
 
-### Card Info Panel — the Clash Royale stat table
+### Card Info Panel — the card page
 
-The Details button on a card in the Main Menu opens `InfoPanelCanvas` with the card's name, art and a grid
-of stat rows: one `StatPrefab` per stat, each showing the value **at the level the player owns** and the
-gain the **next** level buys.
+The Details button on a card in the Main Menu opens `InfoPanelCanvas`: the card's own portrait, its name,
+the level the player owns coloured by its rarity, its rarity and type, an Upgrade button priced at the next
+level, and two swipeable pages — a grid of stat rows (one `StatPrefab` per stat, each showing the value **at
+the level the player owns** and the gain the **next** level buys) and the card's description.
 
 **Why:** the third consumer of `CardDataSO.GetStats(CardLevelScale)` that the progression feature was built
 for. Calling it twice — at level *n* and *n+1* — is the whole feature; nothing re-derives growth, so the
@@ -280,22 +281,49 @@ showing Health/Damage/Speed cost no branching in the UI at all.
   `GetStatProgress` keep pairing current with next by index.
 - That pairing now compares the **label**, not just the `CardStatId`: three "Damage Lvl n" rows share
   `CardStatId.Damage`, so the id alone would happily pair tier 1 with tier 2.
-- **The grid was sized to the real worst case** (Anel, 10 rows = 5 grid rows). `StatsParent` grew
-  455 -> 495 with row spacing 30 -> 22, positioned to start just under the card art; measured in canvas
-  units it leaves 53 above and 52 below. Grow it again if a future tower adds a fourth stat — a 12-row card
-  would need 6 grid rows, which does not fit this panel.
-- **`InfoPanelData` stays generic.** It carries pre-resolved `IReadOnlyList<CardStatProgress>` rows rather
-  than a `CardDataSO`, so the panel service knows nothing about cards, levels or growth tables and stays
-  reusable for anything with a stat table. `ActionFrame` fills it via `DeckUIController.GetCardStats`,
-  beside the `GetUpgradeState` it already calls — the controller owns every save lookup on that page.
+- **The grid no longer fits the worst case.** `StatsParent` now lives inside the panel's horizontal page
+  scroll at 681x449, with 300x80 cells and 30x22 spacing — 2 columns x 4 rows, so 8 stats. Circle reports 9
+  and Anel 10, which need a 5th row and overflow by ~39px. Either grow the page or give `StatsParent` its
+  own vertical scroll before that matters.
+- **`InfoPanelData` carries the card, and nothing else.** It started generic — pre-resolved stat rows and
+  no `CardDataSO` — but the panel now *is* the card page: it embeds a `SingleCardInDeck` portrait, prints
+  the rarity and type, and sells the next level. A generic contract in front of that would be a fiction, so
+  the struct is just `{ CardDataSO Card }` (built with `InfoPanelData.ForCard`) and the panel resolves the
+  rest from `BasePlayerSaveManager` itself.
+- **The panel reads the save directly because it can change it.** `DeckUIController` owns every save lookup
+  on the *deck page*; the panel is its own surface and owns its own, for one decisive reason — the Upgrade
+  button lives here, so a snapshot handed in at open time would be stale the instant it is tapped. Instead
+  the panel subscribes to `OnCardProgressChanged` **while visible** and redraws level, copies, cost and the
+  whole stat table off the save. Buying a level updates the panel that bought it; closing unsubscribes, so
+  a reward banked elsewhere never redraws a panel nobody is looking at.
+- The refusal text moved onto `CardUpgradeValidation.WarningMessage`. Two doors now lead to an upgrade — the
+  deck popup and this panel — and a reason must not be explained with different words depending on which.
+- **The portrait is the same `Card_V2` widget the collection grid uses**, with its level pill and its button
+  deleted on that instance: the panel prints the level itself, larger, and a portrait is not a tap target.
+  Every reference `SingleCardInDeck` does not need for that trimmed layout is therefore optional, and
+  `Initialize` takes the `DeckUIController` as an optional argument.
+- **One widget serving many cards forced a latent bug out.** `Initialize` only wrote `CardImage`'s rect when
+  the card ticked `UseCustomPosition/SizeCardInMenu`, which is invisible on the deck page (a widget is
+  initialised once, for one card) but leaks on the panel: a custom-positioned card would leave its offset
+  on the next card shown. The rect is now always written, against defaults captured on the first
+  `Initialize` — not in `Awake`, which has not run yet for a widget instantiated under an inactive page.
+- **`CardRarityType.None` is fully transparent in `CardsRarityData`**, and it is where a freshly authored
+  card starts. Painting the level and rarity labels with it would make them vanish, so a zero-alpha rarity
+  falls back to the colour the label was authored with.
 - `StatEntryUI` is deliberately dumb, the twin of `RewardEntryUI`: three labels, no knowledge of the card.
 - Rows are **pooled, not rebuilt** (unlike `ClientEndGameCanvas`'s rewards area, which runs once a match):
   this panel opens on every card tap and cards differ by a row or two. Surplus rows are deactivated, and a
   `GridLayoutGroup` skips inactive children so they leave no hole.
-- Key files: `CardStatProgress.cs` (under `Assets/Scripts/Gameplay/Progression/`), `StatEntryUI.cs`,
-  `BaseInfoPanelService.cs`, `InfoPanelService.cs` (under `Assets/Scripts/UI/Menu/InfoPanelService/`);
-  prefab at `Assets/Prefabs/UI/Elements/StatPrefab.prefab`, wired into
-  `MainMenu/UI/InfoPanelCanvas/.../Panel/StatsParent`.
+- **The page strip is reset to the stats page on every open.** The panel is hidden, never destroyed, so the
+  `ScrollRect` keeps the offset the previous card was left on — reopening would land on the description
+  with the stat table already swiped off screen. `StopMovement()` first: the inertia from the last swipe
+  would otherwise carry it straight back off. Reset *after* `contentObject.SetActive(true)`, so the
+  ScrollRect measures a laid-out viewport.
+- Key files: `CardStatProgress.cs`, `CardUpgradeValidation.cs` (under `Assets/Scripts/Gameplay/Progression/`),
+  `StatEntryUI.cs`, `BaseInfoPanelService.cs`, `InfoPanelService.cs` (under
+  `Assets/Scripts/UI/Menu/InfoPanelService/`), `SingleCardInDeck.cs`, `ActionFrame.cs`; prefabs at
+  `Assets/Prefabs/UI/Elements/StatPrefab.prefab` and `Assets/Prefabs/UI/Menu/DeckPage/Card_V2.prefab`, wired
+  into `MainMenu/UI/InfoPanelCanvas/InfoPanel/SafeArea/Panel`.
 
 ### Armor Break — the color-resist clear became a scalable fraction
 

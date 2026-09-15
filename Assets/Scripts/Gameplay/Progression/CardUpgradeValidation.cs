@@ -30,4 +30,18 @@ public readonly struct CardUpgradeValidation
         new(false, reason, copiesRequired, goldCost);
 
     public static implicit operator bool(CardUpgradeValidation v) => v.IsValid;
+
+    /// <summary>
+    /// The sentence to show the player when this refusal is what stopped an upgrade. It lives on the
+    /// validation rather than at each call site because both doors into an upgrade — the deck page popup
+    /// and the card info panel — have to explain a refusal with the same words.
+    /// </summary>
+    public string WarningMessage => Reason switch
+    {
+        CardUpgradeInvalidReason.NotOwned => WarningMessages.CardLocked,
+        CardUpgradeInvalidReason.MaxLevel => WarningMessages.UpgradeMaxLevel,
+        CardUpgradeInvalidReason.NotEnoughCopies => WarningMessages.UpgradeNotEnoughCards,
+        CardUpgradeInvalidReason.NotEnoughGold => WarningMessages.UpgradeNotEnoughGold,
+        _ => WarningMessages.UpgradeMaxLevel
+    };
 }

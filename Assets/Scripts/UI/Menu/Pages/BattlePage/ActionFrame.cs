@@ -74,16 +74,11 @@ public class ActionFrame : MonoBehaviour
 
         infoButton.onClick.AddListener(() =>
         {
-            InfoPanelData infoPanelData = new InfoPanelData
-            {
-                Title = _cardData.CardName,
-                Description = _cardData.Description,
-                Icon = _cardData.CardImage,
-                // The controller owns every save lookup on this page, so the stat table is resolved to the
-                // player's level here rather than by the panel.
-                Stats = _deckUIController.GetCardStats(_cardData.CardType)
-            };
-            _infoPanelService.ShowInfoPanel(infoPanelData);
+            if (_cardData == null) return;
+
+            // Only the identity travels: the panel resolves the level, the copies and the stat table from
+            // the save itself, because it can upgrade the card it is showing.
+            _infoPanelService.ShowInfoPanel(InfoPanelData.ForCard(_cardData));
             HideActionFrame();
         });
 

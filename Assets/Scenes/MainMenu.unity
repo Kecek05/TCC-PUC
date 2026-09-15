@@ -735,7 +735,7 @@ GameObject:
   - component: {fileID: 73183366}
   - component: {fileID: 73183365}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: CostLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1606,8 +1606,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4284153800
+  m_fontColor: {r: 0.7824985, g: 1, b: 0.35283017, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1759,8 +1759,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 310088003}
   m_HandleRect: {fileID: 310088002}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.4949078
+  m_Value: -0.00000007765317
+  m_Size: 0.49490786
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4560,11 +4560,25 @@ MonoBehaviour:
   panelCanvasGroup: {fileID: 1071445817}
   title: {fileID: 1235492348}
   description: {fileID: 709779071}
-  panelImage: {fileID: 0}
   closeButton: {fileID: 1833190547}
   backgroundButton: {fileID: 174536550}
+  cardWidget: {fileID: 1248493925}
+  levelLabel: {fileID: 789033758}
+  rarityLabel: {fileID: 974020893}
+  typeLabel: {fileID: 196649675}
+  cardsRarityData: {fileID: 11400000, guid: bb02c3521b058214597c0df5575df9b3, type: 2}
+  upgradeButton: {fileID: 860480067}
+  upgradeCostLabel: {fileID: 73183365}
+  upgradeCostIcon: {fileID: 885204588}
   statsParent: {fileID: 75945515}
   statEntryPrefab: {fileID: 1604405592037944246, guid: 65550a84d992fa04899a480c6078d283, type: 3}
+  contentPages: {fileID: 1609085830}
+  levelFormat: Level {0}
+  lockedLabel: Locked
+  maxLevelLabel: MAX
+  towerTypeLabel: Tower
+  spellTypeLabel: Spell
+  troopTypeLabel: Troop
   fadeInEase: 14
   fadeInDuration: 0.2
   bumpEase: 27
@@ -6250,7 +6264,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00015258789
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7802,6 +7816,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5008707500771739295, guid: aa0b43b68e2580c4c8c1b729fa95d08d, type: 3}
   m_PrefabInstance: {fileID: 1248493923}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1248493925 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7521439889304095414, guid: aa0b43b68e2580c4c8c1b729fa95d08d, type: 3}
+  m_PrefabInstance: {fileID: 1248493923}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0a5236cea22a464589d828979872fe1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SingleCardInDeck
 --- !u!1 &1267415840
 GameObject:
   m_ObjectHideFlags: 0
@@ -9440,8 +9465,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 540, y: -1289.7}
-  m_SizeDelta: {x: 1080, y: 0}
+  m_AnchoredPosition: {x: 958.972, y: -1289.7}
+  m_SizeDelta: {x: 1917.944, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1571833214
 MonoBehaviour:

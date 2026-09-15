@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class BaseInfoPanelService : MonoBehaviour
@@ -13,15 +12,15 @@ public abstract class BaseInfoPanelService : MonoBehaviour
     protected void TriggerOnInfoPanelHide() => OnInfoPanelHide?.Invoke();
 }
 
+/// <summary>
+/// What the info panel is asked to show. Only the card's identity travels: name, art, cost, rarity, type
+/// and description come off the <see cref="CardDataSO"/>, while level, copies and upgrade cost come from
+/// the player's save. The panel resolves both itself rather than being handed a snapshot, because it can
+/// upgrade the card it is showing — a snapshot would be stale the moment the player taps Upgrade.
+/// </summary>
 public struct InfoPanelData
 {
-    public string Title;
-    public string Description;
-    public Sprite Icon;
+    public CardDataSO Card;
 
-    /// <summary>
-    /// Rows for the stat table, one widget each. Already resolved to the viewer's level by the caller, so
-    /// the panel stays a pure view — null or empty simply draws no stats.
-    /// </summary>
-    public IReadOnlyList<CardStatProgress> Stats;
+    public static InfoPanelData ForCard(CardDataSO card) => new() { Card = card };
 }
