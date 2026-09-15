@@ -50,6 +50,12 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     [Tooltip("Optional. The pointing hand.")]
     [SerializeField] private RectTransform hand;
 
+    [Title("Unlocked Card")]
+    [InfoBox("Shown by the outro so the player sees what they just won, rather than only reading its name.")]
+    [SerializeField] private GameObject unlockedCardRoot;
+    [SerializeField] private Image unlockedCardArt;
+    [SerializeField] private TextMeshProUGUI unlockedCardName;
+
     [Title("Layout")]
     [Tooltip("Canvas units of slack added around a highlighted target before the hole is cut.")]
     [SerializeField] private float holePadding = 24f;
@@ -85,6 +91,7 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         if (skipButton != null) skipButton.onClick.AddListener(RaiseSkipTapped);
 
         if (content != null) content.SetActive(false);
+        ShowUnlockedCard(null, string.Empty);
     }
 
     private void OnDestroy()
@@ -131,6 +138,19 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         if (continueButton != null) continueButton.gameObject.SetActive(showContinue && hasText);
     }
 
+    public override void ShowUnlockedCard(Sprite art, string cardName)
+    {
+        bool show = art != null || !string.IsNullOrEmpty(cardName);
+
+        if (unlockedCardRoot != null) unlockedCardRoot.SetActive(show);
+        if (unlockedCardArt != null)
+        {
+            unlockedCardArt.sprite = art;
+            unlockedCardArt.enabled = art != null;
+        }
+        if (unlockedCardName != null) unlockedCardName.text = cardName;
+    }
+
     public override void SetSkipVisible(bool visible)
     {
         if (skipButton != null) skipButton.gameObject.SetActive(visible);
@@ -140,6 +160,8 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     {
         _textBoxTween?.Kill();
         _textBoxPlaced = false;
+
+        ShowUnlockedCard(null, string.Empty);
 
         if (content != null) content.SetActive(false);
     }

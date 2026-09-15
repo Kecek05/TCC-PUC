@@ -49,8 +49,8 @@ MonoBehaviour:
   - Step: 10
     Text: 'That is everything you need!
 
-      Here is a reward for finishing - let
-      us put it to work.'
+      You unlocked <b>{0}</b> - let us put
+      it to work.'
   - Step: 11
     Text: 'This is your base camp.
 

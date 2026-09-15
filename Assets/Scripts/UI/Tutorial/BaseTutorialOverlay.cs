@@ -23,6 +23,12 @@ public abstract class BaseTutorialOverlay : MonoBehaviour
 
     public abstract void SetHighlight(TutorialHighlight highlight);
 
+    /// <summary>
+    /// Shows the card the tutorial has just unlocked, art and name, beside the copy. Passing a null sprite
+    /// and an empty name hides it again.
+    /// </summary>
+    public abstract void ShowUnlockedCard(Sprite art, string cardName);
+
     public abstract void Hide();
 
     public abstract void SetSkipVisible(bool visible);

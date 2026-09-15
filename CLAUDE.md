@@ -425,6 +425,28 @@ teaches progression, and progression is only teachable once the player owns some
   the local team for troop/spell, `CameraSlide.SideChanged` for the table swap). `IGameFlowState` earns its
   classes because states hold state; these do not. **Every action step carries a timeout** — the one failure
   a first-time experience must not have is a dead end.
+- **A waiting step freezes the world** (`Time.timeScale = 0`, driven by `TutorialSequence`, opt out per step
+  with `.Running()`). One line stops waves, towers, projectiles and mana regen at once without a single
+  system learning about the tutorial — and a player reading an instruction should not be losing their base
+  while they read it. Three things had to follow from it:
+  - **Timeouts are measured in `Time.unscaledTime`.** Scaled, freezing would switch the dead-end safety net
+    off exactly where it matters most.
+  - **Mana is topped up every frame an action step waits** (`.WhileWaiting(RefillMana)`), not on entry. A
+    frozen step regenerates none, so a player who spent down to nothing would be stuck on an instruction
+    they cannot carry out; and on-entry alone is not enough, because the deploy that completed the
+    *previous* step spends on the server when its Rpc lands, which can be after the next step already
+    refilled.
+  - **Three tweens had to become unscaled**: `AbstractCard`'s drop-return (or the card hangs wherever it was
+    dropped), and `CameraSlide`'s `TweenCameraTo`/`SnapBack` (or the camera strands half-way between the two
+    fields on the very swipe the tutorial just asked for). All three are responses to a gesture the player
+    just made, so unscaled is the right answer in normal play too.
+  - Verified under a frozen clock: the placement Rpc round-trip, the level-up, the troop, the spell and both
+    swipes all complete at `timeScale = 0`.
+- **The outro pays out and shows what it paid.** The reward is rolled and banked when the outro step is
+  *entered* rather than on the way out, so the line can name the card (`TutorialStep.Formatting` feeds
+  `string.Format` args into the copy, keeping `{0}` out of the copy table's knowledge of which card it is)
+  and the overlay can show its art. The outro is also the one `.Running()` step: the board moving behind the
+  reward is what makes it read as the end of a match rather than the end of a slideshow.
 - **The overlay dims but does not imprison.** Four solid panels frame a hole around the target;
   `blockInput` is **off** by default because this sits on a live match and the player still has a base to
   defend while they read. Two traps found by running it: the dim panels must have **no sprite** (a 32px

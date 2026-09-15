@@ -78,6 +78,10 @@ public class TutorialStep
 
     public Action OnExit { get; private set; }
 
+    /// <summary>Run every frame the step is waiting. Where a frozen step keeps the player topped up:
+    /// entry alone is not enough, because a deploy result can land after it and spend them back down.</summary>
+    public Action OnTick { get; private set; }
+
     /// <summary>Shows the Continue button and waits for it instead of watching the world.</summary>
     public bool WaitsForTap { get; private set; }
 
@@ -88,6 +92,16 @@ public class TutorialStep
     /// <summary>Seconds after which the step gives up and moves on. 0 disables it. The safety net for a
     /// condition that can be made unreachable by the player, so the tutorial can never dead-end.</summary>
     public float Timeout { get; private set; }
+
+    /// <summary>
+    /// Whether the world holds still while this step waits. On by default: the player is reading, and a
+    /// tutorial that lets a wave chew through their base while they do is teaching the wrong lesson.
+    /// </summary>
+    public bool FreezesGame { get; private set; } = true;
+
+    /// <summary>Optional arguments for the step's copy, resolved when the step is entered. How the outro
+    /// names the card it just unlocked without the copy table knowing which card that is.</summary>
+    public Func<object[]> TextArgs { get; private set; }
 
     public TutorialStep(TutorialStepId id)
     {
@@ -120,6 +134,12 @@ public class TutorialStep
         return this;
     }
 
+    public TutorialStep WhileWaiting(Action onTick)
+    {
+        OnTick = onTick;
+        return this;
+    }
+
     public TutorialStep Leaving(Action onExit)
     {
         OnExit = onExit;
@@ -135,6 +155,20 @@ public class TutorialStep
     public TutorialStep GivingUpAfter(float seconds)
     {
         Timeout = Mathf.Max(0f, seconds);
+        return this;
+    }
+
+    /// <summary>Lets the match keep running through this step, for a beat where the point is to watch
+    /// something move.</summary>
+    public TutorialStep Running()
+    {
+        FreezesGame = false;
+        return this;
+    }
+
+    public TutorialStep Formatting(Func<object[]> args)
+    {
+        TextArgs = args;
         return this;
     }
 }

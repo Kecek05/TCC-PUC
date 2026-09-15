@@ -161,13 +161,16 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         float homeY = _isUp ? mapSettingsSO.BluePlayerMapY : mapSettingsSO.RedPlayerMapY;
         mainCamera.transform.DOKill();
-        mainCamera.transform.DOMoveY(homeY, snapBackDuration).SetEase(snapBackEase);
+        mainCamera.transform.DOMoveY(homeY, snapBackDuration).SetEase(snapBackEase).SetUpdate(true);
     }
 
+    // Unscaled, and so is SnapBack: this is the response to a gesture the player just made, and the drag
+    // itself already moves the camera by hand. The tutorial freezes the world while asking for exactly this
+    // swipe, and a scaled tween would strand the camera half-way between the two fields.
     private void TweenCameraTo(float targetY)
     {
         mainCamera.transform.DOKill();
-        mainCamera.transform.DOMoveY(targetY, tweenDuration).SetEase(tweenEase);
+        mainCamera.transform.DOMoveY(targetY, tweenDuration).SetEase(tweenEase).SetUpdate(true);
     }
 
     private void ResetSamples()

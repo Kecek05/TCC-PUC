@@ -54,6 +54,11 @@ public class TutorialMatchDirector : MonoBehaviour
     private CardType _placedTowerCard = CardType.None;
     private CameraSide _cameraSide = CameraSide.Local;
 
+    /// <summary>Rolled and banked when the outro is reached, so the outro can name and show it and the
+    /// handover does not have to roll a second one.</summary>
+    private Reward _reward;
+    private bool _rewardGranted;
+
     private void Awake()
     {
         // Only the first-time run is scripted. Entering TutorialScene any other way (a debug load) leaves
@@ -135,11 +140,13 @@ public class TutorialMatchDirector : MonoBehaviour
             .Pointing(() => TutorialHighlight.Ui(handRect, TutorialHintKind.None)),
 
         new TutorialStep(TutorialStepId.PlaceTower)
+            .WhileWaiting(RefillMana)
             .CompletesWhen(() => _towerPlaced)
             .Pointing(PointAtTowerPlacement)
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.LevelUpTower)
+            .WhileWaiting(RefillMana)
             .CompletesWhen(() => _towerLevelledUp)
             .Pointing(PointAtTowerUpgrade)
             .GivingUpAfter(60f),
@@ -150,11 +157,13 @@ public class TutorialMatchDirector : MonoBehaviour
             .GivingUpAfter(45f),
 
         new TutorialStep(TutorialStepId.SendTroop)
+            .WhileWaiting(RefillMana)
             .CompletesWhen(() => _troopSent)
             .Pointing(() => PointAtCardDrop(ExistingTypesOfCard.Enemy, enemyFieldAnchor))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.CastSpell)
+            .WhileWaiting(RefillMana)
             .CompletesWhen(() => _spellCast)
             .Pointing(() => PointAtCardDrop(ExistingTypesOfCard.Spell, enemyFieldAnchor))
             .GivingUpAfter(60f),
@@ -164,8 +173,13 @@ public class TutorialMatchDirector : MonoBehaviour
             .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeDown))
             .GivingUpAfter(45f),
 
+        // The one step that lets the world run again: the reward lands here, and the board moving behind it
+        // is what makes the hand-off feel like the end of a match rather than the end of a slideshow.
         new TutorialStep(TutorialStepId.MatchOutro)
-            .Tap(),
+            .Tap()
+            .Running()
+            .Entering(GrantTutorialReward)
+            .Formatting(() => new object[] { RewardCardName }),
     };
 
     // ---- Highlight resolvers --------------------------------------------------------------------
@@ -312,6 +326,63 @@ public class TutorialMatchDirector : MonoBehaviour
 
     private void HandleCameraSideChanged(CameraSide side) => _cameraSide = side;
 
+    // ---- Reward ---------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Rolls and banks the payout as the outro appears, so the outro can name the card and show its art.
+    /// Granted straight through <see cref="BaseRewardService"/>: the payout is authored rather than rolled
+    /// for value, and the tutorial never reaches a real win condition to hang an end-of-match roll off.
+    /// </summary>
+    private void GrantTutorialReward()
+    {
+        if (_rewardGranted || _rewards == null || _save == null) return;
+
+        _rewardGranted = true;
+        _reward = new TutorialRewardRoller(settings, _save).Roll();
+
+        if (_reward.IsEmpty) return;
+
+        _rewards.Grant(_reward);
+
+        if (overlay != null) overlay.ShowUnlockedCard(RewardCardArt, RewardCardName);
+    }
+
+    private CardDataSO RewardCardData =>
+        _reward.HasCard && settings != null && settings.CardDataList != null
+            ? settings.CardDataList.GetCardDataByType(_reward.Card)
+            : null;
+
+    private Sprite RewardCardArt => RewardCardData != null ? RewardCardData.CardImage : null;
+
+    /// <summary>The card's name for the outro line. Falls back to the gold-only wording, because a player
+    /// who already owns everything still gets paid and the sentence still has to read.</summary>
+    private string RewardCardName
+    {
+        get
+        {
+            CardDataSO card = RewardCardData;
+            if (card != null) return card.CardName;
+
+            return _reward.Gold > 0 ? $"{_reward.Gold} gold" : "a reward";
+        }
+    }
+
+    /// <summary>
+    /// Keeps the player topped up for as long as an action step is waiting. A frozen step regenerates no
+    /// mana at all, so without this a player who spent down to nothing would sit on an instruction they can
+    /// never carry out until its timeout fired.
+    /// </summary>
+    /// <remarks>Every frame rather than on entry: the deploy that completed the previous step spends on the
+    /// server when its Rpc is processed, which can land after the next step has already entered and
+    /// refilled - leaving the player short on a step that just told them it had filled their bar.</remarks>
+    private void RefillMana()
+    {
+        if (_localTeam == TeamType.None) return;
+        if (!ServiceLocator.TryGet(out BaseServerManaManager mana)) return;
+
+        mana.GrantMana(_localTeam, mana.GetMaxMana(_localTeam));
+    }
+
     // ---- Handover -------------------------------------------------------------------------------
 
     private void HandleSkipTapped()
@@ -330,26 +401,15 @@ public class TutorialMatchDirector : MonoBehaviour
     /// Pays the tutorial out and hands the player to the Main Menu for the second half.
     /// </summary>
     /// <remarks>
-    /// The reward is granted straight through <see cref="BaseRewardService"/> rather than by ending the
-    /// match and letting <c>ServerEndGameManager</c> roll one. Two reasons: the payout is authored, not
-    /// rolled — the menu steps that follow depend on its exact shape — and the tutorial never reaches a
-    /// real win condition, so there is no end-of-match to hang it off.
+    /// The payout itself was already banked when the outro appeared (see <see cref="GrantTutorialReward"/>),
+    /// so this only carries the card across. Rolling here instead would mean the outro could not name or
+    /// show what the player had won.
     /// </remarks>
     private IEnumerator LeaveToMenu(bool grantReward, bool immediate)
     {
         Unsubscribe();
 
-        CardType rewardCard = CardType.None;
-
-        if (grantReward && _rewards != null && _save != null)
-        {
-            Reward reward = new TutorialRewardRoller(settings, _save).Roll();
-            if (!reward.IsEmpty)
-            {
-                _rewards.Grant(reward);
-                rewardCard = reward.Card;
-            }
-        }
+        CardType rewardCard = grantReward && _reward.HasCard ? _reward.Card : CardType.None;
 
         if (!immediate && settings != null && settings.OutroSeconds > 0f)
             yield return new WaitForSecondsRealtime(settings.OutroSeconds);

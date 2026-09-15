@@ -126,7 +126,9 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
 
         selfCanvasGroup.blocksRaycasts = true;
         transform.SetParent(_originalParent);
-        rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo);
+        // Unscaled: the tutorial freezes the world while it waits for this very drag, and a scaled tween
+        // would leave the card hanging wherever it was dropped instead of sliding home.
+        rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo).SetUpdate(true);
     }
 
     protected Vector2 GetWorldPosition(PointerEventData eventData)

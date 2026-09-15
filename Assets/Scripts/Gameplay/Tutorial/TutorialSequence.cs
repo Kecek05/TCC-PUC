@@ -25,6 +25,11 @@ public class TutorialSequence
     private float _enteredAt;
     private bool _tapped;
 
+    /// <summary>The timescale before the tutorial touched it, restored whenever the run ends. Captured
+    /// rather than assumed to be 1 so a paused game is handed back paused.</summary>
+    private float _timeScaleBeforeRun = 1f;
+    private bool _frozen;
+
     public bool IsRunning { get; private set; }
 
     public TutorialStepId CurrentStepId =>
@@ -43,6 +48,7 @@ public class TutorialSequence
 
         IsRunning = true;
         _index = -1;
+        _timeScaleBeforeRun = Time.timeScale;
 
         if (_overlay != null) _overlay.OnContinueTapped += HandleContinueTapped;
 
@@ -56,11 +62,15 @@ public class TutorialSequence
 
         TutorialStep step = _steps[_index];
 
+        step.OnTick?.Invoke();
+
         // Re-resolved every frame so the ring follows a card that is still sliding into its slot, or a
         // world target the camera is panning across.
         if (_overlay != null && step.Highlight != null)
             _overlay.SetHighlight(step.Highlight());
 
+        // Unscaled throughout: a frozen step still has to time out, or freezing would turn the safety net off
+        // exactly where it is needed most.
         float elapsed = Time.unscaledTime - _enteredAt;
         if (elapsed < step.MinDuration) return;
 
@@ -82,6 +92,7 @@ public class TutorialSequence
         if (!IsRunning) return;
 
         ExitCurrent();
+        SetFrozen(false);
         IsRunning = false;
         _index = _steps.Count;
 
@@ -109,16 +120,52 @@ public class TutorialSequence
         }
 
         TutorialStep step = _steps[_index];
+
+        // Before OnEnter, so a step that wants the world running (the outro) can act on a live one, and a
+        // step that freezes has already stopped it before its enter hook tops the player up.
+        SetFrozen(step.FreezesGame);
+
         step.OnEnter?.Invoke();
 
         if (_overlay != null)
         {
-            _overlay.Show(_copy != null ? _copy.Get(step.Id) : string.Empty, step.WaitsForTap);
+            _overlay.Show(ResolveText(step), step.WaitsForTap);
             _overlay.SetHighlight(step.Highlight != null ? step.Highlight() : TutorialHighlight.None);
         }
 
         OnStepChanged?.Invoke(step.Id);
         GameLog.Info($"[Tutorial] Step -> {step.Id}");
+    }
+
+    private string ResolveText(TutorialStep step)
+    {
+        string text = _copy != null ? _copy.Get(step.Id) : string.Empty;
+        if (step.TextArgs == null || string.IsNullOrEmpty(text)) return text;
+
+        object[] args = step.TextArgs();
+        if (args == null || args.Length == 0) return text;
+
+        // A copy line that forgot its placeholder must not take the whole tutorial down with it.
+        try { return string.Format(text, args); }
+        catch (FormatException)
+        {
+            GameLog.Warn($"[Tutorial] Copy for {step.Id} does not match the arguments it was given.");
+            return text;
+        }
+    }
+
+    /// <summary>
+    /// Holds the world still while a step waits. <see cref="Time.timeScale"/> rather than a game-state flag
+    /// because it stops everything at once - waves, towers, projectiles, mana regen - without every system
+    /// needing to learn about the tutorial. What it also stops is mana regen, which is why an action step
+    /// tops the player up on enter: a frozen step the player cannot afford would never end.
+    /// </summary>
+    private void SetFrozen(bool frozen)
+    {
+        if (_frozen == frozen) return;
+
+        _frozen = frozen;
+        Time.timeScale = frozen ? 0f : _timeScaleBeforeRun;
     }
 
     private void ExitCurrent()
@@ -129,6 +176,7 @@ public class TutorialSequence
 
     private void Finish()
     {
+        SetFrozen(false);
         IsRunning = false;
 
         if (_overlay != null)
