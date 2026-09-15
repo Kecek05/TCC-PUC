@@ -101,6 +101,58 @@ namespace Editor.KeceK
             EditorUtility.RevealInFinder(GetPlayerSavePath());
         }
 
+        private const string RESET_TUTORIAL_MENU_PATH = "Kecek/Debug Tools/Tutorial/Replay Tutorial On Next Launch";
+        private const string COMPLETE_TUTORIAL_MENU_PATH = "Kecek/Debug Tools/Tutorial/Mark Tutorial Completed";
+
+        /// <summary>
+        /// Clears the one persistent tutorial bit, so the next boot routes into TutorialScene again. Edits
+        /// the file rather than the running save: the flag is read during ClientManager.Awake, long before
+        /// a menu item could be clicked, so flipping it in memory would not change the run you are in.
+        /// </summary>
+        [MenuItem(RESET_TUTORIAL_MENU_PATH)]
+        public static void ReplayTutorial() => SetTutorialCompletedOnDisk(false);
+
+        [MenuItem(COMPLETE_TUTORIAL_MENU_PATH)]
+        public static void CompleteTutorial() => SetTutorialCompletedOnDisk(true);
+
+        private static void SetTutorialCompletedOnDisk(bool completed)
+        {
+            string path = GetPlayerSavePath();
+
+            if (!System.IO.File.Exists(path))
+            {
+                Debug.Log($"[Kecek] No player save at {path}. A fresh save already starts with the tutorial " +
+                          "pending, so there is nothing to reset.");
+                return;
+            }
+
+            try
+            {
+                PlayerSaveData data = JsonUtility.FromJson<PlayerSaveData>(System.IO.File.ReadAllText(path));
+                if (data == null)
+                {
+                    Debug.LogError($"[Kecek] Could not parse the player save at {path}.");
+                    return;
+                }
+
+                data.TutorialCompleted = completed;
+
+                // Bump the version too. A pre-tutorial save is migrated on load by GRANTING the flag (a
+                // returning player must not be sent through the tutorial), so writing false while leaving
+                // the version behind would be undone by that migration before the menu item ever mattered.
+                data.SaveVersion = PlayerSaveData.CurrentVersion;
+
+                System.IO.File.WriteAllText(path, JsonUtility.ToJson(data, true));
+
+                Debug.Log($"[Kecek] TutorialCompleted set to {completed}. " +
+                          (completed ? "The next launch goes straight to the menu." : "The next launch replays the tutorial."));
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[Kecek] Failed to write the player save: {e.Message}");
+            }
+        }
+
         private const string GRANT_GOLD_MENU_PATH = "Kecek/Debug Tools/Progression/Grant 5000 Gold";
         private const string GRANT_COPIES_MENU_PATH = "Kecek/Debug Tools/Progression/Grant 100 Copies To Every Card";
         private const int DEBUG_GOLD_GRANT = 5000;

@@ -380,3 +380,73 @@ nothing.
 - Key files: `ResistTowerDataSO.cs`, `SpellResistDataSO.cs`, `ServerTorniqueteTowerCombat.cs`,
   `FerrugemExecutor.cs`, `ServerEnemyHealth.cs`; assets `Torniquete_TowerData.asset`,
   `SpellFerrugemData.asset`.
+
+### Tutorial / FTUE — a scripted match, then a scripted menu
+
+A new player boots into `TutorialScene` instead of the Main Menu, plays a scripted match against a bot,
+is paid a card they do not own, and is then walked through equipping and upgrading it and starting a real
+match. One bool in the save decides all of it.
+
+**Why:** there was no first-time experience at all — a fresh save dropped straight into the Main Menu with
+a starter deck and no explanation of mana, placement, the level-up gesture or the enemy-field half of the
+board. The two halves are split because the things being taught are: the match teaches gestures, the menu
+teaches progression, and progression is only teachable once the player owns something to spend on.
+
+**How it works:**
+- **One persistent bit, everything else in memory.** `PlayerSaveData.TutorialCompleted` (save v3) is all
+  that is written; `BaseTutorialService.Phase` and the reward card live in RAM. A player who quits halfway
+  starts the tutorial over rather than resuming into a menu step with no match behind it. The v2 -> v3
+  migration **grants** the flag: a save written before the tutorial existed belongs to someone who already
+  knows the game.
+- **The gate is one line.** `ClientManager.DoAuth` ends in `RouteAfterAuth()` instead of
+  `Loader.Load(MainMenu)`. `BaseTutorialService` is created beside the save and the reward service for
+  exactly the reason those are — the tutorial spans AuthBootstrap, TutorialScene and MainMenu, so nothing
+  living in one of them could carry state across the other two.
+- **The tutorial hosts itself, offline.** `HostManager.StartLocalHostAsync(scene)` skips the Relay
+  allocation, the join code and the discovery lobby: `StartHost()` on the default transport, then the scene
+  load. It needs no internet, starts instantly, and publishes nothing, so a stranger can never join a
+  scripted match. `ShutdownHostAsync` and `CloseLobbyToNewPlayers` already tolerate an empty lobby id, so
+  teardown is shared with the relay path.
+- **`TutorialScene` is a copy of `GameScene`** (chosen over a tutorial-mode flag so the tutorial board can
+  diverge). The copy immediately exposed a latent bug: `NetworkConnectionServer` gated player-loaded on the
+  literal string `GameScene`, so in the copy nobody ever counted as loaded, no team was assigned, and the
+  match sat in `WaitingForPlayers` forever. Anything asking "are we in a match scene" must now go through
+  **`Loader.IsGameplayScene`** — a check that names one scene silently does nothing in the other.
+- **The player is lent a deck.** `TutorialService` swaps `UserData.DeckCards` for
+  `TutorialSettingsSO.TutorialDeck` for the match and swaps it back on handover; the save is never touched.
+  Scripting "place a tower" is only safe when a tower is guaranteed to be in the deck, and the starter deck
+  has **no troop card at all**, so the SendTroop step could never have completed on it. The authored deck is
+  **4 cards, all <= 4 mana** (Dart, Stinger, SpawnEnemy1, Ice): `HandSize` is 4 and `StartingMaxMana` is 5,
+  so the whole deck is always in hand and the tower card comes straight back for the level-up step.
+- **Steps are one class configured with delegates, not a class each.** `TutorialStep` is a builder
+  (`.Tap()`, `.CompletesWhen()`, `.Pointing()`, `.GivingUpAfter()`) and the whole script reads as one list in
+  the director, whose closures capture the subscriptions that complete each step
+  (`BaseCardTowerDeployer.OnPlaceResult` for place vs. `TowerReason.LevelUp`, `CardDeploymentBus` filtered to
+  the local team for troop/spell, `CameraSlide.SideChanged` for the table swap). `IGameFlowState` earns its
+  classes because states hold state; these do not. **Every action step carries a timeout** — the one failure
+  a first-time experience must not have is a dead end.
+- **The overlay dims but does not imprison.** Four solid panels frame a hole around the target;
+  `blockInput` is **off** by default because this sits on a live match and the player still has a base to
+  defend while they read. Two traps found by running it: the dim panels must have **no sprite** (a 32px
+  rounded `UISprite` stretched across half the screen trips Unity's "Cannot generate 9 slice" and draws
+  nothing), and a target `RectTransform` may be **0x0** — the deck page's card widget is a shell around a
+  `Content` child — so the overlay unions the children when a target has no area of its own. Cross-canvas
+  maths is the other subtlety: the hand and mana bar are on a **Screen Space - Camera** canvas, so their
+  corners reach screen space through *that* camera and come back through this overlay's (null) one.
+- **The payout is shaped by the steps that follow it, not rolled for value.** `TutorialRewardRoller` picks
+  uniformly from the cards the player does **not** own and grants exactly the level 1 -> 2 cost plus a small
+  surplus, so "equip it" and "upgrade it" are both always possible. It is deliberately not an
+  `IRewardRoller` — that interface is win/lose-shaped for the match payout. Granted straight through
+  `BaseRewardService` (the tutorial never reaches a win condition, and the reward is authored, not rolled).
+- **The menu half teaches remove-then-add**, because the starter deck is exactly `DeckSize` cards and
+  `TryEquipCard` refuses a full deck. It points at the page's own state through `DeckUIController` and never
+  drives it: the tutorial points, the player acts.
+- Debug: `Kecek/Debug Tools/Tutorial/Replay Tutorial On Next Launch` (and `Mark Tutorial Completed`). Both
+  edit the save **file**, because the flag is read in `ClientManager.Awake` long before a menu item can be
+  clicked.
+- Key files: `BaseTutorialService.cs`, `TutorialService.cs`, `TutorialSettingsSO.cs`, `TutorialCopySO.cs`
+  (under `Assets/Scripts/Services/Tutorial/`); `TutorialStep.cs`, `TutorialSequence.cs`,
+  `TutorialMatchDirector.cs`, `TutorialRewardRoller.cs` (under `Assets/Scripts/Gameplay/Tutorial/`);
+  `BaseTutorialOverlay.cs`, `TutorialOverlayCanvas.cs`, `TutorialMenuDirector.cs` (under
+  `Assets/Scripts/UI/Tutorial/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
+  `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab`; `Assets/Scenes/TutorialScene.unity`.

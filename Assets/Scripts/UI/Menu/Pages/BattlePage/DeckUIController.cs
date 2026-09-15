@@ -312,6 +312,31 @@ public class DeckUIController : MonoBehaviour
         foreach (CardType cardType in cardTypeToCardInDeckInfo.Keys) RefreshProgression(cardType);
     }
 
+    /// <summary>
+    /// The widget showing one card, whichever container it currently sits in. The tutorial needs it to
+    /// point at a specific card; nothing else outside this page should care which widget is which.
+    /// </summary>
+    public bool TryGetCardWidget(CardType cardType, out SingleCardInDeck widget)
+    {
+        widget = cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info) ? info.SingleCardInDeck : null;
+        return widget != null;
+    }
+
+    /// <summary>Whether this card is in the active deck right now.</summary>
+    public bool IsCardEquipped(CardType cardType) =>
+        cardTypeToCardInDeckInfo.TryGetValue(cardType, out CardInDeckInfo info) && info.IsEquipped;
+
+    /// <summary>How many cards the active deck holds. The tutorial watches it to know a card came out.</summary>
+    public int EquippedCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values) if (info.IsEquipped) count++;
+            return count;
+        }
+    }
+
     /// <summary>Whether the next level is affordable, and what it costs. Read by the ActionFrame.</summary>
     public CardUpgradeValidation GetUpgradeState(CardType cardType) => _playerSaveManager.CanUpgradeCard(cardType);
 

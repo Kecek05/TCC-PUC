@@ -214,6 +214,7 @@ public enum RewardSource
     DailyReward,
     Shop,
     Debug,
+    Tutorial,
 }
 
 /// <summary>
@@ -253,4 +254,70 @@ public enum CardUpgradeInvalidReason
     MaxLevel,
     NotEnoughCopies,
     NotEnoughGold,
+}
+
+/// <summary>
+/// Which half of the first-time experience the player is in. Persisted only as "finished or not"
+/// (<c>PlayerSaveData.TutorialCompleted</c>); the split between the two halves lives in memory, because a
+/// player who quits mid-tutorial should start it again rather than resume into a menu step with no match
+/// behind it.
+/// </summary>
+public enum TutorialPhase
+{
+    None,
+
+    /// <summary>The scripted match in TutorialScene.</summary>
+    Match,
+
+    /// <summary>The Main Menu half: equip the reward card, upgrade it, start a real match.</summary>
+    Menu,
+}
+
+/// <summary>
+/// One beat of the tutorial. The id is what a step's logic is keyed on and what
+/// <c>TutorialCopySO</c> looks its text up by, so the copy can be rewritten without touching code.
+/// Appended to only — the copy table stores these by name.
+/// </summary>
+public enum TutorialStepId
+{
+    None,
+
+    // --- Match ---
+    Welcome,
+    Mana,
+    Hand,
+    PlaceTower,
+    LevelUpTower,
+    SwapToEnemyMap,
+    SendTroop,
+    CastSpell,
+    SwapBackHome,
+    MatchOutro,
+
+    // --- Menu ---
+    MenuWelcome,
+    OpenDeckPage,
+    RemoveCard,
+    EquipRewardCard,
+    OpenCardDetails,
+    UpgradeCard,
+    OpenBattlePage,
+    PressBattle,
+}
+
+/// <summary>How the tutorial overlay animates its pointing hand at a highlighted target.</summary>
+public enum TutorialHintKind
+{
+    /// <summary>Ring only, no hand. For "look at this" steps.</summary>
+    None,
+
+    Tap,
+
+    /// <summary>Hand travels from the highlight to the step's drag destination and repeats.</summary>
+    Drag,
+
+    /// <summary>Vertical swipe on the spot — the table-swap gesture.</summary>
+    SwipeUp,
+
+    SwipeDown,
 }

@@ -119,6 +119,50 @@ public class HostManager : BaseHostManager
         return true;
     }
 
+    /// <summary>
+    /// Hosts a match on this machine alone. Everything StartHostAsync does to make a match reachable —
+    /// the Relay allocation, the join code, the discovery lobby and its heartbeat — is skipped, so this
+    /// needs no internet and publishes nothing. What stays is exactly what a match needs to exist: the
+    /// connection payload, a listening host, and the scene load.
+    /// </summary>
+    /// <remarks>
+    /// The transport is left on whatever it was authored with (loopback by default). No relay data is set,
+    /// which is what keeps a second player from ever finding this session. <see cref="ShutdownHostAsync"/>
+    /// and <see cref="CloseLobbyToNewPlayers"/> both already tolerate a null lobby, so teardown is shared.
+    /// </remarks>
+    public override async Task<bool> StartLocalHostAsync(Loader.Scene scene)
+    {
+        if (CurrentHostConnectionData != null)
+        {
+            GameLog.Error("HostManager: Tried to StartLocalHostAsync but it's already hosting. Aborting load.");
+            OnFailToStartHost?.Invoke();
+            return false;
+        }
+
+        NetworkManager.Singleton.NetworkConfig.ConnectionData = _clientManager.UserData.TranslateToBytes();
+
+        // No allocation and no lobby id: the two teardown paths key off those being empty.
+        CurrentHostConnectionData = new HostConnectionData(null, null, null, NetworkManager.Singleton);
+
+        if (!NetworkManager.Singleton.StartHost())
+        {
+            GameLog.Error("HostManager: StartHost() returned false for a local host. Aborting load.");
+            CurrentHostConnectionData.Dispose();
+            CurrentHostConnectionData = null;
+            OnFailToStartHost?.Invoke();
+            return false;
+        }
+
+        GameLog.Info($"Local host started (offline, no relay). Loading {scene}.");
+        Loader.LoadHostNetwork(scene);
+
+        while (SceneManager.GetActiveScene().name != scene.ToString())
+            await Task.Delay(100);
+
+        OnHostInGameScene?.Invoke();
+        return true;
+    }
+
     private async Task<Allocation> CreateAllocation()
     {
         try
@@ -191,13 +235,17 @@ public class HostManager : BaseHostManager
             _heartbeatCoroutine = null;
         }
 
-        try
+        // A local host (tutorial) never created one, and CloseLobbyToNewPlayers may already have deleted it.
+        if (!string.IsNullOrEmpty(CurrentHostConnectionData.LobbyId))
         {
-            await LobbyService.Instance.DeleteLobbyAsync(CurrentHostConnectionData.LobbyId);
-        }
-        catch (LobbyServiceException lobbyEx)
-        {
-            GameLog.Exception(lobbyEx);
+            try
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(CurrentHostConnectionData.LobbyId);
+            }
+            catch (LobbyServiceException lobbyEx)
+            {
+                GameLog.Exception(lobbyEx);
+            }
         }
 
         NetworkManager networkManager = NetworkManager.Singleton;
@@ -215,6 +263,9 @@ public class HostManager : BaseHostManager
         // unregisters services). The NetworkManager is already stopped above.
         CurrentHostConnectionData.Dispose();
         CurrentHostConnectionData = null;
+
+        // Reset for the next session: left true, the "play again" host would never stop its new heartbeat.
+        _lobbyClosedToNewPlayers = false;
 
         OnHostShutdown?.Invoke();
     }

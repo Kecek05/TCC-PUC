@@ -34,6 +34,13 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
+    /// <summary>What this card is. Read by anything that has to reason about the hand from outside it —
+    /// the tutorial, which has to find "a tower card" to point the player at.</summary>
+    public CardDataSO CardData => cardDataSo;
+
+    /// <summary>This card as a UI rect, for a highlight to frame.</summary>
+    public RectTransform Rect => rectTransform;
+
     protected virtual void Start()
     {
         _cameraMain = Camera.main;

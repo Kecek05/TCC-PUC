@@ -91,7 +91,9 @@ public class NetworkConnectionServer : IDisposable, IOnPlayerConnected, IOnPlaye
 
     private void SceneManager_OnLoadComplete(ulong clientId, string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode)
     {
-        if(sceneName != Loader.Scene.GameScene.ToString()) return; //Only Spawn players in Game Scene
+        // Any gameplay scene, not GameScene by name: the tutorial runs in a copy of it, and a player who
+        // never counts as loaded there never gets a team, so the match never leaves WaitingForPlayers.
+        if (!Loader.IsGameplayScene(sceneName)) return;
         
         OnPlayerLoaded?.Invoke(_playersDataManager.GetAuthIdByClientId(clientId));
     }

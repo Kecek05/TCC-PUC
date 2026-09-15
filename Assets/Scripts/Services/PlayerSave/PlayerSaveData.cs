@@ -30,8 +30,21 @@ public class PlayerSaveData
     /// <summary>One entry per <b>owned</b> card. Absence is what "locked" means.</summary>
     public List<CardProgressSaveData> Cards = new();
 
-    /// <summary>2 added <see cref="Gold"/> and <see cref="Cards"/> on top of the v1 deck-only save.</summary>
-    public const int CurrentVersion = 2;
+    /// <summary>
+    /// Whether the player has finished the first-time experience. False on a brand-new save is what routes
+    /// the boot into TutorialScene instead of the Main Menu, so this is the one flag that decides what a
+    /// player sees when they open the game.
+    /// </summary>
+    /// <remarks>Only the finished/not-finished bit is persisted, never a step index: a player who quits
+    /// halfway starts the tutorial over rather than resuming into a menu step with no match behind it.</remarks>
+    public bool TutorialCompleted;
+
+    /// <summary>
+    /// 2 added <see cref="Gold"/> and <see cref="Cards"/> on top of the v1 deck-only save. 3 added
+    /// <see cref="TutorialCompleted"/> — an existing save deserializes it as false, so a returning player
+    /// would be sent through the tutorial; <c>PlayerSaveManager.Normalize</c> grants it to them instead.
+    /// </summary>
+    public const int CurrentVersion = 3;
 }
 
 /// <summary>One deck slot: a display label plus its cards, in the order the player laid them out.</summary>

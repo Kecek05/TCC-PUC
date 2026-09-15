@@ -39,6 +39,10 @@ public abstract class BasePlayerSaveManager
 
     public abstract int Gold { get; }
 
+    /// <summary>Whether the first-time experience is behind the player. False routes the boot into
+    /// TutorialScene instead of the Main Menu.</summary>
+    public abstract bool TutorialCompleted { get; }
+
     /// <summary>Hydrates from storage (or creates a default save) and raises
     /// <see cref="OnActiveDeckContentChanged"/> once. Must run before the Main Menu scene loads.</summary>
     public abstract void Load();
@@ -86,6 +90,9 @@ public abstract class BasePlayerSaveManager
     /// <summary>Banks a payout: gold, copies, and unlocking a brand-new card at level 1. Prefer
     /// <see cref="BaseRewardService.Grant"/> — it is the one path that also announces the reward.</summary>
     public abstract void GrantReward(Reward reward);
+
+    /// <summary>Marks the tutorial finished (or, for the debug reset, unfinished) and persists it.</summary>
+    public abstract void SetTutorialCompleted(bool completed);
 
     /// <summary>Editor/debug affordance. Negative amounts are clamped at 0 gold.</summary>
     public abstract void AddGold(int amount);

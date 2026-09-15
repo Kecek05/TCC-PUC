@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e0fa3f95b7236c4bbd27e79693b209f, type: 3}
+  m_Name: TutorialCopy
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialCopySO
+  lines:
+  - Step: 1
+    Text: 'Welcome, Commander!
+
+      Enemy waves march down <b>your</b> lane. Stop
+      them before they reach your base.'
+  - Step: 2
+    Text: 'This is your <b>Mana</b>. It fills on its own, and every card costs some.
+
+      Spend
+      it wisely.'
+  - Step: 3
+    Text: 'These are the cards in your hand.
+
+      Play one and the next is dealt
+      straight away.'
+  - Step: 4
+    Text: Drag the <b>tower card</b> onto the highlighted slot to build your defence.
+  - Step: 5
+    Text: 'Drop that <b>same tower card</b> on the tower again to <b>level it up</b>.
+
+      Stronger,
+      and it costs you no new slot.'
+  - Step: 6
+    Text: <b>Swipe up</b> to look at your opponent's lane.
+  - Step: 7
+    Text: Attack! Drop a <b>troop card</b> on their lane to send fighters at them.
+  - Step: 8
+    Text: 'Some <b>spells</b> only work on their side.
+
+      Drop this one on their
+      lane.'
+  - Step: 9
+    Text: <b>Swipe back down</b> to defend your own base.
+  - Step: 10
+    Text: 'That is everything you need!
+
+      Here is a reward for finishing - let
+      us put it to work.'
+  - Step: 11
+    Text: 'This is your base camp.
+
+      Your new card is waiting in your collection.'
+  - Step: 12
+    Text: Open the <b>Deck</b> page.
+  - Step: 13
+    Text: Your deck is full. Tap a card that is in it and choose <b>Remove</b> to
+      make room.
+  - Step: 14
+    Text: Now tap your <b>new card</b> and choose <b>Use</b> to put it in the deck.
+  - Step: 15
+    Text: Tap it once more and hit <b>Details</b> to see exactly what it does.
+  - Step: 16
+    Text: Spend your copies and gold on <b>Upgrade</b> to make it stronger for good.
+  - Step: 17
+    Text: Nicely done. Head back to the <b>Battle</b> page.
+  - Step: 18
+    Text: 'You are ready.
+
+      Hit <b>BATTLE</b> and play your first real match!'

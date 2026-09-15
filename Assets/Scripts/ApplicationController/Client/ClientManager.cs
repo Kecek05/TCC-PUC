@@ -19,12 +19,18 @@ public class ClientManager : BaseClientManager
     [Title("Player Save")]
     [SerializeField] private PlayerSaveSettingsSO playerSaveSettings;
 
+    [Title("Tutorial")]
+    [Tooltip("Leave empty to disable the first-time experience entirely: the boot then always goes " +
+             "straight to the Main Menu.")]
+    [SerializeField] private TutorialSettingsSO tutorialSettings;
+
     [Title("Debug")]
     [SerializeField] private bool useDebugHand = false;
     [SerializeField] private DebugHand debugHand;
 
     private BasePlayerSaveManager _playerSaveManager;
     private BaseRewardService _rewardService;
+    private BaseTutorialService _tutorialService;
 
     private void Awake()
     {
@@ -35,6 +41,7 @@ public class ClientManager : BaseClientManager
 
         InitializePlayerSave();
         InitializeRewards();
+        InitializeTutorial();
 
         ClientAuth = new ClientAuth();
         //TODO: Refactor the creation of NetworkClient too.
@@ -69,6 +76,34 @@ public class ClientManager : BaseClientManager
     {
         _rewardService = new RewardService(_playerSaveManager);
         ServiceLocator.Register<BaseRewardService>(_rewardService);
+    }
+
+    /// <summary>
+    /// Registers the first-time experience. It spans three scenes - this one decides whether to run it,
+    /// TutorialScene plays it, MainMenu finishes it - so like the save and the reward service it has to
+    /// outlive all of them, which is why it is created here rather than in any of them.
+    /// </summary>
+    private void InitializeTutorial()
+    {
+        _tutorialService = new TutorialService(_playerSaveManager, tutorialSettings, UserData);
+        ServiceLocator.Register<BaseTutorialService>(_tutorialService);
+    }
+
+    /// <summary>
+    /// Where a finished boot goes. A player who has not been through the first-time experience is taken
+    /// straight into it instead of the menu - the tutorial hosts its own local match, so this hands over
+    /// rather than loading a scene itself.
+    /// </summary>
+    private void RouteAfterAuth()
+    {
+        if (_tutorialService != null && _tutorialService.ShouldRunOnBoot)
+        {
+            GameLog.Info("[ClientManager] Tutorial not completed; booting into the tutorial match.");
+            _ = _tutorialService.StartMatchPhaseAsync();
+            return;
+        }
+
+        Loader.Load(Loader.Scene.MainMenu);
     }
 
     private void HandleActiveDeckContentChanged(DeckSaveData deck)
@@ -116,7 +151,7 @@ public class ClientManager : BaseClientManager
                 }
 
                 GameLog.Info($"Player authenticated. PlayerId: {AuthenticationService.Instance.PlayerId}, PlayerName: {playerName}");
-                Loader.Load(Loader.Scene.MainMenu);
+                RouteAfterAuth();
             }
         }
         catch (Exception e)

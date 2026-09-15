@@ -49,6 +49,8 @@ public class PlayerSaveManager : BasePlayerSaveManager
 
     public override int Gold => Data.Gold;
 
+    public override bool TutorialCompleted => Data.TutorialCompleted;
+
     public override void Load()
     {
         if (_repository == null || !_repository.TryLoad(out _data) || _data == null)
@@ -236,6 +238,14 @@ public class PlayerSaveManager : BasePlayerSaveManager
         GameLog.Info($"[PlayerSaveManager] Reward banked - {reward}. Gold is now {Data.Gold}.");
     }
 
+    public override void SetTutorialCompleted(bool completed)
+    {
+        if (Data.TutorialCompleted == completed) return;
+
+        Data.TutorialCompleted = completed;
+        Persist();
+    }
+
     public override void AddGold(int amount)
     {
         if (amount == 0) return;
@@ -420,6 +430,15 @@ public class PlayerSaveManager : BasePlayerSaveManager
         if (data.Gold < 0)
         {
             data.Gold = 0;
+            changed = true;
+        }
+
+        // A save written before the tutorial existed belongs to a player who already knows the game.
+        // Sending them back through it would be a regression, so the migration grants it as finished; only
+        // a genuinely new save (created at CurrentVersion) starts with the flag false.
+        if (data.SaveVersion < 3 && !data.TutorialCompleted)
+        {
+            data.TutorialCompleted = true;
             changed = true;
         }
 

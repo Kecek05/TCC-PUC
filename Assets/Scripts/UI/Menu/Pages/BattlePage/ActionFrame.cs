@@ -26,6 +26,18 @@ public class ActionFrame : MonoBehaviour
 
     private CardDataSO _cardData;
 
+    /// <summary>Whether the popup is on screen. The tutorial waits for it before pointing inside it.</summary>
+    public bool IsVisible => content != null && content.activeInHierarchy;
+
+    /// <summary>The card the popup is currently open for, or null when it is closed.</summary>
+    public CardDataSO ShownCard => _cardData;
+
+    /// <summary>The popup's two buttons as rects, so the tutorial can frame one of them. Exposed rather
+    /// than driven: the tutorial points at them, it never presses them for the player.</summary>
+    public RectTransform InfoButtonRect => infoButton != null ? (RectTransform)infoButton.transform : null;
+
+    public RectTransform UpgradeButtonRect => upgradeButton != null ? (RectTransform)upgradeButton.transform : null;
+
     public void Initialize(DeckUIController  deckUIController)
     {
         _infoPanelService = ServiceLocator.Get<BaseInfoPanelService>();

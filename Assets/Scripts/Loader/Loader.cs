@@ -9,6 +9,14 @@ public static class Loader
 
     private static LoadType loadType;
     public static Scene CurrentScene => currentScene;
+
+    /// <summary>
+    /// Whether a scene name is one a match actually runs in. Anything gating on "are we in the match yet"
+    /// must ask this rather than compare against GameScene alone — TutorialScene is a second gameplay
+    /// scene, and a check that names only one of them silently does nothing in the other.
+    /// </summary>
+    public static bool IsGameplayScene(string sceneName) =>
+        sceneName == Scene.GameScene.ToString() || sceneName == Scene.TutorialScene.ToString();
     
     public enum Scene
     {
@@ -18,7 +26,10 @@ public static class Loader
         GameScene,
         MainMenu,
         StartScene,
-        NoNetwork
+        NoNetwork,
+
+        /// <summary>The scripted first-time-experience match. A copy of GameScene, hosted locally.</summary>
+        TutorialScene
     }
     
     public enum LoadType

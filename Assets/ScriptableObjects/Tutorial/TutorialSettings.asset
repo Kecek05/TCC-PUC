@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b95038af4b793c74589d2738738a525c, type: 3}
+  m_Name: TutorialSettings
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialSettingsSO
+  TutorialDeck: 0a0000000d0000000400000005000000
+  DeckCardLevel: 1
+  CardDataList: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
+  CardProgression: {fileID: 11400000, guid: 27e67ca7b285c634093a2ad21ee8fbee, type: 2}
+  Copy: {fileID: 11400000, guid: 02ee677b431fdfb48a6606a56fa6358e, type: 2}
+  BonusCopies: 2
+  BonusGold: 150
+  OutroSeconds: 2.5
+  AllowSkip: 1

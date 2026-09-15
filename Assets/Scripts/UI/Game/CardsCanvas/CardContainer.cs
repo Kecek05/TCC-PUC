@@ -15,6 +15,8 @@ public class CardContainer : BaseCardContainer
     // the card they are replacing releases its slot.
     private readonly List<AbstractCard> pendingCards = new();
 
+    public override IReadOnlyCollection<AbstractCard> CardsInHand => occupiedSlots.Keys;
+
     private void Awake()
     {
         ServiceLocator.Register<BaseCardContainer>(this);
