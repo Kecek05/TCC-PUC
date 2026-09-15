@@ -918,7 +918,7 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 300, y: 80}
   m_Spacing: {x: 30, y: 22}
-  m_Constraint: 0
+  m_Constraint: 1
   m_ConstraintCount: 2
 --- !u!1 &92139690
 GameObject:
@@ -1759,8 +1759,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 310088003}
   m_HandleRect: {fileID: 310088002}
   m_Direction: 0
-  m_Value: -0.00000007765317
-  m_Size: 0.49490786
+  m_Value: 0
+  m_Size: 0.4949078
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6264,7 +6264,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 18.000122
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9465,8 +9465,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 958.972, y: -1289.7}
-  m_SizeDelta: {x: 1917.944, y: 0}
+  m_AnchoredPosition: {x: 540, y: -1289.7}
+  m_SizeDelta: {x: 1080, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1571833214
 MonoBehaviour:

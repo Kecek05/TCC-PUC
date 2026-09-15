@@ -49,10 +49,16 @@ public class InfoPanelCanvas : BaseInfoPanelService
     [SerializeField] private GameObject upgradeCostIcon;
 
     [Title("Stats")]
-    [InfoBox("One StatPrefab is instantiated into StatsParent per stat the card reports. Optional: with " +
-             "either reference empty the panel simply shows no stat table.")]
-    [SerializeField] private Transform statsParent;
+    [InfoBox("One StatPrefab is instantiated into StatsParent per stat the card reports, and the grid " +
+             "shrinks itself so every row fits however many a card has. Optional: with either reference " +
+             "empty the panel simply shows no stat table.")]
+    [SerializeField] private RectTransform statsParent;
     [SerializeField] private StatEntryUI statEntryPrefab;
+
+    [Tooltip("Breathing room kept below the stat table when it has to shrink to fit — without it a tall " +
+             "card ends flush against the frame. Comes off the height the fit may use but not off the grid's " +
+             "own rect, so the gap is the same size whatever the table scales to.")]
+    [SerializeField, MinValue(0f)] private float statsBottomMargin = 20f;
 
     [Title("Pages")]
     [Tooltip("Optional. The stats / description page strip. Put back on the first page every time the panel " +
@@ -82,6 +88,13 @@ public class InfoPanelCanvas : BaseInfoPanelService
     /// <summary>Spawned stat rows, kept between shows rather than destroyed — see <see cref="BuildStats"/>.</summary>
     private readonly List<StatEntryUI> statEntries = new();
 
+    /// <summary>The stat grid as it was authored, so a fit always scales from the design rather than from
+    /// whatever the last card left behind.</summary>
+    private GridLayoutGroup statsGrid;
+    private Vector2 _statsArea;
+    private Vector2 _statCellSize;
+    private Vector2 _statSpacing;
+
     private BasePlayerSaveManager _playerSave;
     private ScreenWarning _screenWarning;
 
@@ -101,6 +114,8 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
         if (levelLabel != null) _levelLabelColor = levelLabel.color;
         if (rarityLabel != null) _rarityLabelColor = rarityLabel.color;
+
+        CaptureStatGrid();
 
         InitializeButtons();
         contentObject.SetActive(false);
@@ -285,6 +300,83 @@ public class InfoPanelCanvas : BaseInfoPanelService
     }
 
     /// <summary>
+    /// Remembers the stat grid as authored: its cell, its spacing, and the area on screen it is meant to
+    /// fill. <see cref="FitStatGrid"/> scales from these, never from the current values, so shrinking for a
+    /// ten-row card and then growing back for a two-row one both land exactly on the design.
+    /// </summary>
+    private void CaptureStatGrid()
+    {
+        if (statsParent == null) return;
+
+        statsGrid = statsParent.GetComponent<GridLayoutGroup>();
+        if (statsGrid == null) return;
+
+        _statCellSize = statsGrid.cellSize;
+        _statSpacing = statsGrid.spacing;
+
+        // The rendered size, not the local one: should a fit ever be saved into the scene (running the
+        // ShowInfoPanel button in the editor would do it), rect * scale still recovers the area the grid is
+        // meant to fill rather than compounding the shrink on every load.
+        _statsArea = Vector2.Scale(statsParent.rect.size, statsParent.localScale);
+    }
+
+    /// <summary>
+    /// Shrinks the whole grid — cells, spacing and text alike — until every row of <paramref name="count"/>
+    /// stats fits the area the panel gives it. Anel reports 10 stats and Circle 9, which need a fifth row
+    /// the authored grid has no height for.
+    /// </summary>
+    /// <remarks>
+    /// Done by scaling <c>StatsParent</c> down and widening its rect by the same factor, rather than by
+    /// shrinking <c>cellSize</c>: StatPrefab's three labels are anchored to its top-left corner at a fixed
+    /// font size, so a shorter cell would clip them instead of fitting them. Scaling the parent keeps every
+    /// row pixel-identical to the design, only smaller.
+    /// <para>Never scales above 1 — a two-row card blown up to fill the panel would read as a different
+    /// widget from the eight-row card beside it.</para>
+    /// </remarks>
+    private void FitStatGrid(int count)
+    {
+        if (statsGrid == null || _statsArea.x <= 0f || _statsArea.y <= 0f) return;
+
+        int columns = StatColumns;
+        int rows = Mathf.Max(1, Mathf.CeilToInt(count / (float)columns));
+
+        float neededWidth = columns * _statCellSize.x + (columns - 1) * _statSpacing.x + statsGrid.padding.horizontal;
+        float neededHeight = rows * _statCellSize.y + (rows - 1) * _statSpacing.y + statsGrid.padding.vertical;
+
+        // The margin comes off the height the fit may use, but NOT off the rect below, so the table simply
+        // stops short of the frame instead of ending flush against it. Kept out of the rect on purpose: a
+        // margin that scaled with the grid would shrink exactly when the grid is tallest and needs it most.
+        float usableHeight = Mathf.Max(1f, _statsArea.y - statsBottomMargin);
+
+        float scale = Mathf.Min(1f, _statsArea.x / neededWidth, usableHeight / neededHeight);
+
+        statsParent.localScale = new Vector3(scale, scale, 1f);
+        statsParent.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _statsArea.x / scale);
+        statsParent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _statsArea.y / scale);
+    }
+
+    /// <summary>
+    /// How many columns the grid lays out. A fixed constraint is honoured; Flexible cannot be, because it
+    /// would re-derive the count from the rect <see cref="FitStatGrid"/> just widened and change the row
+    /// count under the maths that widened it — so it is resolved once, the way Flexible itself would have,
+    /// against the authored area.
+    /// </summary>
+    private int StatColumns
+    {
+        get
+        {
+            if (statsGrid.constraint == GridLayoutGroup.Constraint.FixedColumnCount)
+                return Mathf.Max(1, statsGrid.constraintCount);
+
+            float stride = _statCellSize.x + _statSpacing.x;
+            if (stride <= 0f) return 1;
+
+            float usable = _statsArea.x - statsGrid.padding.horizontal + _statSpacing.x;
+            return Mathf.Max(1, Mathf.FloorToInt(usable / stride));
+        }
+    }
+
+    /// <summary>
     /// Puts the page strip back on the first page. The panel is hidden rather than destroyed, so the scroll
     /// keeps whatever offset the last card was left on - and a card opened from there would show its
     /// description with its stat table already swiped off screen. Reset after the content is activated, so
@@ -308,6 +400,8 @@ public class InfoPanelCanvas : BaseInfoPanelService
         if (statsParent == null || statEntryPrefab == null) return;
 
         int count = stats?.Count ?? 0;
+
+        FitStatGrid(count);
 
         while (statEntries.Count < count)
             statEntries.Add(Instantiate(statEntryPrefab, statsParent));

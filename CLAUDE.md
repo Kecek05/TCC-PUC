@@ -281,10 +281,26 @@ showing Health/Damage/Speed cost no branching in the UI at all.
   `GetStatProgress` keep pairing current with next by index.
 - That pairing now compares the **label**, not just the `CardStatId`: three "Damage Lvl n" rows share
   `CardStatId.Damage`, so the id alone would happily pair tier 1 with tier 2.
-- **The grid no longer fits the worst case.** `StatsParent` now lives inside the panel's horizontal page
-  scroll at 681x449, with 300x80 cells and 30x22 spacing — 2 columns x 4 rows, so 8 stats. Circle reports 9
-  and Anel 10, which need a 5th row and overflow by ~39px. Either grow the page or give `StatsParent` its
-  own vertical scroll before that matters.
+- **The stat grid scales itself to fit, rather than being sized to a worst case.** `StatsParent` sits inside
+  the page scroll at 681x449 with 300x80 cells and 30x22 spacing — 2 fixed columns x 4 rows, so 8 stats.
+  Circle reports 9 and Anel 10, which need a fifth row there is no height for. `FitStatGrid` shrinks the
+  whole grid uniformly until the rows fit: at 5 rows the factor is 0.88, and the table renders inside the
+  681x449 it was authored to occupy. **Never above 1** — a two-row card blown up to fill the panel would
+  read as a different widget from the eight-row card beside it, so short cards are untouched.
+- **`statsBottomMargin` (20 by default) is held back from the fit, not from the rect.** A grid scaled to
+  exactly fill its area ends flush against the frame, which is what a shrunk card looked like before. The
+  margin comes off the height the scale may use, so the table simply stops short; leaving it out of the
+  rect is what makes the gap a constant 20 on screen rather than something that shrinks with the grid —
+  i.e. that gets smallest exactly when the table is tallest and needs it most.
+- **It scales `StatsParent` and widens its rect by the same factor; it does not shrink `cellSize`.**
+  StatPrefab's three labels are anchored to its top-left corner at a fixed font size, so a shorter cell
+  would clip them rather than fit them. Scaling the parent takes the text down with everything else and
+  keeps every row pixel-identical to the design, only smaller.
+- **The grid is authored `FixedColumnCount = 2` on purpose.** Flexible derives the column count from the
+  rect width — the same width the fit just widened — so it would change the column count under the maths
+  that widened it, and the row count with it. The authored cell, spacing and *rendered* area are captured
+  once in `Awake` (`rect.size * localScale`, so a fit accidentally saved into the scene recovers rather
+  than compounds), and every fit scales from those rather than from what the last card left behind.
 - **`InfoPanelData` carries the card, and nothing else.** It started generic — pre-resolved stat rows and
   no `CardDataSO` — but the panel now *is* the card page: it embeds a `SingleCardInDeck` portrait, prints
   the rarity and type, and sells the next level. A generic contract in front of that would be a fiction, so
