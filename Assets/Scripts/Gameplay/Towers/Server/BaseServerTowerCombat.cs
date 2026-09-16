@@ -40,6 +40,12 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     public NetworkVariable<bool> IsFrozen => _isFrozen;
     public NetworkVariable<bool> IsHasted => _isHasted;
 
+    /// <summary>
+    /// Server-side. True for the setup window after the tower spawns or is upgraded, in which it cannot fire
+    /// yet (the level's SetupDuration). Runs on scaled time like the rest of combat.
+    /// </summary>
+    public bool IsSettingUp => !_setuped || _upgradingFlag;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();

@@ -428,7 +428,7 @@ teaches progression, and progression is only teachable once the player owns some
 - **A waiting step freezes the world** (`Time.timeScale = 0`, driven by `TutorialSequence`, opt out per step
   with `.Running()`). One line stops waves, towers, projectiles and mana regen at once without a single
   system learning about the tutorial — and a player reading an instruction should not be losing their base
-  while they read it. Three things had to follow from it:
+  while they read it. Four things had to follow from it:
   - **Timeouts are measured in `Time.unscaledTime`.** Scaled, freezing would switch the dead-end safety net
     off exactly where it matters most.
   - **Mana is topped up every frame an action step waits** (`.WhileWaiting(RefillMana)`), not on entry. A
@@ -440,8 +440,37 @@ teaches progression, and progression is only teachable once the player owns some
     dropped), and `CameraSlide`'s `TweenCameraTo`/`SnapBack` (or the camera strands half-way between the two
     fields on the very swipe the tutorial just asked for). All three are responses to a gesture the player
     just made, so unscaled is the right answer in normal play too.
+  - **An action's result gets to finish before the next step freezes it** (`.SettlingUntil(...)`). The
+    *request* completes under a frozen clock, but what it starts does not. A tower spawns as a 0.01-scale
+    dot (its `MMF_Player` scale-in is 0.7s of scaled time) inside a `SetupDuration` window that is also
+    scaled. The next step froze it right there, so the level-up step pointed at a tower the player could
+    not see. Once a settling step completes, `TutorialSequence` unfreezes, hides the overlay (its dim and
+    hand would sit between the player and what they did), and enters the next step only when the predicate
+    holds. The wait is bounded (3s, unscaled). Both tower steps settle on `IsLastBuiltTowerSettled`:
+    `BaseServerTowerCombat.IsSettingUp` and `ClientTowerGFX.IsPlayingLevelFeedback` both false, read off
+    the tower the place result landed on (the host reads server state directly). Measured: placing settles
+    in ~0.73s and levelling up in ~0.91s, about 1.6s of live match in total, well inside the waves' 7s
+    `InitialDelay`. Settling was chosen over making tower visuals unscaled: it is one mechanism in the
+    tutorial rather than a timescale audit of every prefab an action can touch, and it gives each action a
+    visible beat. **SendTroop and CastSpell have the same shape** (a troop's `SpawnDuration`, a spell's
+    cast) and do not settle yet.
   - Verified under a frozen clock: the placement Rpc round-trip, the level-up, the troop, the spell and both
     swipes all complete at `timeScale = 0`.
+- **The script starts when the board is visible, not when the match is.** The server reaches `InMatch`
+  while `PlayersIntroductionCanvas` is still showing both names (`MatchReadyState` holds 2s; the intro holds
+  3s, then fades for 0.5s). Keyed on `InMatch` alone, the director put the Welcome line on top of that
+  loading screen, and its freeze then stopped the intro's *scaled* fade with a second of delay left, so the
+  names covered the board for the whole tutorial. Three changes, each covering a hole the others leave:
+  - The intro registers as **`IMatchIntroduction`** (`IsFinished` flips in the fade's `OnComplete`), and the
+    director waits for it after `InMatch`. It goes through the ServiceLocator rather than a serialized
+    reference, because the director otherwise depends on nothing concrete in the scene.
+  - The wait is **bounded (10s, unscaled)** — the dead-end rule again. That bound is only safe because the
+    fade is now **unscaled** too: a freeze that lands before the intro clears can no longer pin it.
+  - The intro hides on **any state from `MatchReady` on**, not `MatchReady` alone. A canvas that first
+    looked after the server had passed it never hid, and the director now waits on it.
+  - Measured in play mode: `InMatch` at +2.1s with the intro opaque, Welcome at +3.5s in the same frame the
+    intro reports finished. The ~1.5s of live match in between is harmless: the tutorial waves'
+    `InitialDelay` is 7s and the bot's first decision is at least 3s away.
 - **The outro pays out and shows what it paid.** The reward is rolled and banked when the outro step is
   *entered* rather than on the way out, so the line can name the card (`TutorialStep.Formatting` feeds
   `string.Format` args into the copy, keeping `{0}` out of the copy table's knowledge of which card it is)
@@ -455,6 +484,13 @@ teaches progression, and progression is only teachable once the player owns some
   `Content` child — so the overlay unions the children when a target has no area of its own. Cross-canvas
   maths is the other subtlety: the hand and mana bar are on a **Screen Space - Camera** canvas, so their
   corners reach screen space through *that* camera and come back through this overlay's (null) one.
+- **The table swap is a swipe DOWN.** The opponent's field sits *above* ours (`BluePlayerMapY` 11 vs
+  `RedPlayerMapY` -1.1) and `CameraSlide` moves the camera *against* the finger, so the board follows the
+  drag: reaching their lane is a finger-down swipe, coming home a finger-up one. The first draft hinted and
+  worded both backwards, and a swipe up at home is clamped and does nothing. Running it also exposed a
+  regression from the `CameraSlide` refactor (`d866e93d`): `EvaluateRelease` divided by Red - Blue, so drag
+  progress ran 0 -> -1. A slow drag therefore never committed toward the enemy field (only a flick did),
+  and releasing any drag on the enemy field committed back home. It is Blue - Red again.
 - **The payout is shaped by the steps that follow it, not rolled for value.** `TutorialRewardRoller` picks
   uniformly from the cards the player does **not** own and grants exactly the level 1 -> 2 cost plus a small
   surplus, so "equip it" and "upgrade it" are both always possible. It is deliberately not an
@@ -470,5 +506,6 @@ teaches progression, and progression is only teachable once the player owns some
   (under `Assets/Scripts/Services/Tutorial/`); `TutorialStep.cs`, `TutorialSequence.cs`,
   `TutorialMatchDirector.cs`, `TutorialRewardRoller.cs` (under `Assets/Scripts/Gameplay/Tutorial/`);
   `BaseTutorialOverlay.cs`, `TutorialOverlayCanvas.cs`, `TutorialMenuDirector.cs` (under
-  `Assets/Scripts/UI/Tutorial/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
+  `Assets/Scripts/UI/Tutorial/`); `IMatchIntroduction.cs`, `PlayersIntroductionCanvas.cs` (under
+  `Assets/Scripts/UI/Game/Match/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
   `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab`; `Assets/Scenes/TutorialScene.unity`.

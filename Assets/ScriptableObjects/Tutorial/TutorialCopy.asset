@@ -36,7 +36,7 @@ MonoBehaviour:
       Stronger,
       and it costs you no new slot.'
   - Step: 6
-    Text: <b>Swipe up</b> to look at your opponent's lane.
+    Text: <b>Swipe down</b> to look at your opponent's lane.
   - Step: 7
     Text: Attack! Drop a <b>troop card</b> on their lane to send fighters at them.
   - Step: 8
@@ -45,7 +45,7 @@ MonoBehaviour:
       Drop this one on their
       lane.'
   - Step: 9
-    Text: <b>Swipe back down</b> to defend your own base.
+    Text: <b>Swipe back up</b> to defend your own base.
   - Step: 10
     Text: 'That is everything you need!
 

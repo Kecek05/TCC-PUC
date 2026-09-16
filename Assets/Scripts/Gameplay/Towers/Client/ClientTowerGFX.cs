@@ -27,6 +27,9 @@ public class ClientTowerGFX : MonoBehaviour
     private bool _frozen;
     private bool _hasted;
 
+    /// <summary>True while a spawn or upgrade animation is still playing out.</summary>
+    public bool IsPlayingLevelFeedback => HasAnyFeedbackPlaying();
+
     // Subscribe in Awake, not Start: BaseClientTowerCombat replays the initial tower level (and frozen/haste
     // state) inside OnNetworkSpawn, which runs AFTER Awake but BEFORE Start. Subscribing in Start would miss
     // that initial replay, so the level-1 spawn fade-in never fires.

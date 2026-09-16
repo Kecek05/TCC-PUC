@@ -14,6 +14,14 @@ using UnityEngine;
 /// </remarks>
 public class TutorialMatchDirector : MonoBehaviour
 {
+    /// <summary>Unscaled seconds the script waits, after InMatch, for the players' intro to leave the
+    /// screen. It normally takes about 1.5s; this only matters if it never does.</summary>
+    private const float IntroductionTimeoutSeconds = 10f;
+
+    /// <summary>World units within which a place result's position is matched to the tower standing on it.
+    /// The two are the same point, so this only has to stay under the gap between two slots.</summary>
+    private const float TowerMatchRadius = 0.5f;
+
     [Title("References")]
     [SerializeField, Required] private TutorialSettingsSO settings;
 
@@ -53,6 +61,9 @@ public class TutorialMatchDirector : MonoBehaviour
     private Vector2 _placedTowerPosition;
     private CardType _placedTowerCard = CardType.None;
     private CameraSide _cameraSide = CameraSide.Local;
+
+    /// <summary>The tower the player's latest place or upgrade landed on - what the two tower steps settle on.</summary>
+    private TowerManager _lastBuiltTower;
 
     /// <summary>Rolled and banked when the outro is reached, so the outro can name and show it and the
     /// handover does not have to roll a second one.</summary>
@@ -98,6 +109,21 @@ public class TutorialMatchDirector : MonoBehaviour
         yield return new WaitUntil(() => ServiceLocator.TryGet(out _gameFlow) && _gameFlow != null);
         yield return new WaitUntil(() => _gameFlow.CurrentGameState.Value == GameState.InMatch);
 
+        // InMatch is not the moment the player can see the board: the server gets there while both names
+        // are still up (MatchReady holds 2s, the intro 3s plus its fade). Starting on it put the first line,
+        // and the freeze that comes with it, on top of the loading screen.
+        if (ServiceLocator.TryGet(out IMatchIntroduction intro))
+        {
+            // Bounded, and unscaled like every other tutorial timeout: an intro that never clears may delay
+            // the tutorial, never cancel it.
+            float giveUpAt = Time.unscaledTime + IntroductionTimeoutSeconds;
+            yield return new WaitUntil(() => intro.IsFinished || Time.unscaledTime >= giveUpAt);
+
+            if (!intro.IsFinished)
+                GameLog.Warn($"[Tutorial] The match intro was still up after {IntroductionTimeoutSeconds:0.#}s; " +
+                             "starting anyway so the tutorial cannot dead-end.");
+        }
+
         // Resolved after the match is live: the hand and the deployers only exist from that point.
         ServiceLocator.TryGet(out _teamManager);
         ServiceLocator.TryGet(out _cardContainer);
@@ -126,6 +152,8 @@ public class TutorialMatchDirector : MonoBehaviour
     /// make one happen — no matching card drawn, no mana, a slot the bot took — is moved along rather than
     /// left stuck, which is the one failure a first-time experience must not have.
     /// </summary>
+    /// <remarks>The two tower steps also settle: the world runs until the tower has finished arriving, or
+    /// the next step's freeze would hold it as a dot mid-spawn while the player is told to upgrade it.</remarks>
     private List<TutorialStep> BuildSteps() => new()
     {
         new TutorialStep(TutorialStepId.Welcome)
@@ -142,18 +170,22 @@ public class TutorialMatchDirector : MonoBehaviour
         new TutorialStep(TutorialStepId.PlaceTower)
             .WhileWaiting(RefillMana)
             .CompletesWhen(() => _towerPlaced)
+            .SettlingUntil(IsLastBuiltTowerSettled)
             .Pointing(PointAtTowerPlacement)
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.LevelUpTower)
             .WhileWaiting(RefillMana)
             .CompletesWhen(() => _towerLevelledUp)
+            .SettlingUntil(IsLastBuiltTowerSettled)
             .Pointing(PointAtTowerUpgrade)
             .GivingUpAfter(60f),
 
+        // The opponent's field sits ABOVE ours, and CameraSlide moves the camera against the finger (the
+        // board follows the drag), so reaching it is a swipe DOWN and coming home a swipe UP.
         new TutorialStep(TutorialStepId.SwapToEnemyMap)
             .CompletesWhen(() => _cameraSide == CameraSide.Enemy)
-            .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeUp))
+            .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeDown))
             .GivingUpAfter(45f),
 
         new TutorialStep(TutorialStepId.SendTroop)
@@ -170,7 +202,7 @@ public class TutorialMatchDirector : MonoBehaviour
 
         new TutorialStep(TutorialStepId.SwapBackHome)
             .CompletesWhen(() => _cameraSide == CameraSide.Local)
-            .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeDown))
+            .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeUp))
             .GivingUpAfter(45f),
 
         // The one step that lets the world run again: the reward lands here, and the board moving behind it
@@ -307,6 +339,53 @@ public class TutorialMatchDirector : MonoBehaviour
                 _towerLevelledUp = true;
                 break;
         }
+
+        // Both outcomes start an animation and a setup window on that tower, and the step they complete
+        // waits for both to finish before the next one freezes the world again.
+        _lastBuiltTower = FindLocalTowerAt(result.Position);
+
+        if (_lastBuiltTower == null)
+            GameLog.Warn($"[Tutorial] No tower of ours at {result.Position}; the next step will not wait for it.");
+    }
+
+    /// <summary>
+    /// The player's tower standing on <paramref name="position"/>. A place result carries server space, which
+    /// on the tutorial's host is world space too: the host is the server, so its towers sit where it put them.
+    /// </summary>
+    private TowerManager FindLocalTowerAt(Vector2 position)
+    {
+        TowerManager closest = null;
+        float closestSqr = TowerMatchRadius * TowerMatchRadius;
+
+        foreach (TowerManager tower in TowerRegistry.ActiveTowers)
+        {
+            if (tower == null || tower.Team == null || tower.Team.GetTeamType() != _localTeam) continue;
+
+            float sqr = ((Vector2)tower.transform.position - position).sqrMagnitude;
+            if (sqr > closestSqr) continue;
+
+            closest = tower;
+            closestSqr = sqr;
+        }
+
+        return closest;
+    }
+
+    /// <summary>
+    /// Whether the tower the player just built or upgraded has finished arriving: its setup window is over
+    /// and its spawn or upgrade animation has played out. Both run on scaled time, so under a frozen step
+    /// they stop where they are - a fresh tower stays a dot at 1% scale.
+    /// </summary>
+    /// <remarks>Reads the server combat directly, which only works because the tutorial is a local host.</remarks>
+    private bool IsLastBuiltTowerSettled()
+    {
+        // Gone, or never found: there is nothing left to wait for.
+        if (_lastBuiltTower == null) return true;
+
+        if (_lastBuiltTower.ServerTowerCombat.IsSettingUp) return false;
+
+        ClientTowerGFX gfx = _lastBuiltTower.GetComponentInChildren<ClientTowerGFX>();
+        return gfx == null || !gfx.IsPlayingLevelFeedback;
     }
 
     private void HandleCardDeployed(CardDeployedEventArgs args)

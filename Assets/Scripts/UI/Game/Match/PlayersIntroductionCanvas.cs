@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 
-public class PlayersIntroductionCanvas : MonoBehaviour
+public class PlayersIntroductionCanvas : MonoBehaviour, IMatchIntroduction
 {
     [Title("References")]
     [SerializeField] private TextMeshProUGUI localPlayerLabel;
@@ -23,9 +23,12 @@ public class PlayersIntroductionCanvas : MonoBehaviour
     private bool _hideStarted;
     private Tween _fadeTween;
 
+    public bool IsFinished { get; private set; }
+
     private void Awake()
     {
         canvasGroup.alpha = 1f;
+        ServiceLocator.Register<IMatchIntroduction>(this);
     }
 
     private IEnumerator Start()
@@ -50,6 +53,8 @@ public class PlayersIntroductionCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
+        ServiceLocator.Unregister<IMatchIntroduction>();
+
         if (_gameFlowManager != null)
             _gameFlowManager.CurrentGameState.OnValueChanged -= OnGameStateChanged;
 
@@ -92,19 +97,27 @@ public class PlayersIntroductionCanvas : MonoBehaviour
         _namesPopulated = true;
     }
 
+    // Unscaled: this is a loading screen, not gameplay, so nothing that stops the clock may hold it up.
+    // The tutorial freezes Time.timeScale, and a scaled fade caught by that freeze left both names over
+    // the board for the entire scripted match.
     private void HideAfterDelay()
     {
         _fadeTween = canvasGroup
             .DOFade(0f, fadeDuration)
             .SetDelay(delayBeforeHideSeconds)
             .SetEase(fadeEase)
+            .SetUpdate(true)
             .OnComplete(() =>
             {
                 canvasGroup.interactable = false;
                 canvasGroup.blocksRaycasts = false;
+                IsFinished = true;
             });
     }
 
-    private static bool HasReachedMatchReady(GameState state) => state == GameState.MatchReady;
-    
+    // Any state from MatchReady on, not MatchReady alone. The server passes through it in two seconds, and a
+    // canvas that first looks after that would otherwise never hide - which the tutorial, now waiting on
+    // IsFinished, would turn into a dead end.
+    private static bool HasReachedMatchReady(GameState state) =>
+        state is GameState.MatchReady or GameState.DrawingCards or GameState.InMatch or GameState.EndMatch;
 }

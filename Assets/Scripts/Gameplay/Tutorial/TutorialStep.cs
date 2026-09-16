@@ -72,6 +72,16 @@ public class TutorialStep
     /// <summary>Ends the step. Null means it never self-completes, so it must be a tap-to-continue step.</summary>
     public Func<bool> IsComplete { get; private set; }
 
+    /// <summary>
+    /// Once the step is complete, the world runs until this is true, and only then is the next step entered.
+    /// For an action whose result animates - a tower rising, an upgrade landing - which the next step's
+    /// freeze would otherwise stop half-way. Null: move on the moment the step completes.
+    /// </summary>
+    public Func<bool> IsSettled { get; private set; }
+
+    /// <summary>Unscaled seconds a settling step waits for <see cref="IsSettled"/> before moving on anyway.</summary>
+    public float SettleTimeout { get; private set; }
+
     public Func<TutorialHighlight> Highlight { get; private set; }
 
     public Action OnEnter { get; private set; }
@@ -119,6 +129,15 @@ public class TutorialStep
     public TutorialStep CompletesWhen(Func<bool> predicate)
     {
         IsComplete = predicate;
+        return this;
+    }
+
+    /// <summary>After completing, lets the match run until <paramref name="settled"/> holds - or
+    /// <paramref name="maxSeconds"/> pass - before the next step freezes it again.</summary>
+    public TutorialStep SettlingUntil(Func<bool> settled, float maxSeconds = 3f)
+    {
+        IsSettled = settled;
+        SettleTimeout = Mathf.Max(0f, maxSeconds);
         return this;
     }
 

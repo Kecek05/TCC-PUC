@@ -25,6 +25,12 @@ public class TutorialSequence
     private float _enteredAt;
     private bool _tapped;
 
+    /// <summary>When the current step completed and started letting its result play out (see
+    /// <see cref="TutorialStep.IsSettled"/>). Negative while the step is still waiting on the player.</summary>
+    private float _settlingSince = -1f;
+
+    private bool IsSettling => _settlingSince >= 0f;
+
     /// <summary>The timescale before the tutorial touched it, restored whenever the run ends. Captured
     /// rather than assumed to be 1 so a paused game is handed back paused.</summary>
     private float _timeScaleBeforeRun = 1f;
@@ -62,6 +68,12 @@ public class TutorialSequence
 
         TutorialStep step = _steps[_index];
 
+        if (IsSettling)
+        {
+            TickSettling(step);
+            return;
+        }
+
         step.OnTick?.Invoke();
 
         // Re-resolved every frame so the ring follows a card that is still sliding into its slot, or a
@@ -83,7 +95,10 @@ public class TutorialSequence
         }
 
         bool done = step.WaitsForTap ? _tapped : step.IsComplete == null || step.IsComplete();
-        if (done) EnterNext();
+        if (!done) return;
+
+        if (step.IsSettled != null) BeginSettling(step);
+        else EnterNext();
     }
 
     /// <summary>Abandons the run wherever it is. The overlay is cleared; no step's exit is skipped.</summary>
@@ -105,12 +120,44 @@ public class TutorialSequence
 
     private void HandleContinueTapped() => _tapped = true;
 
+    /// <summary>
+    /// The player did what the step asked. Lets the world run so the result plays out - a tower rising, an
+    /// upgrade landing - before the next step freezes it again: a match animates on scaled time, so going
+    /// straight on would leave it hanging half-way under the next instruction. The overlay steps aside
+    /// meanwhile, because its dim and its pointing hand would sit between the player and what they just did.
+    /// </summary>
+    private void BeginSettling(TutorialStep step)
+    {
+        _settlingSince = Time.unscaledTime;
+        SetFrozen(false);
+
+        if (_overlay != null) _overlay.Hide();
+
+        GameLog.Info($"[Tutorial] Step {step.Id} done; letting it settle.");
+    }
+
+    private void TickSettling(TutorialStep step)
+    {
+        if (step.IsSettled())
+        {
+            EnterNext();
+            return;
+        }
+
+        // Unscaled like every other tutorial timeout: a result that never settles must not dead-end the run.
+        if (Time.unscaledTime - _settlingSince < step.SettleTimeout) return;
+
+        GameLog.Warn($"[Tutorial] Step {step.Id} had not settled after {step.SettleTimeout:0.#}s; moving on.");
+        EnterNext();
+    }
+
     private void EnterNext()
     {
         ExitCurrent();
 
         _index++;
         _tapped = false;
+        _settlingSince = -1f;
         _enteredAt = Time.unscaledTime;
 
         if (_index >= _steps.Count)

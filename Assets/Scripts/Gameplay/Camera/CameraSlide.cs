@@ -108,8 +108,11 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private void EvaluateRelease()
     {
+        // 0 on the home field (Red, below), 1 on the enemy field (Blue, above). Blue minus Red: the other way
+        // round runs progress from 0 to -1, and then a slow drag never commits toward the enemy field while
+        // any drag at all commits back home.
         float currentY = mainCamera.transform.position.y;
-        float totalDistance = mapSettingsSO.RedPlayerMapY - mapSettingsSO.BluePlayerMapY;
+        float totalDistance = mapSettingsSO.BluePlayerMapY - mapSettingsSO.RedPlayerMapY;
         float progress = (currentY - mapSettingsSO.RedPlayerMapY) / totalDistance;
         float velocity = GetRecentVelocity();
         
