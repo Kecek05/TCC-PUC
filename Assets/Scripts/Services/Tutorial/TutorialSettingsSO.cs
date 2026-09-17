@@ -26,19 +26,21 @@ public class TutorialSettingsSO : ScriptableObject
     [MinValue(1)] public int DeckCardLevel = 1;
 
     [Title("Content References")]
-    [Required, Tooltip("Pool the reward card is rolled from. Cards the player already owns are skipped.")]
+    [Required, Tooltip("Pool the reward card is rolled from. A card the player has never owned is preferred; " +
+                       "only a save that owns them all (a replay) is given one it owns outside its deck.")]
     public CardDataListSO CardDataList;
 
-    [Required, Tooltip("Supplies the level 1 -> 2 cost, which is exactly what the reward pays out so the " +
-                       "menu half's upgrade step is always affordable.")]
+    [Required, Tooltip("Supplies the cost of the reward card's next level (1 -> 2 for a new card), which is " +
+                       "exactly what the reward pays out so the menu half's upgrade step is always affordable.")]
     public CardProgressionSettingsSO CardProgression;
 
     [Required, Tooltip("Text for every step, keyed by TutorialStepId.")]
     public TutorialCopySO Copy;
 
     [Title("Reward")]
-    [InfoBox("The payout is shaped by the menu steps that follow it, not rolled for value: the player has " +
-             "to be able to equip the card AND buy its first upgrade immediately, or the tutorial dead-ends.")]
+    [InfoBox("The payout is always a card, shaped by the menu steps that follow it rather than rolled for " +
+             "value: the player has to be able to equip the card AND buy its next level immediately, or the " +
+             "tutorial dead-ends.")]
     [Tooltip("Extra copies granted on top of the exact number the first upgrade spends. A small surplus " +
              "means the progress bar does not read a discouraging 0/N the moment the upgrade lands.")]
     [MinValue(0)] public int BonusCopies = 2;
@@ -47,7 +49,8 @@ public class TutorialSettingsSO : ScriptableObject
     [MinValue(0)] public int BonusGold = 150;
 
     [Title("Flow")]
-    [Tooltip("Seconds the outro text sits on screen before the match hands control back to the menu.")]
+    [Tooltip("Seconds the reward stays on screen after the outro is dismissed, before the match hands " +
+             "control back to the menu.")]
     [MinValue(0f)] public float OutroSeconds = 2.5f;
 
     [Tooltip("Off: the Skip button is hidden and the player must play the tutorial through.")]

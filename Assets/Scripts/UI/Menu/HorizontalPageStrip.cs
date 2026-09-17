@@ -32,6 +32,13 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
     public event Action<int> OnPageChanged;
     public event Action<int> OnPageSettled;
     public int CurrentPageIndex { get; private set; }
+
+    /// <summary>
+    /// True while the strip is at rest on <see cref="CurrentPageIndex"/>: not being dragged, and not still
+    /// sliding in. The index changes the moment a snap starts, so anything that needs the page actually on
+    /// screen (the tutorial pointing at a card on it) waits for this instead.
+    /// </summary>
+    public bool IsSettled { get; private set; }
     public int PageCount => pages.Count;
     public IReadOnlyList<MenuPage> Pages => pages;
 
@@ -63,7 +70,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         InitializeLayout();
         SetStripXPos(GetPageXPos(CurrentPageIndex));
         OnPageChanged?.Invoke(CurrentPageIndex);
-        OnPageSettled?.Invoke(CurrentPageIndex);
+        Settle(CurrentPageIndex);
     }
 
     private void InitializeLayout()
@@ -93,6 +100,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         if (PageCount <= 1 || PageWidth <= 0f) return;
         _activeTween?.Kill();
         _dragging = true;
+        IsSettled = false;
         _dragStartStripX = pageStrip.anchoredPosition.x;
         _dragStartPointerX = eventData.position.x;
         _lastPointerX = eventData.position.x;
@@ -164,15 +172,22 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
 
         if (animated)
         {
+            IsSettled = false;
             _activeTween = pageStrip.DOAnchorPosX(targetX, snapDuration)
                 .SetEase(snapEase)
-                .OnComplete(() => OnPageSettled?.Invoke(settledIndex));
+                .OnComplete(() => Settle(settledIndex));
         }
         else
         {
             SetStripXPos(targetX);
-            OnPageSettled?.Invoke(settledIndex);
+            Settle(settledIndex);
         }
+    }
+
+    private void Settle(int index)
+    {
+        IsSettled = true;
+        OnPageSettled?.Invoke(index);
     }
 
     private float GetPageXPos(int index) => -index * PageWidth;

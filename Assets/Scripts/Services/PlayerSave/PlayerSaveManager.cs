@@ -246,6 +246,31 @@ public class PlayerSaveManager : BasePlayerSaveManager
         Persist();
     }
 
+    public override void ResetToDefault()
+    {
+        // Every card the old save owned has to hear that it is locked again, not just the ones the new
+        // save starts with.
+        HashSet<CardType> touched = new();
+        foreach (CardProgressSaveData progress in Data.Cards)
+            if (progress != null) touched.Add(progress.CardType);
+
+        _data = CreateDefaultSave();
+        RebuildProgressLookup();
+        Persist();
+
+        foreach (CardProgressSaveData progress in _data.Cards) touched.Add(progress.CardType);
+
+        // Cards before the slot: the deck page sorts by ownership when it relays out, so every widget must
+        // already know whether it is locked by then.
+        foreach (CardType cardType in touched) RaiseCardProgressChanged(cardType);
+
+        RaiseGoldChanged();
+        RaiseActiveDeckSlotChanged(_data.ActiveDeckIndex);
+        RaiseActiveDeckContentChanged(ActiveDeck);
+
+        GameLog.Info("[PlayerSaveManager] Save reset to a new player's.");
+    }
+
     public override void AddGold(int amount)
     {
         if (amount == 0) return;

@@ -106,8 +106,15 @@ public class TutorialStep
     /// <summary>
     /// Whether the world holds still while this step waits. On by default: the player is reading, and a
     /// tutorial that lets a wave chew through their base while they do is teaching the wrong lesson.
+    /// Only honoured by a sequence that freezes at all — the menu has no world to hold still.
     /// </summary>
     public bool FreezesGame { get; private set; } = true;
+
+    /// <summary>
+    /// Checked when the sequence reaches the step; false passes over it unseen. For a beat whose premise a
+    /// player's save may not share — no full deck to make room in, no upgrade left to buy. Null: always runs.
+    /// </summary>
+    public Func<bool> Precondition { get; private set; }
 
     /// <summary>Optional arguments for the step's copy, resolved when the step is entered. How the outro
     /// names the card it just unlocked without the copy table knowing which card that is.</summary>
@@ -129,6 +136,13 @@ public class TutorialStep
     public TutorialStep CompletesWhen(Func<bool> predicate)
     {
         IsComplete = predicate;
+        return this;
+    }
+
+    /// <summary>Runs the step only if <paramref name="precondition"/> holds when the sequence reaches it.</summary>
+    public TutorialStep OnlyWhen(Func<bool> precondition)
+    {
+        Precondition = precondition;
         return this;
     }
 

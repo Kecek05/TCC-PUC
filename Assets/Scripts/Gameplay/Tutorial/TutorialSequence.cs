@@ -21,6 +21,13 @@ public class TutorialSequence
     private readonly BaseTutorialOverlay _overlay;
     private readonly TutorialCopySO _copy;
 
+    /// <summary>
+    /// Whether this run may stop the clock at all. A match freezes while its steps wait; the Main Menu has
+    /// nothing at stake, and a freeze there only stalls the menu's own scaled-time tweens — the page strip
+    /// stopped mid-slide, so the step that asked for a new page ended with the old one still on screen.
+    /// </summary>
+    private readonly bool _freezesWorld;
+
     private int _index = -1;
     private float _enteredAt;
     private bool _tapped;
@@ -41,11 +48,13 @@ public class TutorialSequence
     public TutorialStepId CurrentStepId =>
         _index >= 0 && _index < _steps.Count ? _steps[_index].Id : TutorialStepId.None;
 
-    public TutorialSequence(List<TutorialStep> steps, BaseTutorialOverlay overlay, TutorialCopySO copy)
+    public TutorialSequence(List<TutorialStep> steps, BaseTutorialOverlay overlay, TutorialCopySO copy,
+        bool freezesWorld = true)
     {
         _steps = steps ?? new List<TutorialStep>();
         _overlay = overlay;
         _copy = copy;
+        _freezesWorld = freezesWorld;
     }
 
     public void Start()
@@ -160,6 +169,13 @@ public class TutorialSequence
         _settlingSince = -1f;
         _enteredAt = Time.unscaledTime;
 
+        // Passed over unseen, never entered and exited, so a skipped step's hooks do not run at all.
+        while (_index < _steps.Count && !ShouldRun(_steps[_index]))
+        {
+            GameLog.Info($"[Tutorial] Step {_steps[_index].Id} skipped: its precondition does not hold.");
+            _index++;
+        }
+
         if (_index >= _steps.Count)
         {
             Finish();
@@ -170,7 +186,7 @@ public class TutorialSequence
 
         // Before OnEnter, so a step that wants the world running (the outro) can act on a live one, and a
         // step that freezes has already stopped it before its enter hook tops the player up.
-        SetFrozen(step.FreezesGame);
+        SetFrozen(_freezesWorld && step.FreezesGame);
 
         step.OnEnter?.Invoke();
 
@@ -183,6 +199,8 @@ public class TutorialSequence
         OnStepChanged?.Invoke(step.Id);
         GameLog.Info($"[Tutorial] Step -> {step.Id}");
     }
+
+    private static bool ShouldRun(TutorialStep step) => step.Precondition == null || step.Precondition();
 
     private string ResolveText(TutorialStep step)
     {

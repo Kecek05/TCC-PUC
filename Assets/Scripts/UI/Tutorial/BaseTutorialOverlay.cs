@@ -24,10 +24,13 @@ public abstract class BaseTutorialOverlay : MonoBehaviour
     public abstract void SetHighlight(TutorialHighlight highlight);
 
     /// <summary>
-    /// Shows the card the tutorial has just unlocked, art and name, beside the copy. Passing a null sprite
-    /// and an empty name hides it again.
+    /// Shows what the tutorial has just paid out: the card with its icon and name, then the gold. Stays up
+    /// until <see cref="HideReward"/> or <see cref="Hide"/>, independent of the copy beside it.
     /// </summary>
-    public abstract void ShowUnlockedCard(Sprite art, string cardName);
+    /// <param name="card">The reward card's data; null for a gold-only payout.</param>
+    public abstract void ShowReward(Reward reward, CardDataSO card);
+
+    public abstract void HideReward();
 
     public abstract void Hide();
 

@@ -87,6 +87,14 @@ backend later without touching the deck page. `JsonUtility` + a `[Serializable]`
   **appended** to `Enums.cs`. Inserting one mid-enum silently re-maps every saved deck (`SaveVersion` is there
   to migrate if that ever happens).
 - Editor helpers: `Kecek/Debug Tools/Delete Player Save` and `Open Save Folder`.
+- **Runtime reset: the Quantum Console `reset-save [skipTutorial]`** (`SaveDebugCommands.cs`). It goes through
+  `BasePlayerSaveManager.ResetToDefault()` rather than deleting the file, because the save lives in memory
+  for the whole session and its next write would put the old one straight back. The reset raises *every*
+  save event (card progress first, so the deck page already knows what is locked when the slot change
+  relays it out), then routes the way a finished boot does: a fresh save goes straight into the tutorial,
+  `skipTutorial` reloads the menu instead. It refuses inside a gameplay scene: the match has dealt from the
+  old deck, and the tutorial's deck loan would hand the old deck back to `UserData` on the way out. Unlike
+  the editor menu item it also works in a build.
 - Key files: `BasePlayerSaveManager.cs`, `PlayerSaveManager.cs`, `PlayerSaveData.cs`,
   `IPlayerSaveRepository.cs`, `FilePlayerSaveRepository.cs`, `PlayerSaveSettingsSO.cs` (under
   `Assets/Scripts/Services/PlayerSave/`); `DeckSlotBar.cs`, `CardSortController.cs`, `CardSortComparer.cs`
@@ -474,8 +482,21 @@ teaches progression, and progression is only teachable once the player owns some
 - **The outro pays out and shows what it paid.** The reward is rolled and banked when the outro step is
   *entered* rather than on the way out, so the line can name the card (`TutorialStep.Formatting` feeds
   `string.Format` args into the copy, keeping `{0}` out of the copy table's knowledge of which card it is)
-  and the overlay can show its art. The outro is also the one `.Running()` step: the board moving behind the
+  and the overlay can show it. The outro is also the one `.Running()` step: the board moving behind the
   reward is what makes it read as the end of a match rather than the end of a slideshow.
+  - **Shown as the end-of-match tiles**, not a bespoke card view: `BaseTutorialOverlay.ShowReward(Reward,
+    CardDataSO)` fills the overlay's `Reward` panel with `RewardPrefab`/`RewardEntryUI` (card first, with its
+    icon and `CardColor` tint, then the gold), under the card's name. The name is not decoration: several
+    cards still share placeholder art, so the icon alone does not say which card was won. The tiles are
+    pooled — the outro and the hand-off show the same payout twice in a row.
+  - **The reward outlives the outro.** `TutorialSequence` hides the overlay as it finishes, so without help
+    the player watched a bare board — and then the host tearing it down — for the whole `OutroSeconds`
+    wait. `LeaveToMenu` puts the reward straight back, alone on the dim (no text, no Continue), for that
+    wait. It also disarms and hides **Skip** first: a Skip during the wait used to `Abandon()` a tutorial that
+    had just finished, and `_leaving` makes the hand-off start only once.
+  - `RewardPrefab`'s quantity label auto-sizes (max = the authored 97.3) and never wraps. A replayed save's
+    payout is five digits, which wrapped onto a second line below the tile; a match payout stays at the
+    authored size.
 - **The overlay dims but does not imprison.** Four solid panels frame a hole around the target;
   `blockInput` is **off** by default because this sits on a live match and the player still has a base to
   defend while they read. Two traps found by running it: the dim panels must have **no sprite** (a 32px
@@ -491,21 +512,46 @@ teaches progression, and progression is only teachable once the player owns some
   regression from the `CameraSlide` refactor (`d866e93d`): `EvaluateRelease` divided by Red - Blue, so drag
   progress ran 0 -> -1. A slow drag therefore never committed toward the enemy field (only a flick did),
   and releasing any drag on the enemy field committed back home. It is Blue - Red again.
-- **The payout is shaped by the steps that follow it, not rolled for value.** `TutorialRewardRoller` picks
-  uniformly from the cards the player does **not** own and grants exactly the level 1 -> 2 cost plus a small
-  surplus, so "equip it" and "upgrade it" are both always possible. It is deliberately not an
-  `IRewardRoller` — that interface is win/lose-shaped for the match payout. Granted straight through
-  `BaseRewardService` (the tutorial never reaches a win condition, and the reward is authored, not rolled).
+- **The payout is always a card, shaped by the steps that follow it, not rolled for value.**
+  `TutorialRewardRoller` picks uniformly within the first non-empty tier: a card the player has **never
+  owned** (every real first run lands here — a fresh save owns 8 of 30), else an owned card **outside the
+  active deck that can still level**, else any owned card outside the deck. It grants exactly the cost of
+  that card's *next* level (1 -> 2 for a new card) plus a small surplus, so "equip it" and "upgrade it" are
+  both always possible. The fallback tiers exist because of replays: "Replay Tutorial On Next Launch" keeps
+  the collection, and a developed save that owned everything used to be paid 150 gold with no card to show
+  at all. A replay can therefore grant a large sum (a level-10 Common's next step is 645 copies + 10k gold),
+  and its outro still says "unlocked". It is deliberately not an `IRewardRoller` — that interface is
+  win/lose-shaped for the match payout. Granted straight through `BaseRewardService` (the tutorial never
+  reaches a win condition, and the reward is authored, not rolled).
 - **The menu half teaches remove-then-add**, because the starter deck is exactly `DeckSize` cards and
   `TryEquipCard` refuses a full deck. It points at the page's own state through `DeckUIController` and never
   drives it: the tutorial points, the player acts.
+  - **The menu never freezes** (`new TutorialSequence(..., freezesWorld: false)`). There is nothing at stake
+    there, and the menu animates on scaled time: under the freeze, `HorizontalPageStrip`'s snap tween stood
+    still, while `CurrentPageIndex` had already flipped on the tap. "Open the Deck page" therefore completed
+    at once, and the next step pointed at cards on a page that never slid in.
+  - **Page changes settle on the strip.** `OpenDeckPage`/`OpenBattlePage` complete on `CurrentPageIndex`
+    and then `.SettlingUntil(pageStrip.IsSettled)`; `IsSettled` is false from a drag or a snap's start until
+    the snap completes. The overlay steps aside for the ~0.3s slide, then the next step appears on a page
+    that is at rest (traced frame by frame in play mode). Deck-page hints go through `OnPage(...)`, which
+    points at that page's nav button instead whenever the player has swiped off it.
+  - **`TutorialStep.OnlyWhen`** passes a step over unseen when its premise does not hold for this save —
+    `RemoveCard` only with a full deck, `UpgradeCard` only while the upgrade is still ahead and affordable
+    (a replay can hand out a maxed card). Upgrade progress is measured from the reward's level **when the
+    menu half started**, not "above 1", since a replay's reward may already be level 10.
+  - **The upgrade step frames the info panel's Upgrade button** (`BaseInfoPanelService.UpgradeButtonRect`,
+    the same idiom as `ActionFrame`'s rects). Beyond the ring, this is what moves the copy: with no target
+    the text box parks low, exactly over that button, and the player was told to tap something hidden.
 - Debug: `Kecek/Debug Tools/Tutorial/Replay Tutorial On Next Launch` (and `Mark Tutorial Completed`). Both
   edit the save **file**, because the flag is read in `ClientManager.Awake` long before a menu item can be
-  clicked.
+  clicked. Replay keeps the collection; for a genuine first run use the Quantum Console's **`reset-save`**
+  from the menu, which wipes the save and boots straight into the tutorial (see Player Save).
 - Key files: `BaseTutorialService.cs`, `TutorialService.cs`, `TutorialSettingsSO.cs`, `TutorialCopySO.cs`
   (under `Assets/Scripts/Services/Tutorial/`); `TutorialStep.cs`, `TutorialSequence.cs`,
   `TutorialMatchDirector.cs`, `TutorialRewardRoller.cs` (under `Assets/Scripts/Gameplay/Tutorial/`);
   `BaseTutorialOverlay.cs`, `TutorialOverlayCanvas.cs`, `TutorialMenuDirector.cs` (under
   `Assets/Scripts/UI/Tutorial/`); `IMatchIntroduction.cs`, `PlayersIntroductionCanvas.cs` (under
-  `Assets/Scripts/UI/Game/Match/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
-  `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab`; `Assets/Scenes/TutorialScene.unity`.
+  `Assets/Scripts/UI/Game/Match/`); `HorizontalPageStrip.cs` (`IsSettled`); `SaveDebugCommands.cs` (under
+  `Assets/Scripts/Debug/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
+  `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab` (reward tiles from
+  `Assets/Prefabs/UI/Elements/RewardPrefab.prefab`); `Assets/Scenes/TutorialScene.unity`.

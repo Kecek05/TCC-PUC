@@ -104,6 +104,11 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
     private bool _subscribed;
 
+    public override bool IsVisible => contentObject != null && contentObject.activeInHierarchy;
+
+    public override RectTransform UpgradeButtonRect =>
+        upgradeButton != null ? (RectTransform)upgradeButton.transform : null;
+
     /// <summary>The colours the labels were authored with, restored when a rarity has none of its own.</summary>
     private Color _levelLabelColor = Color.white;
     private Color _rarityLabelColor = Color.white;

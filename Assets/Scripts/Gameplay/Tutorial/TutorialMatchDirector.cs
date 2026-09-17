@@ -70,6 +70,9 @@ public class TutorialMatchDirector : MonoBehaviour
     private Reward _reward;
     private bool _rewardGranted;
 
+    /// <summary>Set once the hand-off to the menu has started, so a late Skip cannot start a second one.</summary>
+    private bool _leaving;
+
     private void Awake()
     {
         // Only the first-time run is scripted. Entering TutorialScene any other way (a debug load) leaves
@@ -206,7 +209,8 @@ public class TutorialMatchDirector : MonoBehaviour
             .GivingUpAfter(45f),
 
         // The one step that lets the world run again: the reward lands here, and the board moving behind it
-        // is what makes the hand-off feel like the end of a match rather than the end of a slideshow.
+        // is what makes the hand-off feel like the end of a match rather than the end of a slideshow. The
+        // reward card is shown on entry and stays up through the hand-off (see LeaveToMenu).
         new TutorialStep(TutorialStepId.MatchOutro)
             .Tap()
             .Running()
@@ -408,7 +412,7 @@ public class TutorialMatchDirector : MonoBehaviour
     // ---- Reward ---------------------------------------------------------------------------------
 
     /// <summary>
-    /// Rolls and banks the payout as the outro appears, so the outro can name the card and show its art.
+    /// Rolls and banks the payout as the outro appears, so the outro can name the card and show its icon.
     /// Granted straight through <see cref="BaseRewardService"/>: the payout is authored rather than rolled
     /// for value, and the tutorial never reaches a real win condition to hang an end-of-match roll off.
     /// </summary>
@@ -423,7 +427,7 @@ public class TutorialMatchDirector : MonoBehaviour
 
         _rewards.Grant(_reward);
 
-        if (overlay != null) overlay.ShowUnlockedCard(RewardCardArt, RewardCardName);
+        if (overlay != null) overlay.ShowReward(_reward, RewardCardData);
     }
 
     private CardDataSO RewardCardData =>
@@ -431,10 +435,8 @@ public class TutorialMatchDirector : MonoBehaviour
             ? settings.CardDataList.GetCardDataByType(_reward.Card)
             : null;
 
-    private Sprite RewardCardArt => RewardCardData != null ? RewardCardData.CardImage : null;
-
-    /// <summary>The card's name for the outro line. Falls back to the gold-only wording, because a player
-    /// who already owns everything still gets paid and the sentence still has to read.</summary>
+    /// <summary>The card's name for the outro line. The payout is always a card unless the player's whole
+    /// collection sits in their deck; the gold wording only keeps the sentence readable in that case.</summary>
     private string RewardCardName
     {
         get
@@ -466,36 +468,53 @@ public class TutorialMatchDirector : MonoBehaviour
 
     private void HandleSkipTapped()
     {
+        if (_leaving) return;
+
         GameLog.Info("[Tutorial] Player skipped the tutorial match.");
 
         _sequence?.Stop();
         _tutorial?.Abandon();
 
-        StartCoroutine(LeaveToMenu(grantReward: false, immediate: true));
+        StartCoroutine(LeaveToMenu(completed: false));
     }
 
-    private void HandleSequenceFinished() => StartCoroutine(LeaveToMenu(grantReward: true, immediate: false));
+    private void HandleSequenceFinished() => StartCoroutine(LeaveToMenu(completed: true));
 
     /// <summary>
-    /// Pays the tutorial out and hands the player to the Main Menu for the second half.
+    /// Hands the player to the Main Menu: for the second half when the match was played through, straight
+    /// to the menu when it was skipped.
     /// </summary>
     /// <remarks>
     /// The payout itself was already banked when the outro appeared (see <see cref="GrantTutorialReward"/>),
     /// so this only carries the card across. Rolling here instead would mean the outro could not name or
     /// show what the player had won.
     /// </remarks>
-    private IEnumerator LeaveToMenu(bool grantReward, bool immediate)
+    private IEnumerator LeaveToMenu(bool completed)
     {
+        if (_leaving) yield break;
+        _leaving = true;
+
         Unsubscribe();
 
-        CardType rewardCard = grantReward && _reward.HasCard ? _reward.Card : CardType.None;
+        // The match is over either way; a Skip tapped during the wait below would abandon a tutorial that
+        // has just been finished.
+        if (overlay != null)
+        {
+            overlay.OnSkipTapped -= HandleSkipTapped;
+            overlay.SetSkipVisible(false);
+        }
 
-        if (!immediate && settings != null && settings.OutroSeconds > 0f)
-            yield return new WaitForSecondsRealtime(settings.OutroSeconds);
+        if (completed)
+        {
+            ShowRewardAlone();
 
-        // Arms the menu half before the scene change, so the menu director finds the phase already set
-        // the moment it wakes.
-        if (grantReward) _tutorial?.BeginMenuPhase(rewardCard);
+            if (settings != null && settings.OutroSeconds > 0f)
+                yield return new WaitForSecondsRealtime(settings.OutroSeconds);
+
+            // Arms the menu half before the scene change, so the menu director finds the phase already set
+            // the moment it wakes.
+            _tutorial?.BeginMenuPhase(_reward.HasCard ? _reward.Card : CardType.None);
+        }
 
         // Fire-and-forget on purpose: LeaveMatchAsync owns the host teardown and the scene load, and a
         // coroutine cannot await a Task anyway (yielding one would just wait a single frame).
@@ -503,5 +522,19 @@ public class TutorialMatchDirector : MonoBehaviour
             _ = clientManager.LeaveMatchAsync();
         else
             Loader.Load(Loader.Scene.MainMenu);
+    }
+
+    /// <summary>
+    /// Puts the reward back on screen, alone on the dim. The sequence clears the overlay as it finishes, and
+    /// without this the player would watch a bare board — and then the host tearing it down — for the whole
+    /// outro wait, instead of what they just won.
+    /// </summary>
+    private void ShowRewardAlone()
+    {
+        if (overlay == null || !_rewardGranted || _reward.IsEmpty) return;
+
+        overlay.Show(string.Empty, showContinue: false);
+        overlay.SetHighlight(TutorialHighlight.None);
+        overlay.ShowReward(_reward, RewardCardData);
     }
 }

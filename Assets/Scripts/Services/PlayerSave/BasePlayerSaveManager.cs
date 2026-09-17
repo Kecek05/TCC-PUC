@@ -94,6 +94,13 @@ public abstract class BasePlayerSaveManager
     /// <summary>Marks the tutorial finished (or, for the debug reset, unfinished) and persists it.</summary>
     public abstract void SetTutorialCompleted(bool completed);
 
+    /// <summary>
+    /// Debug affordance: throws the save away and starts over as a brand-new player — starter deck,
+    /// starting gold, only the starter cards owned, tutorial pending. Persisted at once and announced
+    /// through every event above, so nothing keeps showing the old save.
+    /// </summary>
+    public abstract void ResetToDefault();
+
     /// <summary>Editor/debug affordance. Negative amounts are clamped at 0 gold.</summary>
     public abstract void AddGold(int amount);
 

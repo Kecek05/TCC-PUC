@@ -7,7 +7,13 @@ public abstract class BaseInfoPanelService : MonoBehaviour
     public event Action OnInfoPanelHide;
     public abstract void ShowInfoPanel(InfoPanelData infoPanelData);
     public abstract void HideInfoPanel();
-    
+
+    public abstract bool IsVisible { get; }
+
+    /// <summary>The panel's Upgrade button, so the tutorial can frame it — pointed at, never pressed for the
+    /// player. Null when the panel has none.</summary>
+    public abstract RectTransform UpgradeButtonRect { get; }
+
     protected void TriggerOnInfoPanelShow() => OnInfoPanelShow?.Invoke();
     protected void TriggerOnInfoPanelHide() => OnInfoPanelHide?.Invoke();
 }

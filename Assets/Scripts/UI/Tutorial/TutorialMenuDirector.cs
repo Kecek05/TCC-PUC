@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -14,6 +15,11 @@ using UnityEngine.UI;
 /// state through <c>DeckUIController</c> rather than driving it — the tutorial points, the player acts.
 /// That is also why the deck is full when this starts and the script has to teach <i>remove then add</i>:
 /// the starter deck is exactly <c>DeckSize</c> cards and <c>TryEquipCard</c> refuses a full one.
+/// <para>
+/// Unlike the match, nothing here freezes the clock: there is no wave to hold back, and the menu animates
+/// on scaled time. Steps that change page settle on the strip instead, so the next one is only shown once
+/// the page it talks about has finished sliding in.
+/// </para>
 /// </remarks>
 public class TutorialMenuDirector : MonoBehaviour
 {
@@ -47,6 +53,10 @@ public class TutorialMenuDirector : MonoBehaviour
     /// <summary>Deck size at the moment the script started, so "a card came out" is a comparison rather
     /// than an assumption about what a full deck is.</summary>
     private int _deckCountAtStart;
+
+    /// <summary>The reward card's level when the script started. "The player upgraded it" is a rise from
+    /// here, not "above 1": a replayed tutorial can pay out a card the save has already levelled.</summary>
+    private int _rewardLevelAtStart;
 
     private bool _infoPanelOpened;
     private bool _battlePressed;
@@ -86,6 +96,7 @@ public class TutorialMenuDirector : MonoBehaviour
         yield return new WaitUntil(() => deckUIController != null && deckUIController.ActionFrame != null);
 
         _rewardCard = _tutorial.RewardCard;
+        _rewardLevelAtStart = RewardLevel;
         _deckCountAtStart = deckUIController.EquippedCount;
 
         if (ServiceLocator.TryGet(out _infoPanel)) _infoPanel.OnInfoPanelShow += HandleInfoPanelShown;
@@ -97,7 +108,8 @@ public class TutorialMenuDirector : MonoBehaviour
             overlay.SetSkipVisible(settings != null && settings.AllowSkip);
         }
 
-        _sequence = new TutorialSequence(BuildSteps(), overlay, settings != null ? settings.Copy : null);
+        _sequence = new TutorialSequence(BuildSteps(), overlay, settings != null ? settings.Copy : null,
+            freezesWorld: false);
         _sequence.OnFinished += HandleSequenceFinished;
         _sequence.Start();
     }
@@ -109,50 +121,80 @@ public class TutorialMenuDirector : MonoBehaviour
         new TutorialStep(TutorialStepId.MenuWelcome)
             .Tap(),
 
+        // The tap switches CurrentPageIndex at once, but the page is still sliding in, and the next step
+        // points at cards on it - so the step settles on the strip before the next one is shown.
         new TutorialStep(TutorialStepId.OpenDeckPage)
             .CompletesWhen(() => CurrentPage == deckPageIndex)
+            .SettlingUntil(IsPageStripSettled)
             .Pointing(() => TutorialHighlight.Ui(deckNavButtonRect))
             .GivingUpAfter(45f),
 
         // The deck is full, so the new card has nowhere to go until one comes out. Taught as its own beat
         // rather than folded into the next one, because "tap a card you own to manage it" is the gesture
-        // the whole page is built on.
+        // the whole page is built on. A deck with room (a replayed save) has nothing to make room in.
         new TutorialStep(TutorialStepId.RemoveCard)
+            .OnlyWhen(() => _save != null && _save.IsActiveDeckFull)
             .CompletesWhen(() => deckUIController.EquippedCount < _deckCountAtStart)
-            .Pointing(PointAtDeckCard)
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, PointAtDeckCard))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.EquipRewardCard)
             .CompletesWhen(() => HasReward && deckUIController.IsCardEquipped(_rewardCard))
-            .Pointing(() => PointAtCard(_rewardCard))
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, () => PointAtCard(_rewardCard)))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.OpenCardDetails)
             .CompletesWhen(() => _infoPanelOpened)
-            .Pointing(PointAtDetailsButton)
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, PointAtDetailsButton))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.UpgradeCard)
-            .CompletesWhen(() => HasReward && _save != null && _save.GetCardLevel(_rewardCard) > 1)
-            .Pointing(PointAtUpgradeButton)
+            .OnlyWhen(IsRewardUpgradeAhead)
+            .CompletesWhen(() => RewardLevel > _rewardLevelAtStart)
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, PointAtUpgradeButton))
             .GivingUpAfter(90f),
 
         new TutorialStep(TutorialStepId.OpenBattlePage)
             .CompletesWhen(() => CurrentPage == battlePageIndex)
+            .SettlingUntil(IsPageStripSettled)
             .Pointing(() => TutorialHighlight.Ui(battleNavButtonRect))
             .GivingUpAfter(45f),
 
         new TutorialStep(TutorialStepId.PressBattle)
             .CompletesWhen(() => _battlePressed)
-            .Pointing(() => TutorialHighlight.Ui(battleButton != null ? (RectTransform)battleButton.transform : null))
+            .Pointing(OnPage(battlePageIndex, battleNavButtonRect,
+                () => TutorialHighlight.Ui(battleButton != null ? (RectTransform)battleButton.transform : null)))
             .GivingUpAfter(90f),
     };
 
-    // ---- Highlight resolvers --------------------------------------------------------------------
+    // ---- Conditions -----------------------------------------------------------------------------
 
     private bool HasReward => _rewardCard != CardType.None;
 
+    private int RewardLevel => HasReward && _save != null ? _save.GetCardLevel(_rewardCard) : 0;
+
     private int CurrentPage => pageStrip != null ? pageStrip.CurrentPageIndex : -1;
+
+    /// <summary>An unwired strip never moves, so there is nothing to wait for.</summary>
+    private bool IsPageStripSettled() => pageStrip == null || pageStrip.IsSettled;
+
+    /// <summary>
+    /// Whether there is still an upgrade to teach: the player has not bought it on the way here, and can
+    /// afford it now. The payout covers the next level whenever the card has one, so this only fails for a
+    /// replay whose reward was already maxed — and a step asking for an impossible purchase would only sit
+    /// there until it timed out.
+    /// </summary>
+    private bool IsRewardUpgradeAhead() =>
+        HasReward && _save != null && RewardLevel == _rewardLevelAtStart && _save.CanUpgradeCard(_rewardCard);
+
+    // ---- Highlight resolvers --------------------------------------------------------------------
+
+    /// <summary>
+    /// A highlight that only exists on one page. Anywhere else — the player swiped away mid-step — it points
+    /// at that page's nav button instead, so the ring never frames something that is off screen.
+    /// </summary>
+    private Func<TutorialHighlight> OnPage(int page, RectTransform navButton, Func<TutorialHighlight> highlight) =>
+        () => pageStrip == null || CurrentPage == page ? highlight() : TutorialHighlight.Ui(navButton);
 
     /// <summary>
     /// Any card currently in the deck — whichever one the player removes is fine, so the script points at
@@ -196,16 +238,22 @@ public class TutorialMenuDirector : MonoBehaviour
         return TutorialHighlight.Ui(frame.InfoButtonRect);
     }
 
+    /// <summary>
+    /// The Upgrade button the player can actually see: the info panel's, which the previous step opened.
+    /// Framing it matters beyond the ring — with no target the text box parks low, exactly over that button.
+    /// Failing that the popup's own button, and failing that the card, whose popup leads to one.
+    /// </summary>
     private TutorialHighlight PointAtUpgradeButton()
     {
+        if (_infoPanel != null && _infoPanel.IsVisible && _infoPanel.UpgradeButtonRect != null)
+            return TutorialHighlight.Ui(_infoPanel.UpgradeButtonRect);
+
         ActionFrame frame = deckUIController.ActionFrame;
-        if (frame != null && frame.IsVisible && frame.UpgradeButtonRect != null)
+        if (frame != null && frame.IsVisible && frame.ShownCard != null && frame.ShownCard.CardType == _rewardCard &&
+            frame.UpgradeButtonRect != null)
             return TutorialHighlight.Ui(frame.UpgradeButtonRect);
 
-        // The info panel has an Upgrade button of its own, and it is the one the player is looking at
-        // after the previous step. Nothing to resolve it to a rect from here, so dim only and let the copy
-        // carry the instruction — the step still completes off the saved level either way.
-        return TutorialHighlight.None;
+        return PointAtCard(_rewardCard);
     }
 
     // ---- Observations ---------------------------------------------------------------------------

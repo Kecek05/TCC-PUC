@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 /// <summary>
@@ -50,11 +52,21 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     [Tooltip("Optional. The pointing hand.")]
     [SerializeField] private RectTransform hand;
 
-    [Title("Unlocked Card")]
-    [InfoBox("Shown by the outro so the player sees what they just won, rather than only reading its name.")]
-    [SerializeField] private GameObject unlockedCardRoot;
-    [SerializeField] private Image unlockedCardArt;
-    [SerializeField] private TextMeshProUGUI unlockedCardName;
+    [Title("Reward")]
+    [InfoBox("Shown by the outro, and kept up while the match hands over, so the player sees what they won " +
+             "rather than only reading its name. Built from the same RewardPrefab tiles as the end-of-match " +
+             "screen: the card with its icon, then the gold.")]
+    [FormerlySerializedAs("unlockedCardRoot")]
+    [SerializeField] private GameObject rewardRoot;
+
+    [Tooltip("The reward card's name. Several cards still share placeholder art, so the icon alone does not " +
+             "say which card was won.")]
+    [FormerlySerializedAs("unlockedCardName")]
+    [SerializeField] private TextMeshProUGUI rewardTitle;
+
+    [SerializeField] private Transform rewardTilesParent;
+    [SerializeField] private RewardEntryUI rewardEntryPrefab;
+    [SerializeField] private Sprite coinSprite;
 
     [Title("Layout")]
     [Tooltip("Canvas units of slack added around a highlighted target before the hole is cut.")]
@@ -79,6 +91,10 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
 
     private float _hintTime;
 
+    /// <summary>Reward tiles, kept and reconfigured rather than rebuilt: the outro and the hand-off show the
+    /// same payout twice in a row.</summary>
+    private readonly List<RewardEntryUI> _rewardTiles = new();
+
     private void Awake()
     {
         ServiceLocator.Register<BaseTutorialOverlay>(this);
@@ -91,7 +107,7 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         if (skipButton != null) skipButton.onClick.AddListener(RaiseSkipTapped);
 
         if (content != null) content.SetActive(false);
-        ShowUnlockedCard(null, string.Empty);
+        HideReward();
     }
 
     private void OnDestroy()
@@ -138,17 +154,36 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         if (continueButton != null) continueButton.gameObject.SetActive(showContinue && hasText);
     }
 
-    public override void ShowUnlockedCard(Sprite art, string cardName)
+    public override void ShowReward(Reward reward, CardDataSO card)
     {
-        bool show = art != null || !string.IsNullOrEmpty(cardName);
+        int used = 0;
 
-        if (unlockedCardRoot != null) unlockedCardRoot.SetActive(show);
-        if (unlockedCardArt != null)
+        if (rewardTilesParent != null && rewardEntryPrefab != null)
         {
-            unlockedCardArt.sprite = art;
-            unlockedCardArt.enabled = art != null;
+            // The card leads: it is what the menu half is about to ask the player to find, equip and level.
+            if (reward.HasCard) GetRewardTile(used++).SetCard(card, reward.Copies);
+            if (reward.Gold > 0) GetRewardTile(used++).SetGold(reward.Gold, coinSprite);
         }
-        if (unlockedCardName != null) unlockedCardName.text = cardName;
+
+        // A layout group skips inactive children, so a spare tile leaves no gap.
+        for (int i = 0; i < _rewardTiles.Count; i++)
+            _rewardTiles[i].gameObject.SetActive(i < used);
+
+        if (rewardTitle != null) rewardTitle.text = reward.HasCard && card != null ? card.CardName : string.Empty;
+        if (rewardRoot != null) rewardRoot.SetActive(used > 0);
+    }
+
+    public override void HideReward()
+    {
+        if (rewardRoot != null) rewardRoot.SetActive(false);
+    }
+
+    private RewardEntryUI GetRewardTile(int index)
+    {
+        while (_rewardTiles.Count <= index)
+            _rewardTiles.Add(Instantiate(rewardEntryPrefab, rewardTilesParent));
+
+        return _rewardTiles[index];
     }
 
     public override void SetSkipVisible(bool visible)
@@ -161,7 +196,7 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         _textBoxTween?.Kill();
         _textBoxPlaced = false;
 
-        ShowUnlockedCard(null, string.Empty);
+        HideReward();
 
         if (content != null) content.SetActive(false);
     }
