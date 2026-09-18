@@ -14,6 +14,10 @@ public abstract class BaseInfoPanelService : MonoBehaviour
     /// player. Null when the panel has none.</summary>
     public abstract RectTransform UpgradeButtonRect { get; }
 
+    /// <summary>The panel's Close button, for the same reason as <see cref="UpgradeButtonRect"/>: the panel
+    /// is modal, so the tutorial has to show the way out before it can point at anything behind it.</summary>
+    public abstract RectTransform CloseButtonRect { get; }
+
     protected void TriggerOnInfoPanelShow() => OnInfoPanelShow?.Invoke();
     protected void TriggerOnInfoPanelHide() => OnInfoPanelHide?.Invoke();
 }

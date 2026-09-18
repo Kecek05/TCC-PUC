@@ -40,10 +40,7 @@ MonoBehaviour:
   - Step: 7
     Text: Attack! Drop a <b>troop card</b> on their lane to send fighters at them.
   - Step: 8
-    Text: 'Some <b>spells</b> only work on their side.
-
-      Drop this one on their
-      lane.'
+    Text: Drop <b>Rage</b> right on your fighters to send them charging up their lane.
   - Step: 9
     Text: <b>Swipe back up</b> to defend your own base.
   - Step: 10
@@ -72,3 +69,22 @@ MonoBehaviour:
     Text: 'You are ready.
 
       Hit <b>BATTLE</b> and play your first real match!'
+  - Step: 19
+    Text: Stronger already. <b>Close</b> the card details when you are done looking.
+  - Step: 20
+    Text: 'Your fighters march their lane <b>backwards</b>, against the waves attacking
+      them.
+
+      Your opponent can send troops at you the same way - they arrive from the <b>other
+      end</b> of your lane.'
+  - Step: 21
+    Text: 'Enemies in your lane! Drop <b>Fireball</b> right on top of them.
+
+      That
+      is the <b>defensive</b> kind - it only ever works on your own side.'
+  - Step: 22
+    Text: 'Spells come in two kinds: <b>offensive</b> ones for their field, <b>defensive</b>
+      ones for yours.
+
+      <b>Rage</b> is offensive - it drives your troops forward
+      much faster.'

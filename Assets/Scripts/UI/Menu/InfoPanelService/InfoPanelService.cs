@@ -109,6 +109,9 @@ public class InfoPanelCanvas : BaseInfoPanelService
     public override RectTransform UpgradeButtonRect =>
         upgradeButton != null ? (RectTransform)upgradeButton.transform : null;
 
+    public override RectTransform CloseButtonRect =>
+        closeButton != null ? (RectTransform)closeButton.transform : null;
+
     /// <summary>The colours the labels were authored with, restored when a rarity has none of its own.</summary>
     private Color _levelLabelColor = Color.white;
     private Color _rarityLabelColor = Color.white;

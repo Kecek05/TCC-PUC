@@ -82,6 +82,10 @@ public class TutorialStep
     /// <summary>Unscaled seconds a settling step waits for <see cref="IsSettled"/> before moving on anyway.</summary>
     public float SettleTimeout { get; private set; }
 
+    /// <summary>Unscaled seconds the world keeps running after the step completes, before anything else is
+    /// asked of the player. 0 disables it. See <see cref="Watching"/>.</summary>
+    public float WatchSeconds { get; private set; }
+
     public Func<TutorialHighlight> Highlight { get; private set; }
 
     public Action OnEnter { get; private set; }
@@ -152,6 +156,22 @@ public class TutorialStep
     {
         IsSettled = settled;
         SettleTimeout = Mathf.Max(0f, maxSeconds);
+        return this;
+    }
+
+    /// <summary>
+    /// Holds the world running for <paramref name="seconds"/> after the step completes, overlay out of the
+    /// way, so the player watches what they just did.
+    /// </summary>
+    /// <remarks>
+    /// The twin of <see cref="SettlingUntil"/>, for the other half of the problem: a settle waits for a
+    /// result to <i>finish</i>, a watch waits for one to be <i>seen</i>. A spell effect has no "finished" to
+    /// test — it has a duration — and the next step's freeze would otherwise stop it dead on the frame the
+    /// cast landed. The two compose: the watch is served first, then the predicate.
+    /// </remarks>
+    public TutorialStep Watching(float seconds)
+    {
+        WatchSeconds = Mathf.Max(0f, seconds);
         return this;
     }
 

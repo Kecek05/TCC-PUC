@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
@@ -21,6 +23,14 @@ public class TutorialMatchDirector : MonoBehaviour
     /// <summary>World units within which a place result's position is matched to the tower standing on it.
     /// The two are the same point, so this only has to stay under the gap between two slots.</summary>
     private const float TowerMatchRadius = 0.5f;
+
+    /// <summary>World-unit half-width of the hole cut around a sent troop. Wide enough to hold the whole
+    /// column the card sends, since they spawn a fraction of a second apart and walk together.</summary>
+    private const float SentTroopHighlightRadius = 1.5f;
+
+    /// <summary>Unscaled seconds the board is left running after a spell lands, so the player sees it work.
+    /// Long enough to read a troop surging ahead; short enough not to feel like a pause.</summary>
+    private const float SpellWatchSeconds = 2.5f;
 
     [Title("References")]
     [SerializeField, Required] private TutorialSettingsSO settings;
@@ -53,11 +63,23 @@ public class TutorialMatchDirector : MonoBehaviour
     private TutorialSequence _sequence;
     private TeamType _localTeam = TeamType.None;
 
+    /// <summary>The costliest card in the lent deck — the mana ceiling the script has to guarantee. Resolved
+    /// once the match is live, when the card list is loaded.</summary>
+    private float _deckManaCost;
+
+    /// <summary>Which cards the player may play this frame. Null leaves the whole hand open; set by the tick
+    /// of whichever step is asking for a card, and cleared at the top of every frame.</summary>
+    private Func<AbstractCard, bool> _playableCards;
+
     // --- Observations. Set by the subscriptions below, read by the step predicates. ---
     private bool _towerPlaced;
     private bool _towerLevelledUp;
     private bool _troopSent;
-    private bool _spellCast;
+
+    /// <summary>Cards the player has played this match. Tracked per card rather than per family because the
+    /// two spell steps name the exact card they teach: the hand holds Ice and Fireball at the same time, and
+    /// they are cast on opposite fields for opposite reasons.</summary>
+    private readonly HashSet<CardType> _cardsPlayed = new();
     private Vector2 _placedTowerPosition;
     private CardType _placedTowerCard = CardType.None;
     private CameraSide _cameraSide = CameraSide.Local;
@@ -102,7 +124,18 @@ public class TutorialMatchDirector : MonoBehaviour
         if (overlay != null) overlay.OnSkipTapped -= HandleSkipTapped;
     }
 
-    private void Update() => _sequence?.Tick();
+    private void Update()
+    {
+        // Cleared before the tick, so the only thing that can narrow the hand is a step's own tick, and only
+        // on the frames it is actually waiting. Settling, the menu half and a run that has stopped all leave
+        // the hand open without any step having to remember to unlock it — the failure a lock/unlock pair
+        // invites the moment a step times out, is skipped, or is left by a Skip.
+        _playableCards = null;
+
+        _sequence?.Tick();
+
+        ApplyHandLock();
+    }
 
     private IEnumerator RunWhenMatchStarts()
     {
@@ -134,6 +167,7 @@ public class TutorialMatchDirector : MonoBehaviour
         ServiceLocator.TryGet(out _deploymentBus);
 
         _localTeam = _teamManager != null ? _teamManager.GetLocalTeam() : TeamType.None;
+        _deckManaCost = ResolveDeckManaCost();
 
         Subscribe();
 
@@ -171,14 +205,14 @@ public class TutorialMatchDirector : MonoBehaviour
             .Pointing(() => TutorialHighlight.Ui(handRect, TutorialHintKind.None)),
 
         new TutorialStep(TutorialStepId.PlaceTower)
-            .WhileWaiting(RefillMana)
+            .WhileWaiting(Asking(AnyOf(ExistingTypesOfCard.Tower)))
             .CompletesWhen(() => _towerPlaced)
             .SettlingUntil(IsLastBuiltTowerSettled)
             .Pointing(PointAtTowerPlacement)
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.LevelUpTower)
-            .WhileWaiting(RefillMana)
+            .WhileWaiting(Asking(IsUpgradeCard))
             .CompletesWhen(() => _towerLevelledUp)
             .SettlingUntil(IsLastBuiltTowerSettled)
             .Pointing(PointAtTowerUpgrade)
@@ -192,21 +226,57 @@ public class TutorialMatchDirector : MonoBehaviour
             .GivingUpAfter(45f),
 
         new TutorialStep(TutorialStepId.SendTroop)
-            .WhileWaiting(RefillMana)
+            .WhileWaiting(Asking(AnyOf(ExistingTypesOfCard.Enemy)))
             .CompletesWhen(() => _troopSent)
             .Pointing(() => PointAtCardDrop(ExistingTypesOfCard.Enemy, enemyFieldAnchor))
             .GivingUpAfter(60f),
 
+        // The one lesson that cannot be taught frozen: what a troop does is where it walks. This runs live so
+        // the player watches theirs climb the opponent's lane while that lane's own waves come down it — and
+        // it is the only place the board shows that the traffic goes both ways.
+        // It carries a timeout despite being a tap step: every other read-this beat is safe to leave open
+        // because the world is stopped, and this one is not.
+        new TutorialStep(TutorialStepId.TroopDirection)
+            .OnlyWhen(() => _troopSent)
+            .Tap()
+            .Running()
+            .Pointing(PointAtSentTroop)
+            .GivingUpAfter(30f),
+
+        // The category before the card: a spell's field is part of what it IS, and the player is about to
+        // meet one of each. Told here rather than at the first cast because this is where both are in hand
+        // and the offensive one is about to be used on the field it belongs to.
+        new TutorialStep(TutorialStepId.SpellKinds)
+            .Tap()
+            .Pointing(() => PointAtCardInHand(CardType.SpellRage)),
+
+        // Rage, on the troops in their lane, named rather than left as "a spell": it only speeds up what is
+        // already attacking that field, so dropped on bare lane it buffs nothing. Live for the reason the
+        // beat before it is — a frozen troop cannot be seen surging — and watched afterwards, because the
+        // next step freezes and the effect would stop on the frame the cast landed.
         new TutorialStep(TutorialStepId.CastSpell)
-            .WhileWaiting(RefillMana)
-            .CompletesWhen(() => _spellCast)
-            .Pointing(() => PointAtCardDrop(ExistingTypesOfCard.Spell, enemyFieldAnchor))
+            .WhileWaiting(Asking(Only(CardType.SpellRage)))
+            .Running()
+            .CompletesWhen(() => HasPlayed(CardType.SpellRage))
+            .Watching(SpellWatchSeconds)
+            .Pointing(PointAtRageTarget)
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.SwapBackHome)
             .CompletesWhen(() => _cameraSide == CameraSide.Local)
             .Pointing(() => TutorialHighlight.World(ScreenCentreWorld(), 2.5f, TutorialHintKind.SwipeUp))
             .GivingUpAfter(45f),
+
+        // The defensive half, and the one step that CANNOT be taught frozen at all: a stopped clock never
+        // walks an enemy into the player's lane, so there would be nothing to aim at. Fireball damages only
+        // the enemies attacking the caster's own map, which is exactly why it is taught at home, on the wave
+        // that is already coming — the spell pair is what teaches that a side is part of a card.
+        new TutorialStep(TutorialStepId.CastDefensiveSpell)
+            .WhileWaiting(Asking(Only(CardType.SpellFireball)))
+            .Running()
+            .CompletesWhen(() => HasPlayed(CardType.SpellFireball))
+            .Pointing(PointAtFireballTarget)
+            .GivingUpAfter(60f),
 
         // The one step that lets the world run again: the reward lands here, and the board moving behind it
         // is what makes the hand-off feel like the end of a match rather than the end of a slideshow. The
@@ -249,12 +319,110 @@ public class TutorialMatchDirector : MonoBehaviour
         return TutorialHighlight.DragUiToWorld(card.Rect, _placedTowerPosition);
     }
 
+    /// <summary>
+    /// The troop the player just sent, framed while it marches. Re-resolved every frame like every other
+    /// highlight, so the ring travels with it — which is the step: the troop entered the opponent's lane at
+    /// the end their own waves finish at, and walks back up it.
+    /// </summary>
+    /// <remarks>One killed, or arrived, mid-step leaves the copy with no ring rather than a hole cut over
+    /// nothing.</remarks>
+    private TutorialHighlight PointAtSentTroop()
+    {
+        EnemyManager troop = FindSentTroop();
+
+        return troop != null
+            ? TutorialHighlight.World(troop.transform.position, SentTroopHighlightRadius, TutorialHintKind.None)
+            : TutorialHighlight.None;
+    }
+
+    /// <summary>
+    /// Our furthest-along troop on the opponent's lane — the leader, since the card sends a small column and
+    /// they walk close enough together for one ring to hold them all.
+    /// </summary>
+    /// <remarks>
+    /// "Ours" is read off the reversed flag, the very thing that makes it walk the other way: a wave enemy on
+    /// that lane is never reversed, and anything the bot sends is walking OUR lane, so it carries our team
+    /// rather than theirs. Reading the server movement directly is safe for the same reason the tower lookups
+    /// are — the tutorial is always a local host.
+    /// </remarks>
+    private EnemyManager FindSentTroop()
+    {
+        EnemyManager leader = null;
+        float furthest = -1f;
+
+        foreach (EnemyManager enemy in EnemyRegistry.ActiveEnemies)
+        {
+            if (enemy == null || enemy.Team == null || enemy.ServerMovement == null) continue;
+
+            TeamType attackedMap = enemy.Team.GetTeamType();
+            if (attackedMap == _localTeam || attackedMap == TeamType.None) continue;
+            if (!enemy.ServerMovement.Reversed.Value) continue;
+
+            float progress = enemy.ServerMovement.Progress;
+            if (progress <= furthest) continue;
+
+            leader = enemy;
+            furthest = progress;
+        }
+
+        return leader;
+    }
+
     private TutorialHighlight PointAtCardDrop(ExistingTypesOfCard family, Transform anchor)
     {
         AbstractCard card = FindCardInHand(family);
         if (card == null || anchor == null) return TutorialHighlight.None;
 
         return TutorialHighlight.DragUiToWorld(card.Rect, anchor.position);
+    }
+
+    /// <summary>The same drag hint, for a step that names one exact card rather than a family.</summary>
+    private TutorialHighlight PointAtCardDrop(CardType cardType, Vector3 target)
+    {
+        AbstractCard card = FindCardInHand(cardType);
+
+        return card != null ? TutorialHighlight.DragUiToWorld(card.Rect, target) : TutorialHighlight.None;
+    }
+
+    /// <summary>A card in hand, ringed but not dragged anywhere — for a step that talks about it rather
+    /// than asking for it.</summary>
+    private TutorialHighlight PointAtCardInHand(CardType cardType)
+    {
+        AbstractCard card = FindCardInHand(cardType);
+
+        return card != null
+            ? TutorialHighlight.Ui(card.Rect, TutorialHintKind.None)
+            : TutorialHighlight.None;
+    }
+
+    /// <summary>
+    /// Rage -> the troops walking the opponent's lane, the only thing it can speed up. The player's own
+    /// sent troop is preferred — it is the one they just watched march and the one the copy is about — and
+    /// anything else attacking that field will do, since Rage buffs the lane rather than an allegiance.
+    /// Falls back to the enemy field anchor when the lane is momentarily empty.
+    /// </summary>
+    private TutorialHighlight PointAtRageTarget()
+    {
+        EnemyManager troop = FindSentTroop() ?? FindAnyTroopOnEnemyLane();
+        if (troop != null) return PointAtCardDrop(CardType.SpellRage, troop.transform.position);
+
+        return enemyFieldAnchor != null
+            ? PointAtCardDrop(CardType.SpellRage, enemyFieldAnchor.position)
+            : TutorialHighlight.None;
+    }
+
+    /// <summary>
+    /// Fireball -> the enemy furthest down the player's own lane. Falls back to the home anchor for the
+    /// moment before the wave arrives; the step runs live, so one is on its way.
+    /// </summary>
+    private TutorialHighlight PointAtFireballTarget()
+    {
+        EnemyManager threat = FindWorstThreatOnOurLane();
+        if (threat != null) return PointAtCardDrop(CardType.SpellFireball, threat.transform.position);
+
+        return localFieldAnchor != null
+            ? PointAtCardDrop(CardType.SpellFireball, localFieldAnchor.position)
+            : TutorialHighlight.None;
     }
 
     private Vector3 ScreenCentreWorld()
@@ -310,7 +478,56 @@ public class TutorialMatchDirector : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Anything walking the opponent's lane, ours or their own incoming wave. Rage buffs whatever is
+    /// attacking that field, so either is a target the cast actually lands on — this is the fallback for
+    /// the moment the player's own troops have already died or arrived.
+    /// </summary>
+    private EnemyManager FindAnyTroopOnEnemyLane()
+    {
+        foreach (EnemyManager enemy in EnemyRegistry.ActiveEnemies)
+        {
+            if (enemy == null || enemy.Team == null) continue;
+
+            TeamType attackedMap = enemy.Team.GetTeamType();
+            if (attackedMap != TeamType.None && attackedMap != _localTeam) return enemy;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The enemy furthest down the player's own lane. An enemy's team is the map it attacks, so this covers
+    /// the waves and anything the bot has sent alike — everything a Fireball can hit, since its executor
+    /// filters to the caster's own map.
+    /// </summary>
+    /// <remarks>Furthest along is both the enemy actually about to cost the player health and the one
+    /// certain to be out of its spawn invincibility: <c>ServerEnemyHealth.TakeDamage</c> drops the hit
+    /// outright while that is up, so aiming at a fresh spawn would teach a cast that does nothing.</remarks>
+    private EnemyManager FindWorstThreatOnOurLane()
+    {
+        EnemyManager worst = null;
+        float furthest = -1f;
+
+        foreach (EnemyManager enemy in EnemyRegistry.ActiveEnemies)
+        {
+            if (enemy == null || enemy.Team == null || enemy.ServerMovement == null) continue;
+            if (enemy.Team.GetTeamType() != _localTeam) continue;
+            if (!enemy.ServerMovement.IsTargetable) continue;
+
+            float progress = enemy.ServerMovement.Progress;
+            if (progress <= furthest) continue;
+
+            worst = enemy;
+            furthest = progress;
+        }
+
+        return worst;
+    }
+
     // ---- Observations ---------------------------------------------------------------------------
+
+    private bool HasPlayed(CardType cardType) => _cardsPlayed.Contains(cardType);
 
     private void Subscribe()
     {
@@ -403,8 +620,9 @@ public class TutorialMatchDirector : MonoBehaviour
 
         if (card == null) return;
 
+        _cardsPlayed.Add(args.CardDeployed);
+
         if (card.ExistingType == ExistingTypesOfCard.Enemy) _troopSent = true;
-        if (card.ExistingType == ExistingTypesOfCard.Spell) _spellCast = true;
     }
 
     private void HandleCameraSideChanged(CameraSide side) => _cameraSide = side;
@@ -449,6 +667,71 @@ public class TutorialMatchDirector : MonoBehaviour
     }
 
     /// <summary>
+    /// Everything a step that asks for a card needs on every frame it waits: mana to afford the ask with,
+    /// and a hand narrowed to the card being asked for.
+    /// </summary>
+    /// <remarks>The two travel together because they answer the same question — can the player do what they
+    /// were just told to, and only that? A step with no card to ask for keeps <see cref="RefillMana"/>.</remarks>
+    private Action Asking(Func<AbstractCard, bool> playable) => () =>
+    {
+        RefillMana();
+        _playableCards = playable;
+    };
+
+    private static Func<AbstractCard, bool> AnyOf(ExistingTypesOfCard family) =>
+        card => card.CardData.ExistingType == family;
+
+    private static Func<AbstractCard, bool> Only(CardType cardType) =>
+        card => card.CardData.CardType == cardType;
+
+    /// <summary>
+    /// The card that can upgrade the tower just built — only one of that tower's own type can, which is the
+    /// rule the deployer enforces and the same one the upgrade hint follows. Falls back to any tower card
+    /// when there is no tower to match (the place step timed out), rather than closing the whole hand.
+    /// </summary>
+    private bool IsUpgradeCard(AbstractCard card) =>
+        _placedTowerCard == CardType.None
+            ? card.CardData.ExistingType == ExistingTypesOfCard.Tower
+            : card.CardData.CardType == _placedTowerCard;
+
+    /// <summary>
+    /// Closes every card the running step did not ask for, so a stray drop cannot spend the card that step
+    /// is waiting on — or the mana it needs — and leave the player stuck on an instruction they can no
+    /// longer carry out.
+    /// </summary>
+    /// <remarks>
+    /// Applied every frame rather than on entry and exit: the hand re-deals under a step (a played card is
+    /// replaced at once on a deck this size), and a card arriving on its slot opens itself.
+    /// </remarks>
+    private void ApplyHandLock()
+    {
+        if (_cardContainer == null) return;
+
+        // A predicate nothing matches would close the whole hand and strand the player, which is never what
+        // a step means — it is what a step whose card has not been dealt back yet, or whose premise did not
+        // hold, would ask for by accident. The hand is left open instead.
+        bool anyMatch = false;
+
+        if (_playableCards != null)
+        {
+            foreach (AbstractCard card in _cardContainer.CardsInHand)
+            {
+                if (card == null || card.CardData == null || !_playableCards(card)) continue;
+
+                anyMatch = true;
+                break;
+            }
+        }
+
+        foreach (AbstractCard card in _cardContainer.CardsInHand)
+        {
+            if (card == null || card.CardData == null) continue;
+
+            card.SetInteractable(!anyMatch || _playableCards(card));
+        }
+    }
+
+    /// <summary>
     /// Keeps the player topped up for as long as an action step is waiting. A frozen step regenerates no
     /// mana at all, so without this a player who spent down to nothing would sit on an instruction they can
     /// never carry out until its timeout fired.
@@ -461,7 +744,46 @@ public class TutorialMatchDirector : MonoBehaviour
         if (_localTeam == TeamType.None) return;
         if (!ServiceLocator.TryGet(out BaseServerManaManager mana)) return;
 
+        RaiseManaCapForDeck(mana);
         mana.GrantMana(_localTeam, mana.GetMaxMana(_localTeam));
+    }
+
+    /// <summary>
+    /// Lifts the player's mana ceiling to cover the costliest card the tutorial lends them, if it does not
+    /// already. The shared table drops the cap to 4 at wave 1 while the lent deck holds a 5-mana spell, so
+    /// without this the step that asks for it points at a card the player can never afford and can only
+    /// time out — the same failure <see cref="RefillMana"/> exists to prevent, one layer up.
+    /// </summary>
+    /// <remarks>
+    /// Raised only, only for the player's own team, and re-applied every frame an action step waits, so a
+    /// new wave's own cap can neither be lowered past what the deck needs nor stay lowered. The bot is left
+    /// on the table's value: this buys the script its cards, not the tutorial an easier opponent.
+    /// </remarks>
+    private void RaiseManaCapForDeck(BaseServerManaManager mana)
+    {
+        if (_deckManaCost <= 0f) return;
+
+        NetworkVariable<float> max = mana.GetMaxManaNetworkVariable(_localTeam);
+        if (max != null && max.Value < _deckManaCost) max.Value = _deckManaCost;
+    }
+
+    /// <summary>
+    /// The costliest card in the lent deck. Read from the deck rather than authored, so re-authoring the
+    /// deck cannot leave a card in it that no step can ever pay for.
+    /// </summary>
+    private float ResolveDeckManaCost()
+    {
+        if (settings == null || settings.TutorialDeck == null || settings.CardDataList == null) return 0f;
+
+        float highest = 0f;
+
+        foreach (CardType cardType in settings.TutorialDeck)
+        {
+            CardDataSO card = settings.CardDataList.GetCardDataByType(cardType);
+            if (card != null && card.Cost > highest) highest = card.Cost;
+        }
+
+        return highest;
     }
 
     // ---- Handover -------------------------------------------------------------------------------

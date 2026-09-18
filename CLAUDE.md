@@ -424,21 +424,47 @@ teaches progression, and progression is only teachable once the player owns some
   `TutorialSettingsSO.TutorialDeck` for the match and swaps it back on handover; the save is never touched.
   Scripting "place a tower" is only safe when a tower is guaranteed to be in the deck, and the starter deck
   has **no troop card at all**, so the SendTroop step could never have completed on it. The authored deck is
-  **4 cards, all <= 4 mana** (Dart, Stinger, SpawnEnemy1, Ice): `HandSize` is 4 and `StartingMaxMana` is 5,
-  so the whole deck is always in hand and the tower card comes straight back for the level-up step.
+  **4 cards** (Dart, SpawnEnemy1, Rage, Fireball) and is **exactly `HandSize`** on purpose: the whole deck
+  is therefore always in hand, which is what brings the tower card straight back for the level-up step and
+  keeps both spells available when their steps name them by type. That slot is what the second tower card
+  (Stinger) was traded for — two towers taught nothing the one does not, while the two spells are cast on
+  opposite fields for opposite reasons.
+  - **The script guarantees its own deck is affordable.** `RefillMana` also lifts the player's mana ceiling
+    to the costliest card in the deck (`RaiseManaCapForDeck`): the shared mana table drops the cap to **4**
+    at wave 1 — `ServerManaManager` applies the wave-1 override at spawn — while Rage costs **5**, so the
+    step asking for it would point at a card that can never be paid for and could only time out. That is the
+    same failure `RefillMana` already exists to prevent, one layer up. Raised only, only for the player's own
+    team (the bot keeps the table's value, so this buys the script its cards rather than the tutorial an
+    easier opponent), and re-applied every frame an action step waits, so a later wave's cap cannot undo it.
+    Read **from the deck**, not authored, so re-authoring the deck can never strand a card no step can pay for.
 - **Steps are one class configured with delegates, not a class each.** `TutorialStep` is a builder
   (`.Tap()`, `.CompletesWhen()`, `.Pointing()`, `.GivingUpAfter()`) and the whole script reads as one list in
   the director, whose closures capture the subscriptions that complete each step
   (`BaseCardTowerDeployer.OnPlaceResult` for place vs. `TowerReason.LevelUp`, `CardDeploymentBus` filtered to
   the local team for troop/spell, `CameraSlide.SideChanged` for the table swap). `IGameFlowState` earns its
   classes because states hold state; these do not. **Every action step carries a timeout** — the one failure
-  a first-time experience must not have is a dead end.
+  a first-time experience must not have is a dead end. **A new step id is appended to `TutorialStepId`, never
+  inserted**: `TutorialCopySO` serializes the enum as ints, so slotting one into the middle silently re-keys
+  every line after it onto the wrong step. What order the steps run in is the director's list, not the enum.
 - **A waiting step freezes the world** (`Time.timeScale = 0`, driven by `TutorialSequence`, opt out per step
   with `.Running()`). One line stops waves, towers, projectiles and mana regen at once without a single
   system learning about the tutorial — and a player reading an instruction should not be losing their base
   while they read it. Four things had to follow from it:
   - **Timeouts are measured in `Time.unscaledTime`.** Scaled, freezing would switch the dead-end safety net
     off exactly where it matters most.
+  - **A step that asks for a card closes the rest of the hand** (`Asking(...)`, which pairs the mana top-up
+    below with a per-frame `ApplyHandLock`). The ask and the lock are the same question — can the player do
+    what they were just told to, and only that — and a misdrop otherwise spends both the card the step is
+    waiting on and the mana it needs, leaving them stuck until it times out. Blocked at the **raycast**
+    (`AbstractCard.SetInteractable`), so no drag begins at all and none of the per-family drag code (a
+    spell's ghost, a tower's preview) runs on a card that may not be played; the overlay's dim already says
+    which card is meant, so the lock needs no visual of its own. It is **immediate-mode** — cleared at the
+    top of `Update`, re-asserted by the waiting step's own tick — so settling, a timeout, a skipped step and
+    a Skip all reopen the hand without any step remembering to, and a hand that re-deals mid-step is covered
+    for free. A predicate nothing matches (the place step timed out, so there is no tower to upgrade) leaves
+    the hand **open** rather than closing all of it. Only the five "play this card" steps lock; the reads,
+    the swipes and the live watching beats leave the hand alone, because the player still has a base to
+    defend — the same reason `blockInput` is off.
   - **Mana is topped up every frame an action step waits** (`.WhileWaiting(RefillMana)`), not on entry. A
     frozen step regenerates none, so a player who spent down to nothing would be stuck on an instruction
     they cannot carry out; and on-entry alone is not enough, because the deploy that completed the
@@ -461,9 +487,51 @@ teaches progression, and progression is only teachable once the player owns some
     `InitialDelay`. Settling was chosen over making tower visuals unscaled: it is one mechanism in the
     tutorial rather than a timescale audit of every prefab an action can touch, and it gives each action a
     visible beat. **SendTroop and CastSpell have the same shape** (a troop's `SpawnDuration`, a spell's
-    cast) and do not settle yet.
+    cast) and carry no `.SettlingUntil` — SendTroop gets that beat anyway from the running step below it,
+    CastSpell still has none.
   - Verified under a frozen clock: the placement Rpc round-trip, the level-up, the troop, the spell and both
     swipes all complete at `timeScale = 0`.
+- **Three beats mid-match are deliberately live; the first is `TroopDirection`.** A `.Running()` tap step right after
+  SendTroop, holding while the troop walks — because what a troop *does* is where it goes, and a frozen one
+  demonstrates nothing. A player-sent troop is spawned `fromPlayer: true`, which becomes
+  `ServerEnemyMovement`'s **`reversed`** flag: it enters the opponent's lane at the end **their** own waves
+  finish at and marches back up it, against the traffic. Letting the clock run is what puts that on screen —
+  their waves come down the same lane while yours climbs it — and this is the only place the tutorial shows
+  that the sending goes both ways, which the bot does to the player for the rest of the match.
+  - **It is the only tap step with a timeout** (30s). Every other read-this beat is safe to leave open
+    because the clock is stopped; this one is not, and unbounded it would be the first point in the tutorial
+    that could actually *lose* the match. 30s of wave 1 is about two leaks at 2 damage each out of 100, and
+    expiring just lands the player on `CastSpell`, which freezes again.
+  - **The ring tracks the troop**, re-resolved per frame like every highlight. "Ours" is read off that same
+    `Reversed` flag rather than remembered from the deploy: a wave enemy on their lane is never reversed, and
+    what the bot sends walks **our** lane, so it carries our team instead. The leader (furthest `Progress`) is
+    framed at a 1.5-unit radius, which holds the whole two-troop column the card sends.
+    `.OnlyWhen(_troopSent)` keeps it from explaining a troop that was never sent, and one killed mid-step
+    drops the ring rather than cutting a hole over nothing.
+- **The two spells are taught as a pair, on opposite fields, with the category explained first.**
+  `SpellKinds` is a read-this beat naming the two kinds while both cards sit in hand; then `CastSpell` is
+  **Rage, dropped on the troops in their lane**, and `CastDefensiveSpell`, after the swipe home, is
+  **Fireball, dropped on the wave in your own**. The pair *is* the lesson, because a spell's field is part of
+  what it is: `RageExecutor` speeds up only what attacks the **opponent's** map (`CanUseInEnemyMap`),
+  `FireballExecutor` damages only what attacks the **caster's** (`CanUseInLocalMap`).
+  - **Both name a `CardType`, never "the first spell in hand".** The hand holds both at once and each does
+    nothing whatsoever on the other's field — the old step took whichever came up first and aimed it at
+    `enemyFieldAnchor`, so it could hand the player a cast that buffed or froze nothing at all.
+  - **Both run live.** A frozen troop cannot be seen surging, and a frozen clock never walks an enemy into
+    the player's lane at all, so the defensive step would have nothing to aim at: the waves' `InitialDelay`
+    is 7s of *scaled* time. Both keep the 60s action-step timeout and `RefillMana`.
+  - **The offensive cast is then watched** — `.Watching(2.5f)`, new on `TutorialStep`. `SwapBackHome` comes
+    next and freezes, so without it the surge stopped on the frame the cast landed. A watch is the twin of a
+    settle: a settle waits for a result to **finish**, a watch waits for one to be **seen**, which is all a
+    duration effect has to offer. `TutorialSequence` serves the watch first, then any predicate, and reuses
+    the settle's unfreeze and overlay-hide. Fireball needs none — the `.Running()` outro follows it.
+  - **Each hint degrades instead of pointing nowhere.** Rage prefers the player's own sent troop (the one
+    they just watched march), else anything walking that lane — it buffs the lane, not an allegiance — else
+    `enemyFieldAnchor`. An empty home lane falls back to `localFieldAnchor`. Running the steps is what makes
+    both fallbacks temporary.
+  - **Fireball aims at the enemy furthest down the lane**: the one actually about to cost health, and the
+    only one certain to be past its spawn invincibility. `ServerEnemyHealth.TakeDamage` drops the hit
+    outright while `Invincible` is up, so a hint on a fresh spawn would teach a cast that does nothing.
 - **The script starts when the board is visible, not when the match is.** The server reaches `InMatch`
   while `PlayersIntroductionCanvas` is still showing both names (`MatchReadyState` holds 2s; the intro holds
   3s, then fades for 0.5s). Keyed on `InMatch` alone, the director put the Welcome line on top of that
@@ -482,7 +550,7 @@ teaches progression, and progression is only teachable once the player owns some
 - **The outro pays out and shows what it paid.** The reward is rolled and banked when the outro step is
   *entered* rather than on the way out, so the line can name the card (`TutorialStep.Formatting` feeds
   `string.Format` args into the copy, keeping `{0}` out of the copy table's knowledge of which card it is)
-  and the overlay can show it. The outro is also the one `.Running()` step: the board moving behind the
+  and the overlay can show it. The outro is the last of the `.Running()` steps: the board moving behind the
   reward is what makes it read as the end of a match rather than the end of a slideshow.
   - **Shown as the end-of-match tiles**, not a bespoke card view: `BaseTutorialOverlay.ShowReward(Reward,
     CardDataSO)` fills the overlay's `Reward` panel with `RewardPrefab`/`RewardEntryUI` (card first, with its
@@ -542,6 +610,12 @@ teaches progression, and progression is only teachable once the player owns some
   - **The upgrade step frames the info panel's Upgrade button** (`BaseInfoPanelService.UpgradeButtonRect`,
     the same idiom as `ActionFrame`'s rects). Beyond the ring, this is what moves the copy: with no target
     the text box parks low, exactly over that button, and the player was told to tap something hidden.
+  - **Closing that panel is its own step** (`CloseCardDetails`, on `CloseButtonRect` — the twin of
+    `UpgradeButtonRect`). The panel is modal and covers the nav bar, so without it the next step pointed at a
+    Battle nav button the player could not reach. It completes on the panel going away by *any* route — close
+    button, backdrop tap — and is `.OnlyWhen` it is actually open, because nothing guarantees that:
+    `UpgradeCard` passes over a maxed card without ever showing, and the player may have closed it
+    themselves. No fallback target either: while a modal is up, nothing behind it is worth framing.
 - Debug: `Kecek/Debug Tools/Tutorial/Replay Tutorial On Next Launch` (and `Mark Tutorial Completed`). Both
   edit the save **file**, because the flag is read in `ClientManager.Awake` long before a menu item can be
   clicked. Replay keeps the collection; for a genuine first run use the Quantum Console's **`reset-save`**

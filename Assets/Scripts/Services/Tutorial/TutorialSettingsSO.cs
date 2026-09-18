@@ -17,8 +17,11 @@ public class TutorialSettingsSO : ScriptableObject
     [Title("Match")]
     [InfoBox("Swapped in for the player's own deck for the duration of the tutorial match, then swapped " +
              "back. Scripting a step as \"place a tower\" is only safe if a tower is guaranteed to be in " +
-             "the deck, and the player's real deck is theirs to edit. Should hold DeckSize cards, and " +
-             "must contain at least one Tower, one Enemy (troop) and one Spell card.")]
+             "the deck, and the player's real deck is theirs to edit.\n\n" +
+             "Hold exactly HandSize cards: the whole deck is then always in hand, which is what brings the " +
+             "tower card straight back for the level-up step and keeps both spells available for theirs. " +
+             "Must contain a Tower, a troop, and the two spells the script names by type - Ice (cast on " +
+             "their towers) and Fireball (cast on your own lane).")]
     public List<CardType> TutorialDeck = new();
 
     [Tooltip("Level every tutorial-deck card plays at. The player's own levels are irrelevant here — the " +

@@ -106,7 +106,7 @@ public class TutorialSequence
         bool done = step.WaitsForTap ? _tapped : step.IsComplete == null || step.IsComplete();
         if (!done) return;
 
-        if (step.IsSettled != null) BeginSettling(step);
+        if (step.IsSettled != null || step.WatchSeconds > 0f) BeginSettling(step);
         else EnterNext();
     }
 
@@ -147,14 +147,20 @@ public class TutorialSequence
 
     private void TickSettling(TutorialStep step)
     {
-        if (step.IsSettled())
+        float elapsed = Time.unscaledTime - _settlingSince;
+
+        // A watch is a beat the player is meant to SEE, so it always runs its full length; a settle ends the
+        // moment its predicate holds. A step carrying both is watched first, then settled.
+        if (elapsed < step.WatchSeconds) return;
+
+        if (step.IsSettled == null || step.IsSettled())
         {
             EnterNext();
             return;
         }
 
         // Unscaled like every other tutorial timeout: a result that never settles must not dead-end the run.
-        if (Time.unscaledTime - _settlingSince < step.SettleTimeout) return;
+        if (elapsed - step.WatchSeconds < step.SettleTimeout) return;
 
         GameLog.Warn($"[Tutorial] Step {step.Id} had not settled after {step.SettleTimeout:0.#}s; moving on.");
         EnterNext();

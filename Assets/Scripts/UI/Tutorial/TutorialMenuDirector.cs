@@ -154,6 +154,15 @@ public class TutorialMenuDirector : MonoBehaviour
             .Pointing(OnPage(deckPageIndex, deckNavButtonRect, PointAtUpgradeButton))
             .GivingUpAfter(90f),
 
+        // The panel is modal and covers the nav bar, so the next step would point at a button the player
+        // cannot reach. Skipped when the panel is already gone — the player may have closed it themselves,
+        // and nothing above forces it open (UpgradeCard passes over a maxed card without ever showing).
+        new TutorialStep(TutorialStepId.CloseCardDetails)
+            .OnlyWhen(IsInfoPanelVisible)
+            .CompletesWhen(() => !IsInfoPanelVisible())
+            .Pointing(PointAtCloseButton)
+            .GivingUpAfter(45f),
+
         new TutorialStep(TutorialStepId.OpenBattlePage)
             .CompletesWhen(() => CurrentPage == battlePageIndex)
             .SettlingUntil(IsPageStripSettled)
@@ -177,6 +186,8 @@ public class TutorialMenuDirector : MonoBehaviour
 
     /// <summary>An unwired strip never moves, so there is nothing to wait for.</summary>
     private bool IsPageStripSettled() => pageStrip == null || pageStrip.IsSettled;
+
+    private bool IsInfoPanelVisible() => _infoPanel != null && _infoPanel.IsVisible;
 
     /// <summary>
     /// Whether there is still an upgrade to teach: the player has not bought it on the way here, and can
@@ -255,6 +266,13 @@ public class TutorialMenuDirector : MonoBehaviour
 
         return PointAtCard(_rewardCard);
     }
+
+    /// <summary>
+    /// The panel's own Close button. No fallback to the card: the panel is modal, so while it is up there is
+    /// nothing else worth framing — and the step is over the moment the panel goes away anyway.
+    /// </summary>
+    private TutorialHighlight PointAtCloseButton() =>
+        IsInfoPanelVisible() ? TutorialHighlight.Ui(_infoPanel.CloseButtonRect) : TutorialHighlight.None;
 
     // ---- Observations ---------------------------------------------------------------------------
 

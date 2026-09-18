@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b95038af4b793c74589d2738738a525c, type: 3}
   m_Name: TutorialSettings
   m_EditorClassIdentifier: Assembly-CSharp::TutorialSettingsSO
-  TutorialDeck: 0a0000000d0000000400000005000000
+  TutorialDeck: 0a000000040000000b00000003000000
   DeckCardLevel: 1
   CardDataList: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
   CardProgression: {fileID: 11400000, guid: 27e67ca7b285c634093a2ad21ee8fbee, type: 2}

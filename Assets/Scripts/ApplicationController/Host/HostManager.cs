@@ -38,6 +38,9 @@ public class HostManager : BaseHostManager
 {
     private const int MAX_CONNECTIONS = 1;
 
+    /// <summary>Where an offline host listens. Loopback, because nothing off this machine may reach it.</summary>
+    private const string LoopbackAddress = "127.0.0.1";
+
     public event Action OnFailToStartHost;
     public event Action OnHostInGameScene;
     public event Action OnHostShutdown;
@@ -126,9 +129,9 @@ public class HostManager : BaseHostManager
     /// connection payload, a listening host, and the scene load.
     /// </summary>
     /// <remarks>
-    /// The transport is left on whatever it was authored with (loopback by default). No relay data is set,
-    /// which is what keeps a second player from ever finding this session. <see cref="ShutdownHostAsync"/>
-    /// and <see cref="CloseLobbyToNewPlayers"/> both already tolerate a null lobby, so teardown is shared.
+    /// The transport binds loopback on an OS-assigned port, and no relay data is set — which is what keeps a
+    /// second player from ever finding this session. <see cref="ShutdownHostAsync"/> and
+    /// <see cref="CloseLobbyToNewPlayers"/> both already tolerate a null lobby, so teardown is shared.
     /// </remarks>
     public override async Task<bool> StartLocalHostAsync(Loader.Scene scene)
     {
@@ -140,6 +143,15 @@ public class HostManager : BaseHostManager
         }
 
         NetworkManager.Singleton.NetworkConfig.ConnectionData = _clientManager.UserData.TranslateToBytes();
+
+        // Port 0 = let the OS pick a free one, rather than the authored 7777. Nothing ever connects to this
+        // host — it is offline and publishes nothing — so the port carries no meaning here, while a fixed
+        // one is a shared resource: a second Editor, a running build, or a socket this very process leaked
+        // from an earlier play session all hold 7777, and StartHost() then fails outright and drops a
+        // first-time player into the Main Menu with no tutorial at all. The relay paths are unaffected —
+        // they call SetRelayServerData, which replaces this wholesale.
+        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        if (transport != null) transport.SetConnectionData(LoopbackAddress, 0, LoopbackAddress);
 
         // No allocation and no lobby id: the two teardown paths key off those being empty.
         CurrentHostConnectionData = new HostConnectionData(null, null, null, NetworkManager.Singleton);

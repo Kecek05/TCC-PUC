@@ -303,6 +303,14 @@ public enum TutorialStepId
     UpgradeCard,
     OpenBattlePage,
     PressBattle,
+
+    // --- Appended, not slotted into the sections above ---
+    // TutorialCopySO serializes these as ints, so inserting one mid-enum would re-key every line after it
+    // onto the wrong step. Where a step actually runs is the director's list, never this enum.
+    CloseCardDetails,   // Menu: after UpgradeCard
+    TroopDirection,     // Match: after SendTroop
+    CastDefensiveSpell, // Match: after SwapBackHome
+    SpellKinds,         // Match: before CastSpell
 }
 
 /// <summary>How the tutorial overlay animates its pointing hand at a highlighted target.</summary>

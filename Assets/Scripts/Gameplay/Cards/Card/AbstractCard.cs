@@ -41,6 +41,28 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     /// <summary>This card as a UI rect, for a highlight to frame.</summary>
     public RectTransform Rect => rectTransform;
 
+    /// <summary>Whether something outside the hand is currently holding this card back — see
+    /// <see cref="SetInteractable"/>.</summary>
+    public bool InteractionBlocked { get; private set; }
+
+    /// <summary>
+    /// Opens or closes this card to the player's finger. Used by the tutorial to narrow the hand to the one
+    /// card a step is asking for, so a misdrop cannot spend what that step is waiting on.
+    /// </summary>
+    /// <remarks>
+    /// Blocked at the raycast, so no drag ever begins and none of the per-family drag code (a spell's ghost,
+    /// a tower's placement preview) runs on a card the player may not play. It is deliberately idempotent
+    /// and tracked separately from <c>blocksRaycasts</c>, which a drag in progress also owns: re-opening a
+    /// card that was never closed must not write over the drag's own state and drop it mid-flight.
+    /// </remarks>
+    public void SetInteractable(bool interactable)
+    {
+        if (InteractionBlocked == !interactable) return;
+
+        InteractionBlocked = !interactable;
+        selfCanvasGroup.blocksRaycasts = interactable;
+    }
+
     protected virtual void Start()
     {
         _cameraMain = Camera.main;
@@ -91,6 +113,10 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
 
         selfCanvasGroup.alpha = 1f;
         selfCanvasGroup.blocksRaycasts = true;
+
+        // A card arriving on a slot is open by definition, and this writes the raycast flag directly — so
+        // the block has to be cleared with it, or a recycled card would read as closed while being open.
+        InteractionBlocked = false;
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)
