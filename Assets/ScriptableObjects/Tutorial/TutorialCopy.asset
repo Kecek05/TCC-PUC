@@ -46,8 +46,8 @@ MonoBehaviour:
   - Step: 10
     Text: 'That is everything you need!
 
-      You unlocked <b>{0}</b> - let us put
-      it to work.'
+      Now finish the match: clear all <b>{0}
+      waves</b> to win.'
   - Step: 11
     Text: 'This is your base camp.
 
@@ -64,11 +64,11 @@ MonoBehaviour:
   - Step: 16
     Text: Spend your copies and gold on <b>Upgrade</b> to make it stronger for good.
   - Step: 17
-    Text: Nicely done. Head back to the <b>Battle</b> page.
+    Text: Nicely done. Head back to the <b>main</b> page.
   - Step: 18
     Text: 'You are ready.
 
-      Hit <b>BATTLE</b> and play your first real match!'
+      Hit <b>BATTLE</b> to search for your first real match!'
   - Step: 19
     Text: Stronger already. <b>Close</b> the card details when you are done looking.
   - Step: 20
@@ -88,3 +88,8 @@ MonoBehaviour:
 
       <b>Rage</b> is offensive - it drives your troops forward
       much faster.'
+  - Step: 23
+    Text: Enemies are close to your base! Drop <b>Fireball</b> right on them.
+  - Step: 24
+    Text: Mana to spare! Build another <b>tower</b>, or drop the same card on one to level
+      it up.

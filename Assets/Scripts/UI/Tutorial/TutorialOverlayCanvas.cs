@@ -14,11 +14,9 @@ using UnityEngine.UI;
 /// The hole is made of <b>four solid panels</b> rather than a cut-out shader or a mask: four rects are
 /// trivially positioned around any target, need no custom material, and cost four draw calls.
 /// <para>
-/// They do <b>not</b> block input by default, and that is deliberate. This overlay sits on top of a match
-/// that is still running - waves are marching, the bot is playing - so locking the player out of everything
-/// but the highlighted thing would stop them defending their own base while they read. The dim points; it
-/// does not imprison. <see cref="blockInput"/> turns the panels into raycast targets for a menu-side script
-/// where nothing is at stake.
+/// The panels are decoration only. Input belongs to a <see cref="TutorialInputShield"/> built beside them
+/// (not under <c>content</c>, so it keeps holding while the overlay hides for a settling beat): a step that
+/// asks for something opens exactly the hole, a step that asks for nothing closes the whole board.
 /// </para>
 /// </remarks>
 public class TutorialOverlayCanvas : BaseTutorialOverlay
@@ -41,10 +39,6 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     [SerializeField] private RectTransform dimBottom;
     [SerializeField] private RectTransform dimLeft;
     [SerializeField] private RectTransform dimRight;
-
-    [Tooltip("On: the four dim panels swallow every tap outside the hole. Leave OFF during a live match - " +
-             "the player still has a base to defend while they read.")]
-    [SerializeField] private bool blockInput;
 
     [Tooltip("Optional. Ring drawn on the hole.")]
     [SerializeField] private RectTransform highlightRing;
@@ -91,6 +85,8 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
 
     private float _hintTime;
 
+    private TutorialInputShield _shield;
+
     /// <summary>Reward tiles, kept and reconfigured rather than rebuilt: the outro and the hand-off show the
     /// same payout twice in a row.</summary>
     private readonly List<RewardEntryUI> _rewardTiles = new();
@@ -101,7 +97,8 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
 
         if (canvasRect == null && canvas != null) canvasRect = (RectTransform)canvas.transform;
 
-        ApplyInputBlocking();
+        MakeDimsDecorative();
+        BuildInputShield();
 
         if (continueButton != null) continueButton.onClick.AddListener(RaiseContinueTapped);
         if (skipButton != null) skipButton.onClick.AddListener(RaiseSkipTapped);
@@ -116,21 +113,53 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         ServiceLocator.Unregister<BaseTutorialOverlay>();
     }
 
-    /// <summary>Set once: the four panels are either the input blocker or purely decorative, never both.</summary>
-    private void ApplyInputBlocking()
+    /// <summary>The panels only draw. The shield is the one thing deciding what the player can touch, so a
+    /// panel left as a raycast target by its prefab can never become a second, disagreeing gate.</summary>
+    private void MakeDimsDecorative()
     {
-        SetRaycastTarget(dimTop);
-        SetRaycastTarget(dimBottom);
-        SetRaycastTarget(dimLeft);
-        SetRaycastTarget(dimRight);
+        MakeDecorative(dimTop);
+        MakeDecorative(dimBottom);
+        MakeDecorative(dimLeft);
+        MakeDecorative(dimRight);
     }
 
-    private void SetRaycastTarget(RectTransform panel)
+    private static void MakeDecorative(RectTransform panel)
     {
         if (panel == null) return;
 
         Graphic graphic = panel.GetComponent<Graphic>();
-        if (graphic != null) graphic.raycastTarget = blockInput;
+        if (graphic != null) graphic.raycastTarget = false;
+    }
+
+    /// <summary>
+    /// Builds the input shield in code rather than the prefab: it is an implementation detail of this
+    /// overlay with nothing to author, and it has two placement rules that are easy to break by hand.
+    /// </summary>
+    /// <remarks>
+    /// It sits <b>beside</b> <c>content</c>, not under it, so hiding the overlay for a settling beat leaves the
+    /// board held; and it is the <b>first</b> sibling, so everything in <c>content</c> — Continue and Skip
+    /// above all — draws and raycasts in front of it. It shares <see cref="canvasRect"/>'s space, which is
+    /// where the hole is computed, so the opening is the hole without any conversion.
+    /// </remarks>
+    private void BuildInputShield()
+    {
+        RectTransform parent = canvasRect != null ? canvasRect : (RectTransform)transform;
+
+        GameObject shieldObject = new("InputShield", typeof(RectTransform), typeof(CanvasRenderer));
+        RectTransform shieldRect = (RectTransform)shieldObject.transform;
+        shieldRect.SetParent(parent, false);
+        shieldRect.SetAsFirstSibling();
+        shieldRect.anchorMin = Vector2.zero;
+        shieldRect.anchorMax = Vector2.one;
+        shieldRect.offsetMin = shieldRect.offsetMax = Vector2.zero;
+
+        _shield = shieldObject.AddComponent<TutorialInputShield>();
+        _shield.Initialize(parent);
+    }
+
+    public override void SetInputMode(TutorialInputMode mode)
+    {
+        if (_shield != null) _shield.SetMode(mode);
     }
 
     /// <summary>Resolved late: Camera.main is null while the gameplay scene is still loading.</summary>
@@ -146,12 +175,39 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     public override void Show(string text_, bool showContinue)
     {
         if (content != null) content.SetActive(true);
+        SetDimsVisible(true);
 
         bool hasText = !string.IsNullOrWhiteSpace(text_);
         if (textBox != null) textBox.gameObject.SetActive(hasText);
         if (text != null) text.text = text_;
 
         if (continueButton != null) continueButton.gameObject.SetActive(showContinue && hasText);
+    }
+
+    public override void ShowTip(string tipText, TutorialHighlight highlight)
+    {
+        Show(tipText, showContinue: false);
+
+        // The dims are what turn a line into an instruction: without them the board stays readable and
+        // plainly the player's. Nothing else here takes a touch — every decorative graphic in this overlay
+        // is non-raycast, Continue is hidden, and the shield is left in whatever mode it was given.
+        SetDimsVisible(false);
+        SetHighlight(highlight);
+    }
+
+    public override void HideTip() => Hide();
+
+    private void SetDimsVisible(bool visible)
+    {
+        SetActive(dimTop, visible);
+        SetActive(dimBottom, visible);
+        SetActive(dimLeft, visible);
+        SetActive(dimRight, visible);
+    }
+
+    private static void SetActive(RectTransform panel, bool active)
+    {
+        if (panel != null && panel.gameObject.activeSelf != active) panel.gameObject.SetActive(active);
     }
 
     public override void ShowReward(Reward reward, CardDataSO card)
@@ -195,6 +251,10 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
     {
         _textBoxTween?.Kill();
         _textBoxPlaced = false;
+
+        // The mode is left alone — whoever hid the overlay decides whether the board stays held — but a
+        // hole nobody can see must not stay open.
+        if (_shield != null) _shield.ClearOpening();
 
         HideReward();
 
@@ -354,6 +414,13 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         SetPanel(dimBottom, new Rect(-halfW, -halfH, halfW * 2f, bottom + halfH));
         SetPanel(dimLeft, new Rect(-halfW, bottom, left + halfW, top - bottom));
         SetPanel(dimRight, new Rect(right, bottom, halfW - right, top - bottom));
+
+        // The opening is exactly the undimmed area — padded and clamped the same way — so what looks open
+        // is open, and nothing that looks dimmed can be touched.
+        if (_shield == null) return;
+
+        if (hasHole) _shield.SetOpening(new Rect(left, bottom, right - left, top - bottom));
+        else _shield.ClearOpening();
     }
 
     private static void SetPanel(RectTransform panel, Rect rect)

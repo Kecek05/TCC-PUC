@@ -6,8 +6,10 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Runs the scripted half of the first-time experience: the match in TutorialScene. Owns the step list,
-/// the subscriptions that complete those steps, and the handover to the Main Menu once they are done.
+/// Runs the scripted half of the first-time experience: the match in TutorialScene. Owns the step list and
+/// the subscriptions that complete those steps; then lets the match play out to a normal ending — free play
+/// with tips, a match that cannot be lost, and the tutorial's reward paid through the normal end screen —
+/// and arms the menu half as it ends.
 /// </summary>
 /// <remarks>
 /// A plain MonoBehaviour, not a NetworkBehaviour. The tutorial is always a local host, so the client and
@@ -28,9 +30,10 @@ public class TutorialMatchDirector : MonoBehaviour
     /// column the card sends, since they spawn a fraction of a second apart and walk together.</summary>
     private const float SentTroopHighlightRadius = 1.5f;
 
-    /// <summary>Unscaled seconds the board is left running after a spell lands, so the player sees it work.
-    /// Long enough to read a troop surging ahead; short enough not to feel like a pause.</summary>
-    private const float SpellWatchSeconds = 2.5f;
+    /// <summary>Unscaled seconds the board is left running once a spell has LANDED, so the player sees it
+    /// work. Long enough to read a troop surging ahead or a wave going down; short enough not to feel like a
+    /// pause. See <see cref="SpellWatchSeconds"/> for why it is counted from the landing.</summary>
+    private const float SpellLandedWatchSeconds = 2.5f;
 
     [Title("References")]
     [SerializeField, Required] private TutorialSettingsSO settings;
@@ -53,8 +56,9 @@ public class TutorialMatchDirector : MonoBehaviour
 
     private BaseTutorialService _tutorial;
     private BasePlayerSaveManager _save;
-    private BaseRewardService _rewards;
     private BaseTeamManager _teamManager;
+    private BaseServerWaveManager _waveManager;
+    private BaseServerEndGameManager _endGame;
     private BaseCardContainer _cardContainer;
     private BaseGameFlowManager _gameFlow;
     private BaseCardTowerDeployer _towerDeployer;
@@ -87,13 +91,24 @@ public class TutorialMatchDirector : MonoBehaviour
     /// <summary>The tower the player's latest place or upgrade landed on - what the two tower steps settle on.</summary>
     private TowerManager _lastBuiltTower;
 
-    /// <summary>Rolled and banked when the outro is reached, so the outro can name and show it and the
-    /// handover does not have to roll a second one.</summary>
+    /// <summary>The tutorial's payout, rolled as the script starts and handed to the end-game manager to pay
+    /// out whichever way the match ends. Kept here to carry its card into the menu half.</summary>
     private Reward _reward;
-    private bool _rewardGranted;
 
     /// <summary>Set once the hand-off to the menu has started, so a late Skip cannot start a second one.</summary>
     private bool _leaving;
+
+    // --- Free play: after the last scripted step, until the match ends. ---
+    private bool _freePlay;
+    private bool _matchEnded;
+
+    /// <summary>The tip on screen, or None.</summary>
+    private TutorialStepId _tip = TutorialStepId.None;
+    private float _tipShownAt;
+    private float _nextTipAt;
+
+    /// <summary>Free-play tips in priority order: a base under threat outranks spare mana.</summary>
+    private static readonly TutorialStepId[] FreePlayTips = { TutorialStepId.TipDefend, TutorialStepId.TipBuildTower };
 
     private void Awake()
     {
@@ -122,6 +137,7 @@ public class TutorialMatchDirector : MonoBehaviour
         _sequence?.Stop();
 
         if (overlay != null) overlay.OnSkipTapped -= HandleSkipTapped;
+        if (_endGame != null) _endGame.OnGameEnded -= HandleMatchEnded;
     }
 
     private void Update()
@@ -134,13 +150,14 @@ public class TutorialMatchDirector : MonoBehaviour
 
         _sequence?.Tick();
 
+        if (_freePlay && !_matchEnded) TickFreePlay();
+
         ApplyHandLock();
     }
 
     private IEnumerator RunWhenMatchStarts()
     {
         ServiceLocator.TryGet(out _save);
-        ServiceLocator.TryGet(out _rewards);
 
         yield return new WaitUntil(() => ServiceLocator.TryGet(out _gameFlow) && _gameFlow != null);
         yield return new WaitUntil(() => _gameFlow.CurrentGameState.Value == GameState.InMatch);
@@ -165,9 +182,18 @@ public class TutorialMatchDirector : MonoBehaviour
         ServiceLocator.TryGet(out _cardContainer);
         ServiceLocator.TryGet(out _towerDeployer);
         ServiceLocator.TryGet(out _deploymentBus);
+        ServiceLocator.TryGet(out _waveManager);
 
         _localTeam = _teamManager != null ? _teamManager.GetLocalTeam() : TeamType.None;
         _deckManaCost = ResolveDeckManaCost();
+
+        PrepareMatchEnding();
+
+        // Before the first line rather than at the first action step: the hand only deals cards the current
+        // ceiling can pay for, so until it rises the 5-mana spell is held back and the Hand step would show
+        // — and describe — a hand one card short, with that card popping in a step later.
+        if (_localTeam != TeamType.None && ServiceLocator.TryGet(out BaseServerManaManager mana))
+            RaiseManaCapForDeck(mana);
 
         Subscribe();
 
@@ -211,7 +237,10 @@ public class TutorialMatchDirector : MonoBehaviour
             .Pointing(PointAtTowerPlacement)
             .GivingUpAfter(60f),
 
+        // Only with a tower to level: after a timed-out place there is nothing to point at, and a step with no
+        // target holds the whole board — a minute of nothing to do, where skipping costs the lesson nothing.
         new TutorialStep(TutorialStepId.LevelUpTower)
+            .OnlyWhen(() => _towerPlaced)
             .WhileWaiting(Asking(IsUpgradeCard))
             .CompletesWhen(() => _towerLevelledUp)
             .SettlingUntil(IsLastBuiltTowerSettled)
@@ -258,7 +287,7 @@ public class TutorialMatchDirector : MonoBehaviour
             .WhileWaiting(Asking(Only(CardType.SpellRage)))
             .Running()
             .CompletesWhen(() => HasPlayed(CardType.SpellRage))
-            .Watching(SpellWatchSeconds)
+            .Watching(SpellWatchSeconds(CardType.SpellRage))
             .Pointing(PointAtRageTarget)
             .GivingUpAfter(60f),
 
@@ -271,21 +300,24 @@ public class TutorialMatchDirector : MonoBehaviour
         // walks an enemy into the player's lane, so there would be nothing to aim at. Fireball damages only
         // the enemies attacking the caster's own map, which is exactly why it is taught at home, on the wave
         // that is already coming — the spell pair is what teaches that a side is part of a card.
+        // Watched like Rage, though the outro after it runs live too: the outro dims the board and puts the
+        // reward over it the moment it is entered, which buried the fireball while it was still in the air.
         new TutorialStep(TutorialStepId.CastDefensiveSpell)
             .WhileWaiting(Asking(Only(CardType.SpellFireball)))
             .Running()
             .CompletesWhen(() => HasPlayed(CardType.SpellFireball))
+            .Watching(SpellWatchSeconds(CardType.SpellFireball))
             .Pointing(PointAtFireballTarget)
             .GivingUpAfter(60f),
 
-        // The one step that lets the world run again: the reward lands here, and the board moving behind it
-        // is what makes the hand-off feel like the end of a match rather than the end of a slideshow. The
-        // reward card is shown on entry and stays up through the hand-off (see LeaveToMenu).
+        // From instruction to play. The last line of the script only states the goal; the match then runs to
+        // its own ending — the normal end screen, which pays the tutorial's reward through the normal match
+        // path — with free play and its tips in between (see BeginFreePlay). The wave count is read from the
+        // wave data rather than written into the copy, so re-authoring the tutorial waves keeps it true.
         new TutorialStep(TutorialStepId.MatchOutro)
             .Tap()
             .Running()
-            .Entering(GrantTutorialReward)
-            .Formatting(() => new object[] { RewardCardName }),
+            .Formatting(() => new object[] { TotalWaves }),
     };
 
     // ---- Highlight resolvers --------------------------------------------------------------------
@@ -382,6 +414,23 @@ public class TutorialMatchDirector : MonoBehaviour
         AbstractCard card = FindCardInHand(cardType);
 
         return card != null ? TutorialHighlight.DragUiToWorld(card.Rect, target) : TutorialHighlight.None;
+    }
+
+    /// <summary>
+    /// How long a cast of <paramref name="spell"/> is watched: its travel, then
+    /// <see cref="SpellLandedWatchSeconds"/>. A step completes on the cast, but a spell only takes effect
+    /// once it lands — a Fireball flies for a whole second first — so a watch counted from the cast ended
+    /// with the fireball still in the air. Read from the spell's own data, so retuning a travel time can
+    /// never cut the watch short again.
+    /// </summary>
+    private float SpellWatchSeconds(CardType spell)
+    {
+        float travel = settings != null && settings.CardDataList != null &&
+                       settings.CardDataList.GetCardDataByType(spell) is SpellCardDataSO card && card.SpellData != null
+            ? card.SpellData.TravelTime
+            : 0f;
+
+        return Mathf.Max(0f, travel) + SpellLandedWatchSeconds;
     }
 
     /// <summary>A card in hand, ringed but not dragged anywhere — for a step that talks about it rather
@@ -627,44 +676,56 @@ public class TutorialMatchDirector : MonoBehaviour
 
     private void HandleCameraSideChanged(CameraSide side) => _cameraSide = side;
 
-    // ---- Reward ---------------------------------------------------------------------------------
+    // ---- How the match ends ---------------------------------------------------------------------
+
+    private int TotalWaves => _waveManager != null ? _waveManager.GetTotalWaves() : 0;
 
     /// <summary>
-    /// Rolls and banks the payout as the outro appears, so the outro can name the card and show its icon.
-    /// Granted straight through <see cref="BaseRewardService"/>: the payout is authored rather than rolled
-    /// for value, and the tutorial never reaches a real win condition to hang an end-of-match roll off.
+    /// Makes the tutorial match unlosable and pays it out with the tutorial's own reward. Set before the
+    /// first line rather than when free play starts, so it holds however the match ends — including a base
+    /// falling mid-script, which leaves no second chance to arm it.
     /// </summary>
-    private void GrantTutorialReward()
+    /// <remarks>
+    /// The normal game has two endings, and each is closed off for the bot:
+    /// <list type="bullet">
+    /// <item><b>A base dies.</b> The player's base is floored, so it cannot. The bot's still can — the player
+    /// winning early is a normal ending too.</item>
+    /// <item><b>A lane clears its last wave first.</b> That is a race, and a new player can lose it to a bot
+    /// that simply clears faster. The bot's lane is held before its last wave: it plays every wave up to
+    /// that one, so their field still has traffic for the troop and Rage lessons, but it can never finish.</item>
+    /// </list>
+    /// Only the player can win, then, and they win through exactly the path a real match takes — which is
+    /// what lets the end screen, the payout and the hand-off all be the normal ones.
+    /// </remarks>
+    private void PrepareMatchEnding()
     {
-        if (_rewardGranted || _rewards == null || _save == null) return;
+        if (_localTeam == TeamType.None) return;
 
-        _rewardGranted = true;
-        _reward = new TutorialRewardRoller(settings, _save).Roll();
+        if (ServiceLocator.TryGet(out BaseServerPlayerHealthManager health))
+            health.SetHealthFloor(_localTeam, settings != null ? settings.MinimumBaseHealth : 1f);
 
-        if (_reward.IsEmpty) return;
+        int lastWave = TotalWaves;
+        if (_waveManager != null && lastWave > 0)
+            _waveManager.HoldLaneBeforeWave(Opponent(_localTeam), lastWave);
 
-        _rewards.Grant(_reward);
+        // Rolled now, against a save that cannot change mid-match, and paid by the end-game manager through
+        // the normal Rpc -> ClientRewardHandler -> BaseRewardService path: banked, then shown on the normal end
+        // screen like any match reward. Nothing here grants it, so nothing can grant it twice.
+        _reward = _save != null ? new TutorialRewardRoller(settings, _save).Roll() : default;
 
-        if (overlay != null) overlay.ShowReward(_reward, RewardCardData);
-    }
-
-    private CardDataSO RewardCardData =>
-        _reward.HasCard && settings != null && settings.CardDataList != null
-            ? settings.CardDataList.GetCardDataByType(_reward.Card)
-            : null;
-
-    /// <summary>The card's name for the outro line. The payout is always a card unless the player's whole
-    /// collection sits in their deck; the gold wording only keeps the sentence readable in that case.</summary>
-    private string RewardCardName
-    {
-        get
+        if (ServiceLocator.TryGet(out _endGame))
         {
-            CardDataSO card = RewardCardData;
-            if (card != null) return card.CardName;
-
-            return _reward.Gold > 0 ? $"{_reward.Gold} gold" : "a reward";
+            _endGame.OverrideRewardRoller(new FixedRewardRoller(_reward));
+            _endGame.OnGameEnded += HandleMatchEnded;
         }
     }
+
+    private static TeamType Opponent(TeamType team) => team switch
+    {
+        TeamType.Red => TeamType.Blue,
+        TeamType.Blue => TeamType.Red,
+        _ => TeamType.None,
+    };
 
     /// <summary>
     /// Everything a step that asks for a card needs on every frame it waits: mana to afford the ask with,
@@ -700,8 +761,10 @@ public class TutorialMatchDirector : MonoBehaviour
     /// longer carry out.
     /// </summary>
     /// <remarks>
-    /// Applied every frame rather than on entry and exit: the hand re-deals under a step (a played card is
-    /// replaced at once on a deck this size), and a card arriving on its slot opens itself.
+    /// The overlay's input shield already holds back everything outside the highlighted hole; this settles
+    /// the hand itself, where that hole's padding can take in the edge of the neighbouring card. Applied
+    /// every frame rather than on entry and exit: the hand re-deals under a step (a played card is replaced
+    /// at once on a deck this size), and a card arriving on its slot opens itself.
     /// </remarks>
     private void ApplyHandLock()
     {
@@ -758,6 +821,9 @@ public class TutorialMatchDirector : MonoBehaviour
     /// Raised only, only for the player's own team, and re-applied every frame an action step waits, so a
     /// new wave's own cap can neither be lowered past what the deck needs nor stay lowered. The bot is left
     /// on the table's value: this buys the script its cards, not the tutorial an easier opponent.
+    /// <para>The ceiling decides more than affordability: <c>ServerCardHandManager</c> only deals cards it
+    /// can pay for, and re-deals when it rises (<c>OnMaxManaChanged</c>). So this is also what puts the
+    /// costliest card in the hand at all — which is why it runs once before the script's first line too.</para>
     /// </remarks>
     private void RaiseManaCapForDeck(BaseServerManaManager mana)
     {
@@ -797,45 +863,28 @@ public class TutorialMatchDirector : MonoBehaviour
         _sequence?.Stop();
         _tutorial?.Abandon();
 
-        StartCoroutine(LeaveToMenu(completed: false));
+        StartCoroutine(LeaveMatchAfterSkip());
     }
 
-    private void HandleSequenceFinished() => StartCoroutine(LeaveToMenu(completed: true));
-
     /// <summary>
-    /// Hands the player to the Main Menu: for the second half when the match was played through, straight
-    /// to the menu when it was skipped.
+    /// A skipped tutorial leaves at once, unpaid: there is no match result to show, and the menu half never
+    /// runs. A finished one does not come through here — it plays the match out (see
+    /// <see cref="BeginFreePlay"/>) and leaves from the normal end screen.
     /// </summary>
-    /// <remarks>
-    /// The payout itself was already banked when the outro appeared (see <see cref="GrantTutorialReward"/>),
-    /// so this only carries the card across. Rolling here instead would mean the outro could not name or
-    /// show what the player had won.
-    /// </remarks>
-    private IEnumerator LeaveToMenu(bool completed)
+    private IEnumerator LeaveMatchAfterSkip()
     {
         if (_leaving) yield break;
         _leaving = true;
 
         Unsubscribe();
 
-        // The match is over either way; a Skip tapped during the wait below would abandon a tutorial that
-        // has just been finished.
+        // The board is held for the hand-off: it asks for nothing, and a card played into a host that is
+        // being torn down has nowhere to land.
         if (overlay != null)
         {
             overlay.OnSkipTapped -= HandleSkipTapped;
             overlay.SetSkipVisible(false);
-        }
-
-        if (completed)
-        {
-            ShowRewardAlone();
-
-            if (settings != null && settings.OutroSeconds > 0f)
-                yield return new WaitForSecondsRealtime(settings.OutroSeconds);
-
-            // Arms the menu half before the scene change, so the menu director finds the phase already set
-            // the moment it wakes.
-            _tutorial?.BeginMenuPhase(_reward.HasCard ? _reward.Card : CardType.None);
+            overlay.SetInputMode(TutorialInputMode.Blocked);
         }
 
         // Fire-and-forget on purpose: LeaveMatchAsync owns the host teardown and the scene load, and a
@@ -847,16 +896,159 @@ public class TutorialMatchDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// Puts the reward back on screen, alone on the dim. The sequence clears the overlay as it finishes, and
-    /// without this the player would watch a bare board — and then the host tearing it down — for the whole
-    /// outro wait, instead of what they just won.
+    /// The script is over; the match is not. From here the player plays freely until the match ends the
+    /// normal way, and the tutorial only suggests.
     /// </summary>
-    private void ShowRewardAlone()
-    {
-        if (overlay == null || !_rewardGranted || _reward.IsEmpty) return;
+    /// <remarks>Skip goes with the script: past this point it would throw away a match that cannot be lost
+    /// and is already paying out.</remarks>
+    private void HandleSequenceFinished() => BeginFreePlay();
 
-        overlay.Show(string.Empty, showContinue: false);
-        overlay.SetHighlight(TutorialHighlight.None);
-        overlay.ShowReward(_reward, RewardCardData);
+    private void BeginFreePlay()
+    {
+        if (_matchEnded) return;
+
+        _freePlay = true;
+
+        // A quiet moment first: the player has just read the goal and is taking the board back.
+        _nextTipAt = Time.unscaledTime + (settings != null ? settings.TipCooldownSeconds : 0f);
+
+        if (overlay != null)
+        {
+            overlay.OnSkipTapped -= HandleSkipTapped;
+            overlay.SetSkipVisible(false);
+        }
+
+        GameLog.Info("[Tutorial] Script finished; free play until the match ends.");
+    }
+
+    /// <summary>
+    /// The match reached a normal ending — the player cleared their last wave, or the bot's base fell. The
+    /// end-game manager has already paid out (see <see cref="PrepareMatchEnding"/>) and its end screen owns
+    /// the way out, so all that is left here is to clear the tutorial off it and arm the menu half.
+    /// </summary>
+    /// <remarks>Usually this lands in free play, but a base can fall mid-script too. Stopping the sequence
+    /// is what hands the board back: a running step would keep the input shield up over the end screen's
+    /// buttons, and the player could never leave.</remarks>
+    private void HandleMatchEnded(EndGameSnapshot snapshot)
+    {
+        if (_matchEnded) return;
+
+        _matchEnded = true;
+        _freePlay = false;
+        _tip = TutorialStepId.None;
+
+        _sequence?.Stop();
+
+        if (overlay != null)
+        {
+            overlay.OnSkipTapped -= HandleSkipTapped;
+            overlay.SetSkipVisible(false);
+            overlay.HideTip();
+            overlay.SetInputMode(TutorialInputMode.Free);
+        }
+
+        // While the end screen is up rather than on the way out: its buttons are what leave the match, and
+        // the menu director has to find the phase set the moment the menu wakes.
+        _tutorial?.BeginMenuPhase(_reward.HasCard ? _reward.Card : CardType.None);
+
+        GameLog.Info($"[Tutorial] Match ended, {snapshot.WinnerTeam} won; the menu half is armed.");
+    }
+
+    // ---- Free play ------------------------------------------------------------------------------
+
+    /// <summary>
+    /// One tip at a time, and only as a suggestion: no dim, no Continue, and the board stays the player's.
+    /// A tip holds while its situation does and for <see cref="TutorialSettingsSO.TipMaxSeconds"/> at most,
+    /// then leaves a quiet gap before the next — tips that keep coming back stop being read.
+    /// </summary>
+    /// <remarks>
+    /// Each resolver answers with a target only while its situation holds, so "is this tip still true" and
+    /// "where does it point" are one question. Affordability does the rest: playing the suggested card
+    /// spends the mana it needed, so the tip takes itself down the frame it is followed.
+    /// </remarks>
+    private void TickFreePlay()
+    {
+        // The lent deck stays payable through free play too: a card held unaffordable until the last wave is
+        // a trap the tutorial would be setting.
+        if (ServiceLocator.TryGet(out BaseServerManaManager mana)) RaiseManaCapForDeck(mana);
+
+        if (overlay == null || settings == null) return;
+
+        float now = Time.unscaledTime;
+
+        if (_tip != TutorialStepId.None)
+        {
+            TutorialHighlight target = ResolveTip(_tip, mana);
+
+            if (!target.HasTarget || now - _tipShownAt >= settings.TipMaxSeconds)
+            {
+                _tip = TutorialStepId.None;
+                _nextTipAt = now + settings.TipCooldownSeconds;
+                overlay.HideTip();
+                return;
+            }
+
+            // Every frame, so the pointer follows a card sliding into its slot or an enemy walking the lane.
+            overlay.ShowTip(TipText(_tip), target);
+            return;
+        }
+
+        if (now < _nextTipAt) return;
+
+        foreach (TutorialStepId tip in FreePlayTips)
+        {
+            TutorialHighlight target = ResolveTip(tip, mana);
+            if (!target.HasTarget) continue;
+
+            _tip = tip;
+            _tipShownAt = now;
+            overlay.ShowTip(TipText(tip), target);
+            return;
+        }
+    }
+
+    private string TipText(TutorialStepId tip) => settings.Copy != null ? settings.Copy.Get(tip) : string.Empty;
+
+    /// <summary>
+    /// Where a tip points, or None when its situation does not hold. Only on the player's own field: the
+    /// board they would act on has to be the one in front of them, and on the opponent's field they are
+    /// busy doing something else on purpose.
+    /// </summary>
+    private TutorialHighlight ResolveTip(TutorialStepId tip, BaseServerManaManager mana)
+    {
+        if (_cameraSide != CameraSide.Local || mana == null) return TutorialHighlight.None;
+
+        switch (tip)
+        {
+            // An enemy is well down the lane and the player holds the answer to it.
+            case TutorialStepId.TipDefend:
+            {
+                EnemyManager threat = FindWorstThreatOnOurLane();
+                if (threat == null || threat.ServerMovement.Progress < settings.DefendTipProgress)
+                    return TutorialHighlight.None;
+
+                AbstractCard fireball = FindCardInHand(CardType.SpellFireball);
+                if (fireball == null || !mana.CanAfford(_localTeam, fireball.CardData.Cost))
+                    return TutorialHighlight.None;
+
+                return TutorialHighlight.DragUiToWorld(fireball.Rect, threat.transform.position);
+            }
+
+            // Mana to spare, a tower to spend it on and somewhere to put it.
+            case TutorialStepId.TipBuildTower:
+            {
+                AbstractCard tower = FindCardInHand(ExistingTypesOfCard.Tower);
+                if (tower == null || !mana.CanAfford(_localTeam, tower.CardData.Cost))
+                    return TutorialHighlight.None;
+
+                AbstractPlaceable slot = FindFreePlaceable();
+                return slot != null
+                    ? TutorialHighlight.DragUiToWorld(tower.Rect, slot.PlaceablePoint.position)
+                    : TutorialHighlight.None;
+            }
+
+            default:
+                return TutorialHighlight.None;
+        }
     }
 }

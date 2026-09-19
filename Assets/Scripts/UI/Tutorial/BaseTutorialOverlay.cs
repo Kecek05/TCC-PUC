@@ -24,6 +24,23 @@ public abstract class BaseTutorialOverlay : MonoBehaviour
     public abstract void SetHighlight(TutorialHighlight highlight);
 
     /// <summary>
+    /// A suggestion rather than an instruction: the line and a pointer at <paramref name="highlight"/>,
+    /// with <b>no dim and no Continue</b>, over a board the player is still free to play. For the free play
+    /// after the scripted steps. Call every frame the tip stays up so the pointer follows its target; it
+    /// leaves the input mode alone.
+    /// </summary>
+    public abstract void ShowTip(string text, TutorialHighlight highlight);
+
+    public abstract void HideTip();
+
+    /// <summary>
+    /// How much of the game the player may touch. Independent of <see cref="Show"/> and <see cref="Hide"/>:
+    /// the board stays held while the overlay is out of the way for a settling or watching beat.
+    /// <see cref="TutorialInputMode.TargetOnly"/> opens exactly the hole of the current highlight.
+    /// </summary>
+    public abstract void SetInputMode(TutorialInputMode mode);
+
+    /// <summary>
     /// Shows what the tutorial has just paid out: the card with its icon and name, then the gold. Stays up
     /// until <see cref="HideReward"/> or <see cref="Hide"/>, independent of the copy beside it.
     /// </summary>

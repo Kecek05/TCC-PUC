@@ -311,6 +311,24 @@ public enum TutorialStepId
     TroopDirection,     // Match: after SendTroop
     CastDefensiveSpell, // Match: after SwapBackHome
     SpellKinds,         // Match: before CastSpell
+
+    // Free-play tips, after the scripted steps. Not steps — nothing waits on them — but they are lines the
+    // tutorial says, so they live in the same copy table.
+    TipDefend,
+    TipBuildTower,
+}
+
+/// <summary>How much of the game the tutorial lets the player's finger reach.</summary>
+public enum TutorialInputMode
+{
+    /// <summary>The tutorial holds nothing back: normal play.</summary>
+    Free,
+
+    /// <summary>Nothing reaches the game. Only the overlay's own buttons (Continue, Skip) still answer.</summary>
+    Blocked,
+
+    /// <summary>Only the highlighted hole reaches the game — the one thing the step is asking for.</summary>
+    TargetOnly,
 }
 
 /// <summary>How the tutorial overlay animates its pointing hand at a highlighted target.</summary>

@@ -99,6 +99,13 @@ public class TutorialStep
     /// <summary>Shows the Continue button and waits for it instead of watching the world.</summary>
     public bool WaitsForTap { get; private set; }
 
+    /// <summary>
+    /// Whether the player's finger may reach the game through the highlighted hole. A step that waits for a
+    /// tap asks for nothing but Continue, so the whole board is held back — its hole is there to be looked
+    /// at, not touched. Every other step is an action taken at its target.
+    /// </summary>
+    public bool AcceptsInputAtTarget => !WaitsForTap;
+
     /// <summary>Seconds the step is held even after <see cref="IsComplete"/> is true, so the player gets
     /// to read the line rather than having it flash past.</summary>
     public float MinDuration { get; private set; }

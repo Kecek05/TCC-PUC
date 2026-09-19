@@ -135,12 +135,12 @@ public class TutorialMenuDirector : MonoBehaviour
         new TutorialStep(TutorialStepId.RemoveCard)
             .OnlyWhen(() => _save != null && _save.IsActiveDeckFull)
             .CompletesWhen(() => deckUIController.EquippedCount < _deckCountAtStart)
-            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, PointAtDeckCard))
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, () => PointAtCardAction(FindRemovableDeckCard())))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.EquipRewardCard)
             .CompletesWhen(() => HasReward && deckUIController.IsCardEquipped(_rewardCard))
-            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, () => PointAtCard(_rewardCard)))
+            .Pointing(OnPage(deckPageIndex, deckNavButtonRect, () => PointAtCardAction(_rewardCard)))
             .GivingUpAfter(60f),
 
         new TutorialStep(TutorialStepId.OpenCardDetails)
@@ -208,21 +208,39 @@ public class TutorialMenuDirector : MonoBehaviour
         () => pageStrip == null || CurrentPage == page ? highlight() : TutorialHighlight.Ui(navButton);
 
     /// <summary>
-    /// Any card currently in the deck — whichever one the player removes is fine, so the script points at
-    /// the first it finds rather than insisting on a particular card the player may like.
+    /// The deck card the player is asked to take out: the first one that is not the reward. It has to be
+    /// one card rather than "any of them" — the input shield only opens where the script points — and the
+    /// first is as good as any, since it can go straight back in once the tutorial is over.
     /// </summary>
-    private TutorialHighlight PointAtDeckCard()
+    private CardType FindRemovableDeckCard()
     {
-        if (_save?.ActiveDeck == null) return TutorialHighlight.None;
+        if (_save?.ActiveDeck == null) return CardType.None;
 
         foreach (CardType cardType in _save.ActiveDeck.Cards)
         {
             if (cardType == _rewardCard) continue;
-            if (deckUIController.TryGetCardWidget(cardType, out SingleCardInDeck widget))
-                return TutorialHighlight.Ui((RectTransform)widget.transform);
+            if (deckUIController.TryGetCardWidget(cardType, out _)) return cardType;
         }
 
-        return TutorialHighlight.None;
+        return CardType.None;
+    }
+
+    /// <summary>
+    /// A per-card action, in the two taps it takes: the card while its popup is closed, then the popup's
+    /// Use / Remove button once the popup is open on that card.
+    /// </summary>
+    /// <remarks>The popup opens beside the card, not on it, so a step that framed only the card left the very
+    /// button it asked for outside the hole — where the input shield swallows the tap. The same two-phase
+    /// shape <see cref="PointAtDetailsButton"/> already has.</remarks>
+    private TutorialHighlight PointAtCardAction(CardType cardType)
+    {
+        ActionFrame frame = deckUIController.ActionFrame;
+
+        if (frame != null && frame.IsVisible && frame.ShownCard != null && frame.ShownCard.CardType == cardType &&
+            frame.ActionButtonRect != null)
+            return TutorialHighlight.Ui(frame.ActionButtonRect);
+
+        return PointAtCard(cardType);
     }
 
     private TutorialHighlight PointAtCard(CardType cardType)

@@ -40,10 +40,13 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
     {
         if (_gameFlowManager == null || _gameFlowManager.CurrentGameState.Value != GameState.InMatch) return;
 
+        // The floor is 0 unless someone set one, so a floored base simply never reaches the death check.
+        float floor = HealthFloor(teamType);
+
         switch (teamType)
         {
             case TeamType.Blue:
-                BlueHealth.Value = Mathf.Max(BlueHealth.Value - damage, 0f);
+                BlueHealth.Value = Mathf.Max(BlueHealth.Value - damage, floor);
 
                 if (BlueHealth.Value <= 0)
                 {
@@ -53,7 +56,7 @@ public class ServerPlayerHealthManager : BaseServerPlayerHealthManager
 
                 break;
             case TeamType.Red:
-                RedHealth.Value = Mathf.Max(RedHealth.Value - damage, 0f);
+                RedHealth.Value = Mathf.Max(RedHealth.Value - damage, floor);
 
                 if (RedHealth.Value <= 0)
                 {

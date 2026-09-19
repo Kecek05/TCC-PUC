@@ -32,9 +32,12 @@ public class ActionFrame : MonoBehaviour
     /// <summary>The card the popup is currently open for, or null when it is closed.</summary>
     public CardDataSO ShownCard => _cardData;
 
-    /// <summary>The popup's two buttons as rects, so the tutorial can frame one of them. Exposed rather
-    /// than driven: the tutorial points at them, it never presses them for the player.</summary>
+    /// <summary>The popup's buttons as rects, so the tutorial can frame one of them. Exposed rather than
+    /// driven: the tutorial points at them, it never presses them for the player.</summary>
     public RectTransform InfoButtonRect => infoButton != null ? (RectTransform)infoButton.transform : null;
+
+    /// <summary>The Use / Remove button — one button whose label follows whether the card is equipped.</summary>
+    public RectTransform ActionButtonRect => actionButton != null ? (RectTransform)actionButton.transform : null;
 
     public RectTransform UpgradeButtonRect => upgradeButton != null ? (RectTransform)upgradeButton.transform : null;
 

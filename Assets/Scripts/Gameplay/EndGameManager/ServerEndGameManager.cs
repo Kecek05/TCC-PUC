@@ -120,13 +120,13 @@ public class ServerEndGameManager : BaseServerEndGameManager
     /// </summary>
     private void GrantRewards(TeamType winnerTeam)
     {
-        if (rewardSettings == null)
+        IRewardRoller roller = RewardRollerOverride ?? DefaultRoller();
+
+        if (roller == null)
         {
             GameLog.Error("[ServerEndGameManager] No RewardSettingsSO assigned; no rewards were granted.");
             return;
         }
-
-        _rewardRoller ??= new WeightedRewardRoller(rewardSettings);
 
         BasePlayersDataManager playersData = ServiceLocator.Get<BasePlayersDataManager>();
         BaseTeamManager teamManager = ServiceLocator.Get<BaseTeamManager>();
@@ -141,11 +141,19 @@ public class ServerEndGameManager : BaseServerEndGameManager
             TeamType team = teamManager.GetTeam(entry.Key);
             if (team == TeamType.None) continue;
 
-            Reward reward = _rewardRoller.Roll(team == winnerTeam);
+            Reward reward = roller.Roll(team == winnerTeam);
             GameLog.Info($"[ServerEndGameManager] {team} reward: {reward}");
 
             SendRewardRpc(reward, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
+    }
+
+    /// <summary>The weighted roller, built once. Null when no settings are wired.</summary>
+    private IRewardRoller DefaultRoller()
+    {
+        if (rewardSettings == null) return null;
+
+        return _rewardRoller ??= new WeightedRewardRoller(rewardSettings);
     }
 
     [Rpc(SendTo.SpecifiedInParams)]

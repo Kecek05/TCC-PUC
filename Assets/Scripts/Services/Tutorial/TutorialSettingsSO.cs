@@ -52,10 +52,23 @@ public class TutorialSettingsSO : ScriptableObject
     [MinValue(0)] public int BonusGold = 150;
 
     [Title("Flow")]
-    [Tooltip("Seconds the reward stays on screen after the outro is dismissed, before the match hands " +
-             "control back to the menu.")]
-    [MinValue(0f)] public float OutroSeconds = 2.5f;
-
     [Tooltip("Off: the Skip button is hidden and the player must play the tutorial through.")]
     public bool AllowSkip = true;
+
+    [Title("Free Play")]
+    [InfoBox("After the scripted steps the match is played out to a normal ending. A first match must not " +
+             "be lost, so the player's base is floored here — any value above zero means it cannot die — and " +
+             "the bot's lane is held before its last wave, so it can never win the race to clear it.")]
+    [Tooltip("The lowest the player's base can be brought to during the tutorial match.")]
+    [MinValue(1f)] public float MinimumBaseHealth = 1f;
+
+    [Tooltip("Unscaled seconds a free-play tip stays up at most, and the quiet gap before another may show. " +
+             "Tips suggest; if they come back too often they start to nag.")]
+    [MinValue(1f)] public float TipMaxSeconds = 8f;
+
+    [MinValue(0f)] public float TipCooldownSeconds = 10f;
+
+    [Tooltip("How far down the player's lane an enemy has to be (0 = entered, 1 = reached the base) before " +
+             "the Fireball tip speaks up.")]
+    [Range(0f, 1f)] public float DefendTipProgress = 0.5f;
 }

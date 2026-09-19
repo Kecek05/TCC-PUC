@@ -110,7 +110,8 @@ public class TutorialSequence
         else EnterNext();
     }
 
-    /// <summary>Abandons the run wherever it is. The overlay is cleared; no step's exit is skipped.</summary>
+    /// <summary>Abandons the run wherever it is. The overlay is cleared and the board handed back; no step's
+    /// exit is skipped.</summary>
     public void Stop()
     {
         if (!IsRunning) return;
@@ -124,6 +125,7 @@ public class TutorialSequence
         {
             _overlay.OnContinueTapped -= HandleContinueTapped;
             _overlay.Hide();
+            _overlay.SetInputMode(TutorialInputMode.Free);
         }
     }
 
@@ -140,7 +142,13 @@ public class TutorialSequence
         _settlingSince = Time.unscaledTime;
         SetFrozen(false);
 
-        if (_overlay != null) _overlay.Hide();
+        // Out of the way, but still holding: the beat asks for nothing, so nothing may be done during it —
+        // a second card played into a settling tower's window is exactly what the next step cannot follow.
+        if (_overlay != null)
+        {
+            _overlay.Hide();
+            _overlay.SetInputMode(TutorialInputMode.Blocked);
+        }
 
         GameLog.Info($"[Tutorial] Step {step.Id} done; letting it settle.");
     }
@@ -200,6 +208,9 @@ public class TutorialSequence
         {
             _overlay.Show(ResolveText(step), step.WaitsForTap);
             _overlay.SetHighlight(step.Highlight != null ? step.Highlight() : TutorialHighlight.None);
+
+            // Only the thing asked for can be touched, and a step asking for nothing leaves nothing to touch.
+            _overlay.SetInputMode(step.AcceptsInputAtTarget ? TutorialInputMode.TargetOnly : TutorialInputMode.Blocked);
         }
 
         OnStepChanged?.Invoke(step.Id);
@@ -254,6 +265,7 @@ public class TutorialSequence
         {
             _overlay.OnContinueTapped -= HandleContinueTapped;
             _overlay.Hide();
+            _overlay.SetInputMode(TutorialInputMode.Free);
         }
 
         GameLog.Info("[Tutorial] Sequence finished.");

@@ -52,6 +52,17 @@ public abstract class BaseServerEndGameManager : NetworkBehaviour
     /// </remarks>
     public event Action<Reward> OnRewardGranted;
 
+    /// <summary>What pays out this match instead of the default roller. Null keeps the default.</summary>
+    protected IRewardRoller RewardRollerOverride { get; private set; }
+
+    /// <summary>
+    /// Server-only. Replaces how this match pays out, and nothing else: the payout still travels the
+    /// normal path — targeted Rpc, <c>ClientRewardHandler</c>, <see cref="BaseRewardService"/> — so it is
+    /// banked and shown on the end screen exactly like any match reward. The tutorial's authored reward
+    /// arrives this way. Null restores the default.
+    /// </summary>
+    public void OverrideRewardRoller(IRewardRoller roller) => RewardRollerOverride = roller;
+
     protected void TriggerOnGameEnded(EndGameSnapshot snapshot)
     {
         OnGameEnded?.Invoke(snapshot);

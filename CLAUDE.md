@@ -155,7 +155,9 @@ is a local file — the server owns the decision, the client owns the storage.
   **adapter**, not a destination: it forwards that Rpc into `BaseRewardService` and nothing else.
   `ClientEndGameCanvas` displays off the *service*, not the Rpc, so it can only ever show a payout that
   actually banked. `WeightedRewardRoller` is the **match** roller — `Roll(bool won)` is win/lose-shaped, and
-  other sources build a `Reward` themselves rather than going through `IRewardRoller`. It picks rarity first,
+  other sources build a `Reward` themselves rather than going through `IRewardRoller`. A match whose payout
+  is decided in advance swaps the roller for that match only (`BaseServerEndGameManager.OverrideRewardRoller`,
+  `FixedRewardRoller`) and keeps the whole delivery path — how the tutorial is paid. It picks rarity first,
   then a card uniformly within it, and takes a `System.Random` so the distribution is seedable and testable.
 - **Save:** `PlayerSaveData` v2 adds `Gold` and `List<CardProgressSaveData>`; presence in that list *is*
   ownership. `NormalizeCards` migrates a v1 save by granting whatever its decks already reference, so nobody
@@ -391,9 +393,10 @@ nothing.
 
 ### Tutorial / FTUE — a scripted match, then a scripted menu
 
-A new player boots into `TutorialScene` instead of the Main Menu, plays a scripted match against a bot,
-is paid a card they do not own, and is then walked through equipping and upgrading it and starting a real
-match. One bool in the save decides all of it.
+A new player boots into `TutorialScene` instead of the Main Menu, plays a scripted match against a bot and
+then plays it out to a normal ending they cannot lose, is paid a card they do not own on the normal end
+screen, and is then walked through equipping and upgrading it and searching for a real match from the main
+page. One bool in the save decides all of it.
 
 **Why:** there was no first-time experience at all — a fresh save dropped straight into the Main Menu with
 a starter deck and no explanation of mana, placement, the level-up gesture or the enemy-field half of the
@@ -411,10 +414,16 @@ teaches progression, and progression is only teachable once the player owns some
   exactly the reason those are — the tutorial spans AuthBootstrap, TutorialScene and MainMenu, so nothing
   living in one of them could carry state across the other two.
 - **The tutorial hosts itself, offline.** `HostManager.StartLocalHostAsync(scene)` skips the Relay
-  allocation, the join code and the discovery lobby: `StartHost()` on the default transport, then the scene
-  load. It needs no internet, starts instantly, and publishes nothing, so a stranger can never join a
-  scripted match. `ShutdownHostAsync` and `CloseLobbyToNewPlayers` already tolerate an empty lobby id, so
-  teardown is shared with the relay path.
+  allocation, the join code and the discovery lobby: `StartHost()` on loopback, then the scene load. It
+  needs no internet, starts instantly, and publishes nothing, so a stranger can never join a scripted match.
+  `ShutdownHostAsync` and `CloseLobbyToNewPlayers` already tolerate an empty lobby id, so teardown is shared
+  with the relay path.
+  - **It binds port 0 (OS-assigned), not the authored 7777.** Nothing connects to this host, so the port
+    means nothing, while a fixed one is a shared resource: a second Editor, a running build, or a socket
+    leaked by an earlier play session all hold 7777, and `StartHost()` then fails and drops a first-time
+    player into the Main Menu with no tutorial. Found live: the Editor process itself held a leaked
+    `127.0.0.1:7777` that survived domain reloads. The relay paths call `SetRelayServerData`, which replaces
+    the connection data wholesale, so they are unaffected.
 - **`TutorialScene` is a copy of `GameScene`** (chosen over a tutorial-mode flag so the tutorial board can
   diverge). The copy immediately exposed a latent bug: `NetworkConnectionServer` gated player-loaded on the
   literal string `GameScene`, so in the copy nobody ever counted as loaded, no team was assigned, and the
@@ -437,6 +446,10 @@ teaches progression, and progression is only teachable once the player owns some
     team (the bot keeps the table's value, so this buys the script its cards rather than the tutorial an
     easier opponent), and re-applied every frame an action step waits, so a later wave's cap cannot undo it.
     Read **from the deck**, not authored, so re-authoring the deck can never strand a card no step can pay for.
+  - **The ceiling also decides what is dealt.** `ServerCardHandManager` only deals cards the current max
+    mana can pay for, and re-deals on `OnMaxManaChanged`. Raised only from the first action step, Rage was
+    held out of the hand through Welcome/Mana/Hand — the Hand step described a 3-card hand, and the fourth
+    card popped in a step later. The raise therefore also runs **once before the script's first line**.
 - **Steps are one class configured with delegates, not a class each.** `TutorialStep` is a builder
   (`.Tap()`, `.CompletesWhen()`, `.Pointing()`, `.GivingUpAfter()`) and the whole script reads as one list in
   the director, whose closures capture the subscriptions that complete each step
@@ -461,10 +474,10 @@ teaches progression, and progression is only teachable once the player owns some
     which card is meant, so the lock needs no visual of its own. It is **immediate-mode** — cleared at the
     top of `Update`, re-asserted by the waiting step's own tick — so settling, a timeout, a skipped step and
     a Skip all reopen the hand without any step remembering to, and a hand that re-deals mid-step is covered
-    for free. A predicate nothing matches (the place step timed out, so there is no tower to upgrade) leaves
-    the hand **open** rather than closing all of it. Only the five "play this card" steps lock; the reads,
-    the swipes and the live watching beats leave the hand alone, because the player still has a base to
-    defend — the same reason `blockInput` is off.
+    for free. A predicate nothing matches leaves the hand **open** rather than closing all of it. It is the
+    fine half of a two-part gate: the overlay's input shield (below) holds everything outside the
+    highlighted hole, and this settles the hand itself, where the hole's 24-unit padding can take in the
+    edge of the neighbouring card.
   - **Mana is topped up every frame an action step waits** (`.WhileWaiting(RefillMana)`), not on entry. A
     frozen step regenerates none, so a player who spent down to nothing would be stuck on an instruction
     they cannot carry out; and on-entry alone is not enough, because the deploy that completed the
@@ -499,9 +512,10 @@ teaches progression, and progression is only teachable once the player owns some
   their waves come down the same lane while yours climbs it — and this is the only place the tutorial shows
   that the sending goes both ways, which the bot does to the player for the rest of the match.
   - **It is the only tap step with a timeout** (30s). Every other read-this beat is safe to leave open
-    because the clock is stopped; this one is not, and unbounded it would be the first point in the tutorial
-    that could actually *lose* the match. 30s of wave 1 is about two leaks at 2 damage each out of 100, and
-    expiring just lands the player on `CastSpell`, which freezes again.
+    because the clock is stopped; this one is not — and the input shield holds the whole board while it
+    runs, so the player cannot defend during it either. Unbounded, it would be the first point in the
+    tutorial that could actually *lose* the match. 30s of wave 1 is about two leaks at 2 damage each out of
+    100, and expiring lands the player on the next step.
   - **The ring tracks the troop**, re-resolved per frame like every highlight. "Ours" is read off that same
     `Reversed` flag rather than remembered from the deploy: a wave enemy on their lane is never reversed, and
     what the bot sends walks **our** lane, so it carries our team instead. The leader (furthest `Progress`) is
@@ -520,11 +534,17 @@ teaches progression, and progression is only teachable once the player owns some
   - **Both run live.** A frozen troop cannot be seen surging, and a frozen clock never walks an enemy into
     the player's lane at all, so the defensive step would have nothing to aim at: the waves' `InitialDelay`
     is 7s of *scaled* time. Both keep the 60s action-step timeout and `RefillMana`.
-  - **The offensive cast is then watched** — `.Watching(2.5f)`, new on `TutorialStep`. `SwapBackHome` comes
-    next and freezes, so without it the surge stopped on the frame the cast landed. A watch is the twin of a
+  - **Both casts are then watched** — `.Watching(...)`, new on `TutorialStep`. A watch is the twin of a
     settle: a settle waits for a result to **finish**, a watch waits for one to be **seen**, which is all a
     duration effect has to offer. `TutorialSequence` serves the watch first, then any predicate, and reuses
-    the settle's unfreeze and overlay-hide. Fireball needs none — the `.Running()` outro follows it.
+    the settle's unfreeze, overlay-hide and `Blocked` shield. Rage needs it because `SwapBackHome` freezes
+    next and would stop the surge dead; Fireball needs it even though the outro after it runs live, because
+    the outro dims the board and lays the reward over it the moment it is entered.
+  - **A watch is counted from the LANDING, not the cast** (`SpellWatchSeconds`: the spell's
+    `SpellDataSO.TravelTime` + `SpellLandedWatchSeconds` 2.5s → Rage 2.6s, Fireball 3.5s). The step
+    completes on the cast, but a Fireball flies for a whole second before it hits: an earlier draft claimed
+    the running outro would show it, and the player instead watched the reward panel cover a fireball still
+    in the air. Read from the spell's data, so retuning a travel time can never cut the watch short again.
   - **Each hint degrades instead of pointing nowhere.** Rage prefers the player's own sent troop (the one
     they just watched march), else anything walking that lane — it buffs the lane, not an allegiance — else
     `enemyFieldAnchor`. An empty home lane falls back to `localFieldAnchor`. Running the steps is what makes
@@ -547,32 +567,94 @@ teaches progression, and progression is only teachable once the player owns some
   - Measured in play mode: `InMatch` at +2.1s with the intro opaque, Welcome at +3.5s in the same frame the
     intro reports finished. The ~1.5s of live match in between is harmless: the tutorial waves'
     `InitialDelay` is 7s and the bot's first decision is at least 3s away.
-- **The outro pays out and shows what it paid.** The reward is rolled and banked when the outro step is
-  *entered* rather than on the way out, so the line can name the card (`TutorialStep.Formatting` feeds
-  `string.Format` args into the copy, keeping `{0}` out of the copy table's knowledge of which card it is)
-  and the overlay can show it. The outro is the last of the `.Running()` steps: the board moving behind the
-  reward is what makes it read as the end of a match rather than the end of a slideshow.
-  - **Shown as the end-of-match tiles**, not a bespoke card view: `BaseTutorialOverlay.ShowReward(Reward,
-    CardDataSO)` fills the overlay's `Reward` panel with `RewardPrefab`/`RewardEntryUI` (card first, with its
-    icon and `CardColor` tint, then the gold), under the card's name. The name is not decoration: several
-    cards still share placeholder art, so the icon alone does not say which card was won. The tiles are
-    pooled — the outro and the hand-off show the same payout twice in a row.
-  - **The reward outlives the outro.** `TutorialSequence` hides the overlay as it finishes, so without help
-    the player watched a bare board — and then the host tearing it down — for the whole `OutroSeconds`
-    wait. `LeaveToMenu` puts the reward straight back, alone on the dim (no text, no Continue), for that
-    wait. It also disarms and hides **Skip** first: a Skip during the wait used to `Abandon()` a tutorial that
-    had just finished, and `_leaving` makes the hand-off start only once.
-  - `RewardPrefab`'s quantity label auto-sizes (max = the authored 97.3) and never wraps. A replayed save's
-    payout is five digits, which wrapped onto a second line below the tile; a match payout stays at the
-    authored size.
-- **The overlay dims but does not imprison.** Four solid panels frame a hole around the target;
-  `blockInput` is **off** by default because this sits on a live match and the player still has a base to
-  defend while they read. Two traps found by running it: the dim panels must have **no sprite** (a 32px
-  rounded `UISprite` stretched across half the screen trips Unity's "Cannot generate 9 slice" and draws
-  nothing), and a target `RectTransform` may be **0x0** — the deck page's card widget is a shell around a
-  `Content` child — so the overlay unions the children when a target has no area of its own. Cross-canvas
-  maths is the other subtlety: the hand and mana bar are on a **Screen Space - Camera** canvas, so their
-  corners reach screen space through *that* camera and come back through this overlay's (null) one.
+- **The script ends; the match does not.** The last step (`MatchOutro`, a `.Running()` tap) only states the
+  goal — "clear all **{0}** waves", with the count read from the wave data via `.Formatting` so re-authoring
+  the waves keeps it true. The match then plays out to a **normal ending, on the normal end screen**, and the
+  tutorial is paid there like any match. It replaced an outro that banked the reward itself and showed it on
+  the overlay's own reward panel before leaving; `BaseTutorialOverlay.ShowReward`/`HideReward` are no
+  longer called by either director.
+  - **TutorialScene has its own waves**: `WaveData_Tutorial.asset`, **3** waves, wired into that scene's
+    `ServerWaveManager` only (GameScene keeps `WaveData.asset`). Wave 1 is identical to the standard one —
+    every live beat and measurement above is calibrated against it — and waves 2-3 are gentler cuts of the
+    standard 2-3 (7-10 enemies each instead of 13-26).
+  - **The match cannot be lost, by construction** (`PrepareMatchEnding`, run before the first line so it
+    holds however the match ends). A normal match ends two ways and each is closed off for the bot:
+    **a base dies** — the player's base is floored (`BaseServerPlayerHealthManager.SetHealthFloor`,
+    `TutorialSettingsSO.MinimumBaseHealth`, default 1), so it cannot, while the bot's still can; **a lane
+    clears its last wave first** — a race (`ServerEndGameManager` → `OnTeamDefeatLastWave`), which a new
+    player could lose to a bot that simply clears faster, so the bot's lane is held before its last wave
+    (`BaseServerWaveManager.HoldLaneBeforeWave`). It plays every wave up to that one, so their field still has
+    traffic for the troop and Rage lessons, but it never finishes. Both seams keep their state in the base
+    class and are consumed by one concrete class each, so the `*_DEBUG` stand-ins needed no change.
+  - **Paid through the normal match path, with the tutorial's reward.** `BaseServerEndGameManager.
+    OverrideRewardRoller(new FixedRewardRoller(reward))` replaces *what* the match pays and nothing else: the
+    payout still travels `SendRewardRpc` → `ClientRewardHandler` → `BaseRewardService.Grant`, so it is banked
+    once and shown by `ClientEndGameCanvas` exactly like a real match reward. The reward is rolled up front
+    by `TutorialRewardRoller` against a save that cannot change mid-match; nothing in the director grants it,
+    so nothing can grant it twice.
+  - **`HandleMatchEnded` (on `OnGameEnded`) only clears the tutorial off the end screen** and calls
+    `BeginMenuPhase` while that screen is up, since its buttons are what leave the match. It also **stops the
+    sequence**: a base can fall mid-script, and a running step would keep the input shield over the end
+    screen's buttons so the player could never leave.
+  - **Verified live, both endings.** Forcing the bot's base to 0 ended the match (`EndMatch`), put 2 reward
+    tiles on the normal end screen, banked the reward once (gold 350 → 700, not 1050) and armed the menu;
+    pressing OK loaded MainMenu straight into `MenuWelcome`. Left alone, an **undefended** player won the race
+    (Red on wave 3, Blue held at 2) with 10 HP to spare, so the floor is a safety net rather than the thing
+    that decides the match.
+- **Free play gets tips, not steps.** After `MatchOutro` the board is the player's (`Free`), Skip is hidden
+  (it would throw away a match that cannot be lost and is already paying), and `TickFreePlay` offers one tip
+  at a time through `BaseTutorialOverlay.ShowTip`: text and a pointing hand, **no dim and no Continue**, the
+  input mode untouched. Every decorative overlay graphic is non-raycast, so a tip never eats a touch.
+  - `TipDefend` (an enemy past `DefendTipProgress` down the lane and Fireball affordable) outranks
+    `TipBuildTower` (a tower card affordable and a free slot). Only on the player's own field. Each resolver
+    returns a target only while its situation holds, so "is this tip still true" and "where does it point"
+    are one question, and affordability does the rest: playing the suggested card spends the mana it needed,
+    so the tip takes itself down that frame. A tip lasts `TipMaxSeconds` (8) at most, then
+    `TipCooldownSeconds` (10) of quiet.
+  - Tip lines reuse the copy table (`TipDefend`/`TipBuildTower` appended to `TutorialStepId`): they are not
+    steps, but they are lines the tutorial says.
+  - The lent deck's mana-cap raise continues through free play, so the 5-mana spell never becomes a card
+    held unaffordable until the last wave.
+- **A "Cannot generate 9 slice ... 22014864 vertices" error appears during free play, and it is NOT the
+  tutorial's.** It is raised natively from a view repaint (`GUIUtility.ProcessEvent`), 3-4 times while the
+  bot's lane runs its waves, then stops once that lane is held. An A/B with the overlay's Canvas **disabled**
+  for the whole of free play still produced it, and every sliced/tiled renderer in the scene checked out
+  (buff zones size to their radius; projectiles are Simple; range rings scale by transform, which adds no
+  tiles). It only surfaced because the tutorial now plays a live match; the source is still open.
+- `RewardPrefab`'s quantity label auto-sizes (max = the authored 97.3) and never wraps: a replayed save's
+  payout is five digits, which wrapped onto a second line below the tile.
+- **Only the thing asked for can be touched; a step asking for nothing leaves nothing to touch.** Four solid
+  panels frame a hole around the target, but they are decoration — input belongs to a
+  **`TutorialInputShield`**: one invisible, full-screen `Graphic` + `ICanvasRaycastFilter` with three modes.
+  `TutorialSequence` sets them: a tap step → **`Blocked`** (only Continue/Skip answer, *even though* the
+  Mana and Hand reads show a hole — it is there to be looked at, not touched); an action step →
+  **`TargetOnly`** (exactly the padded, clamped undimmed hole passes); a settling or watching beat →
+  `Blocked`; finished or stopped → **`Free`**. The rule is derived (`TutorialStep.AcceptsInputAtTarget` is
+  `!WaitsForTap`), so a new step cannot forget to declare it. This replaced `blockInput`, which was off
+  precisely so the player could defend while reading — the design now holds the board for the whole script.
+  - **One UI-level filter is the whole gate** because every input the game takes arrives through the
+    EventSystem: the cards, and the full-screen `CameraSlideArea` that carries both the table swipe
+    (`CameraSlide`) and a tower tap (`TowerSelectionInput`). Card drops validate against their own
+    `BlockCardsCanvas` raycaster, never the overlay's, so a drag that starts in the hole lands wherever it is
+    dropped; Unity keeps delivering a drag to the object it began on. Sort order makes it hold: the overlay
+    canvas is Screen Space - Overlay at **20**, above everything the player touches in both scenes. The
+    Quantum Console (30) deliberately stays above it.
+  - **Built in code, beside `Content`, as its first sibling.** Beside, so hiding the overlay for a settle
+    leaves the board held (a blocker that vanished with the dims would hand the board back exactly while the
+    tutorial waits on it); first, so Continue and Skip raycast in front of it. It draws **nothing** — a
+    zero-alpha Image would block the same way but rasterise a full-screen quad every frame on mobile. That
+    a non-drawing graphic is still raycast (`GraphicRaycaster` skips graphics with `depth == -1`) was
+    **verified live**: on Welcome/Mana/Hand the board and all four cards hit the shield while Continue
+    answers; on PlaceTower only Dart reaches its own graphic.
+  - **A step with no target holds the whole board**, since `TargetOnly` with no hole has nothing to pass.
+    That is why `LevelUpTower` is now `.OnlyWhen(_towerPlaced)`: after a timed-out place there is nothing to
+    point at, and skipping costs the lesson nothing, where a minute of dead board would not.
+  - Two traps found by running the dims: they must have **no sprite** (a 32px rounded `UISprite` stretched
+    across half the screen trips Unity's "Cannot generate 9 slice" and draws nothing), and a target
+    `RectTransform` may be **0x0** — the deck page's card widget is a shell around a `Content` child — so the
+    overlay unions the children when a target has no area of its own. Cross-canvas maths is the other
+    subtlety: the hand and mana bar are on a **Screen Space - Camera** canvas, so their corners reach screen
+    space through *that* camera and come back through this overlay's (null) one.
 - **The table swap is a swipe DOWN.** The opponent's field sits *above* ours (`BluePlayerMapY` 11 vs
   `RedPlayerMapY` -1.1) and `CameraSlide` moves the camera *against* the finger, so the board follows the
   drag: reaching their lane is a finger-down swipe, coming home a finger-up one. The first draft hinted and
@@ -587,10 +669,9 @@ teaches progression, and progression is only teachable once the player owns some
   that card's *next* level (1 -> 2 for a new card) plus a small surplus, so "equip it" and "upgrade it" are
   both always possible. The fallback tiers exist because of replays: "Replay Tutorial On Next Launch" keeps
   the collection, and a developed save that owned everything used to be paid 150 gold with no card to show
-  at all. A replay can therefore grant a large sum (a level-10 Common's next step is 645 copies + 10k gold),
-  and its outro still says "unlocked". It is deliberately not an `IRewardRoller` — that interface is
-  win/lose-shaped for the match payout. Granted straight through `BaseRewardService` (the tutorial never
-  reaches a win condition, and the reward is authored, not rolled).
+  at all. A replay can therefore grant a large sum (a level-10 Common's next step is 645 copies + 10k gold).
+  It is deliberately not an `IRewardRoller` itself — that interface is win/lose-shaped — so its result is
+  handed to the match as a `FixedRewardRoller`, and pays out through the normal end of the match (above).
 - **The menu half teaches remove-then-add**, because the starter deck is exactly `DeckSize` cards and
   `TryEquipCard` refuses a full deck. It points at the page's own state through `DeckUIController` and never
   drives it: the tutorial points, the player acts.
@@ -607,6 +688,11 @@ teaches progression, and progression is only teachable once the player owns some
     `RemoveCard` only with a full deck, `UpgradeCard` only while the upgrade is still ahead and affordable
     (a replay can hand out a maxed card). Upgrade progress is measured from the reward's level **when the
     menu half started**, not "above 1", since a replay's reward may already be level 10.
+  - **A per-card action is pointed at in the two taps it takes** (`PointAtCardAction`): the card while its
+    `ActionFrame` popup is closed, then the popup's Use/Remove button (`ActionButtonRect`) once it is open on
+    that card — the shape `PointAtDetailsButton` already had. The popup opens *beside* the card, so under the
+    input shield a step framing only the card left the button it asked for outside the hole. `RemoveCard`
+    therefore names one card (the first that is not the reward) instead of accepting any.
   - **The upgrade step frames the info panel's Upgrade button** (`BaseInfoPanelService.UpgradeButtonRect`,
     the same idiom as `ActionFrame`'s rects). Beyond the ring, this is what moves the copy: with no target
     the text box parks low, exactly over that button, and the player was told to tap something hidden.
@@ -623,9 +709,12 @@ teaches progression, and progression is only teachable once the player owns some
 - Key files: `BaseTutorialService.cs`, `TutorialService.cs`, `TutorialSettingsSO.cs`, `TutorialCopySO.cs`
   (under `Assets/Scripts/Services/Tutorial/`); `TutorialStep.cs`, `TutorialSequence.cs`,
   `TutorialMatchDirector.cs`, `TutorialRewardRoller.cs` (under `Assets/Scripts/Gameplay/Tutorial/`);
-  `BaseTutorialOverlay.cs`, `TutorialOverlayCanvas.cs`, `TutorialMenuDirector.cs` (under
-  `Assets/Scripts/UI/Tutorial/`); `IMatchIntroduction.cs`, `PlayersIntroductionCanvas.cs` (under
-  `Assets/Scripts/UI/Game/Match/`); `HorizontalPageStrip.cs` (`IsSettled`); `SaveDebugCommands.cs` (under
-  `Assets/Scripts/Debug/`); assets under `Assets/ScriptableObjects/Tutorial/`; prefab at
-  `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab` (reward tiles from
-  `Assets/Prefabs/UI/Elements/RewardPrefab.prefab`); `Assets/Scenes/TutorialScene.unity`.
+  `BaseTutorialOverlay.cs`, `TutorialOverlayCanvas.cs`, `TutorialInputShield.cs`,
+  `TutorialMenuDirector.cs` (under `Assets/Scripts/UI/Tutorial/`); `IMatchIntroduction.cs`,
+  `PlayersIntroductionCanvas.cs` (under `Assets/Scripts/UI/Game/Match/`); the match-ending seams
+  `BaseServerPlayerHealthManager.SetHealthFloor`, `BaseServerWaveManager.HoldLaneBeforeWave`,
+  `BaseServerEndGameManager.OverrideRewardRoller` and `FixedRewardRoller.cs` (under
+  `Assets/Scripts/Gameplay/Rewards/`); `HorizontalPageStrip.cs` (`IsSettled`); `SaveDebugCommands.cs` (under
+  `Assets/Scripts/Debug/`); assets under `Assets/ScriptableObjects/Tutorial/` (including
+  `WaveData_Tutorial.asset`); prefab at `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab`;
+  `Assets/Scenes/TutorialScene.unity`.

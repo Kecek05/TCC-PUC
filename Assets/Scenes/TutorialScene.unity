@@ -12306,7 +12306,7 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  waveData: {fileID: 11400000, guid: 64a0398ea897b6040b8b0a6fd7b7e4d2, type: 2}
+  waveData: {fileID: 11400000, guid: 4b5f32d4f88dac848b82489f9a509036, type: 2}
   enemyDataListSO: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}
   useFixedSeed: 0
   seed: 12345

@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.Serialization;
 
 public abstract class BaseServerWaveManager : NetworkBehaviour
 {
     public event Action<TeamType> OnTeamDefeatLastWave;
+
+    /// <summary>Per lane, the first wave it may not start. Absent means the lane runs every wave.</summary>
+    private readonly Dictionary<TeamType, int> _holdBeforeWave = new();
 
     /// <summary>
     /// Fired on the server when a team advances to a new wave. Payload: (team, newWaveNumber).
@@ -38,6 +42,27 @@ public abstract class BaseServerWaveManager : NetworkBehaviour
     public abstract NetworkVariable<int> GetLocalCurrentWave();
     public abstract NetworkVariable<int> GetEnemyCurrentWave();
     public abstract int GetTotalWaves();
+
+    /// <summary>
+    /// Server-only. Holds <paramref name="lane"/> before wave <paramref name="waveNumber"/>: it runs every
+    /// wave up to that one and then waits, never starting it. 0 lifts the hold.
+    /// </summary>
+    /// <remarks>
+    /// A lane that never starts its last wave can never clear it, and clearing it is how a lane wins the
+    /// race (<see cref="OnTeamDefeatLastWave"/>). So holding the opponent's last wave hands the race to the
+    /// other side while leaving the rest of a normal match intact — how the tutorial's first match cannot
+    /// be lost to the bot outpacing a new player, without the bot's lane ever looking empty before then.
+    /// </remarks>
+    public void HoldLaneBeforeWave(TeamType lane, int waveNumber)
+    {
+        if (waveNumber > 0) _holdBeforeWave[lane] = waveNumber;
+        else _holdBeforeWave.Remove(lane);
+    }
+
+    /// <summary>Whether <paramref name="lane"/> must wait before starting <paramref name="waveNumber"/>.</summary>
+    protected bool IsLaneHeld(TeamType lane, int waveNumber) =>
+        _holdBeforeWave.TryGetValue(lane, out int heldAt) && waveNumber >= heldAt;
+
     protected void TriggerOnTeamDefeatLastWave(TeamType teamType) => OnTeamDefeatLastWave?.Invoke(teamType);
     protected void TriggerOnNewWave(TeamType teamType, int waveNumber) => OnNewWave?.Invoke(teamType, waveNumber);
 }

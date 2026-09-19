@@ -179,8 +179,13 @@ public class ServerWaveManager : BaseServerWaveManager
 
         for (int waveIndex = 0; waveIndex < _resolvedWaves.Count; waveIndex++)
         {
+            // Before the wave is announced, so a held lane stays on the wave it finished rather than
+            // showing one it never starts.
+            int waveNumber = waveIndex + 1;
+            yield return new WaitUntil(() => !IsLaneHeld(teamType, waveNumber));
+
             ResolvedWave currentWave = _resolvedWaves[waveIndex];
-            SetCurrentWave(teamType, waveIndex + 1, currentWave);
+            SetCurrentWave(teamType, waveNumber, currentWave);
             if (currentWave.DelayBeforeWave > 0f)
                 yield return new WaitForSeconds(currentWave.DelayBeforeWave);
 
