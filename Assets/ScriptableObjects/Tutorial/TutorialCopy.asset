@@ -93,3 +93,9 @@ MonoBehaviour:
   - Step: 24
     Text: Mana to spare! Build another <b>tower</b>, or drop the same card on one to level
       it up.
+  - Step: 25
+    Text: 'That enemy wears <b>{0} armor</b>: attacks of any other color only deal part
+      of their damage to it.
+
+      Your <b>Dart</b> and <b>Fireball</b> are colorless, so they
+      always hit in full.'

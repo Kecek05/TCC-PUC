@@ -137,10 +137,21 @@ public class TutorialStep
         MinDuration = 0.35f;
     }
 
+    /// <summary>Unscaled seconds before a tap step's Continue appears: the line is up, but it cannot be
+    /// dismissed yet. 0 shows Continue with the line.</summary>
+    public float ContinueDelay { get; private set; }
+
     /// <summary>A step the player dismisses by tapping Continue. The default when nothing completes it.</summary>
-    public TutorialStep Tap()
+    /// <param name="continueAfter">
+    /// Seconds before Continue appears, for a beat that has to be <i>watched</i> rather than read — a board
+    /// in motion the player would otherwise tap straight past. Hiding the button, rather than ignoring an
+    /// early tap on a visible one, is what keeps the wait honest: a button that does nothing when pressed
+    /// reads as broken.
+    /// </param>
+    public TutorialStep Tap(float continueAfter = 0f)
     {
         WaitsForTap = true;
+        ContinueDelay = Mathf.Max(0f, continueAfter);
         return this;
     }
 

@@ -511,6 +511,12 @@ teaches progression, and progression is only teachable once the player owns some
   finish at and marches back up it, against the traffic. Letting the clock run is what puts that on screen —
   their waves come down the same lane while yours climbs it — and this is the only place the tutorial shows
   that the sending goes both ways, which the bot does to the player for the rest of the match.
+  - **Its Continue is held back 2.5s** (`TroopWatchSeconds`, via `TutorialStep.Tap(continueAfter:)`): the beat
+    is watched, not read, and a player tapping on at once never saw the troop move. The button is *hidden*
+    until then rather than shown and ignored — a button that does nothing when pressed reads as broken.
+    `TutorialSequence` shows the line without Continue and reveals it through `SetContinueVisible` once the
+    step has held long enough. Verified live with a 5s delay: line up and Continue hidden at +3.2s, shown by
+    +10.6s.
   - **It is the only tap step with a timeout** (30s). Every other read-this beat is safe to leave open
     because the clock is stopped; this one is not — and the input shield holds the whole board while it
     runs, so the player cannot defend during it either. Unbounded, it would be the first point in the
@@ -596,6 +602,12 @@ teaches progression, and progression is only teachable once the player owns some
     `BeginMenuPhase` while that screen is up, since its buttons are what leave the match. It also **stops the
     sequence**: a base can fall mid-script, and a running step would keep the input shield over the end
     screen's buttons so the player could never leave.
+  - **No Play Again on the tutorial's end screen.** Both of its buttons leave to the menu, but "Play Again"
+    promises another match and the tutorial's next stop is the menu half. Removed in `TutorialScene` only
+    (the `PlayAgainButton` GameObject is inactive there — the scene copy exists so the tutorial can diverge),
+    and `ButtonsArea`'s HorizontalLayoutGroup (MiddleCenter) re-centres OK on its own. Nothing re-activates it
+    at runtime; `ClientEndGameCanvas` only wires listeners and toggles `interactable`, both safe on an
+    inactive button.
   - **Verified live, both endings.** Forcing the bot's base to 0 ended the match (`EndMatch`), put 2 reward
     tiles on the normal end screen, banked the reward once (gold 350 → 700, not 1050) and armed the menu;
     pressing OK loaded MainMenu straight into `MenuWelcome`. Left alone, an **undefended** player won the race
@@ -615,6 +627,27 @@ teaches progression, and progression is only teachable once the player owns some
     steps, but they are lines the tutorial says.
   - The lent deck's mana-cap raise continues through free play, so the 5-mana spell never becomes a card
     held unaffordable until the last wave.
+- **Armor is taught the first time it can be seen** — a lesson the *match* triggers, not a step the script
+  schedules. `ArmorResistance.Resolve`: full damage when the colors match or either side is colorless
+  (`ArmorColor.None`); otherwise the enemy's `OffColorResistance` (35% on every armored wave enemy) cuts it,
+  reduced by the attack's penetration. The script has nothing armored to point at — wave 1 is all unarmored
+  `EnemyData1` — so the first armored enemy (wave 2's **orange** Fast) only ever arrives in free play, and a
+  mechanic explained with nothing on screen is explained twice.
+  - **Armor is already visible.** No UI shows it, but each armored variant's sprite is authored in its armor
+    color (Fast orange, Tank pink, EnemyData2 purple; unarmored Enemy1 white), so the ring lands on the thing
+    the line names, and `{0}` in the copy is the enemy's actual `ArmorColor`. Careful with the other half:
+    **card color is not attack color** — Dart's card is orange but its attack is colorless, Chain attacks
+    orange with a white card — so the line calls the player's Dart and Fireball *colorless*, which is what
+    they are (neither sets `AttackColor`). The info panel has no attack-color row either; a gap, not a lie.
+  - **Run as a one-step `TutorialSequence` of its own** (`_lesson`, `StartLesson`), so an interrupting beat
+    gets the script's whole machinery for free: freeze (the enemy holds still in its ring), dim, `Blocked`
+    shield, Continue, then `Free` and unfrozen on the way out. Tips pause while it runs and resume after a
+    cooldown. It triggers once, on the first armored enemy on the player's own lane that is past its spawn
+    invincibility and 5% in; if the player is on the other field, it waits for them to come home.
+  - **Its Continue appears after 1s** (`InterruptContinueDelay`): it lands mid-gesture, and a button popping up
+    under a finger aimed at the board would be dismissed unread.
+  - Verified live: the first wave-2 Fast enemy froze the match (`timeScale 0`), `Blocked`, ringed, "orange
+    armor"; Continue handed the board back (`Free`, unfrozen) and it did not repeat.
 - **A "Cannot generate 9 slice ... 22014864 vertices" error appears during free play, and it is NOT the
   tutorial's.** It is raised natively from a view repaint (`GUIUtility.ProcessEvent`), 3-4 times while the
   bot's lane runs its waves, then stops once that lane is held. An A/B with the overlay's Canvas **disabled**

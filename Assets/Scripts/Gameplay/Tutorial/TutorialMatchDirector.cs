@@ -35,6 +35,22 @@ public class TutorialMatchDirector : MonoBehaviour
     /// pause. See <see cref="SpellWatchSeconds"/> for why it is counted from the landing.</summary>
     private const float SpellLandedWatchSeconds = 2.5f;
 
+    /// <summary>Unscaled seconds the troop-direction beat keeps Continue hidden, so the player has watched
+    /// their troop climb the lane before they can move on.</summary>
+    private const float TroopWatchSeconds = 2.5f;
+
+    /// <summary>Unscaled seconds before Continue appears on a lesson that interrupts free play. The player is
+    /// mid-gesture when it lands, and a button appearing under a finger that was aimed at the board would be
+    /// dismissed unread.</summary>
+    private const float InterruptContinueDelay = 1f;
+
+    /// <summary>How far into the lane (0..1) an armored enemy must be before the armor lesson points at it:
+    /// far enough to be plainly on screen, rather than a sprite still arriving at the mouth.</summary>
+    private const float ArmorLessonMinProgress = 0.05f;
+
+    /// <summary>World-unit half-width of the ring around the armored enemy the lesson is about.</summary>
+    private const float ArmoredEnemyHighlightRadius = 0.9f;
+
     [Title("References")]
     [SerializeField, Required] private TutorialSettingsSO settings;
 
@@ -107,6 +123,16 @@ public class TutorialMatchDirector : MonoBehaviour
     private float _tipShownAt;
     private float _nextTipAt;
 
+    /// <summary>A lesson interrupting free play, while it runs; null otherwise. A one-step sequence of its own
+    /// — the script's machinery (freeze, dim, shield, Continue) reused for a beat that is triggered by the
+    /// match rather than scheduled in the script.</summary>
+    private TutorialSequence _lesson;
+
+    private bool _armorTaught;
+
+    /// <summary>The armored enemy the armor lesson is pointing at.</summary>
+    private EnemyManager _armoredEnemy;
+
     /// <summary>Free-play tips in priority order: a base under threat outranks spare mana.</summary>
     private static readonly TutorialStepId[] FreePlayTips = { TutorialStepId.TipDefend, TutorialStepId.TipBuildTower };
 
@@ -149,6 +175,7 @@ public class TutorialMatchDirector : MonoBehaviour
         _playableCards = null;
 
         _sequence?.Tick();
+        _lesson?.Tick();
 
         if (_freePlay && !_matchEnded) TickFreePlay();
 
@@ -265,9 +292,11 @@ public class TutorialMatchDirector : MonoBehaviour
         // it is the only place the board shows that the traffic goes both ways.
         // It carries a timeout despite being a tap step: every other read-this beat is safe to leave open
         // because the world is stopped, and this one is not.
+        // Continue is held back for a few seconds: this beat is watched, not read, and the whole point is the
+        // troop climbing the lane — a player tapping on at once would never see it move.
         new TutorialStep(TutorialStepId.TroopDirection)
             .OnlyWhen(() => _troopSent)
-            .Tap()
+            .Tap(continueAfter: TroopWatchSeconds)
             .Running()
             .Pointing(PointAtSentTroop)
             .GivingUpAfter(30f),
@@ -938,6 +967,8 @@ public class TutorialMatchDirector : MonoBehaviour
         _tip = TutorialStepId.None;
 
         _sequence?.Stop();
+        _lesson?.Stop();
+        _lesson = null;
 
         if (overlay != null)
         {
@@ -974,6 +1005,9 @@ public class TutorialMatchDirector : MonoBehaviour
 
         if (overlay == null || settings == null) return;
 
+        // A lesson owns the overlay while it runs; tips wait for it.
+        if (_lesson != null || TryStartArmorLesson()) return;
+
         float now = Time.unscaledTime;
 
         if (_tip != TutorialStepId.None)
@@ -1008,6 +1042,85 @@ public class TutorialMatchDirector : MonoBehaviour
     }
 
     private string TipText(TutorialStepId tip) => settings.Copy != null ? settings.Copy.Get(tip) : string.Empty;
+
+    // ---- Lessons the match triggers -------------------------------------------------------------
+
+    /// <summary>
+    /// Armor is taught the first time the player can actually see it: an armored enemy walking their own
+    /// lane. Not in the script, because none exists there — wave 1 is unarmored, so the first armored enemy
+    /// (wave 2's orange Fast) only ever arrives in free play — and a mechanic explained with nothing on screen
+    /// to point at is a mechanic explained twice.
+    /// </summary>
+    /// <remarks>
+    /// Armor is visible without any UI of its own: an armored enemy's sprite is tinted its armor color, so
+    /// the ring lands on the thing the line describes. Taught once; if the player is looking at the other
+    /// field when the first one arrives, the lesson simply waits for them to come home.
+    /// </remarks>
+    private bool TryStartArmorLesson()
+    {
+        if (_armorTaught || _cameraSide != CameraSide.Local) return false;
+
+        EnemyManager armored = FindArmoredEnemyInView();
+        if (armored == null) return false;
+
+        _armorTaught = true;
+        _armoredEnemy = armored;
+
+        // Frozen (the step's default), so the enemy holds still inside its ring while the player reads.
+        StartLesson(new TutorialStep(TutorialStepId.ArmorLesson)
+            .Tap(continueAfter: InterruptContinueDelay)
+            .Pointing(PointAtArmoredEnemy)
+            .Formatting(() => new object[] { ArmorName(_armoredEnemy) }));
+
+        return true;
+    }
+
+    /// <summary>Runs one step over free play, then hands the board back. A tip on screen is taken down
+    /// first: the lesson dims the board, and a suggestion left under it would be read as part of it.</summary>
+    private void StartLesson(TutorialStep step)
+    {
+        if (_tip != TutorialStepId.None)
+        {
+            _tip = TutorialStepId.None;
+            overlay.HideTip();
+        }
+
+        _lesson = new TutorialSequence(new List<TutorialStep> { step }, overlay, settings.Copy);
+        _lesson.OnFinished += HandleLessonFinished;
+        _lesson.Start();
+    }
+
+    /// <summary>Back to free play, after a quiet moment: a tip straight after a lesson would talk over it.</summary>
+    private void HandleLessonFinished()
+    {
+        _lesson = null;
+        _nextTipAt = Time.unscaledTime + (settings != null ? settings.TipCooldownSeconds : 0f);
+    }
+
+    /// <summary>An armored enemy on the player's own lane, spawned and far enough in to be plainly seen.</summary>
+    private EnemyManager FindArmoredEnemyInView()
+    {
+        foreach (EnemyManager enemy in EnemyRegistry.ActiveEnemies)
+        {
+            if (enemy == null || enemy.Data == null || enemy.Team == null || enemy.ServerMovement == null) continue;
+            if (enemy.Team.GetTeamType() != _localTeam || enemy.Data.ArmorColor == ArmorColor.None) continue;
+            if (!enemy.ServerMovement.IsTargetable || enemy.ServerMovement.Progress < ArmorLessonMinProgress) continue;
+
+            return enemy;
+        }
+
+        return null;
+    }
+
+    private TutorialHighlight PointAtArmoredEnemy() =>
+        _armoredEnemy != null
+            ? TutorialHighlight.World(_armoredEnemy.transform.position, ArmoredEnemyHighlightRadius,
+                TutorialHintKind.None)
+            : TutorialHighlight.None;
+
+    /// <summary>The armor's color as the line says it — the enemy under the ring is tinted exactly this.</summary>
+    private static string ArmorName(EnemyManager enemy) =>
+        enemy != null && enemy.Data != null ? enemy.Data.ArmorColor.ToString().ToLowerInvariant() : "colored";
 
     /// <summary>
     /// Where a tip points, or None when its situation does not hold. Only on the player's own field: the

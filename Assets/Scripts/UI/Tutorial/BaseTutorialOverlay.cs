@@ -21,6 +21,9 @@ public abstract class BaseTutorialOverlay : MonoBehaviour
     /// <param name="showContinue">True for a step the player dismisses, false for one the game ends.</param>
     public abstract void Show(string text, bool showContinue);
 
+    /// <summary>Shows or hides Continue under the line already up — how a step reveals it late.</summary>
+    public abstract void SetContinueVisible(bool visible);
+
     public abstract void SetHighlight(TutorialHighlight highlight);
 
     /// <summary>

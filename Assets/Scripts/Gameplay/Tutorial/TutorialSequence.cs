@@ -32,6 +32,9 @@ public class TutorialSequence
     private float _enteredAt;
     private bool _tapped;
 
+    /// <summary>Whether the current step's Continue is on screen yet (see <see cref="TutorialStep.ContinueDelay"/>).</summary>
+    private bool _continueShown;
+
     /// <summary>When the current step completed and started letting its result play out (see
     /// <see cref="TutorialStep.IsSettled"/>). Negative while the step is still waiting on the player.</summary>
     private float _settlingSince = -1f;
@@ -93,6 +96,13 @@ public class TutorialSequence
         // Unscaled throughout: a frozen step still has to time out, or freezing would turn the safety net off
         // exactly where it is needed most.
         float elapsed = Time.unscaledTime - _enteredAt;
+
+        if (!_continueShown && elapsed >= step.ContinueDelay)
+        {
+            _continueShown = true;
+            if (_overlay != null) _overlay.SetContinueVisible(true);
+        }
+
         if (elapsed < step.MinDuration) return;
 
         if (step.Timeout > 0f && elapsed >= step.Timeout)
@@ -204,9 +214,14 @@ public class TutorialSequence
 
         step.OnEnter?.Invoke();
 
+        // A delayed Continue is revealed by Tick once the step has held long enough; every other step either
+        // shows it now or never has one.
+        bool continueNow = step.WaitsForTap && step.ContinueDelay <= 0f;
+        _continueShown = continueNow || !step.WaitsForTap;
+
         if (_overlay != null)
         {
-            _overlay.Show(ResolveText(step), step.WaitsForTap);
+            _overlay.Show(ResolveText(step), continueNow);
             _overlay.SetHighlight(step.Highlight != null ? step.Highlight() : TutorialHighlight.None);
 
             // Only the thing asked for can be touched, and a step asking for nothing leaves nothing to touch.

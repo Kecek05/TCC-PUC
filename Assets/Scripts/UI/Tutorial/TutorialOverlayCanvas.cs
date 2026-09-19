@@ -184,6 +184,13 @@ public class TutorialOverlayCanvas : BaseTutorialOverlay
         if (continueButton != null) continueButton.gameObject.SetActive(showContinue && hasText);
     }
 
+    public override void SetContinueVisible(bool visible)
+    {
+        // Never on its own: a Continue with no line above it would dismiss something nobody could read.
+        bool hasText = textBox != null && textBox.gameObject.activeSelf;
+        if (continueButton != null) continueButton.gameObject.SetActive(visible && hasText);
+    }
+
     public override void ShowTip(string tipText, TutorialHighlight highlight)
     {
         Show(tipText, showContinue: false);

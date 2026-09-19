@@ -316,6 +316,9 @@ public enum TutorialStepId
     // tutorial says, so they live in the same copy table.
     TipDefend,
     TipBuildTower,
+
+    // Taught when the match first shows the thing it is about, during free play.
+    ArmorLesson,
 }
 
 /// <summary>How much of the game the tutorial lets the player's finger reach.</summary>
