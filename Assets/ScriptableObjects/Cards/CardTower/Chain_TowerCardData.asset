@@ -17,19 +17,18 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 1325791681110519822, guid: e3fc9c0d658f0224e86acf9055203b63, type: 3}
   CardName: Chain
-  Description: The bolt jumps between nearby enemies, losing a quarter of its damage
-    at every jump. Devastating down a packed lane, and the worst value in the game
-    against a lone target.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: The bolt jumps between nearby enemies, weakening with every jump.
+    Devastating down a packed lane, wasted on a lone target.
+  CardImage: {fileID: 21300000, guid: 9a8d0c76ca35f1f41b4e93c059021848, type: 3}
+  CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 8
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 11
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: dc714185eea618b418fad9cc754c5975, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: f0339eb4eb98d5945b1617a04b5e045b, type: 3}

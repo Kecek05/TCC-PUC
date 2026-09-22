@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Square_ExplosionTowerData
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionTowerDataSO
   TowerType: 2
-  AttackColor: 0
+  AttackColor: 2
   ArmorPenetration: 0
   SetupDurationLevel1: 0.3
   DamageLevel1: 35

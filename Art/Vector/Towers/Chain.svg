@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Chain</title>
+  <desc>Hexagram. Six spikes reaching outward = the bolt jumping on.  Authored white - the game tints it #FF8242 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(35.00,35.00) scale(0.67800)">
+    <path d="M 500.00,0.00 L 627.50,279.16 L 933.01,250.00 L 755.00,500.00 L 933.01,750.00 L 627.50,720.84 L 500.00,1000.00 L 372.50,720.84 L 66.99,750.00 L 245.00,500.00 L 66.99,250.00 L 372.50,279.16 Z M 500.00,240.00 L 566.30,385.17 L 725.17,370.00 L 632.60,500.00 L 725.17,630.00 L 566.30,614.83 L 500.00,760.00 L 433.70,614.83 L 274.83,630.00 L 367.40,500.00 L 274.83,370.00 L 433.70,385.17 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

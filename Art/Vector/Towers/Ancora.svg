@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Ancora</title>
+  <desc>Stock, crossbar and flukes. An anchor: it holds one enemy where it stands.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(19.57,-76.13) scale(0.70887)">
+    <path d="M 500,150 L 500,330 M 130,330 L 870,330 M 160,330 Q 160,940 500,940 Q 840,940 840,330" fill="none" stroke="#FFFFFF" stroke-width="71.10" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

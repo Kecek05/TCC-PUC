@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Dart_TowerData
   m_EditorClassIdentifier: Assembly-CSharp::TowerDataSO
   TowerType: 4
+  AttackColor: 3
+  ArmorPenetration: 0
   SetupDurationLevel1: 0.2
   DamageLevel1: 8
   RangeLevel1: 1.1

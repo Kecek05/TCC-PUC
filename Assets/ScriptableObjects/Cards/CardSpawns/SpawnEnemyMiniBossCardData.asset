@@ -17,12 +17,14 @@ MonoBehaviour:
   Rarity: 4
   CardPrefab: {fileID: 2770033394772179350, guid: eb68242d6dacca845b9e83b43ebac4df, type: 3}
   CardName: Mini Boss
-  Description: A Legendary boss that will shake your enemy
-  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: A single massive attacker that soaks punishment and hits hard. Slow,
+    and impossible to ignore.
+  CardImage: {fileID: 21300000, guid: 6a4be56a91d7eba4cbd4233e4909fccd, type: 3}
+  CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 10
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 150, y: 150}
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 1
   CustomPositionCardInMenu: {x: 0, y: 13}
   OverrideStatGrowth: 0
@@ -30,4 +32,6 @@ MonoBehaviour:
   EnemyType: 3
   SpawnCount: 1
   DelayBetweenSpawns: 0.3
+  DecoyEnemyType: 0
+  DecoyCount: 0
   EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

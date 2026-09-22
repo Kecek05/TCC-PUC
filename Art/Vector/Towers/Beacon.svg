@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Beacon</title>
+  <desc>Vesica / lens. A beam emitter that locks onto one target and bores in.  Authored white - the game tints it #FF4280 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(35.00,35.00) scale(0.67800)">
+    <path d="M 500.00,0.00 A 580.00,580.00 0 0 1 500.00,1000.00 A 580.00,580.00 0 0 1 500.00,0.00 Z M 500.00,225.00 A 319.00,319.00 0 0 1 500.00,775.00 A 319.00,319.00 0 0 1 500.00,225.00 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

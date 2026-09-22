@@ -18,7 +18,14 @@ MonoBehaviour:
   MoveSpeed: 2.5
   SpawnDuration: 1
   Damage: 5
-  ArmorColor: 0
-  OffColorResistance: 0
+  ArmorColor: 3
+  OffColorResistance: 0.35
+  ImmuneToSlow: 0
+  SplitCount: 0
+  SplitGenerations: 0
+  SplitChildStatPercent: 0.5
+  DashInterval: 0
+  DashDuration: 0
+  DashSpeedMultiplier: 1
   EnemySprite: {fileID: 0}
   EnemyPrefab: {fileID: 7708427927526269066, guid: fa9a78bf2714b86469b641d64ee40374, type: 3}

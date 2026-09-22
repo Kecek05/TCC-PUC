@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Fonte</title>
+  <desc>Droplet. Generates mana and nothing else.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(20.93,6.81) scale(0.70614)">
+    <path d="M 500.00,40.00 L 784.30,473.60 A 340.00,340.00 0 1 1 215.70,473.60 Z M 500.00,241.60 L 664.89,493.09 A 197.20,197.20 0 1 1 335.11,493.09 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

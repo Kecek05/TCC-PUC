@@ -17,18 +17,18 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: e7fc791dceee9a044b04a0898449aa49, type: 3}
   CardName: Mortar
-  Description: Fires a magazine of heavy shells in a burst, then reloads for six
-    seconds. Loaded, it erases a wave. Empty, it is a hole in your defence.
-  CardImage: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: Fires a magazine of heavy shells in a burst, then reloads. Loaded
+    it erases a wave; empty it is a hole in your defence.
+  CardImage: {fileID: 21300000, guid: 9d729230c626df1479336892a6609397, type: 3}
+  CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 7
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 10
-  TowerGhostSprite: {fileID: 21300000, guid: b8915b70b470c2141918b8f779a1d141, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 64f9521a98e0b8d43b8d2aeadc3b147b, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 58a8f05420de6b043851f7e6cee81c23, type: 3}

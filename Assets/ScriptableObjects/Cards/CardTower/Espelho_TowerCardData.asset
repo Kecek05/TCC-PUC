@@ -18,18 +18,17 @@ MonoBehaviour:
   CardPrefab: {fileID: 1325791681110519822, guid: d19666e5cb436144a9d495c3eae5acf6, type: 3}
   CardName: Espelho
   Description: Never fires at your field. On a timer it sends a weak attacker down
-    the opponent lane instead - slow, unattended pressure that neither defends nor
-    deals damage at home.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+    the opponent's lane instead.
+  CardImage: {fileID: 21300000, guid: 970f83b0850a4654f8706dcecdfb429f, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 7
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 15
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: dfbf8451bb3df4c40ac89c687f1a0070, type: 3}
   TowerPrefab: {fileID: 8400586856522066902, guid: fb3313ce0a9904443870bdf88cb4df77, type: 3}

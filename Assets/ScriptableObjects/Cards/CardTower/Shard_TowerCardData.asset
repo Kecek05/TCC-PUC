@@ -18,18 +18,17 @@ MonoBehaviour:
   CardPrefab: {fileID: 1325791681110519822, guid: 063f91b624a0e654a9136bc4236de0b1, type: 3}
   CardName: Shard
   Description: 'An ordinary shot with a vicious finish: every kill sprays fragments
-    over the enemies around it. Give it a softened wave and the kills cascade. Against
-    one durable target it is just a shot.'
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+    over the enemies around it.'
+  CardImage: {fileID: 21300000, guid: e8de7002f66a8484fb68e3c4ea0053b4, type: 3}
+  CardColor: {r: 0.44715405, g: 0.25943398, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 8
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 2c56f85af7276384aa1162d9712e6dd9, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: e8c0d0b0eb159cc478895c337d0c4d51, type: 3}

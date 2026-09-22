@@ -17,15 +17,14 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 2770033394772179350, guid: d3a40bd5d58358b49b4fa97cd0cb9a06, type: 3}
   CardName: Miragem
-  Description: One real attacker and two copies that vanish to the first hit they
-    take. A slow, hard-hitting tower wastes its shot on a ghost; a fast one reveals
-    all three almost immediately.
-  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: One real attacker and two copies that vanish to the first hit. A slow,
+    hard-hitting tower wastes its shot on a ghost.
+  CardImage: {fileID: 21300000, guid: 637f16702ee1c774eaba09d2c384482c, type: 3}
+  CardColor: {r: 0.44715405, g: 0.25943398, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

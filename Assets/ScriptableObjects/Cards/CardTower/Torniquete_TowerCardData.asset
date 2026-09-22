@@ -17,19 +17,18 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: 8282e7830b4d47b43aad1c13c33509f5, type: 3}
   CardName: Tourniquet
-  Description: "Aura that corrodes the off-color resistance of every enemy in radius.
-    Deals no damage \u2014 its whole contribution is making the towers around it
-    hit harder, and every level strips more of the armor."
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  Description: Deals no damage. Corrodes the armour of every enemy in its radius
+    so the towers around it cut straight through.
+  CardImage: {fileID: 21300000, guid: 6b6ee2381893e444a8fe66f7fb9c9365, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 12
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: f9c93cf556034dd44a6f3ddfe2a4220d, type: 3}
   TowerPrefab: {fileID: 8400586856522066902, guid: bd6e7baf7c5e0a6418dc55b8ddfa94d4, type: 3}

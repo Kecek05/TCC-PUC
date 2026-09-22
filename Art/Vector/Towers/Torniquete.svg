@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Torniquete</title>
+  <desc>Two opposed C-clamps closing on nothing. Strips armour, deals no damage.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(40.54,40.54) scale(0.66692)">
+    <path d="M 932.26,657.33 A 460.00,460.00 0 0 1 67.74,657.33 M 67.74,342.67 A 460.00,460.00 0 0 1 932.26,342.67" fill="none" stroke="#FFFFFF" stroke-width="96.60" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

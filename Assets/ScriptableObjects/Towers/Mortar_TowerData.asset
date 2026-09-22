@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Mortar_TowerData
   m_EditorClassIdentifier: Assembly-CSharp::MortarTowerDataSO
   TowerType: 10
-  AttackColor: 0
+  AttackColor: 3
   ArmorPenetration: 0
   SetupDurationLevel1: 0.5
   DamageLevel1: 90

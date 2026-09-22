@@ -17,18 +17,17 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 1325791681110519822, guid: 3b1f5624b2ddeaa40a3ed0f6abc58e55, type: 3}
   CardName: Fonte
-  Description: Generates mana and nothing else. The slot it takes is a slot not defending,
-    so it only pays off behind a deck expensive enough to need it.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  Description: Generates mana and nothing else. The slot it takes is a slot not defending.
+  CardImage: {fileID: 21300000, guid: aa5bdecf5f5fcf64ab40893de21c3e98, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 8
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 16
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: d35358192dc31b840ba4965c3837e22e, type: 3}
   TowerPrefab: {fileID: 8400586856522066902, guid: 15bfe7c4489efb0459e2a85c3833efb1, type: 3}

@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: f51d97d2778c1b04ab67ca628245514d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ede93eb3af390e34f84ce6589f482d2f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2303,7 +2303,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7bf94cb916ab50a4d8867d183b1fe1b2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2429,7 +2429,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 66cd82b5ad6451f4dbed928c80f66b2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0f1a59c3c7d41a54baaf75e1042ba0e8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2908,6 +2908,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EmptyClientTowerCombat
   ShowTopMostFoldoutHeaderGroup: 1
   serverTowerCombat: {fileID: 1183964378490981243}
+  bulletCardType: 0
 --- !u!114 &5787397079051057888
 MonoBehaviour:
   m_ObjectHideFlags: 0

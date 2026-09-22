@@ -17,15 +17,14 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 2770033394772179350, guid: 44d726e0f03e80945a9349645f7f2aa5, type: 3}
   CardName: Cisma
-  Description: Splits in two when killed, and those halves split again - seven bodies
-    from one. Area damage fired too early only makes more targets; a clean sustained
-    sweep eats every piece for free.
-  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: Splits when killed, and the halves split again. Area damage fired
+    too early only makes more targets.
+  CardImage: {fileID: 21300000, guid: fd9c6d0cd9b768a4293c325e174f2714, type: 3}
+  CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 4
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

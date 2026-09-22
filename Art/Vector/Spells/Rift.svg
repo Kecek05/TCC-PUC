@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Rift</title>
+  <desc>A jagged tear, widest in the middle. The rift that slows what walks into it.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(-64.51,-64.51) scale(0.64103)">
+    <path d="M 500.00,110.00 L 442.96,196.67 L 226.83,283.33 L 404.17,370.00 L 139.62,456.67 L 395.37,543.33 L 169.91,630.00 L 420.69,716.67 L 303.52,803.33 L 500.00,890.00 L 557.04,803.33 L 773.17,716.67 L 595.83,630.00 L 860.38,543.33 L 604.63,456.67 L 830.09,370.00 L 579.31,283.33 L 696.48,196.67 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

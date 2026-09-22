@@ -17,16 +17,18 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 2383729291938179494, guid: cfca61783e36ae84492b02a5a8d333f6, type: 3}
   CardName: Haste
-  Description: 'Drop a haste zone on your own field: ally towers inside gain +20%
-    attack speed for 5s. Towers built inside while it lasts are buffed too, and overlapping
-    zones stack.'
+  Description: Drop a zone on your own field. Ally towers inside attack faster, including
+    ones you build while it lasts.
   CardImage: {fileID: 21300000, guid: 08b5704e2cab9f6459fe964d331f0741, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 1
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
   SpellType: 3
   CanUseInEnemyMap: 0
   CanUseInLocalMap: 1

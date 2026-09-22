@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Shadow</title>
+  <desc>Swept, concave, narrow. A lone runner nothing can slow down.  Authored white - the game tints it #7242FF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(98.35,103.87) scale(0.55129)">
+    <path d="M 500,40 C 590,300 700,620 820,940 L 500,735 L 180,940 C 300,620 410,300 500,40 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

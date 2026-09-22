@@ -17,15 +17,18 @@ MonoBehaviour:
   Rarity: 1
   CardPrefab: {fileID: 1325791681110519822, guid: e9c64c78a7b397944be1197feb4eb580, type: 3}
   CardName: Dart
-  Description: A cheap, rapid-fire tower. Each dart barely stings, but it never stops
-    firing -- relentless chip damage against anything that wanders into range.
+  Description: Cheap and relentless. Each dart barely stings, but it never stops
+    firing.
   CardImage: {fileID: 21300000, guid: ce547fe25a4ab0b47866822b32b0ae8a, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
   TowerType: 4
   TowerGhostSprite: {fileID: 21300000, guid: 07febdd92f4d3834486b34ff6589b7e4, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 4f331372fd2465646889b6b7b45dcac4, type: 3}

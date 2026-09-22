@@ -17,16 +17,18 @@ MonoBehaviour:
   Rarity: 4
   CardPrefab: {fileID: 2383729291938179494, guid: e53df64124349a44ea28bee1042ba419, type: 3}
   CardName: Rage
-  Description: 'Cast on the enemy''s field: your attacking troops (wave and summoned)
-    surge with +20% move speed for 6s. The fury lingers 1s after they leave, and
-    overlapping Rage zones stack.'
+  Description: Cast on the enemy's field. Your attacking troops inside surge forward,
+    and the fury lingers after they leave it.
   CardImage: {fileID: 21300000, guid: 61a149b55e66dc04a9a2c6e40fd94b78, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
+  OverrideStatGrowth: 0
+  StatGrowth: []
   SpellType: 4
   CanUseInEnemyMap: 1
   CanUseInLocalMap: 0

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Miragem</title>
+  <desc>One attacker flanked by two smaller echoes. Two of the three are lies.  Authored white - the game tints it #7242FF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(115.58,94.91) scale(0.51684)">
+    <path d="M 500.00,140.00 L 790.00,880.00 L 500.00,685.00 L 210.00,880.00 Z M 178.00,345.00 L 352.00,940.00 L 178.00,795.00 L 20.00,940.00 Z M 822.00,345.00 L 980.00,940.00 L 822.00,795.00 L 648.00,940.00 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

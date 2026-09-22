@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Mortar</title>
+  <desc>Octagon. Heavy, chunky, sits still - a magazine of shells.  Authored white - the game tints it #FF8242 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(7.07,7.07) scale(0.73386)">
+    <path d="M 961.94,691.34 L 691.34,961.94 L 308.66,961.94 L 38.06,691.34 L 38.06,308.66 L 308.66,38.06 L 691.34,38.06 L 961.94,308.66 Z M 786.40,618.63 L 618.63,786.40 L 381.37,786.40 L 213.60,618.63 L 213.60,381.37 L 381.37,213.60 L 618.63,213.60 L 786.40,381.37 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

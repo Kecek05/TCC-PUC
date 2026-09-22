@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 443370940
       objectReference: {fileID: 0}
+    - target: {fileID: 4726554980668913889, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 924fcd2a0e78c4640a47f5b86feb6882, type: 3}
     - target: {fileID: 5240486951047393607, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Name
       value: EnemyArmyUnit
@@ -61,16 +65,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 468e307111c603c4b833eaaa1d3e63c6, type: 2}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 924fcd2a0e78c4640a47f5b86feb6882, type: 3}
+    - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Color.a
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Color.b
-      value: 1
+      value: 0.25943398
       objectReference: {fileID: 0}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Color.g
-      value: 1
+      value: 0.5095688
       objectReference: {fileID: 0}
     - target: {fileID: 6549755288755082633, guid: 6e1d3162cfbd7d64cbb29e726091a591, type: 3}
       propertyPath: m_Color.r

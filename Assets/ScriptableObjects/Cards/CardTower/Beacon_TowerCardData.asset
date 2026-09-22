@@ -17,19 +17,18 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 1325791681110519822, guid: c82dadd7a3a262f4290ad51469b51afc, type: 3}
   CardName: Beacon
-  Description: A long beam that grows stronger the longer it holds one target, up
-    to triple damage. Anything that forces it to switch throws the ramp away, so
-    it melts a boss and flounders against a swarm.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: A beam that grows stronger the longer it holds one target. Anything
+    that forces it to switch throws the ramp away.
+  CardImage: {fileID: 21300000, guid: e4500bdc27eb6a74fad380fcbea7c381, type: 3}
+  CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 9
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 773e650faeebf3d4ea2c5dfaa22a90be, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 2720260623c10de4f9bb84b72cbcf143, type: 3}

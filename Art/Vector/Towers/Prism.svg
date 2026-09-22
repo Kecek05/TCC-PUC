@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Prism</title>
+  <desc>Three fat arcs. A slow field: coarse, wide, and it grips nothing on its own.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(39.07,39.07) scale(0.66986)">
+    <path d="M 500.00,40.00 A 460.00,460.00 0 0 1 959.09,471.12 M 898.37,730.00 A 460.00,460.00 0 0 1 295.47,912.03 M 101.63,730.00 A 460.00,460.00 0 0 1 245.44,116.86" fill="none" stroke="#FFFFFF" stroke-width="92.01" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

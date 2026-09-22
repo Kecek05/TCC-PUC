@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Stinger</title>
+  <desc>Triangle. The cheapest turret gets the simplest polygon - it continues Slam(5) and Dart(6) downward.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(5.00,5.00) scale(0.73800)">
+    <path d="M 500.00,0.00 L 933.01,750.00 L 66.99,750.00 Z M 500.00,220.00 L 742.49,640.00 L 257.51,640.00 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

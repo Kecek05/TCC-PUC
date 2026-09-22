@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Ferrugem</title>
+  <desc>A shield eaten through by pits. Ferrugem corrodes armour off whatever walks into it.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(-18.73,-24.22) scale(0.54945)">
+    <path d="M 500,55 L 880,200 L 880,545 C 880,762 702,902 500,965 C 298,902 120,762 120,545 L 120,200 Z M 300.00,420.00 A 82.00,82.00 0 1 1 464.00,420.00 A 82.00,82.00 0 1 1 300.00,420.00 Z M 554.00,558.00 A 58.00,58.00 0 1 1 670.00,558.00 A 58.00,58.00 0 1 1 554.00,558.00 Z M 408.00,668.00 A 44.00,44.00 0 1 1 496.00,668.00 A 44.00,44.00 0 1 1 408.00,668.00 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

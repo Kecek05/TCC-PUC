@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Lance</title>
+  <desc>Leaf blade, crossguard, shaft. One narrow line of damage straight down the lane.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(-59.29,-20.64) scale(0.59193)">
+    <path d="M 955,45 Q 905.30,250.30 700,300 Q 749.70,94.70 955,45 Z M 750.30,190.30 L 809.70,249.70 L 169.70,889.70 L 110.30,830.30 Z M 819,343.60 L 783.60,379 L 621,216.40 L 656.40,181 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

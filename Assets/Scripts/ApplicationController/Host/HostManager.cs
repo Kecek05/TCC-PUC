@@ -36,7 +36,18 @@ public class HostConnectionData : IDisposable
 
 public class HostManager : BaseHostManager
 {
+    /// <summary>
+    /// Relay peers BESIDES the host. 1 = host + one opponent.
+    /// </summary>
     private const int MAX_CONNECTIONS = 1;
+
+    /// <summary>
+    /// Seats in the discovery lobby, which counts the host too — so it is one MORE than
+    /// <see cref="MAX_CONNECTIONS"/>, not the same number. Sized at 1 the host filled its own lobby, it
+    /// advertised zero free seats, and <c>QuickJoinLobbyAsync</c> could never return it: quick match would
+    /// have created a brand new Relay on every press and two players would never have met.
+    /// </summary>
+    private const int LOBBY_SEATS = MAX_CONNECTIONS + 1;
 
     /// <summary>Where an offline host listens. Loopback, because nothing off this machine may reach it.</summary>
     private const string LoopbackAddress = "127.0.0.1";
@@ -215,12 +226,15 @@ public class HostManager : BaseHostManager
             lobbyOptions.Data = new Dictionary<string, DataObject>()
             {
                 {
-                    "JoinCode", new DataObject(visibility: DataObject.VisibilityOptions.Member, value : joinCode)
+                    // Member visibility, not Public: whoever quick-joins is a member by the time they read
+                    // it, and a code nobody has joined for has no business being browsable.
+                    Matchmaker.JoinCodeKey,
+                    new DataObject(visibility: DataObject.VisibilityOptions.Member, value : joinCode)
                 }
             };
 
 
-            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync($"Player's Lobby", MAX_CONNECTIONS, lobbyOptions);
+            Lobby lobby = await LobbyService.Instance.CreateLobbyAsync($"Player's Lobby", LOBBY_SEATS, lobbyOptions);
             _heartbeatCoroutine = StartCoroutine(HeartbeatLobby(15f, lobby.Id));
 
             return lobby;

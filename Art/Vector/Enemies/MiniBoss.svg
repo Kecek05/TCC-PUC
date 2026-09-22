@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>MiniBoss</title>
+  <desc>A crowned arrowhead. The heaviest single body a player can send.  Authored white - the game tints it #FF4280 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(95.26,109.19) scale(0.55749)">
+    <path d="M 500.00,30.00 L 640.00,330.00 L 790.00,110.00 L 820.00,390.00 L 920.00,920.00 L 500.00,640.00 L 80.00,920.00 L 180.00,390.00 L 210.00,110.00 L 360.00,330.00 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

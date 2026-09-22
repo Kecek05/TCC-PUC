@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Swarm</title>
+  <desc>Six bodies in formation. Ten fragile fodder that flood the lane at once.  Authored white - the game tints it #FF8242 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(107.25,107.25) scale(0.53351)">
+    <path d="M 500.00,60.00 L 635.00,340.00 L 500.00,246.67 L 365.00,340.00 Z M 330.00,360.00 L 465.00,640.00 L 330.00,546.67 L 195.00,640.00 Z M 670.00,360.00 L 805.00,640.00 L 670.00,546.67 L 535.00,640.00 Z M 170.00,660.00 L 305.00,940.00 L 170.00,846.67 L 35.00,940.00 Z M 500.00,660.00 L 635.00,940.00 L 500.00,846.67 L 365.00,940.00 Z M 830.00,660.00 L 965.00,940.00 L 830.00,846.67 L 695.00,940.00 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

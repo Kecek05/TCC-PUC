@@ -17,14 +17,14 @@ MonoBehaviour:
   Rarity: 1
   CardPrefab: {fileID: 2383729291938179494, guid: 384139f4122c60e44943e95ffc7387a4, type: 3}
   CardName: Rift
-  Description: Tear a rift across your own lane. Enemies inside crawl at 45% less
-    speed for 5s, latecomers are caught as they walk in, and overlapping rifts stack.
-  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  Description: Tear a rift across your own lane. Enemies inside crawl, and latecomers
+    are caught as they walk in.
+  CardImage: {fileID: 21300000, guid: c29bdd35901d8b641822f14dec3d089a, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 3
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

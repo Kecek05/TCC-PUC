@@ -17,13 +17,14 @@ MonoBehaviour:
   Rarity: 4
   CardPrefab: {fileID: 2770033394772179350, guid: 38390665873271344a2a67d8aff88dd2, type: 3}
   CardName: Triangle Player
-  Description: Send a swift, sturdy Triangle charging into the enemy's lane to pressure
-    their defenses while you hold your own.
+  Description: Send a swift, sturdy Triangle into the enemy's lane to pressure their
+    defences while you hold your own.
   CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 150, y: 150}
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 1
   CustomPositionCardInMenu: {x: 0, y: 13}
   OverrideStatGrowth: 0
@@ -31,4 +32,6 @@ MonoBehaviour:
   EnemyType: 8
   SpawnCount: 2
   DelayBetweenSpawns: 0.2
+  DecoyEnemyType: 0
+  DecoyCount: 0
   EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

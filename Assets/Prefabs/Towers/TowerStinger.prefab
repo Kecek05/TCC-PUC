@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2080073029250291959, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 65aef16bdebba904b8f17b7f4d07f71e, type: 3}
+    - target: {fileID: 2326446385917673500, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7a59c8e0fe4c80144ba54602d9128cfd, type: 3}
     - target: {fileID: 2606555038004479415, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: serverTowerCombat
       value: 
@@ -16,6 +24,10 @@ PrefabInstance:
       propertyPath: serverTowerCombat
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3919984509985760862, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 85e90094854460f4ca72680d15de01d6, type: 3}
     - target: {fileID: 4064182366859840236, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2218406395

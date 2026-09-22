@@ -18,13 +18,13 @@ MonoBehaviour:
   CardPrefab: {fileID: 2383729291938179494, guid: 3e4fc85b259088b48b39e1438777efbf, type: 3}
   CardName: Lance
   Description: Drive a narrow lance of damage down your own lane. It shreds a wave
-    strung out in single file and barely scratches one that has already spread.
-  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+    strung out in single file and barely scratches a spread one.
+  CardImage: {fileID: 21300000, guid: 06860a8cac96dcd448e47b79a6ef5f96, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 1
   CustomSizeCardInMenu: {x: 119.8, y: 119.8}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

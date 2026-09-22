@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Anel</title>
+  <desc>A fine dashed halo. Prism's family at a finer grain - it buffs allies rather than gripping enemies.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(31.23,31.23) scale(0.68554)">
+    <path d="M 500.00,40.00 A 460.00,460.00 0 0 1 702.37,86.91 M 825.27,174.73 A 460.00,460.00 0 0 1 935.20,351.00 M 960.00,500.00 A 460.00,460.00 0 0 1 913.09,702.37 M 825.27,825.27 A 460.00,460.00 0 0 1 649.00,935.20 M 500.00,960.00 A 460.00,460.00 0 0 1 297.63,913.09 M 174.73,825.27 A 460.00,460.00 0 0 1 64.80,649.00 M 40.00,500.00 A 460.00,460.00 0 0 1 86.91,297.63 M 174.73,174.73 A 460.00,460.00 0 0 1 351.00,64.80" fill="none" stroke="#FFFFFF" stroke-width="69.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

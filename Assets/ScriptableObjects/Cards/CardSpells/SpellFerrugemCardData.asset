@@ -17,14 +17,14 @@ MonoBehaviour:
   Rarity: 1
   CardPrefab: {fileID: 2383729291938179494, guid: 27638d9e601db9149861c8c6e0574769, type: 3}
   CardName: Ferrugem
-  Description: Corrode the armor of every enemy on your lane for 6s. Latecomers are
-    caught as they walk in, overlapping zones stack.
-  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  Description: Corrode the armour of every enemy on your lane so your towers cut
+    straight through it.
+  CardImage: {fileID: 21300000, guid: acb9a6651ab271a4ab1304bf28a133c6, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 3
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0

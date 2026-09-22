@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Cisma</title>
+  <desc>An arrowhead cut in half. It splits when killed, and the halves split again.  Authored white - the game tints it #FF8242 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(92.09,92.09) scale(0.56382)">
+    <path d="M 450.00,60.00 L 450.00,735.00 L 100.00,940.00 Z M 550.00,60.00 L 550.00,735.00 L 900.00,940.00 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -31,6 +31,7 @@ public class ClientManager : BaseClientManager
     private BasePlayerSaveManager _playerSaveManager;
     private BaseRewardService _rewardService;
     private BaseTutorialService _tutorialService;
+    private BaseMatchmaker _matchmaker;
 
     private void Awake()
     {
@@ -42,6 +43,7 @@ public class ClientManager : BaseClientManager
         InitializePlayerSave();
         InitializeRewards();
         InitializeTutorial();
+        InitializeMatchmaking();
 
         ClientAuth = new ClientAuth();
         //TODO: Refactor the creation of NetworkClient too.
@@ -87,6 +89,17 @@ public class ClientManager : BaseClientManager
     {
         _tutorialService = new TutorialService(_playerSaveManager, tutorialSettings, UserData);
         ServiceLocator.Register<BaseTutorialService>(_tutorialService);
+    }
+
+    /// <summary>
+    /// Registers what the Battle button presses. Like the save and the reward service it is plain C# living
+    /// here rather than in the Main Menu, because the press outlives the scene it was made in - by the time
+    /// matchmaking answers, the menu is already being torn down for the match.
+    /// </summary>
+    private void InitializeMatchmaking()
+    {
+        _matchmaker = new Matchmaker(this);
+        ServiceLocator.Register<BaseMatchmaker>(_matchmaker);
     }
 
     /// <summary>

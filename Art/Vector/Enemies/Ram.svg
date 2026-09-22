@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Ram</title>
+  <desc>A blunt-nosed wedge, flat where the others are pointed - slow and heavy, until it dashes.  Authored white - the game tints it #FF4280 through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(75.11,75.11) scale(0.59779)">
+    <path d="M 430.00,150.00 L 570.00,150.00 L 645.00,330.00 L 915.00,850.00 L 500.00,665.00 L 85.00,850.00 L 355.00,330.00 Z" fill="#FFFFFF" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

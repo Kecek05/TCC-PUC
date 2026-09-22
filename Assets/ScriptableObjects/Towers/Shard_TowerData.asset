@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Shard_TowerData
   m_EditorClassIdentifier: Assembly-CSharp::ShardTowerDataSO
   TowerType: 8
-  AttackColor: 0
+  AttackColor: 1
   ArmorPenetration: 0
   SetupDurationLevel1: 0.3
   DamageLevel1: 30

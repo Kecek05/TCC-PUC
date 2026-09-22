@@ -10,8 +10,11 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
     public event Action<bool> OnFrozenChanged;
     public event Action<bool> OnHasteChanged;
     
+    // Required, because a missing one is not a soft failure: OnNetworkSpawn dereferences it
+    // immediately and the NPE aborts Netcode's spawn callback chain for the whole object.
+    // TowerTorniquete shipped unassigned and crashed the moment it was placed.
     [Title("References")]
-    [SerializeField] protected BaseServerTowerCombat serverTowerCombat;
+    [SerializeField, Required] protected BaseServerTowerCombat serverTowerCombat;
 
     [Title("Bullet")]
     [Tooltip("Which pooled bullet visual this tower fires. It lives on the PREFAB, so a new tower gets its " +

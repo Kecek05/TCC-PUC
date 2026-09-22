@@ -17,19 +17,18 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 1325791681110519822, guid: 13943445c1c311a48819e47438efa768, type: 3}
   CardName: Needle
-  Description: A long-range tower that fires rarely and hits like a truck. Its Pink
-    damage tears through Pink armour and is blunted by anything else. A swarm walks
-    right past it.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: Long range, slow shots, and it hits like a truck. A swarm walks right
+    past it.
+  CardImage: {fileID: 21300000, guid: d2946088d0406fe4fa0ce2fccf1b783d, type: 3}
+  CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 4
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 5
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 31c77b3a12e63524898fbc871b03c1ce, type: 3}
   TowerPrefab: {fileID: 7615245171005323432, guid: 17b164a7935bd4a4a82cfa94bc446734, type: 3}

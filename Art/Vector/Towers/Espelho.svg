@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Espelho</title>
+  <desc>A diamond cut along its mirror line. What this tower sends goes to the other field.  Authored white - the game tints it #FFFFFF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(43.14,43.14) scale(0.66172)">
+    <path d="M 110.00,420.00 L 500.00,30.00 L 890.00,420.00 M 890.00,580.00 L 500.00,970.00 L 110.00,580.00" fill="none" stroke="#FFFFFF" stroke-width="84.60" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

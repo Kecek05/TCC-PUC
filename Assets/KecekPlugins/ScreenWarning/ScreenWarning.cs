@@ -39,4 +39,5 @@ public static class WarningMessages
     public static string UpgradeNotEnoughCards = "Not enough cards to upgrade.";
     public static string UpgradeNotEnoughGold = "Not enough gold to upgrade.";
     public static string UpgradeMaxLevel = "This card is already at max level.";
+    public static string MatchmakingFailed = "Could not find or start a match. Check your connection.";
 }

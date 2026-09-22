@@ -17,14 +17,14 @@ MonoBehaviour:
   Rarity: 2
   CardPrefab: {fileID: 2770033394772179350, guid: eb538f60ada102740b906efb5f2176a2, type: 3}
   CardName: Ram
-  Description: "Slow and heavy \u2014 but every 4 seconds it lunges into a 0.5s dash
-    at 5x speed. Great at punishing towers clumped in one spot."
-  CardImage: {fileID: 21300000, guid: fe113900b7b696449bd34fcab366c94f, type: 3}
-  CardColor: {r: 1, g: 1, b: 1, a: 1}
+  Description: Slow and heavy, but it lunges into sudden dashes. Good at punishing
+    towers clumped in one spot.
+  CardImage: {fileID: 21300000, guid: a88129b427c6e9445b019302be0de2cc, type: 3}
+  CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
@@ -32,4 +32,6 @@ MonoBehaviour:
   EnemyType: 10
   SpawnCount: 1
   DelayBetweenSpawns: 0.3
+  DecoyEnemyType: 0
+  DecoyCount: 0
   EnemyDataList: {fileID: 11400000, guid: 2db400b98a577f94998857438728e9cf, type: 2}

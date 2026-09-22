@@ -17,19 +17,18 @@ MonoBehaviour:
   Rarity: 3
   CardPrefab: {fileID: 1325791681110519822, guid: 44e562882d093dd4a9d677a2a3c86a1e, type: 3}
   CardName: Anel
-  Description: Deals no damage. Every ally tower in its radius hits harder and faster
-    - but never another Anel. Rewards bunching your defense up, which is exactly
-    what Ariete and Erosao are built to punish.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  Description: Deals no damage. Every ally tower in its radius hits harder and faster,
+    but never another Anel.
+  CardImage: {fileID: 21300000, guid: 6797d585c5755b1488f153ada6475855, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0
   CustomSizeCardInMenu: {x: 0, y: 0}
-  ShowPlaceholderNameOverlay: 1
+  ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
   OverrideStatGrowth: 0
   StatGrowth: []
   TowerType: 13
-  TowerGhostSprite: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
+  TowerGhostSprite: {fileID: 21300000, guid: 4607efdb8e51a6949a0ecc15517eb562, type: 3}
   TowerPrefab: {fileID: 8400586856522066902, guid: 5ef0d6ab578ce464b84a41e0103b577c, type: 3}

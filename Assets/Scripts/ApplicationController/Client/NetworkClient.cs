@@ -5,6 +5,7 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NetworkClient : IDisposable
 {
@@ -33,12 +34,28 @@ public class NetworkClient : IDisposable
     
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
     {
-        // Just log. Leaving the match is driven only by the local player pressing
+        // Inside a match: just log. Leaving is driven only by the local player pressing
         // OK / Play Again (ClientManager.LeaveMatchAsync). A disconnect caused by
         // the other instance tearing down must NOT navigate this instance away —
         // each player leaves on their own action. The end screen already holds the
         // snapshot, so the connection dropping here is harmless.
         GameLog.Info($"Client disconnected: {clientId}");
+
+        NetworkManager networkManager = NetworkManager.Singleton;
+        if (networkManager == null || networkManager.IsServer) return;
+
+        // Before the match scene was ever reached, the opposite is true: nothing is holding a
+        // snapshot and there is no end screen to press, so doing nothing strands the player on the
+        // Loading screen forever. This is the approval rejection quick match made reachable —
+        // matchmaking can hand out a lobby whose host committed (bot filled the slot, or the
+        // second human beat us to it) a moment before we connected, and NetworkConnectionServer
+        // then refuses us. Send them back to pick again rather than leaving them staring at it.
+        if (Loader.IsGameplayScene(SceneManager.GetActiveScene().name)) return;
+
+        // No warning banner here on purpose: ScreenWarning is a scene object, so the one that could
+        // show it is destroyed by the very load on the next line.
+        GameLog.Info("Connection refused or dropped before the match started; returning to the Main Menu.");
+        Loader.Load(Loader.Scene.MainMenu);
     }
 
     public async Task<bool> JoinRelay(string joinCode)

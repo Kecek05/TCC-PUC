@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="748" height="748" viewBox="0 0 748 748">
+  <title>Shard</title>
+  <desc>Four-point splinter, deeply concave. Fragments spraying off a kill.  Authored white - the game tints it #7242FF through CardDataSO.CardColor and the prefab SpriteRenderer, so recolouring needs no re-render.</desc>
+  <g transform="translate(35.00,35.00) scale(0.67800)">
+    <path d="M 500.00,0.00 L 606.07,393.93 L 1000.00,500.00 L 606.07,606.07 L 500.00,1000.00 L 393.93,606.07 L 0.00,500.00 L 393.93,393.93 Z M 500.00,250.00 L 553.03,446.97 L 750.00,500.00 L 553.03,553.03 L 500.00,750.00 L 446.97,553.03 L 250.00,500.00 L 446.97,446.97 Z" fill="#FFFFFF" fill-rule="evenodd" stroke="none" stroke-width="0.00" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="round"/>
+  </g>
+</svg>

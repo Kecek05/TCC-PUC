@@ -751,3 +751,120 @@ teaches progression, and progression is only teachable once the player owns some
   `Assets/Scripts/Debug/`); assets under `Assets/ScriptableObjects/Tutorial/` (including
   `WaveData_Tutorial.asset`); prefab at `Assets/Prefabs/UI/Tutorial/TutorialOverlayCanvas.prefab`;
   `Assets/Scenes/TutorialScene.unity`.
+
+### Card art — generated vectors, and colour as a readable rule
+
+Every card that was still on placeholder art (21 of 30) now has its own shape, authored as **code** in
+`Art/shapes.ps1`, rendered to an editable `.svg` source under `Art/Vector/` and to the `.png` sprites Unity
+imports. The three armour colours are now spread deliberately across the set, and colour finally means the
+same thing on the card as it does in the rules.
+
+**Why generated rather than drawn:** the two hard parts are constraint problems, not drawing problems. A
+tower's three sprites stack on the prefab's `GFX/Level1|2|3` renderers and must nest concentrically, and the
+whole set has to stay consistent with the four hand-drawn towers. Authoring geometry once and deriving
+levels, shadows and the `.svg` from it means a level-2 sprite can never drift from its level 1. WPF's
+`Geometry.Parse` speaks the same path mini-language as SVG, so one string is both what lands in the `.svg`
+and what the rasteriser draws — they cannot disagree. No new dependency: the rasteriser is WPF, already on
+the machine.
+
+**How it works:**
+- **Nothing was invented; it was measured.** Canvas 748, level ratios 1 : 0.466 : 0.241, drop shadow +22/+30
+  at level 1, troop silhouette 496 white inside 582 black, spell icons 512 edge-to-edge with no shadow,
+  pixels-per-unit 1300/2000/1300 — all read off `CircleTower1/2/3`, `SlamTower1`, `BaseEnemy1` and
+  `meteorite`. `Art/README.md` has the table.
+- **Art is authored WHITE; colour is a tint.** `CardDataSO.CardColor` for the card, `SpriteRenderer.color`
+  on the prefab — exactly what Dart/Square/Slam already did. A card recolours without re-rendering, and the
+  baked black shadow survives any tint because anything times zero is zero.
+- **Two things are solved, not authored**, because the four references only *look* uniform.
+  **Where the shape sits:** centring each level's bounding box drifts for anything not symmetric about its
+  own centre — a triangle's bbox centre is nowhere near the point it shrinks toward, so nested copies crawl
+  upward. `SlamTower1/2/3`'s bbox centres sit at y 342 / 358.5 / 369, *converging* on 374 rather than on it,
+  which is the signature of anchoring the shape's own centre; every shape declares that point.
+  **How big the nested levels are:** 0.466x works for a circle and drops level 2 onto level 1's wall on a
+  triangle or a hexagram. `Fit-Next` binary-searches the largest size at which the next level's ink misses
+  this one's, probing with the **real silhouette** — a triangle nests in a triangular hole at nearly its full
+  width, where the largest circle that fits is less than half of it. Ten of twelve towers clear the reference
+  ratio and use it; Needle, Shard and Ancora nest tighter.
+- **A tower is an outline = outer contour + a shrunken copy of itself, filled even-odd.** A constant-width
+  stroke was the first attempt and cannot do the job: 114px leaves a circle reading as a ring but fills a
+  triangle or a star solid. Level 3 drops the hole and goes solid, which is what `CircleTower3` and
+  `SquareTower3` already do.
+- **Every tower silhouette must keep its centre open**, since levels 2 and 3 nest inside it. That constraint
+  is why Ancora's stock stops at the crossbar instead of running the full height, and why Espelho is split
+  along its mirror line rather than down the middle.
+- **Colour is now a rule the board can be read with: coloured = deals that colour's damage.** The six towers
+  that deal no damage at all (Prism, Tourniquete, Anel, Ancora, Espelho, Fonte) stay **white** — an
+  `AttackColor` on them would be mechanically meaningless and would promise damage they never deal. Circle
+  stays neutral as the starter, Stinger stays colourless by design (`ArmorPenetration 1`). The eight
+  remaining damage towers split 3/3/2: Orange {Dart, Chain, Mortar}, Pink {Square, Needle, Beacon}, Purple
+  {Slam, Shard}. **The starter deck is what fixes Circle as neutral** — it holds Dart, Square and Slam, one
+  of each colour, so a fourth colour there would double one up and blunt the lesson.
+- **Dart/Square/Slam were already painted orange/pink/purple but dealt colourless damage.** The art and the
+  rules disagreed before this change; their `AttackColor` is now set to what the card had been claiming all
+  along. This makes them genuinely worse against off-colour armour, which is the point.
+- **Troops gained real armour**, 2/2/2 across Orange {Cisma, Swarm}, Pink {Ram, MiniBoss}, Purple {Shadow,
+  Miragem}, with `SpawnEnemy1` left neutral the way Circle is. **`MiragemDecoy` is given Miragem's exact
+  colour and armour** — for the same reason its `MoveSpeed` and `SpawnDuration` already match, a decoy that
+  is tinted differently is a bluff the defender can read at a glance.
+- **Swarm and MiniBoss were never flagged `ShowPlaceholderNameOverlay` but had no art either** — Swarm's card
+  pointed at `Robot.png` from the *Quantum Console demo scene*, and MiniBoss borrowed `BaseEnemy1` from the
+  basic troop. Both got their own shape. Nothing in the set now shares art it does not own.
+- **Not done:** projectile sprites (`*TowerShoot1.png`) are still shared — the new towers fire the base
+  prefab's bullet. Spells stay white deliberately: colour is the tower/troop language, and the tutorial's
+  armour lesson names Fireball colourless in hand-written copy.
+- Key files: `Art/shapes.ps1` (geometry, pixel-free), `Art/render.ps1` (pixels, levels, shadows, the card
+  manifest with every tint), `Art/README.md`; sources at `Art/Vector/{Towers,Enemies,Spells}/*.svg`; sprites
+  under `Assets/Sprites/Towers/<Name>/`, `Assets/Sprites/Enemies/` and `Assets/Sprites/UI/Cards/`.
+
+### Battle = quick match, and descriptions that carry no numbers
+
+Two small rules, both about removing something the player should not have had to deal with.
+
+**Battle finds a match by itself.** The button used to *create* a relay, and the only way to reach someone
+else's was to type their room code. It now joins whoever is already waiting and hosts only when nobody is.
+
+- **Nothing new is advertised.** The host already publishes a discovery lobby carrying its Relay join code,
+  so matchmaking is just "ask for any open lobby, read the code out of it, join that Relay" — and hosting is
+  what happens when the answer is *none*. `BaseMatchmaker.FindOrCreateMatchAsync` returns
+  `Joined`/`Hosting`/`Failed`; the first two both mean a scene load is already under way, so only `Failed`
+  puts the button back.
+- **The lobby needed one more seat than it had.** `CreateLobbyAsync`'s `maxPlayers` counts the host;
+  `CreateAllocationAsync`'s `maxConnections` counts peers *besides* the host. Both were passed
+  `MAX_CONNECTIONS = 1`, so the host filled its own lobby, advertised **zero** free seats, and
+  `QuickJoinLobbyAsync` could never return it — quick match would have created a fresh relay on every press
+  and two players would never have met. `LOBBY_SEATS = MAX_CONNECTIONS + 1` names the distinction.
+- **The join code's `Member` visibility is why this works, not an obstacle to it.** Whoever quick-joins is a
+  lobby member by the time they read the code; browsing the public list never could be, which is the point.
+- **A stale lobby is "no match", not an error.** A host that crashed keeps its lobby advertised until the
+  heartbeat lapses, so quick join will happily hand out a join code whose allocation is gone. Every failure
+  in the join path therefore returns false rather than throwing, releases the seat
+  (`RemovePlayerAsync`) so a dead lobby is not held open by a phantom member, and falls through to hosting.
+- **The client stays in the lobby on success**, deliberately: that seat is what stops a third player
+  quick-joining a match that is already full. The host's `CloseLobbyToNewPlayers` deletes the whole lobby on
+  commit, which releases it.
+- **`BaseHostManager` is resolved per call, never cached.** `HostManager` registers itself in its own
+  `Awake`, and nothing orders that against `ClientManager`'s, where the matchmaker is constructed — the same
+  reason `HostManager` grabs its client manager in `Start`.
+- **A refused connection no longer strands the player.** `NetworkClient`'s disconnect handler deliberately
+  never navigates, because a drop *inside* a match must not yank a player off the end screen. Before the
+  match scene is ever reached the opposite holds — there is no snapshot and no button — so a disconnect
+  outside `Loader.IsGameplayScene` now returns to the Main Menu. Quick match is what made this reachable:
+  it can hand out a lobby whose host committed (bot filled the slot) a moment before we connect, and
+  `NetworkConnectionServer.ApprovalCheck` then refuses us.
+- **Join-by-code is kept**, wired to its own button, for playing with a specific person and for debugging.
+- **`BotSettingsSO.FillTimeoutSeconds` (30s) is now the window in which two humans can meet** — past it a bot
+  takes the slot and the lobby closes. Worth raising for a real playtest; left alone because it is a design
+  call, not a bug.
+- Key files: `BaseMatchmaker.cs`, `Matchmaker.cs` (under `Assets/Scripts/ApplicationController/Matchmaking/`);
+  `HostManager.CreateLobby` (`LOBBY_SEATS`), `ClientManager.InitializeMatchmaking`, `ConnectionManagerUI.QuickPlay`,
+  `NetworkClient.NetworkManager_OnClientDisconnectCallback`.
+
+**Card descriptions say what a card does and never what it is worth.** All 30 were rewritten to one or two
+sentences with **no numbers at all** — no percentages, durations, counts or multipliers.
+
+**Why:** the card page already prints every stat at the player's own level *and* what the next level buys,
+from `CardDataSO.GetStats`. A number repeated in prose is a second source of truth that silently goes stale
+the moment balance moves — and several already had: descriptions promised "+20%", "45% less speed", "10
+fodder" and "six seconds" while the tables beside them scaled with card level. Prose keeps the trade-off
+("devastating down a packed lane, wasted on a lone target"), which is the part no stat row can show. The
+rewrite also dropped Anel's reference to *Ariete* and *Erosao*, two cards that do not exist.

@@ -7,46 +7,58 @@ public class ConnectionManagerUI : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] private CardHandSettingsSO cardHandSettingsSO;
-    
-    [Header("Create")]
+
+    [Header("Battle")]
+    [Tooltip("Quick match. Joins whoever is already waiting, or starts waiting itself - no code either way.")]
     [SerializeField] private Button createRelayButton;
     [SerializeField] private Button createDedicatedServerButton;
-    
-    [Header("Join")]
+
+    [Header("Join by code (direct, for playing with a specific person)")]
     [SerializeField] private TMP_InputField joinCodeInput;
     [SerializeField] private Button joinButton;
     [SerializeField] private Button joinDedicatedServerButton;
 
-    private BaseHostManager _hostManager;
     private BaseClientManager _clientManager;
+    private BaseMatchmaker _matchmaker;
     private ScreenWarning _screenWarning;
-    
+
     private void Start()
     {
-        _hostManager = ServiceLocator.Get<BaseHostManager>();
         _clientManager = ServiceLocator.Get<BaseClientManager>();
+        _matchmaker = ServiceLocator.Get<BaseMatchmaker>();
         _screenWarning = ServiceLocator.Get<ScreenWarning>();
-        
-        createRelayButton.onClick.AddListener(CreateRelay);
+
+        createRelayButton.onClick.AddListener(QuickPlay);
         joinButton.onClick.AddListener(JoinRelay);
-        
+
         createDedicatedServerButton.onClick.AddListener(CreateDedicatedServer);
         joinDedicatedServerButton.onClick.AddListener(JoinDedicatedServer);
     }
 
-    private async void CreateRelay()
+    /// <summary>
+    /// Battle. One press finds a match: it joins an open one if there is one and hosts a new one if there
+    /// is not, so the player never sees a room code. Both outcomes are a success and both start a scene
+    /// load, which is why only the failure path puts the button back.
+    /// </summary>
+    private async void QuickPlay()
     {
         if (!CanPlay()) return;
-        
+
         createRelayButton.interactable = false;
+
+        MatchmakingOutcome outcome = MatchmakingOutcome.Failed;
         try
         {
-            if (await _hostManager.StartHostAsync()) return;
-            
-        } catch (System.Exception e)
+            outcome = await _matchmaker.FindOrCreateMatchAsync();
+        }
+        catch (System.Exception e)
         {
             GameLog.Exception(e);
         }
+
+        if (outcome != MatchmakingOutcome.Failed) return;
+
+        _screenWarning.ShowWarning(WarningMessages.MatchmakingFailed);
         createRelayButton.interactable = true;
     }
 
