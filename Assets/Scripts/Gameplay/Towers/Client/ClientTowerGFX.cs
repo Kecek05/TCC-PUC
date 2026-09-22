@@ -22,10 +22,19 @@ public class ClientTowerGFX : MonoBehaviour
     [SerializeField] private SpriteRenderer level1Renderer;
     [SerializeField] private Color frozenColor = Color.blue;
     [SerializeField] private Color hastedColor = Color.yellow;
-    [SerializeField] private Color normalColor = Color.white;
 
     private bool _frozen;
     private bool _hasted;
+
+    /// <summary>
+    /// What "no status" looks like: the tint the prefab was authored with, read off the renderer rather
+    /// than declared beside it. This used to be a serialized normalColor defaulting to white, which made
+    /// the tower's colour two facts instead of one — and the two drifted the moment the towers were given
+    /// their own art, so the first freeze or haste repainted a coloured tower and it never came back.
+    /// Mortar was the worst of it: authored pink from when it borrowed Square's sprite, so an orange
+    /// tower turned pink rather than merely white.
+    /// </summary>
+    private Color _authoredColor = Color.white;
 
     /// <summary>True while a spawn or upgrade animation is still playing out.</summary>
     public bool IsPlayingLevelFeedback => HasAnyFeedbackPlaying();
@@ -35,6 +44,10 @@ public class ClientTowerGFX : MonoBehaviour
     // that initial replay, so the level-1 spawn fade-in never fires.
     private void Awake()
     {
+        // Before any subscription: BaseClientTowerCombat replays the initial frozen/haste state in
+        // OnNetworkSpawn, which runs after Awake, so the authored tint has to be captured by then.
+        if (level1Renderer != null) _authoredColor = level1Renderer.color;
+
         clientTowerCombat.OnBulletFired  +=  FireBulletFeedback;
         clientTowerCombat.OnFrozenChanged += SetFrozen;
         clientTowerCombat.OnHasteChanged += SetHasted;
@@ -70,7 +83,7 @@ public class ClientTowerGFX : MonoBehaviour
 
     /// <summary>
     /// Placeholder status visual: tints the Level 1 tower GFX blue while frozen, yellow while hasted
-    /// (freeze takes priority when both apply), white otherwise.
+    /// (freeze takes priority when both apply), and back to the tower's own armour colour otherwise.
     /// </summary>
     private void SetFrozen(bool frozen)
     {
@@ -87,7 +100,7 @@ public class ClientTowerGFX : MonoBehaviour
     private void RefreshStatusTint()
     {
         if (level1Renderer == null) return;
-        level1Renderer.color = _frozen ? frozenColor : (_hasted ? hastedColor : normalColor);
+        level1Renderer.color = _frozen ? frozenColor : (_hasted ? hastedColor : _authoredColor);
     }
 
     private bool HasAnyFeedbackPlaying()

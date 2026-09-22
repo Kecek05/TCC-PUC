@@ -775,6 +775,13 @@ the machine.
 - **Art is authored WHITE; colour is a tint.** `CardDataSO.CardColor` for the card, `SpriteRenderer.color`
   on the prefab — exactly what Dart/Square/Slam already did. A card recolours without re-rendering, and the
   baked black shadow survives any tint because anything times zero is zero.
+- **A tower's tint is stated exactly once, on the renderers.** `ClientTowerGFX` repaints Level 1 for the
+  freeze/haste status visual and used to restore a serialized `normalColor` that defaulted to **white**, so
+  the colour was two facts instead of one. Giving the towers their own art drifted them apart immediately:
+  the first freeze or haste repainted a coloured tower and it never came back — and Mortar went *pink*
+  rather than merely white, its `normalColor` left over from when it borrowed Square's sprite. The field is
+  gone; `ClientTowerGFX` captures `level1Renderer.color` in `Awake` (before `OnNetworkSpawn` replays the
+  initial frozen/haste state) and restores that. Recolouring a tower is now one edit, not two.
 - **Two things are solved, not authored**, because the four references only *look* uniform.
   **Where the shape sits:** centring each level's bounding box drifts for anything not symmetric about its
   own centre — a triangle's bbox centre is nowhere near the point it shrinks toward, so nested copies crawl
