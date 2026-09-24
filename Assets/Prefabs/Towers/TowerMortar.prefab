@@ -195,6 +195,9 @@ MonoBehaviour:
   bulletCardType: 19
   entityTeam: {fileID: 8086228052843494564}
   explosionPrefab: {fileID: 403543111581879614, guid: c128e3994a5a6ea438f35edd2188e77a, type: 3}
+  explosionVfx: {fileID: 11400000, guid: 8b9417a3d7a5bc94f853735f0c6aea1d, type: 2}
+  shakeAmplitude: 0.05
+  shakeDuration: 0.12
 --- !u!114 &7932660717281335550
 MonoBehaviour:
   m_ObjectHideFlags: 0

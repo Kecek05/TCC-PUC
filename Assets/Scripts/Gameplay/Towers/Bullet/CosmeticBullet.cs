@@ -8,7 +8,14 @@ using UnityEngine;
 public class CosmeticBullet : MonoBehaviour
 {
     [SerializeField] private CardType bulletCardType;
-    
+
+    [Tooltip("Pooled spark played where the bullet lands, tinted like the bullet. Optional.")]
+    [SerializeField] private PooledVfxSO impactVfx;
+    [SerializeField, Min(0f)] private float impactScale = 1f;
+
+    private SpriteRenderer _renderer;
+    private BaseVfxPool _vfxPool;
+
     private Vector3 _origin;
     private Transform _target;
     private Vector3 _lastTargetPos;
@@ -25,6 +32,7 @@ public class CosmeticBullet : MonoBehaviour
     public void Initialize(CosmeticBulletPool pool)
     {
         _pool = pool;
+        _renderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     public void Fire(Vector3 origin, Transform target, float bulletSpeed)
@@ -68,6 +76,15 @@ public class CosmeticBullet : MonoBehaviour
             Complete();
     }
 
+    private void PlayImpact()
+    {
+        if (impactVfx == null) return;
+        if (_vfxPool == null && !ServiceLocator.TryGet(out _vfxPool)) return;
+
+        Color tint = _renderer != null ? _renderer.color : Color.white;
+        _vfxPool.Spawn(impactVfx, _lastTargetPos, tint, impactScale);
+    }
+
     private void LookAtTarget()
     {
         Vector3 dir = _lastTargetPos - transform.position;
@@ -81,7 +98,7 @@ public class CosmeticBullet : MonoBehaviour
     private void Complete()
     {
         _active = false;
-        // TODO: Play impact VFX / particle at _lastTargetPos
+        PlayImpact();
 
         if (_pool != null)
             _pool.Return(this);

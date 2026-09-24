@@ -20,6 +20,10 @@ public class ClientEnemyMovement : NetworkBehaviour
 
     private BaseMapTranslator _mapTranslator;
 
+    /// <summary>The enemy has been placed where it belongs in this client's view. Before this, on the mirrored
+    /// Blue client, its transform still holds the server-space spawn point.</summary>
+    public event System.Action OnVisualReady;
+
     /// <summary>
     /// Called after spawn to assign the path reference on the client.
     /// The path must be the same WaypointPath instance the server uses.
@@ -59,6 +63,8 @@ public class ClientEnemyMovement : NetworkBehaviour
         transform.position = localPos;
         _prevSamplePos = localPos;
         _initialized = true;
+
+        OnVisualReady?.Invoke();
     }
 
     private void Update()

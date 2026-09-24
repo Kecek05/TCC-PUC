@@ -93,6 +93,13 @@ public class RectangleImmediateUI : ImmediateModePanel, ISortableImmediatePanel
             Draw.Rectangle(rect, radii, color);
     }
 
+    /// <summary>The fill colour. Read every draw, so a tween on it animates with no extra plumbing.</summary>
+    public Color Color
+    {
+        get => color;
+        set => color = value;
+    }
+
     public void SetDashCount(float dashCount)
     {
         dashStyle.size = dashCount;

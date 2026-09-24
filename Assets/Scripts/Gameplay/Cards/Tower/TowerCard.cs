@@ -252,24 +252,41 @@ public class TowerCard : AbstractCard
             case TowerReason.Success:
                 _clientManaManager.ConfirmSpend(cardDataSo.Cost);
                 OccupyPlaceable(localPos);
+                RaisePlayResolved(true);
                 DiscardSelfCard();
                 break;
             case TowerReason.LevelUp:
                 _clientManaManager.ConfirmSpend(cardDataSo.Cost);
+                RaisePlayResolved(true);
                 DiscardSelfCard();
                 break;
             case TowerReason.NotSuccess:
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
+                RaisePlayResolved(false, CardInvalidReason.InvalidTarget);
                 break;
             case TowerReason.NotSuccessMaxLevel:
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
+                RaisePlayResolved(false, CardInvalidReason.InvalidTarget);
+                break;
+            case TowerReason.NotEnoughMana:
+                // The local prediction said yes and the server said no: a race, not an error.
+                _clientManaManager.RevertSpend(cardDataSo.Cost);
+                RaisePlayResolved(false, CardInvalidReason.NotEnoughMana);
                 break;
             default:
                 GameLog.Error("UnHandled tower reason: " + result.Validation.Reason);
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
+                RaisePlayResolved(false, ToCardReason(result.Validation.Reason));
                 break;
         }
     }
+
+    private static CardInvalidReason ToCardReason(TowerReason reason) => reason switch
+    {
+        TowerReason.NotEnoughMana => CardInvalidReason.NotEnoughMana,
+        TowerReason.NotInHand => CardInvalidReason.NotInHand,
+        _ => CardInvalidReason.InvalidTarget,
+    };
 
     private void OccupyPlaceable(Vector2 worldPosition)
     {

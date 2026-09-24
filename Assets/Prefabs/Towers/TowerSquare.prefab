@@ -210,6 +210,9 @@ MonoBehaviour:
   bulletCardType: 2
   entityTeam: {fileID: 8086228052843494564}
   explosionPrefab: {fileID: 403543111581879614, guid: c128e3994a5a6ea438f35edd2188e77a, type: 3}
+  explosionVfx: {fileID: 11400000, guid: 8b9417a3d7a5bc94f853735f0c6aea1d, type: 2}
+  shakeAmplitude: 0.05
+  shakeDuration: 0.12
 --- !u!114 &8086228052843494564 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7854881983952793562, guid: 359166c415588524ba1ae08c9d8f7e10, type: 3}

@@ -33,6 +33,6 @@ public class ClientDartTowerCombat : BaseClientTowerCombat
 
         CosmeticBullet bullet = GetPooledBullet();
         bullet?.Fire(localOrigin, targetTransform, bulletSpeed);
-        TriggerOnBulletFired();
+        TriggerOnBulletFired(targetTransform);
     }
 }

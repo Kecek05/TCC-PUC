@@ -29,6 +29,6 @@ public class ClientCircleTowerCombat : BaseClientTowerCombat
 
         CosmeticBullet bullet = GetPooledBullet();
         bullet?.Fire(localOrigin, targetTransform, bulletSpeed);
-        TriggerOnBulletFired();
+        TriggerOnBulletFired(targetTransform);
     }
 }

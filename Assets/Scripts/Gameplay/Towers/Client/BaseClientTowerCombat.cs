@@ -6,6 +6,11 @@ using UnityEngine;
 public abstract class BaseClientTowerCombat : NetworkBehaviour
 {
     public event Action OnBulletFired;
+
+    /// <summary>A shot at a known point (local space) — for presentation that needs the direction, like recoil.
+    /// Raised alongside <see cref="OnBulletFired"/>; untargeted shots (a Slam pulse) raise only that one.</summary>
+    public event Action<Vector3> OnBulletFiredAt;
+
     public event Action<int> OnTowerLevelChanged;
     public event Action<bool> OnFrozenChanged;
     public event Action<bool> OnHasteChanged;
@@ -64,6 +69,12 @@ public abstract class BaseClientTowerCombat : NetworkBehaviour
     }
     
     protected void TriggerOnBulletFired() => OnBulletFired?.Invoke();
+
+    protected void TriggerOnBulletFired(Transform target)
+    {
+        OnBulletFired?.Invoke();
+        if (target != null) OnBulletFiredAt?.Invoke(target.position);
+    }
 
     /// <summary>Which pooled bullet visual this tower fires, as authored on its prefab.</summary>
     public CardType BulletCardType => bulletCardType;

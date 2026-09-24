@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ConnectionManagerUI : MonoBehaviour
@@ -10,7 +11,8 @@ public class ConnectionManagerUI : MonoBehaviour
 
     [Header("Battle")]
     [Tooltip("Quick match. Joins whoever is already waiting, or starts waiting itself - no code either way.")]
-    [SerializeField] private Button createRelayButton;
+    [FormerlySerializedAs("createRelayButton")]
+    [SerializeField] private Button battleButton;
     [SerializeField] private Button createDedicatedServerButton;
 
     [Header("Join by code (direct, for playing with a specific person)")]
@@ -28,7 +30,7 @@ public class ConnectionManagerUI : MonoBehaviour
         _matchmaker = ServiceLocator.Get<BaseMatchmaker>();
         _screenWarning = ServiceLocator.Get<ScreenWarning>();
 
-        createRelayButton.onClick.AddListener(QuickPlay);
+        battleButton.onClick.AddListener(QuickPlay);
         joinButton.onClick.AddListener(JoinRelay);
 
         createDedicatedServerButton.onClick.AddListener(CreateDedicatedServer);
@@ -44,7 +46,7 @@ public class ConnectionManagerUI : MonoBehaviour
     {
         if (!CanPlay()) return;
 
-        createRelayButton.interactable = false;
+        battleButton.interactable = false;
 
         MatchmakingOutcome outcome = MatchmakingOutcome.Failed;
         try
@@ -59,7 +61,7 @@ public class ConnectionManagerUI : MonoBehaviour
         if (outcome != MatchmakingOutcome.Failed) return;
 
         _screenWarning.ShowWarning(WarningMessages.MatchmakingFailed);
-        createRelayButton.interactable = true;
+        battleButton.interactable = true;
     }
 
     private async void JoinRelay()

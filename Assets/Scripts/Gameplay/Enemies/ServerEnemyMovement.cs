@@ -25,6 +25,12 @@ public class ServerEnemyMovement : NetworkBehaviour
     public bool IsTargetable => !_invincible.Value;
 
     /// <summary>
+    /// Server-only. This enemy reached the end of its lane and is about to hit the base and despawn. Raised
+    /// while it is still spawned, like <see cref="ServerEnemyHealth.OnKilled"/>.
+    /// </summary>
+    public event Action<EnemyManager> OnReachedBase;
+
+    /// <summary>
     /// Un-throttled progress along the path, 0..1. <see cref="PathProgress"/> only syncs past
     /// <see cref="SyncThreshold"/>, so anything server-side that needs the exact spot an enemy is standing
     /// on - a Cisma split placing its children where the parent died - has to read this instead.
@@ -177,6 +183,8 @@ public class ServerEnemyMovement : NetworkBehaviour
 
     private void OnReachedEnd()
     {
+        OnReachedBase?.Invoke(enemyManager);
+
         // TODO: Apply damage to the player's base, then despawn
         ServiceLocator.Get<BaseServerPlayerHealthManager>()
             .DamageBase(

@@ -23,6 +23,13 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     public NetworkVariable<float> MaxHealth => _maxHealth;
     public static event Action<EnemyManager> OnDeath;
 
+    /// <summary>
+    /// Server-only. This enemy was killed — raised just before its despawn, so it is still spawned for anything
+    /// that has to act on it (an Rpc telling clients how it died). Unlike <see cref="OnDeath"/>, which fires for
+    /// every despawn, this fires only for a kill.
+    /// </summary>
+    public event Action<EnemyManager> OnKilled;
+
     // Additive sum of every active clear SOURCE (a Torniquete aura, a Ferrugem zone), each a fraction of
     // this enemy's off-color resistance to strip. Exactly ServerEnemyMovement's _slowPercent accumulator:
     // a source adds and removes only its own contribution, so overlapping clears never interfere and one
@@ -87,6 +94,7 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         if (_currentHealth.Value <= 0f)
         {
             _currentHealth.Value = 0f;
+            OnKilled?.Invoke(enemyManager);
             NetworkObject.Despawn();
         }
     }

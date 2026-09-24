@@ -13,6 +13,9 @@ using UnityEngine;
 /// </remarks>
 public class ServerFonteTowerCombat : BaseServerTowerCombat
 {
+    /// <summary>Server-only. Mana was just banked for this tower's owner; the amount granted.</summary>
+    public event System.Action<float> OnManaGranted;
+
     private BaseServerManaManager _manaManager;
 
     public override void OnNetworkSpawn()
@@ -46,6 +49,7 @@ public class ServerFonteTowerCombat : BaseServerTowerCombat
         if (amount <= 0f) return false;
 
         _manaManager.GrantMana(ownTeam, amount);
+        OnManaGranted?.Invoke(amount);
         return true;
     }
 }

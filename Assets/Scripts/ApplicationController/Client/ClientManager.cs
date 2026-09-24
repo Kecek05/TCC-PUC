@@ -32,6 +32,7 @@ public class ClientManager : BaseClientManager
     private BaseRewardService _rewardService;
     private BaseTutorialService _tutorialService;
     private BaseMatchmaker _matchmaker;
+    private BaseGameSettingsService _gameSettings;
 
     private void Awake()
     {
@@ -40,6 +41,7 @@ public class ClientManager : BaseClientManager
 
         UserData = new UserData();
 
+        InitializeGameSettings();
         InitializePlayerSave();
         InitializeRewards();
         InitializeTutorial();
@@ -50,6 +52,17 @@ public class ClientManager : BaseClientManager
         networkClient = new NetworkClient(NetworkManager.Singleton, this);
 
         DoAuth();
+    }
+
+    /// <summary>
+    /// Registers the comfort settings (screen shake, vibration) first, so they are already applied by the time
+    /// anything can shake or buzz — the Main Menu's buttons included. Lives here for the same reason as the
+    /// save: the menu page edits them and the match obeys them, so they must outlive both scenes.
+    /// </summary>
+    private void InitializeGameSettings()
+    {
+        _gameSettings = new GameSettingsService();
+        ServiceLocator.Register<BaseGameSettingsService>(_gameSettings);
     }
 
     /// <summary>
@@ -233,6 +246,7 @@ public class ClientManager : BaseClientManager
         networkClient?.Dispose();
         ServiceLocator.Unregister<BaseRewardService>();
         ServiceLocator.Unregister<BasePlayerSaveManager>();
+        ServiceLocator.Unregister<BaseGameSettingsService>();
         ServiceLocator.Unregister<BaseClientManager>();
     }
 }

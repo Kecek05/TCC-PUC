@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CosmeticBullet
   bulletCardType: 20
+  impactVfx: {fileID: 11400000, guid: f50b40bfb93f4bf4aa849b029cbd3f0e, type: 2}
+  impactScale: 1
 --- !u!1 &1474194078690394401
 GameObject:
   m_ObjectHideFlags: 0

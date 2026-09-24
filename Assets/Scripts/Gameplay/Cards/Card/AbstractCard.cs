@@ -34,6 +34,24 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     private static int uniqueID;
     public int uniqueRuntimeId { get; private set; } = uniqueID++;
 
+    /// <summary>The local verdict on a drop. Valid means the play was sent to the server; invalid carries why
+    /// it was not. Raised for presentation — the card itself has already acted on it.</summary>
+    public event Action<CardValidation> OnDropResolved;
+
+    /// <summary>The server's verdict on a play this card sent. When valid, the card is retired right after
+    /// this is raised; when invalid, it carries the refusal in card terms.</summary>
+    public event Action<CardValidation> OnPlayResolved;
+
+    /// <summary>This card just became visible on a hand slot — drawn, or handed the slot it was waiting for.</summary>
+    public event Action OnPlacedInSlot;
+
+    /// <summary>
+    /// Any card in the hand was refused a play, either by its own drop check or by the server, and why. For
+    /// listeners outside the hand — the mana bar flashes when the reason is mana. A drop back onto the hand
+    /// itself is a cancel, not a refusal, and does not raise this.
+    /// </summary>
+    public static event Action<CardInvalidReason> AnyPlayRefused;
+
     /// <summary>What this card is. Read by anything that has to reason about the hand from outside it —
     /// the tutorial, which has to find "a tower card" to point the player at.</summary>
     public CardDataSO CardData => cardDataSo;
@@ -117,6 +135,8 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         // A card arriving on a slot is open by definition, and this writes the raycast flag directly — so
         // the block has to be cleared with it, or a recycled card would read as closed while being open.
         InteractionBlocked = false;
+
+        OnPlacedInSlot?.Invoke();
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)
@@ -144,7 +164,12 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
     {
         Vector2 worldPos = GetWorldPosition(eventData);
 
-        if (CanPlayCardAt(worldPos) && CanPlayCardAtCanvas(eventData.position))
+        // The hand check first: a card let go over the hand is a cancel, whatever else would also be wrong
+        // with that spot, and must read as one rather than as a refused play.
+        CardValidation validation = CanPlayCardAtCanvas(eventData.position);
+        if (validation) validation = CanPlayCardAt(worldPos);
+
+        if (validation)
         {
             _waitingResult = true;
             ActivateCard(worldPos);
@@ -155,6 +180,20 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         // Unscaled: the tutorial freezes the world while it waits for this very drag, and a scaled tween
         // would leave the card hanging wherever it was dropped instead of sliding home.
         rectTransform.DOAnchorPos(originalPosition, 0.4f).SetEase(Ease.OutExpo).SetUpdate(true);
+
+        OnDropResolved?.Invoke(validation);
+        if (!validation && validation.Reason != CardInvalidReason.BlockedByUI)
+            AnyPlayRefused?.Invoke(validation.Reason);
+    }
+
+    /// <summary>
+    /// Subclasses report the server's answer here, before retiring the card on success. The refusal reason is
+    /// in card terms (each deployer speaks its own enum), so listeners outside the card need only one.
+    /// </summary>
+    protected void RaisePlayResolved(bool accepted, CardInvalidReason refusal = CardInvalidReason.None)
+    {
+        OnPlayResolved?.Invoke(accepted ? CardValidation.Valid : CardValidation.Invalid(refusal));
+        if (!accepted) AnyPlayRefused?.Invoke(refusal);
     }
 
     protected Vector2 GetWorldPosition(PointerEventData eventData)

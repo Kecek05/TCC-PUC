@@ -13,6 +13,10 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     [SerializeField] private Camera mainCamera;
 
+    [Tooltip("The camera's parent, which is what slides. Shakes offset the camera locally inside it, so the " +
+             "slide and a shake never write the same transform. Empty falls back to moving the camera itself.")]
+    [SerializeField] private Transform cameraRig;
+
     [Header("Camera Positions")]
     [SerializeField] private MapSettingsSO  mapSettingsSO;
     [SerializeField] private float tweenDuration = 0.4f;
@@ -37,6 +41,8 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private bool _initialized;
     private bool _dragging;
 
+    private Transform Rig => cameraRig != null ? cameraRig : mainCamera.transform;
+
     private void Awake()
     {
         float orthoForWidth = mapSettingsSO.TargetWorldWidth / (2f * mainCamera.aspect);
@@ -59,7 +65,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         if (!_initialized || !enabled) return;
 
         _dragging = true;
-        mainCamera.transform.DOKill();
+        Rig.DOKill();
         _startPos = eventData.position;
         _lastPointerY = _startPos.y;
         _homeY = _isUp ? mapSettingsSO.BluePlayerMapY : mapSettingsSO.RedPlayerMapY;
@@ -99,11 +105,8 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         float worldOffset = -dragPixels * screenToWorldRatio;
         float targetY = Mathf.Clamp(_homeY + worldOffset, mapSettingsSO.RedPlayerMapY, mapSettingsSO.BluePlayerMapY);
 
-        mainCamera.transform.position = new Vector3(
-            mainCamera.transform.position.x,
-            targetY,
-            mainCamera.transform.position.z
-        );
+        Transform rig = Rig;
+        rig.position = new Vector3(rig.position.x, targetY, rig.position.z);
     }
 
     private void EvaluateRelease()
@@ -111,7 +114,7 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // 0 on the home field (Red, below), 1 on the enemy field (Blue, above). Blue minus Red: the other way
         // round runs progress from 0 to -1, and then a slow drag never commits toward the enemy field while
         // any drag at all commits back home.
-        float currentY = mainCamera.transform.position.y;
+        float currentY = Rig.position.y;
         float totalDistance = mapSettingsSO.BluePlayerMapY - mapSettingsSO.RedPlayerMapY;
         float progress = (currentY - mapSettingsSO.RedPlayerMapY) / totalDistance;
         float velocity = GetRecentVelocity();
@@ -163,8 +166,8 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void SnapBack()
     {
         float homeY = _isUp ? mapSettingsSO.BluePlayerMapY : mapSettingsSO.RedPlayerMapY;
-        mainCamera.transform.DOKill();
-        mainCamera.transform.DOMoveY(homeY, snapBackDuration).SetEase(snapBackEase).SetUpdate(true);
+        Rig.DOKill();
+        Rig.DOMoveY(homeY, snapBackDuration).SetEase(snapBackEase).SetUpdate(true);
     }
 
     // Unscaled, and so is SnapBack: this is the response to a gesture the player just made, and the drag
@@ -172,8 +175,8 @@ public class CameraSlide : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     // swipe, and a scaled tween would strand the camera half-way between the two fields.
     private void TweenCameraTo(float targetY)
     {
-        mainCamera.transform.DOKill();
-        mainCamera.transform.DOMoveY(targetY, tweenDuration).SetEase(tweenEase).SetUpdate(true);
+        Rig.DOKill();
+        Rig.DOMoveY(targetY, tweenDuration).SetEase(tweenEase).SetUpdate(true);
     }
 
     private void ResetSamples()

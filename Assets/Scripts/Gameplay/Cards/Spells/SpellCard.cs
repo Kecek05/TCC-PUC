@@ -133,6 +133,7 @@ public class SpellCard : AbstractCard
         {
             GameLog.Info("Spell result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
+            RaisePlayResolved(true);
             DiscardSelfCard();
             return;
         }
@@ -156,5 +157,9 @@ public class SpellCard : AbstractCard
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
+
+        RaisePlayResolved(false, result.Validation.Reason == SpellInvalidReason.NotEnoughMana
+            ? CardInvalidReason.NotEnoughMana
+            : CardInvalidReason.InvalidTarget);
     }
 }

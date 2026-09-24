@@ -29,10 +29,11 @@ public class SpawnEnemyCard : AbstractCard
         {
             GameLog.Info("Spawn result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
+            RaisePlayResolved(true);
             DiscardSelfCard();
             return;
         }
-        
+
         switch (result.Validation.Reason)
         {
             case CardInvalidReason.None:
@@ -52,5 +53,7 @@ public class SpawnEnemyCard : AbstractCard
                 _clientManaManager.RevertSpend(cardDataSo.Cost);
                 break;
         }
+
+        RaisePlayResolved(false, result.Validation.Reason);
     }
 }
