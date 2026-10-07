@@ -33,8 +33,13 @@ public class SpellCard : AbstractCard
         SpellCardDataSO spellCardData = GetSpellCardDataSO();
         _ghostSpellCard.SetSprite(spellCardData.SpellGhostSprite);
         _ghostSpellCard.SetTargetsTowers(spellCardData.SpellData is SpellBuffDataSO);
-        
+
         _ghostSpellCard.SetScale(spellCardData.SpellData.Range * 2f);
+
+        // Spell Juice: the aim wears the spell's hue, brackets what it really touches and tags each target with
+        // what this player's copy of the card will do to it.
+        TeamType fieldTeam = spellCardData.GetTargetFieldTeam(_teamManager.GetLocalTeam());
+        _ghostSpellCard.Configure(spellCardData, SpellFxLevels.Local(spellCardData), fieldTeam);
     }
 
     public override void OnDrag(PointerEventData eventData)

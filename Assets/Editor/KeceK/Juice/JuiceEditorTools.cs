@@ -242,6 +242,8 @@ namespace Kecek.Editor
             SfxId.Coin or SfxId.Mana or SfxId.Clink or SfxId.Death => 0.6f,
             SfxId.Tick or SfxId.Spawn => 0.7f,
             SfxId.Pick or SfxId.Flip => 0.8f,
+            SfxId.SpellZap or SfxId.SpellHiss or SfxId.SpellShatter => 0.7f,
+            SfxId.SpellGust or SfxId.SpellWindUp or SfxId.SpellSeal => 0.8f,
             _ => 1f
         };
 
@@ -249,7 +251,7 @@ namespace Kecek.Editor
         {
             SfxId.Tick or SfxId.Press or SfxId.Tap or SfxId.Confirm or SfxId.Deny or SfxId.Flip or SfxId.Pick => SfxBus.Ui,
             SfxId.Impact or SfxId.Boom or SfxId.BaseHit or SfxId.Upgrade or SfxId.Fanfare or SfxId.Defeat
-                or SfxId.LevelUp or SfxId.Stamp => SfxBus.Impact,
+                or SfxId.LevelUp or SfxId.Stamp or SfxId.SpellFreeze or SfxId.SpellRumble => SfxBus.Impact,
             _ => SfxBus.Game
         };
     }

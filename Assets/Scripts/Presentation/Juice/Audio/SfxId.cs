@@ -46,6 +46,18 @@ public enum SfxId
     Flip = 34,
     Stamp = 35,
     Found = 36,
+
+    // Spell Juice: one voice per spell, so a spell is recognised by ear before it is seen.
+    SpellIgnite = 37,
+    SpellFreeze = 38,
+    SpellShatter = 39,
+    SpellZap = 40,
+    SpellPierce = 41,
+    SpellRumble = 42,
+    SpellHiss = 43,
+    SpellGust = 44,
+    SpellSeal = 45,
+    SpellWindUp = 46,
 }
 
 /// <summary>The mix group a cue plays on; each has its own volume token.</summary>

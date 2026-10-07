@@ -1,0 +1,16 @@
+fx_meteor	a falling meteor seen from the side: a round rock head at the bottom centre with a white-hot glow, and a wide flame tail streaming straight UP from it, tapering into wisps near the top. The meteor is vertical, head down, tail up.
+fx_flame	one single stylized flame tongue, a teardrop-shaped fire petal pointing straight up, with a brighter inner core shape and a softer outer edge.
+fx_smoke	one soft, puffy smoke cloud puff, roughly round with bumpy cauliflower edges, a little brighter in the middle and fading toward its edges.
+fx_scorch	a scorch mark seen from directly above: an irregular round burnt splat with jagged radiating cracks and a few scattered specks around it, solid in the middle and broken up toward the edges.
+fx_ice_shard	one single faceted ice crystal shard, elongated and pointing straight down, its facets shown as slightly different grey levels with a bright white edge highlight.
+fx_ice_block	a square block of clear ice seen from the front, chunky, with bevelled faceted edges: a bright white rim, facet highlight lines and a couple of diagonal glints, and a mostly DARK, nearly black interior so that whatever is behind it shows through.
+fx_frost_nova	a ring of jagged ice spikes seen from directly above, radiating outward in a circle like a frost explosion; the centre of the ring is empty black.
+fx_spear	a spear made of pure light pointing straight down: a long thin glowing shaft from near the top of the image down to a sharp leaf-shaped blade tip near the bottom, with a soft glow around the blade.
+fx_crack	a long thin jagged crack in the ground running vertically from the top edge to the bottom edge of the image, with a few short branching side cracks.
+fx_haste_rune	a circular clock rune seen from above: an outer thin ring with 12 evenly spaced tick marks, an inner ring of three curved arrow chevrons all pointing clockwise, and an empty centre.
+fx_lightning	one small zigzag lightning bolt running horizontally from left to right, a bright core with a faint glow around it.
+fx_wing	one stylized feathered wing seen from the side, sweeping up and to the right, with 4 or 5 rounded feathers, flat icon style.
+fx_rift	a fissure tearing open in the ground seen from directly above: an elongated jagged crack shape, wide in the middle and narrowing to sharp points at both ends, lying horizontally.
+fx_corrosion	a corrosive acid puddle seen from directly above: an irregular blobby splat with round bubbles of different sizes on it and a few separate droplets around its edge.
+fx_shield_break	a heater-shaped shield icon cracked down the middle into two halves that are breaking apart, with a jagged gap between them and two or three small chips flying off.
+fx_flakes	four small irregular rust flakes, like chipped paint, each a different shape, laid out in a 2 by 2 grid with plenty of space between them.

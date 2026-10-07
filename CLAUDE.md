@@ -1094,3 +1094,72 @@ beside the open issue under Tutorial / FTUE.
   `MatchSearchView.cs`; editor tools `JuiceEditorTools.cs`, `JuicyButtonInstaller.cs`, `JuiceMatchSetup.cs`
   (under `Assets/Editor/KeceK/Juice/`); assets under `Assets/Resources/Juice/`, `Assets/ScriptableObjects/Juice/`
   (tokens.json) and `Assets/Audio/Sfx/`.
+
+### Spell Juice — every spell its own look, sound and landing
+
+Each of the seven spells now draws its own cast in code: Fireball a meteor with a closing ring and a scorch, Lance a
+spear whose light runs along the lane, Ice a crystal and a frost nova that seals towers in ice, Haste a clock rune
+that zaps your towers, Rage a gust and wings on the troops, Rift a fissure that drags enemies into slow motion,
+Ferrugem an acid puddle that cracks armour. The spec is the **Spell Juice** design canvas
+(https://claude.ai/artifact/WBn5eYujS8yJZhkQ8VZp7Z: an overview, a statuses sheet, one animated board per spell,
+the Codex sprite sheet and in-game captures), built on the Juice & Feedback System's tokens.
+
+**Why:** Haste, Rift and Ferrugem shared one yellow zone and Fireball and Lance one falling circle, so a spell could
+not be told apart before it landed; Lance's aim drew a 0.45 circle for a 2.7-unit strip along the lane; Ice's aim
+bracketed the troops when it freezes towers; Rift, Rage and Ferrugem left nothing on the units they changed (a
+Ferrugem cast read as doing nothing); and frozen/hasted towers were repainted #0000FF/#FFEB04 over the colour that
+is their attack colour.
+
+**How it works:**
+- **One visual per spell, code-built.** `SpellVisualFactory` maps a `SpellType` to a `SpellVisual` subclass the way
+  `SpellExecutorFactory` maps executors. `CardSpellDeployer.SpawnSpellVisualRpc` plays it; the old prefab path stays
+  as a fallback for a spell with no visual. **The RPC did not change**: the caster is worked out from the field the
+  spell landed on (`SpellCardDataSO.GetTargetFieldTeam` run backwards), so mixed builds stay compatible.
+- **Data in one asset.** `SpellFxSettingsSO` (`Assets/Resources/Juice/SpellFx.asset`, read through `Instance`, never
+  null) holds each spell's hue (the canvas's `sp-*` tokens; **Rage moved off `zone-rage` #4cffe1**, which sat beside
+  the map's mint, to `#e85cff`), the Codex sprites, the aim's tag font. Every sprite falls back to a `JuiceSprites`
+  shape. Built by `Kecek/Juice/Build Spell Fx (Sprites + Settings)`, which imports `Assets/Sprites/Spells/FX/fx_*.png`
+  as single sprites with **pixels-per-unit = their longest side**, so every sprite is one world unit long and a
+  visual sizes it by scale alone.
+- **The sprites are Codex renders**: white shapes on black, turned into white sprites whose alpha is their
+  brightness, then tinted by `SpriteRenderer.color` like all game art. The prompts, the Codex batch script, the
+  alpha conversion and the sound synth are in `Art/SpellFx/` (its README has the steps).
+- **Sorting:** what lies on the ground (zones, decals, the shadow) goes on the `Enemy` layer under the bodies
+  (order 5); what flies (meteor, spear, flashes) on `UI` with `WorldFx`. `WorldFx` gained sprite helpers (`Burst`,
+  `Puff`, `Decal`, `Streak`, `Mote`, sprite `Debris`); its pool now sets the layer on every take.
+- **Channels follow the Juice rules:** sound, shake and flash only where the player is looking; haptics only for the
+  caster (`SpellCastInfo.CasterIsLocal`). Ten appended cues (`SfxId.SpellIgnite`..`SpellWindUp`) with synthesized
+  placeholders in `Assets/Audio/Sfx/Placeholder/sfx_spell*.wav`.
+- **Statuses are worn, not painted, and inferred.** `SpellZoneRegistry` holds every zone a client draws;
+  `SpellStatusPresenter` (10 Hz, only while a status zone exists) applies **the executors' own rules** and dresses
+  enemies through `UnitStatusView`: Rage — troops attacking that field, inside plus `LingerDuration`; Rift — enemies
+  at the caster, not `ImmuneToSlow`, **until the zone ends even after they leave** (RiftExecutor removes the slow only
+  at expiry); Ferrugem — the same, drawn only on armoured enemies. Zero bandwidth. Per-zone bookkeeping is keyed by
+  `NetworkObjectId`, not the `EnemyManager`: enemies are pooled, and a recycled body must not inherit a status.
+- **Towers:** `ClientTowerGFX` no longer repaints; it adds a `TowerStatusView` (ice block, frost clock, snowflake
+  badge, two cracks before the thaw, a shatter; a spinning halo and gold muzzle sparks for haste). The frost clock
+  and crack timing come from the Ice cast's zone, since the replicated `IsFrozen` bool carries no duration. Overlays
+  are sized from the art's **tight sprite mesh**, not its rect (Dart's shape fills under half its texture).
+- **The aim tells the truth** (`GhostSpellCard.Configure`, called from `SpellCard.OnBeginDrag`): the disc and ring
+  wear the spell's hue; Haste **and Ice** bracket towers; Ferrugem only armoured enemies; Rift skips slow-immune
+  ones; each target gets a tag (KO when the hit is lethal at this player's card level, else the damage; +25%; +50%;
+  -45%; -50% armour; Freeze 4.5 s). Lance's aim is **a strip along the lane** found exactly like `LanceExecutor`
+  (anchor = closest enemy within 1.5x the half-width, band of path progress), with a lock on the anchor and a grey
+  "No target" state. The local card level comes from `SpellFxLevels.Local` (the `UserData` the client connected
+  with, through `CardProgressionSettingsSO`), because `MatchCardLevels` is filled only on the host.
+- **Decisions (approved 2026-10-07):**
+  - **A Lance with no enemy under it still spends the card on a whiff.** The aim's grey "No target" state is the
+    protection, not a refusal; on landing `LanceVisual` fizzles and says NO TARGET. No gameplay change.
+  - **Resisted hits will be drawn grey and small (`dmg-resist`) — approved, not built yet.** Floating numbers come
+    from replicated health, which cannot say a hit was resisted, so the client first needs that fact (a resisted
+    flag alongside the hit). This is what lets Ferrugem's proof beat read grey-to-white instead of only bigger.
+  - **The `sp-*` spell hues are approved as designed**, Rage's move off teal included.
+- Verified live in a match against the bot through the Unity CLI (debug casts run the real executor plus the cast
+  RPC; Haste, Ice and the Prism placement by real `ExecuteEvents` card drags). A test match that reaches EndMatch
+  banks a reward into the save: hold both lanes (`HoldLaneBeforeWave(team, totalWaves)`) and floor both bases first.
+- Key files: `SpellVisual.cs` (base + `SpellVisualFactory`), `FireballVisual.cs`, `LanceVisual.cs`, `IceVisual.cs`,
+  `HasteVisual.cs`, `RageVisual.cs`, `RiftVisual.cs`, `FerrugemVisual.cs`, `SpellCastInfo.cs`, `SpellZoneRegistry.cs`,
+  `SpellStatusPresenter.cs`, `UnitStatusView.cs`, `TowerStatusView.cs`, `SpellLane.cs`, `SpellFxLevels.cs`,
+  `SpellFxSettingsSO.cs` (under `Assets/Scripts/Presentation/Spells/`); `GhostSpellCard.cs`, `SpellCard.cs`,
+  `CardSpellDeployer.cs`, `ClientTowerGFX.cs`, `WorldFx.cs`; editor tool `SpellFxEditorTools.cs` (under
+  `Assets/Editor/KeceK/Juice/`); sprites under `Assets/Sprites/Spells/FX/`.

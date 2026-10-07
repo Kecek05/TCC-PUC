@@ -19,10 +19,9 @@ public class ClientTowerGFX : MonoBehaviour
     [SerializeField] private TowerFeedback[] towerFeedbacks;
     [SerializeField] private MMF_Player shootFeedback;
 
-    [Title("Status tints (placeholder)")]
+    [Title("Art")]
+    [Tooltip("The level-1 art: the tower's size, sorting and own colour are read off it.")]
     [SerializeField] private SpriteRenderer level1Renderer;
-    [SerializeField] private Color frozenColor = Color.blue;
-    [SerializeField] private Color hastedColor = Color.yellow;
 
     [Title("Spawn")]
     [Tooltip("Drop the tower onto its spot and squash it on landing (Juice: dur-fall, then land-x/land-y settling " +
@@ -31,9 +30,8 @@ public class ClientTowerGFX : MonoBehaviour
     [Tooltip("How far above its spot, in world units, the tower starts falling.")]
     [SerializeField, Min(0f)] private float dropHeight = 1.4f;
 
-    private bool _frozen;
-    private bool _hasted;
     private Sequence _drop;
+    private TowerStatusView _status;
 
     /// <summary>The spawn drop touched down: the moment for dust, the camera kick and the thud.</summary>
     public event Action OnSpawnLanded;
@@ -41,7 +39,7 @@ public class ClientTowerGFX : MonoBehaviour
     /// <summary>Whether this tower arrives by the drop (and so announces its landing) rather than the authored scale-in.</summary>
     public bool DropsOnSpawn => dropOnSpawn;
 
-    /// <summary>The tower's own colour (its card tint), whatever status is tinting it right now.</summary>
+    /// <summary>The tower's own colour (its card tint). Statuses never repaint it (Spell Juice: worn, not painted).</summary>
     public Color Tint => _authoredColor;
 
     /// <summary>The level-1 art: what the tower's size and sorting are read from.</summary>
@@ -66,8 +64,10 @@ public class ClientTowerGFX : MonoBehaviour
     private void Awake()
     {
         // Before any subscription: BaseClientTowerCombat replays the initial frozen/haste state in
-        // OnNetworkSpawn, which runs after Awake, so the authored tint has to be captured by then.
+        // OnNetworkSpawn, which runs after Awake, so the authored tint and the status view must exist by then.
         if (level1Renderer != null) _authoredColor = level1Renderer.color;
+        _status = gameObject.AddComponent<TowerStatusView>();
+        _status.Initialize(level1Renderer);
 
         clientTowerCombat.OnBulletFired  +=  FireBulletFeedback;
         clientTowerCombat.OnFrozenChanged += SetFrozen;
@@ -154,47 +154,19 @@ public class ClientTowerGFX : MonoBehaviour
 
     public void FireBulletFeedback()
     {
+        _status.OnShot();
         if (HasAnyFeedbackPlaying() || (_drop != null && _drop.IsActive())) return;
 
         shootFeedback?.PlayFeedbacks();
     }
 
     /// <summary>
-    /// Placeholder status visual: tints the Level 1 tower GFX blue while frozen, yellow while hasted
-    /// (freeze takes priority when both apply), and back to the tower's own armour colour otherwise.
+    /// Frozen and hasted are worn on top of the tower (<see cref="TowerStatusView"/>: an ice block, a halo) rather
+    /// than painted over it: the tower's colour is its attack colour, and a blue or yellow repaint hid it.
     /// </summary>
-    private void SetFrozen(bool frozen)
-    {
-        _frozen = frozen;
-        RefreshStatusTint();
-    }
+    private void SetFrozen(bool frozen) => _status.SetFrozen(frozen);
 
-    private void SetHasted(bool hasted)
-    {
-        _hasted = hasted;
-        RefreshStatusTint();
-    }
-
-    private void RefreshStatusTint()
-    {
-        if (level1Renderer == null) return;
-
-        Color target = _frozen ? frozenColor : (_hasted ? hastedColor : _authoredColor);
-        level1Renderer.DOKill();
-
-        // A status arriving is something happening to the tower; it fades in over dur-pop rather than snapping.
-        // The first replay (OnNetworkSpawn, before the tower is even visible) is set outright.
-        if (!isActiveAndEnabled || !_tintPrimed)
-        {
-            _tintPrimed = true;
-            level1Renderer.color = target;
-            return;
-        }
-
-        level1Renderer.DOColor(target, Juice.Tokens.Durations.Pop).SetEase(Juice.Tokens.Eases.Out).SetLink(gameObject);
-    }
-
-    private bool _tintPrimed;
+    private void SetHasted(bool hasted) => _status.SetHasted(hasted);
 
     private bool HasAnyFeedbackPlaying()
     {

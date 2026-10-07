@@ -144,10 +144,20 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     private void SpawnSpellVisualRpc(SpellType spellType, Vector2 serverPosition, TeamType fieldTeam, float durationScale)
     {
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellType);
-        if (spellData == null || spellData.VisualPrefab == null) return;
+        if (spellData == null) return;
 
         Vector3 localPos = _mapTranslator.ServerToLocal(serverPosition, fieldTeam);
 
+        // Spell Juice: every spell draws its own cast in code (SpellVisualFactory). The prefab path below stays for a
+        // spell that has no visual of its own yet.
+        SpellVisual juicy = SpellVisualFactory.Create(spellType);
+        if (juicy != null)
+        {
+            juicy.Play(BuildCastInfo(spellType, spellData, localPos, fieldTeam, durationScale));
+            return;
+        }
+
+        if (spellData.VisualPrefab == null) return;
         GameObject visual = Instantiate(spellData.VisualPrefab, localPos, Quaternion.identity);
 
         if (visual.TryGetComponent(out CosmeticSpellProjectile projectile))
@@ -159,6 +169,44 @@ public class CardSpellDeployer : BaseCardSpellDeployer
             buffZone.Initialize(localPos, spellData.Range, effectData.Duration * Mathf.Max(0.01f, durationScale));
         }
     }
+
+    /// <summary>
+    /// What a client knows about a cast it was told about: the caster is worked out from the field it landed on (a
+    /// spell that only works on the enemy field lands on the caster's opponent's), so the broadcast needs nothing new.
+    /// The level is ours when we cast it; for the opponent only the host knows it.
+    /// </summary>
+    private SpellCastInfo BuildCastInfo(SpellType spellType, SpellDataSO spellData, Vector3 localPos, TeamType fieldTeam,
+        float durationScale)
+    {
+        SpellCardDataSO card = FindSpellCard(spellType);
+        bool enemyFieldOnly = card != null && card.CanUseInEnemyMap && !card.CanUseInLocalMap;
+        TeamType caster = enemyFieldOnly ? Opponent(fieldTeam) : fieldTeam;
+
+        TeamType local = _teamManager != null ? _teamManager.GetLocalTeam() : TeamType.None;
+        bool casterIsLocal = caster != TeamType.None && caster == local;
+
+        CardLevelScale scale = card == null ? CardLevelScale.One
+            : casterIsLocal ? SpellFxLevels.Local(card)
+            : MatchCardLevels.ScaleFor(caster, card.CardType);
+
+        float duration = spellData is SpellEffectDataSO effect ? effect.Duration * Mathf.Max(0.01f, durationScale) : 0f;
+        return new SpellCastInfo(spellType, spellData, card, localPos, fieldTeam, caster, casterIsLocal, duration, scale);
+    }
+
+    private SpellCardDataSO FindSpellCard(SpellType spellType)
+    {
+        if (cardDataListSO == null || cardDataListSO.CardDataList == null) return null;
+        foreach (CardDataSO card in cardDataListSO.CardDataList)
+            if (card is SpellCardDataSO spell && spell.SpellType == spellType) return spell;
+        return null;
+    }
+
+    private static TeamType Opponent(TeamType team) => team switch
+    {
+        TeamType.Blue => TeamType.Red,
+        TeamType.Red => TeamType.Blue,
+        _ => TeamType.None
+    };
 }
 
 public struct SpellSpawnResult : INetworkSerializable

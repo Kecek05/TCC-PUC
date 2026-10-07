@@ -265,5 +265,75 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+  - Id: 37
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 4e1ba5f8a16a2f949aae23755b17fba9, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 38
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 927527c8fab02a74a9182d937b5c7c80, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 39
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: dcd9caaa8bc8ce340a8988b6b0be2b94, type: 3}
+    Volume: 0.7
+    Cooldown: -1
+    Jitter: 1
+  - Id: 40
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 2ca8aff7a346daf4c9a84615ae4c0ca7, type: 3}
+    Volume: 0.7
+    Cooldown: -1
+    Jitter: 1
+  - Id: 41
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 99b04c545f6cd5049a2085c7135acd2f, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 42
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 7185713e3cd326d49bbc82f3c0344196, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 43
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 1cf620e18f14561489e7fc7bafadf832, type: 3}
+    Volume: 0.7
+    Cooldown: -1
+    Jitter: 1
+  - Id: 44
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 264400852794c5947a5571175557b3b4, type: 3}
+    Volume: 0.8
+    Cooldown: -1
+    Jitter: 1
+  - Id: 45
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 61b75c02e149f144dac42c352d6e14a6, type: 3}
+    Volume: 0.8
+    Cooldown: -1
+    Jitter: 1
+  - Id: 46
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 487d4c2dd247c674588ca4a41cc51356, type: 3}
+    Volume: 0.8
+    Cooldown: -1
+    Jitter: 1
   MenuMusic: {fileID: 0}
   MatchMusic: {fileID: 0}
