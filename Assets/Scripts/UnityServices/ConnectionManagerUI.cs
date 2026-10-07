@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -22,13 +23,17 @@ public class ConnectionManagerUI : MonoBehaviour
 
     private BaseClientManager _clientManager;
     private BaseMatchmaker _matchmaker;
-    private ScreenWarning _screenWarning;
+    private MatchSearchView _searchView;
+    private CancellationTokenSource _search;
 
     private void Start()
     {
         _clientManager = ServiceLocator.Get<BaseClientManager>();
         _matchmaker = ServiceLocator.Get<BaseMatchmaker>();
-        _screenWarning = ServiceLocator.Get<ScreenWarning>();
+
+        _searchView = MatchSearchView.Create(battleButton);
+        _searchView.OnCancelRequested += CancelSearch;
+        _matchmaker.HostingStarted += _searchView.ShowHosting;
 
         battleButton.onClick.AddListener(QuickPlay);
         joinButton.onClick.AddListener(JoinRelay);
@@ -47,21 +52,65 @@ public class ConnectionManagerUI : MonoBehaviour
         if (!CanPlay()) return;
 
         battleButton.interactable = false;
+        _search?.Dispose();
+        _search = new CancellationTokenSource();
+        _searchView.ShowSearching();
 
         MatchmakingOutcome outcome = MatchmakingOutcome.Failed;
         try
         {
-            outcome = await _matchmaker.FindOrCreateMatchAsync();
+            outcome = await _matchmaker.FindOrCreateMatchAsync(_search.Token);
         }
         catch (System.Exception e)
         {
             GameLog.Exception(e);
         }
 
-        if (outcome != MatchmakingOutcome.Failed) return;
+        if (this == null) return; // the scene went while we waited
 
-        _screenWarning.ShowWarning(WarningMessages.MatchmakingFailed);
-        battleButton.interactable = true;
+        switch (outcome)
+        {
+            case MatchmakingOutcome.Joined:
+                // Too late to cancel or not, the load is under way: say so before it takes the screen.
+                _searchView.ShowFound();
+                return;
+
+            case MatchmakingOutcome.Hosting:
+                // Nobody was found yet: the wait for an opponent goes on in the match scene.
+                return;
+
+            case MatchmakingOutcome.Cancelled:
+                _searchView.ShowIdle();
+                battleButton.interactable = true;
+                return;
+
+            default:
+                _searchView.ShowIdle(shake: true);
+                Juice.Refuse(RefusalReason.MatchmakingFailed);
+                battleButton.interactable = true;
+                return;
+        }
+    }
+
+    /// <summary>
+    /// The cross on the searching pill. The search stops at its next clean exit (before it joins or hosts);
+    /// the pill shows "Cancelling" until it does, and Battle comes back when it has.
+    /// </summary>
+    private void CancelSearch()
+    {
+        if (_search == null || _search.IsCancellationRequested) return;
+        _search.Cancel();
+        _searchView.ShowCancelling();
+    }
+
+    private void OnDestroy()
+    {
+        if (_searchView != null) _searchView.OnCancelRequested -= CancelSearch;
+
+        // The matchmaker outlives this menu; a scene that is gone must not be told about the next search.
+        if (_matchmaker != null && _searchView != null) _matchmaker.HostingStarted -= _searchView.ShowHosting;
+        _search?.Dispose();
+        _search = null;
     }
 
     private async void JoinRelay()
@@ -69,7 +118,11 @@ public class ConnectionManagerUI : MonoBehaviour
         if (!CanPlay()) return;
         
         string code = joinCodeInput.text.Trim();
-        if (string.IsNullOrEmpty(code)) return;
+        if (string.IsNullOrEmpty(code))
+        {
+            Juice.Toast("Enter a room code");
+            return;
+        }
 
         joinButton.interactable = false;
 
@@ -81,7 +134,9 @@ public class ConnectionManagerUI : MonoBehaviour
         {
             GameLog.Error($"Failed to join relay: {e.Message}");
         }
-        
+
+        // A failed join used to be silent; the player now hears why.
+        Juice.Refuse(RefusalReason.JoinFailed);
         joinButton.interactable = true;
     }
 
@@ -100,7 +155,8 @@ public class ConnectionManagerUI : MonoBehaviour
         if (_clientManager.UserData.DeckCards.Count == cardHandSettingsSO.DeckSize)
             return true;
         
-        _screenWarning.ShowWarning(WarningMessages.DeckNotFull);
+        int missing = cardHandSettingsSO.DeckSize - _clientManager.UserData.DeckCards.Count;
+        Juice.Refuse(RefusalReason.DeckNotFull, missing > 0 ? $"Add {missing} more" : null);
         return false;
     }
 }

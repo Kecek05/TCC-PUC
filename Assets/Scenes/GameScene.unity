@@ -2453,6 +2453,7 @@ GameObject:
   - component: {fileID: 86929520}
   - component: {fileID: 86929519}
   - component: {fileID: 86929518}
+  - component: {fileID: 86929521}
   m_Layer: 5
   m_Name: CLIENT
   m_TagString: Untagged
@@ -2562,6 +2563,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 86929516}
   m_CullTransparentMesh: 1
+--- !u!114 &86929521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86929516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &94183010
 GameObject:
   m_ObjectHideFlags: 0
@@ -7559,6 +7578,7 @@ GameObject:
   - component: {fileID: 356197396}
   - component: {fileID: 356197395}
   - component: {fileID: 356197394}
+  - component: {fileID: 356197397}
   m_Layer: 0
   m_Name: PlayAgainButton
   m_TagString: Untagged
@@ -7668,6 +7688,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 356197392}
   m_CullTransparentMesh: 1
+--- !u!114 &356197397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356197392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 4
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &359103971
 GameObject:
   m_ObjectHideFlags: 0
@@ -15151,6 +15189,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NextCardSlot
   cardImage: {fileID: 1943797938}
+  faces: {fileID: 11400000, guid: e1ce56980e1b38241a7eaba0a87aab07, type: 2}
+  cards: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
+  faceScale: 1.28
+  tagText: NEXT
 --- !u!1001 &624016696
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20321,6 +20363,7 @@ GameObject:
   - component: {fileID: 883120878}
   - component: {fileID: 883120877}
   - component: {fileID: 883120876}
+  - component: {fileID: 883120879}
   m_Layer: 5
   m_Name: HOST
   m_TagString: Untagged
@@ -20430,6 +20473,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883120874}
   m_CullTransparentMesh: 1
+--- !u!114 &883120879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883120874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1001 &891094628
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26641,6 +26702,10 @@ MonoBehaviour:
   rewardEntryPrefab: {fileID: 3237355190804004712, guid: 0abe912585fbc6248b37bd746bf76e07, type: 3}
   coinSprite: {fileID: 21300000, guid: 07d8a11678f7ceb41bd5e40843848c9e, type: 3}
   cardDataListSO: {fileID: 11400000, guid: 6acc7e258a77d054d865cb3fb1e83149, type: 2}
+  cardsRarityData: {fileID: 11400000, guid: bb02c3521b058214597c0df5575df9b3, type: 2}
+  cardWidgetPrefab: {fileID: 7521439889304095414, guid: aa0b43b68e2580c4c8c1b729fa95d08d, type: 3}
+  rewardsTitle: Rewards
+  skipHint: Tap anywhere to skip to the end
 --- !u!1652712579 &1188246452
 MultiplayerRolesData:
   m_ObjectHideFlags: 2
@@ -30534,6 +30599,7 @@ GameObject:
   - component: {fileID: 1489906050}
   - component: {fileID: 1489906049}
   - component: {fileID: 1489906048}
+  - component: {fileID: 1489906051}
   m_Layer: 5
   m_Name: SERVER
   m_TagString: Untagged
@@ -30643,6 +30709,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1489906046}
   m_CullTransparentMesh: 1
+--- !u!114 &1489906051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1489906046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1490045540
 GameObject:
   m_ObjectHideFlags: 0
@@ -31059,7 +31143,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 1, g: 0.44705883, b: 0.4509804, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -31620,6 +31704,10 @@ MonoBehaviour:
   rangeGfx: {fileID: 831686789}
   nextRangeGfx: {fileID: 1753760880}
   gfxSprite: {fileID: 1861777619}
+  ghostAlpha: 0.43
+  slotColor: {r: 1, g: 1, b: 1, a: 0.2}
+  slotScale: 0.6
+  chipFont: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
 --- !u!1 &1522872421
 GameObject:
   m_ObjectHideFlags: 0
@@ -32699,6 +32787,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GhostSpellCard
   gfxObject: {fileID: 531282526}
   gfxSprite: {fileID: 531282528}
+  fillColor: {r: 1, g: 1, b: 1, a: 0.14}
+  ringColor: {r: 1, g: 1, b: 1, a: 0.9}
+  ringSpinDegreesPerSecond: 60
+  targetScanSeconds: 0.12
+  bracketScale: 1.5
 --- !u!4 &1550508819
 Transform:
   m_ObjectHideFlags: 0
@@ -34582,7 +34675,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0.99215686, g: 0.8235294, b: 0.42352942, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -34664,6 +34757,7 @@ GameObject:
   - component: {fileID: 1651641194}
   - component: {fileID: 1651641193}
   - component: {fileID: 1651641192}
+  - component: {fileID: 1651641195}
   m_Layer: 0
   m_Name: OkButton
   m_TagString: Untagged
@@ -34773,6 +34867,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651641190}
   m_CullTransparentMesh: 1
+--- !u!114 &1651641195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651641190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1655429298
 GameObject:
   m_ObjectHideFlags: 0
@@ -40197,6 +40309,283 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1949421741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1949421743}
+  - component: {fileID: 1949421742}
+  m_Layer: 0
+  m_Name: FloatingNumbersSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1949421742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949421741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca323e22713fb3a40af2f80e436eb449, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMFloatingTextSpawner
+  ChannelMode: 0
+  Channel: 0
+  MMChannelDefinition: {fileID: 0}
+  CanSpawn: 1
+  UseUnscaledTime: 0
+  PoolerMode: 0
+  PooledSimpleMMFloatingText: {fileID: 6415332104364822241, guid: 51e0e56cd98b45e4b87f234e4655c12a, type: 3}
+  PooledMultipleMMFloatingText: []
+  PoolSize: 16
+  NestWaitingPool: 1
+  MutualizeWaitingPools: 1
+  PoolCanExpand: 0
+  Lifetime: {x: 0.7, y: 0.82}
+  SpawnOffsetMin: {x: -0.12, y: 0, z: 0}
+  SpawnOffsetMax: {x: 0.12, y: 0.08, z: 0}
+  AnimateMovement: 1
+  AnimateX: 0
+  RemapXZero: {x: 0, y: 0}
+  RemapXOne: {x: 1, y: 1}
+  AnimateXCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AnimateY: 1
+  RemapYZero: {x: 0, y: 0}
+  RemapYOne: {x: 0.5, y: 0.68}
+  AnimateYCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 3
+      outSlope: 3
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AnimateZ: 0
+  RemapZZero: {x: 0, y: 0}
+  RemapZOne: {x: 1, y: 1}
+  AnimateZCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AlignmentMode: 0
+  FixedAlignment: {x: 0, y: 1, z: 0}
+  AlwaysFaceCamera: 0
+  AutoGrabMainCameraOnStart: 1
+  TargetCamera: {fileID: 0}
+  AnimateScale: 1
+  RemapScaleZero: {x: 0, y: 0}
+  RemapScaleOne: {x: 1, y: 1}
+  AnimateScaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.4
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.12
+      value: 1.3
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.75
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  AnimateColor: 0
+  AnimateColorGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  AnimateOpacity: 1
+  RemapOpacityZero: {x: 0, y: 0}
+  RemapOpacityOne: {x: 1, y: 1}
+  AnimateOpacityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.7
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  IntensityImpactsLifetime: 0
+  IntensityLifetimeMultiplier: 1
+  IntensityImpactsMovement: 0
+  IntensityMovementMultiplier: 1
+  IntensityImpactsScale: 1
+  IntensityScaleMultiplier: 1
+  DebugRandomValue: {x: 100, y: 500}
+  DebugInterval: {x: 0.3, y: 0.5}
+  TestSpawnOneBtn: 0
+  TestSpawnManyBtn: 0
+--- !u!4 &1949421743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949421741}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1960199865
 Mesh:
   m_ObjectHideFlags: 0
@@ -40689,9 +41078,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a1c78752743dde4181ec6a93e9136df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveWarningCanvas
-  waveWarningPlayer: {fileID: 1988089224}
   waveWarningRoot: {fileID: 393669652}
   waveWarningText: {fileID: 612169467}
+  waveTitle: WAVE {WAVE}
+  waveSubtitle: INCOMING
+  finalTitle: FINAL WAVE
+  finalSubtitle: HOLD THE LINE
+  clearedTitle: WAVE CLEARED
+  clearedSubtitle: WAVE {WAVE} DOWN
+  holdSeconds: 1.3
 --- !u!114 &1988089224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42603,7 +42998,7 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 250, y: 250}
+  m_CellSize: {x: 250, y: 360}
   m_Spacing: {x: 30, y: 30}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -44006,3 +44401,4 @@ SceneRoots:
   - {fileID: 176317081}
   - {fileID: 1930756347}
   - {fileID: 46269005}
+  - {fileID: 1949421743}

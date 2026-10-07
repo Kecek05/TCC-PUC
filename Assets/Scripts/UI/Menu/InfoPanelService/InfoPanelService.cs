@@ -11,7 +11,7 @@ using UnityEngine.UI;
 /// handed plus <see cref="BasePlayerSaveManager"/>, and it redraws off that save's own events — so an
 /// upgrade bought here updates the panel that bought it.
 /// </summary>
-public class InfoPanelCanvas : BaseInfoPanelService
+public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
 {
     [Title("References")]
     [SerializeField] private GameObject contentObject;
@@ -85,6 +85,20 @@ public class InfoPanelCanvas : BaseInfoPanelService
     private Tween fadeInTween;
     private Tween bumpTween;
 
+    /// <summary>The quick, quiet close (the Popup recipe). Killed by a show, so a card re-opened mid-close
+    /// pops in from wherever the close left it.</summary>
+    private Sequence closeTween;
+
+    /// <summary>The stat rows fading in one after another on open.</summary>
+    private Sequence staggerTween;
+
+    /// <summary>The upgrade's payoff (CardUpgrade): charge, burst, level flip, stats roll, price pop.</summary>
+    private Sequence _celebration;
+
+    /// <summary>Invisible, over the panel while a celebration plays: a tap anywhere finishes it at once, and
+    /// nothing under it (a second Upgrade) can be pressed half way through. A tap on Close also closes.</summary>
+    private TapCatcher _celebrationSkip;
+
     /// <summary>Spawned stat rows, kept between shows rather than destroyed — see <see cref="BuildStats"/>.</summary>
     private readonly List<StatEntryUI> statEntries = new();
 
@@ -96,7 +110,6 @@ public class InfoPanelCanvas : BaseInfoPanelService
     private Vector2 _statSpacing;
 
     private BasePlayerSaveManager _playerSave;
-    private ScreenWarning _screenWarning;
 
     /// <summary>The card on show. Null while the panel is hidden, which is what stops a save change that
     /// arrives from elsewhere (a match reward, a debug grant) redrawing a closed panel.</summary>
@@ -126,6 +139,7 @@ public class InfoPanelCanvas : BaseInfoPanelService
         CaptureStatGrid();
 
         InitializeButtons();
+        BuildCelebrationSkip();
         contentObject.SetActive(false);
     }
 
@@ -134,6 +148,9 @@ public class InfoPanelCanvas : BaseInfoPanelService
         UnsubscribeFromSave();
         fadeInTween?.Kill();
         bumpTween?.Kill();
+        closeTween?.Kill();
+        staggerTween?.Kill();
+        _celebration?.Kill();
         ServiceLocator.Unregister<BaseInfoPanelService>();
     }
 
@@ -146,20 +163,42 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
         // Tapping the dimmed backdrop dismisses too. A tap on the card itself can never reach this: the
         // Panel's own Background is a raycast target, so it absorbs the click before it falls through.
-        if (backgroundButton != null) backgroundButton.onClick.AddListener(HideInfoPanel);
+        if (backgroundButton != null)
+            backgroundButton.onClick.AddListener(() =>
+            {
+                // The backdrop is no button to look at, so the dismissal is heard: a quiet tap (Popup's close).
+                Juice.Sfx(SfxId.Tap, 0, 0.6f);
+                HideInfoPanel();
+            });
 
-        if (upgradeButton != null) upgradeButton.onClick.AddListener(TryUpgradeShownCard);
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.AddListener(TryUpgradeShownCard);
+
+            // A greyed-out Upgrade (max level, locked) explains itself when tapped instead of doing nothing.
+            if (upgradeButton.TryGetComponent(out JuicyButton juicy)) juicy.SetRefusalSource(this);
+        }
+    }
+
+    /// <summary>Why the Upgrade button is off, for its disabled tap.</summary>
+    public RefusalReason CurrentRefusal(out string detail)
+    {
+        CardUpgradeValidation upgrade = GetUpgradeState();
+        detail = upgrade.RefusalDetail;
+        return upgrade.Refusal;
     }
 
     [Button]
     public override void ShowInfoPanel(InfoPanelData infoPanelData)
     {
+        _celebration?.Complete(true);
         SetupPanel(infoPanelData);
 
         // Only while open: a reward banked from anywhere else must not redraw a panel nobody is looking at.
         SubscribeToSave();
 
-        // Restart cleanly if a previous fade is still running, then fade alpha 0 -> 1.
+        // Restart cleanly if a previous fade or close is still running, then fade alpha 0 -> 1.
+        closeTween?.Kill();
         fadeInTween?.Kill();
         panelCanvasGroup.alpha = 0f;
         contentObject.SetActive(true);
@@ -177,21 +216,94 @@ public class InfoPanelCanvas : BaseInfoPanelService
             .SetUpdate(true)
             .OnKill(() => bumpTween = null);
 
+        StaggerStats();
+        Juice.Sfx(SfxId.Whoosh);
+
         TriggerOnInfoPanelShow();
     }
 
     [Button]
     public override void HideInfoPanel()
     {
-        // No tween on hide — and if the show animations are mid-flight, stop them so they can't keep running.
+        // An upgrade still celebrating lands on its final state before the panel goes.
+        _celebration?.Complete(true);
+
+        // Stop the show animations so they can't keep running under the close.
         fadeInTween?.Kill();
         bumpTween?.Kill();
-        contentObject.SetActive(false);
+        staggerTween?.Kill();
 
         UnsubscribeFromSave();
         _card = null;
 
+        AnimateClose();
+
         TriggerOnInfoPanelHide();
+    }
+
+    /// <summary>
+    /// Closing is quick and quiet: the panel shrinks to 0.92 and everything fades over dur-select on ease-in,
+    /// then the content is switched off. Interaction is cut at once, so a second tap during the close cannot
+    /// reach a button of a panel that is already leaving.
+    /// </summary>
+    private void AnimateClose()
+    {
+        closeTween?.Kill();
+
+        if (!contentObject.activeInHierarchy)
+        {
+            contentObject.SetActive(false);
+            return;
+        }
+
+        JuiceTokensSO t = Juice.Tokens;
+        Transform panel = panelObject.transform;
+        panelCanvasGroup.blocksRaycasts = false;
+
+        closeTween = DOTween.Sequence().SetUpdate(true).SetLink(gameObject)
+            .Join(panelCanvasGroup.DOFade(0f, t.Durations.Select).SetEase(t.Eases.In))
+            .Join(panel.DOScale(Juice.ReduceMotion ? 1f : 0.92f, t.Durations.Select).SetEase(t.Eases.In))
+            .OnComplete(() =>
+            {
+                contentObject.SetActive(false);
+                panel.localScale = Vector3.one;
+            })
+            .OnKill(() =>
+            {
+                panelCanvasGroup.blocksRaycasts = true;
+                closeTween = null;
+            });
+    }
+
+    /// <summary>The stat rows fade in one after another once the panel has popped (the Popup stagger).</summary>
+    private void StaggerStats()
+    {
+        staggerTween?.Kill();
+        if (statsParent == null || Juice.ReduceMotion) return;
+
+        JuiceTokensSO t = Juice.Tokens;
+        staggerTween = DOTween.Sequence().SetUpdate(true).SetLink(gameObject);
+
+        int shown = 0;
+        foreach (StatEntryUI entry in statEntries)
+        {
+            if (!entry.gameObject.activeSelf) continue;
+
+            CanvasGroup group = entry.GetComponent<CanvasGroup>();
+            if (group == null) group = entry.gameObject.AddComponent<CanvasGroup>();
+
+            group.alpha = 0f;
+            staggerTween.Insert(t.Durations.Select + t.Durations.Stagger * shown, group.DOFade(1f, t.Durations.Pop).SetEase(t.Eases.Out));
+            shown++;
+        }
+
+        // A close or another card mid-stagger must never leave a row invisible.
+        staggerTween.OnKill(() =>
+        {
+            foreach (StatEntryUI entry in statEntries)
+                if (entry != null && entry.TryGetComponent(out CanvasGroup group)) group.alpha = 1f;
+            staggerTween = null;
+        });
     }
 
     /// <summary>
@@ -267,6 +379,10 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
         upgradeButton.interactable = hasPrice;
 
+        // Ready: the button breathes and the portrait's copies bar invites the tap (CardUpgrade's ready state).
+        if (upgradeButton.TryGetComponent(out JuicyButton juicy)) juicy.SetBreathing(upgrade);
+        if (cardWidget != null) cardWidget.SetUpgradeReady(upgrade);
+
         if (upgradeCostIcon != null) upgradeCostIcon.SetActive(hasPrice);
 
         if (upgradeCostLabel == null) return;
@@ -292,11 +408,171 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
         if (!upgrade)
         {
-            ShowWarning(upgrade.WarningMessage);
+            Juice.Refuse(upgrade.Refusal, upgrade.RefusalDetail);
             return;
         }
 
-        PlayerSave.TryUpgradeCard(_card.CardType);
+        // What the player had, so the celebration can show it turning into what they bought. The upgrade's
+        // own progress event redraws the panel first; the celebration then winds the changed parts back and
+        // plays them forward, so it only ever celebrates an upgrade the save actually banked.
+        _celebration?.Complete(true);
+        CardType cardType = _card.CardType;
+        int levelBefore = PlayerSave.GetCardLevel(cardType);
+        List<CardStatProgress> statsBefore = new(PlayerSave.GetCardStatProgress(cardType) ?? new List<CardStatProgress>());
+
+        if (PlayerSave.TryUpgradeCard(cardType)) Celebrate(levelBefore, statsBefore);
+    }
+
+    /// <summary>
+    /// The CardUpgrade recipe, about dur-celebrate end to end: the portrait charges (sound charge), bursts in its
+    /// rarity colour (sound upgrade, haptic success, the panel shakes), "Level n" flips to the new level, every
+    /// stat rolls to its new value one row after another with a climbing coin, and the next price pops in.
+    /// A tap anywhere completes it.
+    /// </summary>
+    private void Celebrate(int levelBefore, IReadOnlyList<CardStatProgress> statsBefore)
+    {
+        if (_card == null || PlayerSave == null) return;
+
+        JuiceTokensSO t = Juice.Tokens;
+        RectTransform portrait = cardWidget != null ? cardWidget.Visual : null;
+        RectTransform panel = panelObject.transform as RectTransform;
+        IReadOnlyList<CardStatProgress> statsAfter = PlayerSave.GetCardStatProgress(_card.CardType);
+        Color rarity = TryGetRarityColor(out Color rarityColor) ? rarityColor : t.Colors.Attention;
+        float intensity = RarityBurst.IntensityOf(_card.Rarity);
+
+        Vector2 portraitRest = portrait != null ? portrait.anchoredPosition : Vector2.zero;
+        Vector2 panelRest = panel != null ? panel.anchoredPosition : Vector2.zero;
+        string levelAfter = levelLabel != null ? levelLabel.text : null;
+        Transform cost = upgradeCostLabel != null ? upgradeCostLabel.transform : null;
+
+        // Wind back what the refresh already moved on.
+        if (levelLabel != null) levelLabel.text = string.Format(levelFormat, levelBefore);
+        if (cost != null) cost.localScale = Vector3.zero;
+
+        const float charge = 0.32f;
+        float burst = charge;
+        float stats = burst + 0.25f;
+        float rowGap = t.Durations.Stagger * 2f;
+
+        _celebration = DOTween.Sequence().SetUpdate(true).SetLink(gameObject);
+        _celebrationSkip.gameObject.SetActive(true);
+        _celebrationSkip.transform.SetAsLastSibling();
+
+        // 1. Charge: the portrait trembles and gathers itself.
+        _celebration.InsertCallback(0f, () => Juice.Sfx(SfxId.Charge));
+        if (portrait != null)
+        {
+            _celebration.Insert(0f, portrait.DOScale(1.06f, charge).SetEase(t.Eases.Anticipate));
+            if (!Juice.ReduceMotion)
+                _celebration.Insert(0f, portrait.DOShakeAnchorPos(charge, 5f, 40, 90f, false, false));
+        }
+
+        // 2. Burst: in the card's own rarity colour.
+        _celebration.InsertCallback(burst, () =>
+        {
+            if (portrait != null)
+            {
+                portrait.anchoredPosition = portraitRest;
+                RarityBurst.Play(portrait, rarity, intensity);
+            }
+
+            Juice.Sfx(SfxId.Upgrade);
+            Juice.Haptic(HapticRole.Success);
+        });
+
+        if (portrait != null)
+            _celebration.Insert(burst, DOVirtual.Float(1.2f, 1f, t.Durations.Settle, v => portrait.localScale = Vector3.one * v)
+                .SetEase(t.Eases.Settle, t.Eases.SettleAmplitude, t.Eases.SettlePeriod));
+
+        if (panel != null && !Juice.ReduceMotion)
+            _celebration.Insert(burst, panel.DOShakeAnchorPos(t.Durations.ShakeLong, 15f * intensity, 22, 90f, false, true));
+
+        // 3. Flip: the level folds over to the new one.
+        if (levelLabel != null)
+        {
+            Transform label = levelLabel.transform;
+            _celebration.Insert(burst + 0.05f, label.DOScaleY(0f, t.Durations.Select * 0.8f).SetEase(t.Eases.In));
+            _celebration.InsertCallback(burst + 0.05f + t.Durations.Select * 0.8f, () =>
+            {
+                levelLabel.text = levelAfter;
+                Juice.Sfx(SfxId.Flip);
+            });
+            _celebration.Insert(burst + 0.05f + t.Durations.Select * 0.8f, label.DOScaleY(1f, t.Durations.Pop).SetEase(t.Eases.Pop));
+        }
+
+        // 4. Stats: each row rolls to its new value, a coin a step higher per row.
+        int rows = 0;
+        if (statsBefore != null && statsAfter != null)
+        {
+            int count = Mathf.Min(statEntries.Count, Mathf.Min(statsBefore.Count, statsAfter.Count));
+            for (int i = 0; i < count; i++)
+            {
+                if (!statEntries[i].gameObject.activeSelf || statsBefore[i].Label != statsAfter[i].Label) continue;
+
+                Tween roll = statEntries[i].RollFrom(statsBefore[i], statsAfter[i]);
+                if (roll == null) continue;
+
+                float at = stats + rows * rowGap;
+                int step = rows;
+                _celebration.Insert(at, roll);
+                _celebration.InsertCallback(at, () => Juice.Sfx(SfxId.Coin, step));
+                rows++;
+            }
+        }
+
+        // 5. Settle: the next price pops in.
+        float settle = stats + Mathf.Max(0, rows - 1) * rowGap + t.Durations.Count;
+        if (cost != null)
+        {
+            _celebration.InsertCallback(settle, () => Juice.Sfx(SfxId.Pop));
+            _celebration.Insert(settle, DOVirtual.Float(0f, 1f, t.Durations.Pop, v => cost.localScale = Vector3.one * v)
+                .SetEase(t.Eases.Pop));
+        }
+
+        _celebration.OnKill(() =>
+        {
+            if (portrait != null)
+            {
+                portrait.localScale = Vector3.one;
+                portrait.anchoredPosition = portraitRest;
+            }
+
+            if (panel != null) panel.anchoredPosition = panelRest;
+            if (levelLabel != null)
+            {
+                levelLabel.transform.localScale = Vector3.one;
+                if (levelAfter != null) levelLabel.text = levelAfter;
+            }
+
+            if (cost != null) cost.localScale = Vector3.one;
+            if (_celebrationSkip != null) _celebrationSkip.gameObject.SetActive(false);
+            _celebration = null;
+        });
+    }
+
+    private void BuildCelebrationSkip()
+    {
+        GameObject go = new GameObject("CelebrationSkip", typeof(RectTransform), typeof(Image), typeof(TapCatcher), typeof(LayoutElement));
+        go.GetComponent<LayoutElement>().ignoreLayout = true;
+        RectTransform rect = (RectTransform)go.transform;
+        rect.SetParent(panelObject.transform, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+
+        go.GetComponent<Image>().color = Color.clear;
+        _celebrationSkip = go.GetComponent<TapCatcher>();
+        _celebrationSkip.Tapped += eventData =>
+        {
+            _celebration?.Complete(true);
+
+            // The catcher sits over Close too; a tap aimed at it should still close (the tutorial points at
+            // Close the moment the upgrade lands), not only finish the show.
+            RectTransform close = CloseButtonRect;
+            if (close != null && RectTransformUtility.RectangleContainsScreenPoint(close, eventData.position, eventData.pressEventCamera))
+                HideInfoPanel();
+        };
+        go.SetActive(false);
     }
 
     private CardUpgradeValidation GetUpgradeState()
@@ -459,14 +735,6 @@ public class InfoPanelCanvas : BaseInfoPanelService
         }
     }
 
-    private void ShowWarning(string message)
-    {
-        if (_screenWarning == null) ServiceLocator.TryGet(out _screenWarning);
-
-        if (_screenWarning != null) _screenWarning.ShowWarning(message);
-        else GameLog.Warn($"[{nameof(InfoPanelCanvas)}] {message}", this);
-    }
-
     private void SubscribeToSave()
     {
         if (_subscribed || PlayerSave == null) return;
@@ -487,6 +755,10 @@ public class InfoPanelCanvas : BaseInfoPanelService
 
     private void HandleCardProgressChanged(CardType cardType)
     {
-        if (_card != null && cardType == _card.CardType) RefreshProgression();
+        if (_card == null || cardType != _card.CardType) return;
+
+        // A second change mid-celebration (a reward banked meanwhile) lands the first one before redrawing.
+        _celebration?.Complete(true);
+        RefreshProgression();
     }
 }

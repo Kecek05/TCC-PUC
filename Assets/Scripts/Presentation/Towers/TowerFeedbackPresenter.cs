@@ -1,3 +1,4 @@
+using DG.Tweening;
 using MoreMountains.Feedbacks;
 using Sirenix.OdinInspector;
 using Unity.Netcode;
@@ -32,7 +33,23 @@ public class TowerFeedbackPresenter : MonoBehaviour
     [Tooltip("Only on the Fonte: its payouts are shown as \"+N\" over the tower.")]
     [SerializeField] private ManaGrantFeedbackRelay manaRelay;
 
+    [Title("Level Badge")]
+    [Tooltip("The tower's in-match tier as a small numbered badge on its top-right corner, from tier 2 on " +
+             "(TowerLevelUp). It sits inside the tower's own cell, so it never covers a neighbour; tier 1 shows " +
+             "nothing, the art itself being the base.")]
+    [SerializeField] private bool showLevelBadge = true;
+    [SerializeField, Min(0.05f)] private float badgeSize = 0.24f;
+
+    [Tooltip("How long the attention ring takes to close in on a levelling tower before it bursts.")]
+    [SerializeField, Min(0f)] private float levelUpCharge = 0.2f;
+
     private BaseClientTowerCombat _clientCombat;
+    private ClientTowerGFX _gfx;
+    private TowerManager _tower;
+    private Transform _badge;
+    private SpriteRenderer _badgeFill;
+    private SpriteRenderer _badgeRing;
+    private TMPro.TextMeshPro _badgeLabel;
     private EntityTeam _entityTeam;
     private int _level;
     private bool _pendingPlaced;
@@ -44,6 +61,9 @@ public class TowerFeedbackPresenter : MonoBehaviour
         // authored on BaseTower would point at a component the variant removed.
         _clientCombat = GetComponent<BaseClientTowerCombat>();
         _entityTeam = GetComponent<EntityTeam>();
+        _tower = GetComponent<TowerManager>();
+        _gfx = GetComponentInChildren<ClientTowerGFX>(true);
+        if (_gfx != null) _gfx.OnSpawnLanded += HandleSpawnLanded;
 
         if (_clientCombat != null)
         {
@@ -63,6 +83,7 @@ public class TowerFeedbackPresenter : MonoBehaviour
             _clientCombat.OnBulletFiredAt -= HandleFiredAt;
         }
         if (manaRelay != null) manaRelay.OnManaGranted -= HandleManaGranted;
+        if (_gfx != null) _gfx.OnSpawnLanded -= HandleSpawnLanded;
     }
 
     // Runs for one frame after a level change, then switches itself off.
@@ -77,16 +98,180 @@ public class TowerFeedbackPresenter : MonoBehaviour
         if (_pendingPlaced)
         {
             _pendingPlaced = false;
-            SpawnVfx(settings.PlacedDust, position);
-            if (own && ownPlacedFeedback != null) ownPlacedFeedback.PlayFeedbacks();
+
+            // A tower that drops in lands a moment later; its dust and thud wait for the touchdown.
+            if (_gfx == null || !_gfx.DropsOnSpawn) Land(own, position);
+            else if (CameraFeedback.IsOnScreen(position)) Juice.Sfx(SfxId.Whoosh, 0, 0.6f);
         }
 
         if (_pendingUpgrade)
         {
             _pendingUpgrade = false;
-            SpawnVfx(settings.UpgradeSparkle, position);
-            if (own && ownUpgradedFeedback != null) ownUpgradedFeedback.PlayFeedbacks();
+            PlayLevelUp(own, position);
         }
+    }
+
+    /// <summary>
+    /// TowerLevelUp: an attention ring closes in on the tower (the charge), then it bursts: a white flash, a
+    /// shockwave in the tower's own tint, sparkle, the level-up chime, a small shake and, for the own tower, the
+    /// Success buzz. The new level's pip lights and the reach ring grows out to the new range. The next level's
+    /// art nesting in stays ClientTowerGFX's authored feedback, which the tutorial measures.
+    /// </summary>
+    private void PlayLevelUp(bool own, Vector3 position)
+    {
+        JuiceTokensSO t = Juice.Tokens;
+        int level = _level;
+
+        if (CameraFeedback.IsOnScreen(position))
+        {
+            WorldFx.Ring(position, t.Colors.Attention, 1.4f, 0.35f, levelUpCharge);
+            Juice.Sfx(SfxId.Charge, 0, 0.7f);
+        }
+
+        DOVirtual.DelayedCall(levelUpCharge, () =>
+        {
+            if (this == null) return;
+
+            Vector3 at = transform.position;
+            SpawnVfx(settings.UpgradeSparkle, at);
+            if (own && ownUpgradedFeedback != null) ownUpgradedFeedback.PlayFeedbacks();
+            ShowBadge(level, pop: true);
+            if (!CameraFeedback.IsOnScreen(at)) return;
+
+            WorldFx.Flash(at, Color.white, 0.9f, t.Durations.Pop);
+            WorldFx.Ring(at, TowerTint, 0.3f, 1.6f);
+            WorldFx.Sparks(at, t.Colors.Sparkle, 8, 1.1f);
+            GrowReach(at, level);
+            Juice.Sfx(SfxId.LevelUp);
+            JuiceCamera.Shake(t.Shake.Small, t.Durations.Shake);
+        }).SetLink(gameObject);
+    }
+
+    /// <summary>The reach ring grows from the old range out to the new one, then fades.</summary>
+    private void GrowReach(Vector3 at, int level)
+    {
+        if (_tower == null || _tower.Data == null || level <= 1) return;
+
+        float before = _tower.Data.GetRangeByLevel(level - 1);
+        float after = _tower.Data.GetRangeByLevel(level);
+        if (after <= 0f) return;
+
+        Color ink = Juice.Tokens.Colors.Ink;
+        ink.a = 0.6f;
+        WorldFx.Ring(at, ink, Mathf.Max(0.1f, before), Mathf.Max(before, after) * 1.02f, Juice.Tokens.Durations.Settle);
+    }
+
+    private Color TowerTint => _gfx != null ? _gfx.Tint : Juice.Tokens.Colors.Attention;
+
+    /// <summary>
+    /// The tier badge: the level number on a disc in the tower's own tint, ringed dark, or gold once the tower is at
+    /// its top tier. Hidden at tier 1. It appears with a pop and punches on each further level. Built on first use,
+    /// under the tower's root, so the spawn drop and a level's squash never move it.
+    /// </summary>
+    private void ShowBadge(int level, bool pop)
+    {
+        if (!showLevelBadge || _tower == null || _tower.Data == null) return;
+        if (level < 2)
+        {
+            if (_badge != null) _badge.gameObject.SetActive(false);
+            return;
+        }
+
+        if (_badge == null) BuildBadge();
+
+        JuiceTokensSO t = Juice.Tokens;
+        Color tint = TowerTint;
+        tint.a = 1f;
+        _badgeFill.color = tint;
+        _badgeRing.color = level >= _tower.Data.MaxLevel ? t.Colors.Attention : t.Colors.Sheet;
+        _badgeLabel.text = level.ToString();
+
+        bool appearing = !_badge.gameObject.activeSelf;
+        _badge.gameObject.SetActive(true);
+        if (!pop || Juice.ReduceMotion) return;
+
+        if (appearing) JuiceFx.PopIn(_badge, 0f, 1f, -1f, unscaled: false);
+        else JuiceFx.Punch(_badge, t.Scales.PunchHard, -1f, unscaled: false);
+    }
+
+    private void BuildBadge()
+    {
+        SpriteRenderer art = _gfx != null ? _gfx.ArtRenderer : null;
+        Vector2 extents = new(0.29f, 0.29f);
+        if (art != null && art.sprite != null)
+        {
+            float k = art.transform.lossyScale.x / Mathf.Max(0.0001f, transform.lossyScale.x);
+            extents = (Vector2)art.sprite.bounds.extents * k;
+        }
+
+        int layer = art != null ? art.sortingLayerID : 0;
+        int order = art != null ? art.sortingOrder : 0;
+
+        // On the art's top-right corner: inside the tower's own cell, over its own art only.
+        GameObject root = new GameObject("LevelBadge");
+        _badge = root.transform;
+        _badge.SetParent(transform, false);
+        _badge.localPosition = new Vector3(extents.x * 0.78f, extents.y * 0.78f, 0f);
+
+        _badgeRing = BadgePart("Ring", badgeSize * 1.25f, layer, order + 2);
+        _badgeFill = BadgePart("Fill", badgeSize, layer, order + 3);
+
+        GameObject label = new GameObject("Label", typeof(RectTransform));
+        label.transform.SetParent(_badge, false);
+        _badgeLabel = label.AddComponent<TMPro.TextMeshPro>();
+        RefusalCopySO copy = Resources.Load<RefusalCopySO>(RefusalCopySO.ResourcePath);
+        if (copy != null && copy.Font != null) _badgeLabel.font = copy.Font;
+        _badgeLabel.fontSize = badgeSize * 10f;
+        _badgeLabel.alignment = TMPro.TextAlignmentOptions.Center;
+        _badgeLabel.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
+        _badgeLabel.color = Juice.Tokens.Colors.Nav;
+        _badgeLabel.rectTransform.sizeDelta = new Vector2(badgeSize * 2f, badgeSize * 1.5f);
+        _badgeLabel.sortingLayerID = layer;
+        _badgeLabel.sortingOrder = order + 4;
+
+        root.SetActive(false);
+    }
+
+    private SpriteRenderer BadgePart(string name, float size, int layer, int order)
+    {
+        GameObject go = new GameObject(name, typeof(SpriteRenderer));
+        go.transform.SetParent(_badge, false);
+        go.transform.localScale = Vector3.one * (size / 1.28f);
+        SpriteRenderer part = go.GetComponent<SpriteRenderer>();
+        part.sprite = JuiceSprites.Disc;
+        part.sortingLayerID = layer;
+        part.sortingOrder = order;
+        return part;
+    }
+
+    /// <summary>The drop touched down.</summary>
+    private void HandleSpawnLanded()
+    {
+        if (!IsPresenting()) return;
+        Land(IsOwnTower(), transform.position);
+    }
+
+    /// <summary>
+    /// TowerPlacement landing: dust, the place thud and, for the own tower, the camera kick and buzz; its tier badge
+    /// shows if it already has one (a late join), and its reach pulses once so the player sees what it covers.
+    /// </summary>
+    private void Land(bool own, Vector3 position)
+    {
+        SpawnVfx(settings.PlacedDust, position);
+        if (own && ownPlacedFeedback != null) ownPlacedFeedback.PlayFeedbacks();
+        ShowBadge(_level, pop: false);
+
+        if (!CameraFeedback.IsOnScreen(position)) return;
+        Juice.Sfx(SfxId.Place);
+        Color dust = Juice.Tokens.Colors.Dust;
+        dust.a = 0.45f;
+        WorldFx.Ring(position, dust, 0.25f, 0.95f, Juice.Tokens.Durations.Settle);
+
+        float reach = _tower != null && _tower.Data != null ? _tower.Data.GetRangeByLevel(Mathf.Max(1, _level)) : 0f;
+        if (reach <= 0f) return;
+        Color ink = Juice.Tokens.Colors.Ink;
+        ink.a = 0.55f;
+        WorldFx.Ring(position, ink, reach * 0.85f, reach * 1.02f, Juice.Tokens.Durations.Settle);
     }
 
     private void HandleLevelChanged(int level)
@@ -117,6 +302,7 @@ public class TowerFeedbackPresenter : MonoBehaviour
 
         FloatingNumbers.Gain(transform.position + settings.ManaPopupOffset, amount, settings.ManaPopupIntensity,
             settings.ManaPopupColor);
+        if (IsOwnTower()) Juice.Sfx(SfxId.Mana);
     }
 
     private bool IsOwnTower()

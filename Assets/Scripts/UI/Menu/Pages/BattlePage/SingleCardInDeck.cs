@@ -1,3 +1,5 @@
+using System;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -10,6 +12,22 @@ using UnityEngine.UI;
 /// </summary>
 public class SingleCardInDeck : MonoBehaviour
 {
+    /// <summary>How the body travels to its new place when the deck page relays out (DeckEquip).</summary>
+    public enum Flight
+    {
+        /// <summary>A collection card sliding into a gap, or opening one (ease-out).</summary>
+        Slide,
+
+        /// <summary>A deck card closing ranks after a removal: it overshoots into its slot (ease-pop).</summary>
+        Snap,
+
+        /// <summary>The card the player equipped: it lifts, grows to scale-select and arcs down onto its slot.</summary>
+        Equip,
+
+        /// <summary>The card the player removed: it travels home bowing under the line, on top of the page.</summary>
+        Remove
+    }
+
     [Title("References")]
     [SerializeField] private TextMeshProUGUI cardCost;
     [SerializeField] private Image cardImage;
@@ -48,6 +66,15 @@ public class SingleCardInDeck : MonoBehaviour
     [SerializeField] private string lockedLabel = "Locked";
     [SerializeField] private string maxLevelLabel = "MAX";
 
+    [Title("Motion")]
+    [Tooltip("Optional. The card's visible body: what flies when the deck page relays out, and what squashes " +
+             "on a tap. Empty: the child named Content (the widget root is a 0x0 shell the layout moves).")]
+    [SerializeField] private RectTransform visual;
+
+    [Tooltip("Optional. The arrow beside the copies bar, which bobs while the card can be upgraded. Empty: the " +
+             "'Icon' beside the bar.")]
+    [SerializeField] private RectTransform upgradeArrow;
+
     private CardDataSO _cardData;
     private DeckUIController _deckUIController;
 
@@ -57,6 +84,18 @@ public class SingleCardInDeck : MonoBehaviour
 
     private bool _buttonWired;
     private bool _imageRectCaptured;
+
+    private Vector2 _visualRest;
+    private bool _visualRestCaptured;
+    private Sequence _flight;
+    private Canvas _onTopCanvas;
+
+    private bool _upgradeReady;
+    private Color _fillColor;
+    private bool _fillColorCaptured;
+    private Vector2 _arrowRest;
+    private bool _arrowRestCaptured;
+    private Tween _arrowBob;
 
     public CardDataSO CardData => _cardData;
 
@@ -149,6 +188,222 @@ public class SingleCardInDeck : MonoBehaviour
         _imageRectCaptured = true;
         _defaultImagePosition = cardImage.rectTransform.anchoredPosition;
         _defaultImageSize = cardImage.rectTransform.sizeDelta;
+    }
+
+    /// <summary>
+    /// The card's visible body. The widget root is a shell the layouts move instantly; the body is what the
+    /// player sees, so it is what flies (FLIP) and what squashes on a tap.
+    /// </summary>
+    public RectTransform Visual
+    {
+        get
+        {
+            if (visual == null)
+            {
+                Transform content = transform.Find("Content");
+                visual = content != null ? (RectTransform)content : (RectTransform)transform;
+            }
+
+            if (!_visualRestCaptured)
+            {
+                _visualRestCaptured = true;
+                _visualRest = visual.anchoredPosition;
+            }
+
+            return visual;
+        }
+    }
+
+    /// <summary>
+    /// The "you can upgrade this" invitation (CardUpgrade's ready state): the copies bar turns upgrade green
+    /// and its arrow bobs. Shown on the deck page and on the info panel's portrait alike.
+    /// </summary>
+    public void SetUpgradeReady(bool ready)
+    {
+        if (cardLevelFill == null) return;
+
+        if (!_fillColorCaptured)
+        {
+            _fillColorCaptured = true;
+            _fillColor = cardLevelFill.color;
+        }
+
+        if (ready == _upgradeReady) return;
+        _upgradeReady = ready;
+
+        cardLevelFill.color = ready ? Juice.Tokens.Colors.Upgrade : _fillColor;
+
+        RectTransform arrow = UpgradeArrow;
+        if (arrow == null) return;
+
+        _arrowBob?.Kill();
+        _arrowBob = null;
+        arrow.anchoredPosition = _arrowRest;
+
+        if (ready && !Juice.ReduceMotion)
+            _arrowBob = arrow.DOAnchorPosY(_arrowRest.y + 7f, 0.42f).SetEase(Juice.Tokens.Eases.Breathe)
+                .SetLoops(-1, LoopType.Yoyo).SetUpdate(true).SetLink(gameObject);
+    }
+
+    private RectTransform UpgradeArrow
+    {
+        get
+        {
+            if (upgradeArrow == null && cardLevelFill != null)
+            {
+                // Fill sits in the bar's Background; the arrow is that background's sibling.
+                Transform bar = cardLevelFill.transform.parent != null ? cardLevelFill.transform.parent.parent : null;
+                if (bar != null) upgradeArrow = bar.Find("Icon") as RectTransform;
+            }
+
+            if (upgradeArrow != null && !_arrowRestCaptured)
+            {
+                _arrowRestCaptured = true;
+                _arrowRest = upgradeArrow.anchoredPosition;
+            }
+
+            return upgradeArrow;
+        }
+    }
+
+    /// <summary>Whether the body is flying to its place right now.</summary>
+    public bool IsFlying => _flight != null && _flight.IsActive();
+
+    /// <summary>Where the card is drawn right now, mid-flight included.</summary>
+    public Vector3 VisualPosition => Visual.position;
+
+    /// <summary>
+    /// The middle of the card's top edge where the card rests, in world space: where the action popup is pinned. A
+    /// flight or a squash in progress does not move it.
+    /// </summary>
+    public Vector3 TopCenterWorld
+    {
+        get
+        {
+            RectTransform body = Visual;
+
+            // localPosition minus anchoredPosition is the anchor's reference point, which no flight moves.
+            Vector3 anchor = body.localPosition - (Vector3)body.anchoredPosition;
+            Vector3 top = anchor + (Vector3)_visualRest + new Vector3(0f, body.rect.yMax, 0f);
+            return body.parent.TransformPoint(top);
+        }
+    }
+
+    /// <summary>
+    /// The last half of a FLIP: the layout has already moved the widget, so draw the body back where it was
+    /// (<paramref name="fromWorld"/>) and fly it home. Returns false when it had not actually moved.
+    /// </summary>
+    /// <param name="flight">How it travels. The card the player moved arcs over the page on top of everything (so it
+    /// never passes under the headers between the deck and the collection); a reflowing card just slides.</param>
+    /// <param name="onLanded">Called when it arrives. Not called when the flight is cut short (a page switch).</param>
+    public bool FlyFrom(Vector3 fromWorld, float delay, Flight flight, Action onLanded = null)
+    {
+        RectTransform body = Visual;
+        StopFlight();
+
+        Vector3 home = body.position;
+        float minimum = 2f * body.lossyScale.x;
+        if ((home - fromWorld).sqrMagnitude < minimum * minimum) return false;
+
+        body.position = fromWorld;
+        bool travels = flight is Flight.Equip or Flight.Remove;
+        SetOnTop(travels);
+
+        JuiceTokensSO t = Juice.Tokens;
+        float duration = travels ? t.Durations.Travel : t.Durations.Pop;
+        _flight = DOTween.Sequence().SetUpdate(true).SetLink(gameObject).SetTarget(this).SetDelay(delay);
+
+        // The arcs are the design's: up and over onto a slot, under the line on the way home (DOJump's power is
+        // the bow at mid-flight, in canvas units).
+        bool grows = flight == Flight.Equip && !Juice.ReduceMotion;
+        switch (flight)
+        {
+            case Flight.Equip:
+                _flight.Append(body.DOJumpAnchorPos(_visualRest, 90f, 1, duration).SetEase(t.Eases.InOut));
+                break;
+            case Flight.Remove:
+                _flight.Append(body.DOJumpAnchorPos(_visualRest, -60f, 1, duration).SetEase(t.Eases.InOut));
+                break;
+            case Flight.Snap:
+                _flight.Append(body.DOAnchorPos(_visualRest, duration).SetEase(t.Eases.Pop));
+                break;
+            default:
+                _flight.Append(body.DOAnchorPos(_visualRest, duration).SetEase(t.Eases.Out));
+                break;
+        }
+
+        // Lifted off the page: it peaks at scale-select half way and is back to size as it touches down.
+        if (grows)
+        {
+            _flight.Insert(0f, body.DOScale(t.Scales.Select, duration * 0.5f).SetEase(t.Eases.Out));
+            _flight.Insert(duration * 0.5f, body.DOScale(1f, duration * 0.5f).SetEase(t.Eases.In));
+        }
+
+        bool landed = false;
+        _flight.OnComplete(() =>
+        {
+            landed = true;
+            onLanded?.Invoke();
+        });
+        _flight.OnKill(() =>
+        {
+            if (body != null)
+            {
+                body.anchoredPosition = _visualRest;
+
+                // A landing's squash may already own the scale; only a flight cut short puts it back.
+                if (grows && !landed) body.localScale = Vector3.one;
+            }
+
+            SetOnTop(false);
+            _flight = null;
+        });
+        return true;
+    }
+
+    /// <summary>Puts the body back at rest at once, ending any flight.</summary>
+    public void StopFlight()
+    {
+        _flight?.Kill();
+        Visual.anchoredPosition = _visualRest;
+    }
+
+    /// <summary>Enter Pop: from 0.6 through the pop peak to rest, after <paramref name="delay"/>.</summary>
+    public void PopIn(float delay)
+    {
+        RectTransform body = Visual;
+        JuiceTokensSO t = Juice.Tokens;
+        body.DOKill();
+        body.localScale = Vector3.one * 0.6f;
+
+        float d = t.Durations.Pop;
+        float peak = Juice.ReduceMotion ? 1f : t.Scales.PopPeak;
+        DOTween.Sequence().SetUpdate(true).SetLink(gameObject).SetTarget(body).SetDelay(delay)
+            .Append(body.DOScale(peak, d * 0.6f).SetEase(t.Eases.Out))
+            .Append(body.DOScale(1f, d * 0.4f).SetEase(t.Eases.Press))
+            .OnKill(() => { if (body != null && body.localScale.x < 0.9f) body.localScale = Vector3.one; });
+    }
+
+    private void SetOnTop(bool onTop)
+    {
+        if (!onTop)
+        {
+            if (_onTopCanvas != null) Destroy(_onTopCanvas);
+            _onTopCanvas = null;
+            return;
+        }
+
+        if (_onTopCanvas != null) return;
+        Canvas parent = GetComponentInParent<Canvas>();
+        _onTopCanvas = Visual.gameObject.AddComponent<Canvas>();
+        _onTopCanvas.overrideSorting = true;
+        _onTopCanvas.sortingOrder = parent != null ? parent.rootCanvas.sortingOrder + 1 : 1;
+    }
+
+    private void OnDisable()
+    {
+        // A page switched away mid-flight must not come back with a card stranded half way.
+        if (_flight != null) _flight.Kill();
     }
 
     private Sprite GetTypeBackground(ExistingTypesOfCard type) => type switch

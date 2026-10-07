@@ -1,0 +1,269 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68bbee8b38dda64bab1c6b8ad0b9b5e, type: 3}
+  m_Name: SfxLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::SfxLibrarySO
+  Cues:
+  - Id: 1
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: a5b5d482af129ba4e8ea173413defe9d, type: 3}
+    Volume: 0.7
+    Cooldown: -1
+    Jitter: 1
+  - Id: 2
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: feca1615e6662264d8764003f359935a, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 3
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 40de0fbd54f70fe48b51ebeadab9cc1b, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 4
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 7da0fb5112f34514ba01ad0603183e84, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 5
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 28d26c2c00c27514c9d7b4425083713a, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 6
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 6c6406abfd6f4c94c8c91bc42bca168e, type: 3}
+    Volume: 0.8
+    Cooldown: -1
+    Jitter: 1
+  - Id: 7
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 9712bffe082256c44b7bd95aa0479f64, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 8
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 1302e4c559a38b841a7d87062a3606c5, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 9
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: d338b725c14a86f4a80a6b99f287ef7f, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 10
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 21c90317f5fa5754c86ef1f64773edb2, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 11
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 026cb50f7ac83884798d35c50542d4de, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 12
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 8d237395d65b13449857f9e9ea95e0a1, type: 3}
+    Volume: 0.6
+    Cooldown: 0.04
+    Jitter: 1
+  - Id: 13
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: c3b42167e7561c7469f1b4df267e8e2d, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 14
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: d144dc1ec1167f442a08b76c3af00663, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 15
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 1edb68c90b257c14c881284ed4dd5a46, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 16
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 1c833d83fcbbafd48afe15aa2e92ab2d, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 17
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: e6afdd41e42a4c2438e133d729efd517, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 18
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: cfd919427d19f60479ae625f268cb202, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 19
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 39efde71756264647ad81980fc5b2849, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 20
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: c197f9eba062b4b4c9538c485d063c17, type: 3}
+    Volume: 0.45
+    Cooldown: 0.09
+    Jitter: 1
+  - Id: 21
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 786d0d543e5817140bf283b4c50ba473, type: 3}
+    Volume: 1
+    Cooldown: 0.08
+    Jitter: 1
+  - Id: 22
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 52983472408d0a741b53b31895d1a5fe, type: 3}
+    Volume: 0.6
+    Cooldown: -1
+    Jitter: 1
+  - Id: 23
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 1fcc985a769ca5449a2f3df5166b66d9, type: 3}
+    Volume: 0.6
+    Cooldown: -1
+    Jitter: 1
+  - Id: 24
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: f8095e1696f9f8e48af3f8afcfa53a60, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 25
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: d8a2803112e9c7749a54d22d85ed4573, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 26
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 331025c07526d0640924efcc53e2c7bd, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 27
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 0a3f979229d6a2a4e9c0a500d075361a, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 28
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 082cef78328ca6c4a9a4431269da9bfd, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 29
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 5844d05fc49419841b85b8e057df3fc3, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 30
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 2f37e609ffb98a14f8b6fca25bd6412f, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 31
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 8aad4bf67487f1443bc5e0290eb2e57b, type: 3}
+    Volume: 0.6
+    Cooldown: -1
+    Jitter: 1
+  - Id: 32
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 7d21f71f2baf18a4dbe8a2b9aa593918, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 33
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 84076792e9eafee4b884931748b490b0, type: 3}
+    Volume: 0.7
+    Cooldown: -1
+    Jitter: 1
+  - Id: 34
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: ffa09d08582f1da4dbd6960345fec7d8, type: 3}
+    Volume: 0.8
+    Cooldown: -1
+    Jitter: 1
+  - Id: 35
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 79f6b5ede7381ef428eeb5831138a877, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  - Id: 36
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: d1de0b87b2242c5459a7618467e7cb0e, type: 3}
+    Volume: 1
+    Cooldown: -1
+    Jitter: 1
+  MenuMusic: {fileID: 0}
+  MatchMusic: {fileID: 0}

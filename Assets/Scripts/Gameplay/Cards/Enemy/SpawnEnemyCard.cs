@@ -3,6 +3,7 @@ using UnityEngine;
 public class SpawnEnemyCard : AbstractCard
 {
     private BaseCardSpawnEnemyDeployer _cardSpawnEnemyDeployer;
+    private Vector2 _thrownAt;
 
     protected override void Start()
     {
@@ -14,6 +15,7 @@ public class SpawnEnemyCard : AbstractCard
     {
         _cardSpawnEnemyDeployer.OnSpawnResult += HandleSpawnResult;
         _clientManaManager.PredictSpend(cardDataSo.Cost);
+        _thrownAt = worldPosition;
 
         _cardSpawnEnemyDeployer.RequestSpawnEnemyCardServer(cardDataSo.CardType);
     }   
@@ -29,6 +31,11 @@ public class SpawnEnemyCard : AbstractCard
         {
             GameLog.Info("Spawn result successful!");
             _clientManaManager.ConfirmSpend(cardDataSo.Cost);
+
+            // TroopSend: the throw is answered where it landed, with how many went.
+            int count = cardDataSo is SpawnEnemyCardDataSO troops ? troops.SpawnCount + troops.DecoyCount : 1;
+            FloatingNumbers.Say(_thrownAt, count > 1 ? $"SENT x{count}" : "SENT!", 1.5f, Juice.Tokens.Colors.Cta);
+            Juice.Sfx(SfxId.Whoosh);
             RaisePlayResolved(true);
             DiscardSelfCard();
             return;

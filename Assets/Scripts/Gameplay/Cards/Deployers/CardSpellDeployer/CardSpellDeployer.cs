@@ -101,18 +101,20 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         if (!_serverManaManager.TrySpendMana(team, spellCardData.Cost))
             return SpellValidation.Invalid(SpellInvalidReason.NotEnoughMana);
 
+        CardLevelScale scale = MatchCardLevels.ScaleFor(team, cardType);
         executor.Execute(new SpellExecutionContext
         {
             ServerPosition = serverPosition,
             CasterTeam = team,
             SpellData = spellData,
             CoroutineRunner = this,
-            Scale = MatchCardLevels.ScaleFor(team, cardType),
+            Scale = scale,
         });
 
         // Position the visual by the field it lands on (opponent's for enemy-map spells), not the
-        // caster, so it mirrors to the correct side on every client.
-        SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, spellCardData.GetTargetFieldTeam(team));
+        // caster, so it mirrors to the correct side on every client. The duration scale travels with it:
+        // a zone drawn for the base duration vanished while a levelled spell was still working.
+        SpawnSpellVisualRpc(spellCardData.SpellType, serverPosition, spellCardData.GetTargetFieldTeam(team), scale.Duration);
 
         TriggerOnCardDeployed(new CardDeployedEventArgs
         {
@@ -139,7 +141,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void SpawnSpellVisualRpc(SpellType spellType, Vector2 serverPosition, TeamType fieldTeam)
+    private void SpawnSpellVisualRpc(SpellType spellType, Vector2 serverPosition, TeamType fieldTeam, float durationScale)
     {
         SpellDataSO spellData = spellDataListSO.GetSpellDataByType(spellType);
         if (spellData == null || spellData.VisualPrefab == null) return;
@@ -154,7 +156,7 @@ public class CardSpellDeployer : BaseCardSpellDeployer
         }
         else if (visual.TryGetComponent(out CosmeticBuffZone buffZone) && spellData is SpellEffectDataSO effectData)
         {
-            buffZone.Initialize(localPos, spellData.Range, effectData.Duration);
+            buffZone.Initialize(localPos, spellData.Range, effectData.Duration * Mathf.Max(0.01f, durationScale));
         }
     }
 }

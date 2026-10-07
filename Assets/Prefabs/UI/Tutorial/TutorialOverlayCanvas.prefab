@@ -263,7 +263,6 @@ MonoBehaviour:
   dimBottom: {fileID: 5218004996180145560}
   dimLeft: {fileID: 2540324765911729868}
   dimRight: {fileID: 8609083091697457135}
-  blockInput: 0
   highlightRing: {fileID: 6790462217534455304}
   hand: {fileID: 3778835616140356408}
   rewardRoot: {fileID: 7226735880651352918}
@@ -291,6 +290,7 @@ GameObject:
   - component: {fileID: 7230125085791931926}
   - component: {fileID: 1739138136346477107}
   - component: {fileID: 6972057617468223238}
+  - component: {fileID: 8505293899740796066}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -400,6 +400,24 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8505293899740796066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872000300882022449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &2014082558706577934
 GameObject:
   m_ObjectHideFlags: 0
@@ -955,6 +973,7 @@ GameObject:
   - component: {fileID: 3690974245016974840}
   - component: {fileID: 4257751469281797105}
   - component: {fileID: 7525591028665505832}
+  - component: {fileID: 6793228580004555152}
   m_Layer: 0
   m_Name: SkipButton
   m_TagString: Untagged
@@ -1064,6 +1083,24 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6793228580004555152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6122559247118620332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &6189079346388229472
 GameObject:
   m_ObjectHideFlags: 0

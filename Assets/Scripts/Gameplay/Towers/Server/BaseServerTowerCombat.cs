@@ -41,6 +41,15 @@ public abstract class BaseServerTowerCombat : NetworkBehaviour
     public NetworkVariable<bool> IsHasted => _isHasted;
 
     /// <summary>
+    /// The card level this tower was placed at, and the buffs on it right now: read by the tower's info popup.
+    /// Server-side state, so only meaningful where this runs as server (the host); a joining client reads the
+    /// defaults and shows the authored numbers.
+    /// </summary>
+    public CardLevelScale CardScale => _cardScale;
+    public float AttackSpeedBuffPercent => _attackSpeedBuffPercent;
+    public float DamageBuffPercent => _damageBuffPercent;
+
+    /// <summary>
     /// Server-side. True for the setup window after the tower spawns or is upgraded, in which it cannot fire
     /// yet (the level's SetupDuration). Runs on scaled time like the rest of combat.
     /// </summary>

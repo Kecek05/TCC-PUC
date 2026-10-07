@@ -52,9 +52,9 @@ public class NetworkClient : IDisposable
         // then refuses us. Send them back to pick again rather than leaving them staring at it.
         if (Loader.IsGameplayScene(SceneManager.GetActiveScene().name)) return;
 
-        // No warning banner here on purpose: ScreenWarning is a scene object, so the one that could
-        // show it is destroyed by the very load on the next line.
+        // The refusal toast lives on its own persistent canvas, so it survives the load on the next line.
         GameLog.Info("Connection refused or dropped before the match started; returning to the Main Menu.");
+        Juice.Refuse(RefusalReason.ConnectionLost);
         Loader.Load(Loader.Scene.MainMenu);
     }
 

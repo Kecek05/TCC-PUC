@@ -32,16 +32,17 @@ public readonly struct CardUpgradeValidation
     public static implicit operator bool(CardUpgradeValidation v) => v.IsValid;
 
     /// <summary>
-    /// The sentence to show the player when this refusal is what stopped an upgrade. It lives on the
-    /// validation rather than at each call site because both doors into an upgrade — the deck page popup
-    /// and the card info panel — have to explain a refusal with the same words.
+    /// The refusal to show the player when this is what stopped an upgrade. It lives on the validation rather
+    /// than at each call site because both doors into an upgrade, the deck page popup and the card info panel,
+    /// have to explain a refusal the same way; the words themselves are the toast's (<c>RefusalCopySO</c>).
     /// </summary>
-    public string WarningMessage => Reason switch
+    public RefusalReason Refusal => RefusalReasons.From(Reason);
+
+    /// <summary>What the player is short of, for the toast's hint.</summary>
+    public string RefusalDetail => Reason switch
     {
-        CardUpgradeInvalidReason.NotOwned => WarningMessages.CardLocked,
-        CardUpgradeInvalidReason.MaxLevel => WarningMessages.UpgradeMaxLevel,
-        CardUpgradeInvalidReason.NotEnoughCopies => WarningMessages.UpgradeNotEnoughCards,
-        CardUpgradeInvalidReason.NotEnoughGold => WarningMessages.UpgradeNotEnoughGold,
-        _ => WarningMessages.UpgradeMaxLevel
+        CardUpgradeInvalidReason.NotEnoughGold => $"Need {GoldCost} gold",
+        CardUpgradeInvalidReason.NotEnoughCopies => $"Need {CopiesRequired} copies",
+        _ => null
     };
 }

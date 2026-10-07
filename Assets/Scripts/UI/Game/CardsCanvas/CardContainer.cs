@@ -48,6 +48,9 @@ public class CardContainer : BaseCardContainer
         return occupiedSlot.SlotTransform;
     }
 
+    public override Transform NextCardAnchor =>
+        nextCardSlot != null && nextCardSlot.isActiveAndEnabled ? nextCardSlot.FlightOrigin : null;
+
     public override void SetNextCard(Sprite image)
     {
         nextCardSlot.SetNextCardImage(image);

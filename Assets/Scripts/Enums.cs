@@ -138,7 +138,15 @@ public enum CardInvalidReason
     Cooldown,
     BlockedByUI,
     EnemyMap,
-    NotInHand
+    NotInHand,
+
+    // Appended: tower drops the client can refuse itself, before a round trip to the server.
+    DifferentTower,
+    TowerMaxLevel,
+    NoPlaceable,
+
+    // Appended: the mirror of EnemyMap, for a card that only works on the opponent's field.
+    LocalMap
 }
 
 public enum SpellInvalidReason
@@ -349,4 +357,15 @@ public enum TutorialHintKind
     SwipeUp,
 
     SwipeDown,
+}
+
+/// <summary>Why a card cannot join the active deck. Append only: none is serialized today, but the rule is kept
+/// project-wide for enums that leave the code.</summary>
+public enum EquipRefusal
+{
+    None,
+    InvalidCard,
+    NotOwned,
+    DeckFull,
+    AlreadyInDeck,
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -39,18 +40,42 @@ public class DeckUIController : MonoBehaviour
     [SerializeField] private DeckSlotBar deckSlotBar;
     [SerializeField] private CardSortController cardSortController;
 
+    [Title("Motion")]
+    [Tooltip("Cards fly to their new place when the page relays out (equip, remove, sort, deck slot) instead " +
+             "of jumping there: FLIP. Off: the old instant relayout.")]
+    [SerializeField] private bool animateLayout = true;
+
+    [Title("Slots")]
+    [Tooltip("Every deck position is framed by a dashed outline a little larger than a card (DeckEquip's slot): " +
+             "an empty one shows where the next card goes, a full one holds its card inside the frame.")]
+    [SerializeField] private bool showSlotOutlines = true;
+
+    [SerializeField] private Color slotOutlineColor = new(1f, 1f, 1f, 0.16f);
+
+    [Tooltip("How much larger than the card body the outline is, in total (half on each side).")]
+    [SerializeField] private Vector2 slotOutlinePadding = new(20f, 20f);
+
     private readonly Dictionary<CardType, CardInDeckInfo> cardTypeToCardInDeckInfo = new();
     private readonly List<CardDataSO> _sortBuffer = new();
 
+    /// <summary>Where every card was drawn before a relayout: the "First" of FLIP.</summary>
+    private readonly Dictionary<SingleCardInDeck, Vector3> _layoutBefore = new();
+
+    /// <summary>False until the page has been laid out once, so the opening layout never animates.</summary>
+    private bool _presented;
+
+    private float _shownAverageCost;
+    private Tween _averageCostRoll;
+
     private BasePlayerSaveManager _playerSaveManager;
     private ActionFrame _spawnedActionFrame;
-    private ScreenWarning _screenWarning;
+
+    private const string SlotOutlineName = "SlotOutline";
 
     public ActionFrame ActionFrame => _spawnedActionFrame;
 
     private void Start()
     {
-        _screenWarning = ServiceLocator.Get<ScreenWarning>();
         _playerSaveManager = ServiceLocator.Get<BasePlayerSaveManager>();
 
         if (cardPositions.Count != _playerSaveManager.DeckSize)
@@ -59,6 +84,7 @@ public class DeckUIController : MonoBehaviour
                 $"{_playerSaveManager.DeckSize}; the deck area cannot show a full deck.", this);
 
         BuildCardWidgets();
+        BuildSlotOutlines();
         InitializeActionFrame();
 
         if (deckSlotBar != null)
@@ -75,9 +101,11 @@ public class DeckUIController : MonoBehaviour
 
         _playerSaveManager.OnActiveDeckSlotChanged += HandleActiveDeckSlotChanged;
         _playerSaveManager.OnCardProgressChanged += HandleCardProgressChanged;
+        _playerSaveManager.OnGoldChanged += RefreshAllUpgradeReady;
 
         RefreshAllProgression();
         ApplyDeck(_playerSaveManager.ActiveDeck);
+        _presented = true;
     }
 
     private void OnDestroy()
@@ -88,7 +116,10 @@ public class DeckUIController : MonoBehaviour
         {
             _playerSaveManager.OnActiveDeckSlotChanged -= HandleActiveDeckSlotChanged;
             _playerSaveManager.OnCardProgressChanged -= HandleCardProgressChanged;
+            _playerSaveManager.OnGoldChanged -= RefreshAllUpgradeReady;
         }
+
+        _averageCostRoll?.Kill();
     }
 
     /// <summary>Instantiates one widget per card, all starting in the collection. Runs once.</summary>
@@ -117,6 +148,38 @@ public class DeckUIController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// A dashed outline framing each deck position, behind the card that may sit there. Dashes cannot be sliced
+    /// without stretching, so the sprite is drawn once at the frame's exact size.
+    /// </summary>
+    private void BuildSlotOutlines()
+    {
+        if (!showSlotOutlines) return;
+
+        RectTransform body = singleCardInDeckPrefab.transform.Find("Content") as RectTransform;
+        Vector2 size = (body != null ? body.sizeDelta : new Vector2(180f, 250f)) + slotOutlinePadding;
+        Sprite sprite = JuiceSprites.DashedRoundRect(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y), 24, 16, 11, 4f);
+
+        foreach (CardPosition position in cardPositions)
+        {
+            if (position.PositionTransform == null) continue;
+
+            GameObject go = new GameObject(SlotOutlineName, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+            go.GetComponent<LayoutElement>().ignoreLayout = true;
+            RectTransform rect = (RectTransform)go.transform;
+            rect.SetParent(position.PositionTransform, false);
+            rect.SetAsFirstSibling();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = Vector2.zero;
+
+            Image image = go.GetComponent<Image>();
+            image.sprite = sprite;
+            image.color = slotOutlineColor;
+            image.raycastTarget = false;
+        }
+    }
+
     private void InitializeActionFrame()
     {
         _spawnedActionFrame = Instantiate(actionFramePrefab, allCardsParent);
@@ -130,6 +193,7 @@ public class DeckUIController : MonoBehaviour
     private void ApplyDeck(DeckSaveData deck)
     {
         _spawnedActionFrame.HideActionFrame();
+        CaptureLayout();
 
         foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
         {
@@ -150,6 +214,10 @@ public class DeckUIController : MonoBehaviour
         // Every widget changed container, so the grid has to run again before the next draw. Asking for
         // the rebuild here does not rely on one of the reparents above having happened to dirty it.
         LayoutRebuilder.MarkLayoutForRebuild((RectTransform)allCardsParent);
+
+        // A deck slot switch: the collection reflows by flight, and the new deck pops in card by card, the
+        // way a hand is dealt (NavTabs). Cards that left the deck fly back down with the reflow.
+        PlayLayout(null, false, popDeck: true);
     }
 
     /// <summary>
@@ -162,15 +230,16 @@ public class DeckUIController : MonoBehaviour
         foreach (CardPosition cardPosition in cardPositions)
             cardPosition.CardTypeOccupied = CardType.None;
 
-        if (deck == null) return;
-
-        int count = Mathf.Min(deck.Cards.Count, cardPositions.Count);
-        for (int i = 0; i < count; i++)
+        if (deck != null)
         {
-            if (!cardTypeToCardInDeckInfo.TryGetValue(deck.Cards[i], out CardInDeckInfo info)) continue;
+            int count = Mathf.Min(deck.Cards.Count, cardPositions.Count);
+            for (int i = 0; i < count; i++)
+            {
+                if (!cardTypeToCardInDeckInfo.TryGetValue(deck.Cards[i], out CardInDeckInfo info)) continue;
 
-            cardPositions[i].CardTypeOccupied = deck.Cards[i];
-            MoveToDeckPosition(info.SingleCardInDeck, cardPositions[i].PositionTransform);
+                cardPositions[i].CardTypeOccupied = deck.Cards[i];
+                MoveToDeckPosition(info.SingleCardInDeck, cardPositions[i].PositionTransform);
+            }
         }
     }
 
@@ -227,13 +296,20 @@ public class DeckUIController : MonoBehaviour
             _spawnedActionFrame.transform.SetAsLastSibling();
     }
 
+    /// <summary>
+    /// Opens the card's popup pinned to the top edge of the card (DeckEquip: it opens above the card and pops from
+    /// its bottom edge, so the card stays visible). It lives in the container holding the card's whole section, so
+    /// it draws over the neighbouring cards and moves with the page when it scrolls; it ignores layout there.
+    /// </summary>
     public void RequestActionFrame(CardDataSO cardData)
     {
-        _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform);
-        _spawnedActionFrame.transform.localPosition = Vector3.zero;
-        _spawnedActionFrame.transform.SetParent(cardTypeToCardInDeckInfo[cardData.CardType].SingleCardInDeck.transform.parent.parent);
-        _spawnedActionFrame.transform.SetAsLastSibling();
-        _spawnedActionFrame.ActivateActionFrame(cardData, cardTypeToCardInDeckInfo[cardData.CardType].IsEquipped);
+        CardInDeckInfo info = cardTypeToCardInDeckInfo[cardData.CardType];
+        Transform frame = _spawnedActionFrame.transform;
+
+        frame.SetParent(info.SingleCardInDeck.transform.parent.parent, false);
+        frame.position = info.SingleCardInDeck.TopCenterWorld;
+        frame.SetAsLastSibling();
+        _spawnedActionFrame.ActivateActionFrame(cardData, info.IsEquipped);
     }
 
     /// <summary>
@@ -250,22 +326,24 @@ public class DeckUIController : MonoBehaviour
 
         if (isEquipped)
         {
-            if (!_playerSaveManager.IsCardOwned(cardType))
+            // Ask which rule would refuse first, so the toast names it (not owned, full, already in).
+            EquipRefusal refusal = _playerSaveManager.GetEquipRefusal(cardType);
+            if (refusal != EquipRefusal.None || !_playerSaveManager.TryEquipCard(cardType))
             {
-                _screenWarning.ShowWarning(WarningMessages.CardLocked);
+                Juice.Refuse(RefusalReasons.From(refusal != EquipRefusal.None ? refusal : EquipRefusal.InvalidCard));
+
+                // A full deck is the deck's no, so the deck shakes; any other no belongs to the card.
+                if (refusal == EquipRefusal.DeckFull) ShakeDeck();
+                else JuiceFx.Deny(info.SingleCardInDeck.Visual, Juice.Tokens.Distances.ShakeCard);
                 return false;
             }
 
-            if (!_playerSaveManager.TryEquipCard(cardType))
-            {
-                _screenWarning.ShowWarning(WarningMessages.CannotEquipCard);
-                return false;
-            }
-
+            CaptureLayout();
             info.IsEquipped = true;
         }
         else
         {
+            CaptureLayout();
             _playerSaveManager.UnequipCard(cardType);
             info.IsEquipped = false;
 
@@ -276,6 +354,11 @@ public class DeckUIController : MonoBehaviour
 
         LayoutDeckArea(_playerSaveManager.ActiveDeck);
         UpdateAverageCost();
+
+        // Equip: the whoosh carries the card over. Remove: the deck closes ranks at once, and ticks as it does.
+        Juice.Sfx(SfxId.Whoosh);
+        if (!isEquipped) Juice.Sfx(SfxId.Tick);
+        PlayLayout(info.SingleCardInDeck, isEquipped);
         return true;
     }
 
@@ -292,8 +375,137 @@ public class DeckUIController : MonoBehaviour
             equippedCount++;
         }
 
-        medianCostText.text = equippedCount > 0 ? $"{totalCost / equippedCount:0.0}" : "0.0";
+        float average = equippedCount > 0 ? totalCost / equippedCount : 0f;
+        _averageCostRoll?.Kill();
+
+        // The first layout states the number; every later change rolls to it and pops, so the player sees
+        // what the card they just moved did to the deck.
+        if (!_presented || Juice.ReduceMotion || Mathf.Approximately(average, _shownAverageCost))
+        {
+            _shownAverageCost = average;
+            medianCostText.text = $"{average:0.0}";
+            return;
+        }
+
+        JuiceTokensSO t = Juice.Tokens;
+        _averageCostRoll = DOVirtual.Float(_shownAverageCost, average, t.Durations.Count, value =>
+            {
+                _shownAverageCost = value;
+                medianCostText.text = $"{value:0.0}";
+            })
+            .SetEase(t.Eases.Out).SetUpdate(true).SetLink(gameObject)
+            .OnComplete(() => JuiceFx.Punch(medianCostText.transform, t.Scales.PunchSoft));
     }
+
+    /// <summary>The "First" of FLIP: where every card is drawn before the layout moves them.</summary>
+    private void CaptureLayout()
+    {
+        _layoutBefore.Clear();
+        if (!CanAnimateLayout) return;
+
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
+            _layoutBefore[info.SingleCardInDeck] = info.SingleCardInDeck.VisualPosition;
+    }
+
+    /// <summary>
+    /// The "Last, Invert, Play" of FLIP: settle the layout now, then draw every card that moved back where it
+    /// was and fly it to its new place. The card the player moved arcs over the page and lands; the deck closes
+    /// ranks behind a removed card, and the collection slides into the gap a card left, a little after one another.
+    /// </summary>
+    /// <param name="moved">The card the player equipped or removed, or null for a reorder.</param>
+    /// <param name="movedIntoDeck">Whether that card went into the deck (a landing) or came out of it.</param>
+    /// <param name="popDeck">A deck slot switch: the deck's cards pop in where they are instead of flying.</param>
+    private void PlayLayout(SingleCardInDeck moved, bool movedIntoDeck, bool popDeck = false)
+    {
+        if (_layoutBefore.Count == 0 || !CanAnimateLayout)
+        {
+            _layoutBefore.Clear();
+            return;
+        }
+
+        // Last: the grid has to know where everything goes before anything can fly there.
+        LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)allCardsParent);
+
+        JuiceTokensSO t = Juice.Tokens;
+        bool popped = false;
+
+        // The deck first, in slot order: on a slot switch it pops in card by card, the way a hand is dealt; after a
+        // removal the cards behind the gap close ranks one after another, overshooting into their slots.
+        int closed = 0;
+        for (int i = 0; i < cardPositions.Count; i++)
+        {
+            CardType type = cardPositions[i].CardTypeOccupied;
+            if (type == CardType.None || !cardTypeToCardInDeckInfo.TryGetValue(type, out CardInDeckInfo info)) continue;
+
+            SingleCardInDeck card = info.SingleCardInDeck;
+            if (!_layoutBefore.Remove(card, out Vector3 before)) continue;
+
+            if (popDeck)
+            {
+                card.StopFlight();
+                card.PopIn(i * t.Durations.Stagger);
+                popped = true;
+                continue;
+            }
+
+            if (card == moved)
+            {
+                card.FlyFrom(before, 0f, SingleCardInDeck.Flight.Equip, () => HandleCardLanded(card, true));
+                continue;
+            }
+
+            if (card.FlyFrom(before, closed * t.Durations.Stagger, SingleCardInDeck.Flight.Snap)) closed++;
+        }
+
+        // Then the collection: a removed card travels home, and the grid slides into the gap a card left (or opens
+        // the one a returning card needs).
+        int reflowed = 0;
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
+        {
+            SingleCardInDeck card = info.SingleCardInDeck;
+            if (!_layoutBefore.TryGetValue(card, out Vector3 before)) continue;
+
+            if (card == moved)
+            {
+                card.FlyFrom(before, 0f, SingleCardInDeck.Flight.Remove, () => HandleCardLanded(card, movedIntoDeck));
+                continue;
+            }
+
+            float delay = Mathf.Min(reflowed, 10) * t.Durations.Stagger * 0.5f;
+            if (card.FlyFrom(before, delay, SingleCardInDeck.Flight.Slide)) reflowed++;
+        }
+
+        if (popped) Juice.Sfx(SfxId.Tick);
+        _layoutBefore.Clear();
+    }
+
+    /// <summary>
+    /// The moved card arrives and settles with a squash. Into the deck, its slot answers: an attention ring, a thud
+    /// and a buzz. Home, the squash is all (the deck already ticked as it closed ranks).
+    /// </summary>
+    private void HandleCardLanded(SingleCardInDeck card, bool intoDeck)
+    {
+        JuiceFx.Land(card.Visual, Vector3.one, unscaled: true);
+        if (!intoDeck) return;
+
+        if (card.transform.parent is RectTransform slot)
+            UiFx.Ring(slot, Juice.Tokens.Colors.Attention, 130f, 330f, 0.4f);
+
+        Juice.Sfx(SfxId.Thud);
+        Juice.Haptic(HapticRole.Select);
+    }
+
+    /// <summary>The deck says no as a whole: every card in it shakes.</summary>
+    private void ShakeDeck()
+    {
+        float distance = Juice.Tokens.Distances.ShakeCard;
+        foreach (CardInDeckInfo info in cardTypeToCardInDeckInfo.Values)
+            if (info.IsEquipped && !info.SingleCardInDeck.IsFlying) JuiceFx.Deny(info.SingleCardInDeck.Visual, distance);
+    }
+
+    /// <summary>Only a page on screen animates: a hidden page relays out instantly, like it always did.</summary>
+    private bool CanAnimateLayout => animateLayout && _presented && isActiveAndEnabled &&
+                                     allCardsParent != null && allCardsParent.gameObject.activeInHierarchy;
 
     /// <summary>Pushes one card's saved level and copy count into its widget.</summary>
     private void RefreshProgression(CardType cardType)
@@ -305,6 +517,15 @@ public class DeckUIController : MonoBehaviour
             _playerSaveManager.GetCardProgress(cardType)?.Copies ?? 0,
             _playerSaveManager.GetCopiesRequired(cardType),
             _playerSaveManager.IsCardOwned(cardType));
+
+        info.SingleCardInDeck.SetUpgradeReady(_playerSaveManager.CanUpgradeCard(cardType));
+    }
+
+    /// <summary>Gold decides which cards can be upgraded, so every tile re-asks when it moves.</summary>
+    private void RefreshAllUpgradeReady()
+    {
+        foreach (KeyValuePair<CardType, CardInDeckInfo> pair in cardTypeToCardInDeckInfo)
+            pair.Value.SingleCardInDeck.SetUpgradeReady(_playerSaveManager.CanUpgradeCard(pair.Key));
     }
 
     private void RefreshAllProgression()
@@ -350,7 +571,7 @@ public class DeckUIController : MonoBehaviour
 
         if (!upgrade)
         {
-            _screenWarning.ShowWarning(upgrade.WarningMessage);
+            Juice.Refuse(upgrade.Refusal, upgrade.RefusalDetail);
             return false;
         }
 
@@ -366,10 +587,20 @@ public class DeckUIController : MonoBehaviour
         RefreshProgression(cardType);
 
         // A newly unlocked card stops sorting with the locked ones.
-        if (wasInCollection && _playerSaveManager.IsCardOwned(cardType)) ApplySort();
+        if (wasInCollection && _playerSaveManager.IsCardOwned(cardType))
+        {
+            CaptureLayout();
+            ApplySort();
+            PlayLayout(null, false);
+        }
     }
 
-    private void HandleSlotSelected(int index) => _playerSaveManager.SetActiveDeck(index);
+    private void HandleSlotSelected(int index)
+    {
+        Juice.Sfx(SfxId.Tick);
+        Juice.Haptic(HapticRole.Select);
+        _playerSaveManager.SetActiveDeck(index);
+    }
 
     private void HandleActiveDeckSlotChanged(int index)
     {
@@ -379,7 +610,9 @@ public class DeckUIController : MonoBehaviour
 
     private void HandleSortChanged(CardSortKey key, bool ascending)
     {
+        CaptureLayout();
         _playerSaveManager.SetSortPreference(key, ascending);
         ApplySort();
+        PlayLayout(null, false);
     }
 }

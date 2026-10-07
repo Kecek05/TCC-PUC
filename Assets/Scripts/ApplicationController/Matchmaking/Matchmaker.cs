@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
@@ -27,19 +28,24 @@ public class Matchmaker : BaseMatchmaker
         _clientManager = clientManager;
     }
 
-    public override async Task<MatchmakingOutcome> FindOrCreateMatchAsync()
+    public override async Task<MatchmakingOutcome> FindOrCreateMatchAsync(CancellationToken cancel = default)
     {
-        if (await TryJoinOpenMatchAsync()) return MatchmakingOutcome.Joined;
+        JoinAttempt join = await TryJoinOpenMatchAsync(cancel);
+        if (join == JoinAttempt.Joined) return MatchmakingOutcome.Joined;
+        if (join == JoinAttempt.Cancelled || cancel.IsCancellationRequested) return MatchmakingOutcome.Cancelled;
 
+        RaiseHostingStarted();
         return await TryHostAsync() ? MatchmakingOutcome.Hosting : MatchmakingOutcome.Failed;
     }
+
+    private enum JoinAttempt { NoMatch, Joined, Cancelled }
 
     /// <summary>
     /// Every failure here returns false rather than throwing, because none of them is an error the player
     /// should see: "nobody is waiting" and "the one who was waiting has since gone" both mean the same
     /// thing to a press of Battle, and the answer to both is to host.
     /// </summary>
-    private async Task<bool> TryJoinOpenMatchAsync()
+    private async Task<JoinAttempt> TryJoinOpenMatchAsync(CancellationToken cancel)
     {
         Lobby lobby;
         try
@@ -49,22 +55,30 @@ public class Matchmaker : BaseMatchmaker
         catch (LobbyServiceException e) when (e.Reason == LobbyExceptionReason.NoOpenLobbies)
         {
             GameLog.Info("[Matchmaker] No open match waiting; hosting one.");
-            return false;
+            return JoinAttempt.NoMatch;
         }
         catch (Exception e)
         {
             GameLog.Exception(e);
-            return false;
+            return JoinAttempt.NoMatch;
         }
 
-        if (lobby == null) return false;
+        if (lobby == null) return JoinAttempt.NoMatch;
+
+        // The last clean exit: a seat is held but nothing has connected yet, so giving it back undoes everything.
+        if (cancel.IsCancellationRequested)
+        {
+            GameLog.Info($"[Matchmaker] Search cancelled; giving back the seat in {lobby.Id}.");
+            await LeaveLobbySafeAsync(lobby.Id);
+            return JoinAttempt.Cancelled;
+        }
 
         string joinCode = ReadJoinCode(lobby);
         if (string.IsNullOrEmpty(joinCode))
         {
             GameLog.Error($"[Matchmaker] Lobby {lobby.Id} advertised no join code. Leaving it and hosting.");
             await LeaveLobbySafeAsync(lobby.Id);
-            return false;
+            return JoinAttempt.NoMatch;
         }
 
         bool joined = false;
@@ -83,7 +97,7 @@ public class Matchmaker : BaseMatchmaker
             // quick-joining into a match that is already full. The host deletes the whole lobby when the
             // match commits (BaseHostManager.CloseLobbyToNewPlayers), which releases it.
             GameLog.Info($"[Matchmaker] Joined open match {lobby.Id}.");
-            return true;
+            return JoinAttempt.Joined;
         }
 
         // A host that crashed leaves its lobby advertised until the heartbeat lapses, so quick join will
@@ -91,7 +105,7 @@ public class Matchmaker : BaseMatchmaker
         // the seat back so the dead lobby is not held open by a phantom member, and host instead.
         GameLog.Info($"[Matchmaker] Lobby {lobby.Id} was stale; leaving it and hosting instead.");
         await LeaveLobbySafeAsync(lobby.Id);
-        return false;
+        return JoinAttempt.NoMatch;
     }
 
     private async Task<bool> TryHostAsync()

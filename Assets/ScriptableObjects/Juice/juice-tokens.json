@@ -1,0 +1,269 @@
+{
+  "name": "Juice & Feedback System",
+  "version": 1,
+  "meta": {
+    "source": "unity-project",
+    "repo": "MinimalistDefense (TCC-PUC, local)",
+    "ref": "main@c8c68a16",
+    "paths": {
+      "colors": ["Assets/ScriptableObjects/Cards/CardsRarityData.asset", "Art/render.ps1", "Assets/ScriptableObjects/Presentation/HitFeedbackSettings.asset", "Assets/ScriptableObjects/Presentation/TowerFeedbackSettings.asset", "Assets/Scenes/MainMenu.unity", "Assets/Scenes/GameScene.unity", "Assets/Prefabs/Cards/CardBase.prefab"],
+      "motion": ["Assets/Scripts/Presentation", "Assets/Scripts/UI/Menu", "Assets/Prefabs/Cards/CardBase.prefab", "Assets/Prefabs/Towers/BaseTower.prefab"],
+      "fonts": ["Assets/Font/Fredoka/Fredoka-VariableFont_wdth,wght.ttf"]
+    },
+    "synced": "2026-10-06"
+  },
+  "color": {
+    "themes": [
+      { "id": "game", "name": "Game" }
+    ],
+    "tokens": [
+      { "name": "page", "value": "#3e3757", "usage": "Main Menu page background, and the ground behind the GameScene map. Ground for `ink` (10.2:1) and `ink-muted` (5.3:1)." },
+      { "name": "nav", "value": "#2c273f", "usage": "Bottom nav bar. Ground for nav icons: `ink` when selected (13.1:1), `ink-muted` when not (6.8:1)." },
+      { "name": "pill", "value": "#1f1816c9", "usage": "Top-bar stat pills (level, gold, gems, trophies) over `page`: #1f1816 at 79%. Ground for `ink` numbers (14.8:1) and the counters that roll." },
+      { "name": "hud-pill", "value": "#241c1a9c", "usage": "In-match HUD pills (names, base health, wave) over the board: #241c1a at 61%." },
+      { "name": "panel", "value": "#cacaca", "usage": "Info panel and modal sheets (Image tint over BackgroundInfoPanel.png). Text on it is always outlined: plain `ink` on `panel` is 1.5:1, `outline` around it is 12.8:1." },
+      { "name": "tile", "value": "#959595", "usage": "Card face behind the art (Card_V2 on the deck page and in the collection)." },
+      { "name": "stat", "value": "#8c8c8c", "usage": "Stat row pills in the info panel (tab buttons use the near-identical #8e8e8e). Its `gain` text is outlined: 2.7:1 without the outline." },
+      { "name": "scrim", "value": "#000000b8", "usage": "Dim behind the tutorial and modals: black at 72%." },
+      { "name": "sheet", "value": "#14171ff2", "usage": "Dark sheets: the tutorial text box today (#14171f at 95%), and the refusal toast this system adds. `ink` on it is 16.1:1, `deny` 5.2:1." },
+      { "name": "ink", "value": "#f5f5f5", "usage": "Every label, number and icon. Always Fredoka Bold with `outline` around it, which is what keeps it legible on `panel`, `mint`, `cta` and the card tints. On `page` alone: 10.2:1." },
+      { "name": "ink-muted", "value": "#b3b3b3", "usage": "Deselected nav icons and slot tabs (MenuNavButton, DeckSlotBar); resisted damage numbers. 6.8:1 on `nav`, 5.3:1 on `page`." },
+      { "name": "outline", "value": "#000000", "usage": "The black text outline baked into the Fredoka-Bold SDF material (_OutlineWidth 0.463), the troops' silhouette outline and the towers' hard drop shadow." },
+      { "name": "button", "value": "#d5d5d5", "usage": "Face colour baked into Button.png, the sprite under every plain button; an Image tint multiplies it." },
+      { "name": "button-lip", "value": "#a0a0a0", "usage": "Bottom lip baked into Button.png (37px at 1300 pixels per unit). It disappears while the button is held." },
+      { "name": "cta", "value": "#f5f55b", "usage": "Battle button face (Button_Yellow.png). One per screen; it breathes when idle. Its label is `ink` inside `outline` (18.1:1 for the outline)." },
+      { "name": "cta-lip", "value": "#b8b845", "usage": "Battle button's baked bottom lip. It disappears while the button is held." },
+      { "name": "upgrade", "value": "#59d564", "usage": "Upgrade button as rendered: Image tint #6bff78 multiplied by Button.png's #d5d5d5 face. Glows with `attention` while an upgrade is affordable." },
+      { "name": "upgrade-lip", "value": "#43a04b", "usage": "Upgrade button's bottom lip (#6bff78 × the sprite's #a0a0a0 lip)." },
+      { "name": "gain", "value": "#8aff86", "usage": "Positive deltas: '+4.5' on stat rows, '+N' copies, a level gained. Outlined, like all game text." },
+      { "name": "tint-orange", "value": "#ff8242", "usage": "Orange family: Dart, Chain, Mortar towers; Cisma, Swarm troops. A card's feedback (ghost, rings, sparks) wears the card's own tint." },
+      { "name": "tint-pink", "value": "#ff4280", "usage": "Pink family: Square, Needle, Beacon towers; Ram, MiniBoss troops." },
+      { "name": "tint-purple", "value": "#7242ff", "usage": "Purple family: Slam, Shard towers; Shadow, Miragem troops." },
+      { "name": "tint-plain", "value": "#ffffff", "usage": "Colourless cards: Circle, Stinger, the support towers, every spell, SpawnEnemy. Their feedback stays white." },
+      { "name": "rarity-common", "value": "#9bcdff", "usage": "Common: level text, the level strip on the card, and the reveal burst when a Common is won." },
+      { "name": "rarity-common-soft", "value": "#c7e3ff", "usage": "Common secondary: the inner ring and late sparks of its reveal." },
+      { "name": "rarity-rare", "value": "#2ccf9c", "usage": "Rare: level text, level strip, reveal burst." },
+      { "name": "rarity-rare-soft", "value": "#5ecfac", "usage": "Rare secondary." },
+      { "name": "rarity-epic", "value": "#fe98fe", "usage": "Epic: level text, level strip, reveal burst. On `panel` it needs its outline (1.2:1 without)." },
+      { "name": "rarity-epic-soft", "value": "#feb7fe", "usage": "Epic secondary." },
+      { "name": "rarity-legendary", "value": "#fdd26c", "usage": "Legendary: level text, level strip, reveal burst (7.7:1 on `page`)." },
+      { "name": "rarity-legendary-soft", "value": "#fde1a0", "usage": "Legendary secondary." },
+      { "name": "mint", "value": "#2df2c5", "usage": "Map shapes. Reserved for the board: no feedback is ever mint, so an effect is never mistaken for the map." },
+      { "name": "mint-shade", "value": "#27b293", "usage": "Map shape shadows." },
+      { "name": "mana", "value": "#a0cfff", "usage": "Mana bar fill and card cost (6.8:1 on `page`). Every mana beat (gain tick, full glow, spend drain) is drawn in it." },
+      { "name": "mana-track", "value": "#495e74", "usage": "Mana bar track, which is the hand frame (a dashed Shapes rounded border). `mana` on it is 4.1:1." },
+      { "name": "mana-gain", "value": "#8cd9ff", "usage": "'+N mana' popups (Fonte grants)." },
+      { "name": "mana-short", "value": "#293a4a", "usage": "Card cost text while unaffordable; it blends to `mana` as the mana arrives." },
+      { "name": "short-clock", "value": "#393939a1", "usage": "The radial 'clock' over an unaffordable card covering the missing fraction: #393939 at 63%." },
+      { "name": "deny", "value": "#ff4747", "usage": "Every refusal: mana bar flash, blocked ghost, refused upgrade, the toast's icon. Always with a shake and a word, never colour alone. 3.4:1 against `place-ok`, so the pair differs in lightness." },
+      { "name": "card-flash", "value": "#ff3838", "usage": "CardBase refusal overlay (alpha 0 to 0.55 to 0). A second red beside `deny`; fold it into `deny`." },
+      { "name": "hit-flash", "value": "#ff6b6b", "usage": "Enemy hit tint for `dur-flash`. Coloured on purpose: the art is white, so a white flash would not read on unarmoured enemies." },
+      { "name": "dmg", "value": "#ffffff", "usage": "Damage numbers." },
+      { "name": "dmg-heavy", "value": "#ffd140", "usage": "Heavy-hit numbers (a hit worth 20% of max health or more), drawn at 1.5x." },
+      { "name": "dmg-resist", "value": "{ink-muted}", "usage": "Hits cut by off-colour armour: grey and smaller, so armour is learned by watching it work." },
+      { "name": "place-ok", "value": "#ffffff", "usage": "Valid placement: a solid ring and a check. Blocked placement is `deny` with hatching and a cross, so the two never rely on hue." },
+      { "name": "ghost", "value": "#c0c0c06e", "usage": "Placement ghost body today: #c0c0c0 at 43%. This system tints it with the card's own colour at the same alpha." },
+      { "name": "range", "value": "#dfdfdf3d", "usage": "Range ring while placing or after tapping a tower: #dfdfdf at 24%." },
+      { "name": "range-next", "value": "#66ff664d", "usage": "Next-level range ring in the upgrade preview: #66ff66 at 30%." },
+      { "name": "attention", "value": "#ffeb73", "usage": "The tutorial highlight ring (at 30% today). The one 'ready' colour: an affordable upgrade, a card that just became playable, a new card in the collection." },
+      { "name": "sparkle", "value": "#ffdb59", "usage": "End colour of VFX_UpgradeSparkle; the particles of every celebration." },
+      { "name": "dust", "value": "#ebebf2", "usage": "End colour of VFX_TowerDust: a tower landing." },
+      { "name": "blast", "value": "#f1934e", "usage": "Square and Mortar explosion sprite." },
+      { "name": "ice", "value": "#00c0ff", "usage": "Ice spell (its zone at 21%). Proposed frozen-tower tint, replacing today's pure #0000ff." },
+      { "name": "frozen", "value": "#0000ff", "usage": "Frozen tower tint today (ClientTowerGFX), swapped instantly. Placeholder: replace with `ice`." },
+      { "name": "hasted", "value": "#ffeb04", "usage": "Hasted tower tint today, swapped instantly." },
+      { "name": "zone-haste", "value": "#ffd94d66", "usage": "The zone Haste, Rift and Ferrugem share today: #ffd94d at 40%." },
+      { "name": "zone-rage", "value": "#4cffe166", "usage": "Rage zone: #4cffe1 at 40%." },
+      { "name": "gold", "value": "#efec82", "usage": "Coin icon, gold counter, wave label; the coins that fly in a payout (9.0:1 on `page`)." },
+      { "name": "gem", "value": "#97ff8f", "usage": "Gem icon and counter." },
+      { "name": "trophy", "value": "#d9ce4b", "usage": "Trophy icon and counter." },
+      { "name": "name-you", "value": "#ffc986", "usage": "Your username in the match HUD and on the VS screen." },
+      { "name": "name-foe", "value": "#ff868c", "usage": "The opponent's username in the match HUD and on the VS screen." },
+      { "name": "hp-you", "value": "#97f2dd", "usage": "Your base health label and heart (8.5:1 on `page`); every 'your base was hit' beat." },
+      { "name": "hp-foe", "value": "#ff7273", "usage": "The opponent's base health. 4.2:1 on `page`: large text (50px HUD numbers) only." }
+    ]
+  },
+  "type": {
+    "fonts": [
+      { "family": "Fredoka", "file": "fonts/Fredoka-Variable.ttf", "weight": "300 700" }
+    ],
+    "families": {
+      "game": "\"Fredoka\", \"Arial Rounded MT Bold\", system-ui, sans-serif"
+    },
+    "groups": [
+      {
+        "name": "Game UI",
+        "family": "game",
+        "note": "Authored TMP sizes in canvas units at the 1080x1920 CanvasScaler reference. Fredoka Bold everywhere, always with the black SDF outline (`outline`).",
+        "styles": [
+          { "name": "banner", "fontSize": "94.4px", "lineHeight": 1, "fontWeight": 700, "sample": "VICTORY!", "usage": "VICTORY!, DEFEAT!, VS, and the wave banner." },
+          { "name": "cta", "fontSize": "75.5px", "lineHeight": 1, "fontWeight": 700, "sample": "BATTLE", "usage": "The Battle button." },
+          { "name": "title", "fontSize": "60px", "lineHeight": 1.1, "fontWeight": 700, "sample": "Card Collection", "usage": "Page and section titles." },
+          { "name": "card-name", "fontSize": "54.7px", "lineHeight": 1.1, "fontWeight": 700, "sample": "Chain", "usage": "The card's name on the info panel." },
+          { "name": "number", "fontSize": "50.9px", "lineHeight": 1, "fontWeight": 700, "sample": "711", "usage": "HUD numbers, card cost (44.85 to 50.9), every counter that rolls." },
+          { "name": "button", "fontSize": "40px", "lineHeight": 1, "fontWeight": 700, "sample": "UPGRADE", "usage": "Action buttons (Use, Remove, Details), uppercase." },
+          { "name": "stat-value", "fontSize": "36.2px", "lineHeight": 1.1, "fontWeight": 700, "sample": "45  +4.5", "usage": "Stat values and their `gain` deltas." },
+          { "name": "label", "fontSize": "31.65px", "lineHeight": 1.1, "fontWeight": 700, "sample": "Epic", "usage": "Rarity and type labels." },
+          { "name": "level", "fontSize": "29.24px", "lineHeight": 1.1, "fontWeight": 700, "sample": "Level 1", "usage": "The level strip on a card." },
+          { "name": "stat-title", "fontSize": "23.8px", "lineHeight": 1.1, "fontWeight": 700, "sample": "Damage Lvl 1", "usage": "Stat row titles." }
+        ]
+      },
+      {
+        "name": "Feedback text",
+        "family": "game",
+        "note": "Added by this system: text that only exists for a moment.",
+        "styles": [
+          { "name": "float-number", "fontSize": "48px", "lineHeight": 1, "fontWeight": 700, "sample": "45", "usage": "Damage numbers and '+N mana' popups (in world space: about 0.5 units tall)." },
+          { "name": "float-heavy", "fontSize": "64px", "lineHeight": 1, "fontWeight": 700, "sample": "120", "usage": "Heavy-hit numbers in `dmg-heavy`." },
+          { "name": "toast", "fontSize": "44px", "lineHeight": 1.15, "fontWeight": 700, "sample": "Not enough mana", "usage": "The refusal toast: `ink` on `sheet`, `deny` icon, replacing ScreenWarning's bare 68.3 white text." }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "Canvas units. The game has no spacing scale; these are the stat grid's, the one layout tuned by hand.",
+    "tokens": [
+      { "name": "gap-stat-x", "value": "30px", "usage": "Horizontal gap between stat rows on the info panel (StatsParent grid, 300x80 cells)." },
+      { "name": "gap-stat-y", "value": "22px", "usage": "Vertical gap between stat rows; the pitch the stat rows stagger in at." },
+      { "name": "margin-stat", "value": "20px", "usage": "Space held back below the stat grid (statsBottomMargin), so a shrunk table never ends flush on the frame." }
+    ]
+  },
+  "radius": {
+    "note": "Measured from the UI sprites, in canvas units.",
+    "tokens": [
+      { "name": "radius-button", "value": "19.5px", "usage": "Every button sprite (Button, Button_Blue/Cyan/Yellow): 254px corners at 1300 pixels per unit." },
+      { "name": "radius-frame", "value": "65px", "usage": "The hand frame that is also the mana bar (Shapes rounded border, thickness 28, dashed)." },
+      { "name": "radius-pill", "value": "9999px", "usage": "Top-bar pills, the mana cost badge, the refusal toast, the level pips." }
+    ]
+  },
+  "duration": {
+    "note": "Seconds in Unity, milliseconds here. Existing values are quoted from the code; the rest are new.",
+    "tokens": [
+      { "name": "dur-press", "value": "80ms", "usage": "New. Pointer down on any button or card: to `scale-press`. Buttons get Unity's 0.1s colour tint today and no scale." },
+      { "name": "dur-select", "value": "120ms", "usage": "Card select lift and drag scale-up (CardBase Select/Drag, 0.12s)." },
+      { "name": "dur-release", "value": "180ms", "usage": "Pointer up: back to rest through `ease-pop`'s overshoot (CardBase Release, 0.18s)." },
+      { "name": "dur-flash", "value": "90ms", "usage": "Hit flash (HitFeedbackSettings.FlashDuration 0.09)." },
+      { "name": "dur-hitstop", "value": "60ms", "usage": "Heavy-hit freeze, per enemy (HitStopSeconds 0.06). Never Time.timeScale: on the host that slows the match for both players." },
+      { "name": "dur-punch", "value": "220ms", "usage": "Commit punch when a card is played: 1.1 to `scale-commit` to 0 (0.22s)." },
+      { "name": "dur-fall", "value": "160ms", "usage": "New. The last stretch of a drop onto the board (a tower landing, a spell striking), on `ease-fall`." },
+      { "name": "dur-pop", "value": "300ms", "usage": "Something appearing or snapping: nav select, card Enter Pop, page snap, camera snap-back (all 0.3s today)." },
+      { "name": "dur-settle", "value": "450ms", "usage": "New. A landing's squash (`land-x` by `land-y`) settling back to rest on `ease-settle`." },
+      { "name": "dur-deny", "value": "320ms", "usage": "Refusal shake: card art ±`shake-card`, mana bar ±`shake-bar` (0.32s)." },
+      { "name": "dur-panel", "value": "350ms", "usage": "Modal open, `scale-panel-from` to 1 (info panel, 0.35s). Closing takes `dur-select` on `ease-in`; it is instant today." },
+      { "name": "dur-travel", "value": "400ms", "usage": "Card returning home (0.4s OutExpo), camera slide (0.4s), a card flying to a deck slot, coins flying to a counter." },
+      { "name": "dur-count", "value": "600ms", "usage": "New. A number rolling to its new value: gold, copies, stats, base health." },
+      { "name": "dur-spawn", "value": "700ms", "usage": "Tower scale-in, 0.01 to 1.06 to 1 (0.7s)." },
+      { "name": "dur-levelup", "value": "900ms", "usage": "A new tower level popping in (0.9s)." },
+      { "name": "dur-celebrate", "value": "1400ms", "usage": "New. A card upgrade, end to end: charge, burst, level flip, stat rows ticking." },
+      { "name": "dur-toast", "value": "1600ms", "usage": "New. A refusal toast on screen. ScreenWarning runs about 2.9s today; a reason is read at a glance." },
+      { "name": "dur-banner", "value": "2000ms", "usage": "Wave banner rise (WaveWarningCanvas, 2s)." },
+      { "name": "dur-shake", "value": "120ms", "usage": "Short camera shake (CameraFeedback.Shake on Square/Mortar blasts, 0.12s)." },
+      { "name": "dur-shake-long", "value": "300ms", "usage": "New. Long camera shake: base hit, heavy spell landing." },
+      { "name": "stagger", "value": "40ms", "usage": "New. Between items that move as a list: stat rows, slots compacting, coins leaving." },
+      { "name": "stagger-reveal", "value": "160ms", "usage": "New. Between reward tiles on the end screen, so each one gets its own beat." }
+    ]
+  },
+  "easing": {
+    "note": "Each curve is named for the DOTween Ease it reproduces.",
+    "tokens": [
+      { "name": "ease-out", "value": "cubic-bezier(0.33, 1, 0.68, 1)", "usage": "Ease.OutCubic: anything arriving. Page snap, camera slide, the tutorial text box." },
+      { "name": "ease-in", "value": "cubic-bezier(0.32, 0, 0.67, 0)", "usage": "Ease.InCubic: anything leaving. Popups closing, a played card being consumed." },
+      { "name": "ease-in-out", "value": "cubic-bezier(0.65, 0, 0.35, 1)", "usage": "Ease.InOutCubic: travel with both ends on screen (card to deck slot, coins to counter)." },
+      { "name": "ease-pop", "value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "usage": "Ease.OutBack (1.70158): appear, select, release. Nav select, panel open, sort flip, range ring." },
+      { "name": "ease-press", "value": "cubic-bezier(0.5, 1, 0.89, 1)", "usage": "Ease.OutQuad: press down, colour fades (the mana bar's rest colour returning)." },
+      { "name": "ease-snap", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "usage": "Ease.OutExpo: a card returning to the hand." },
+      { "name": "ease-anticipate", "value": "cubic-bezier(0.36, 0, 0.66, -0.56)", "usage": "Ease.InBack: the wind-up before a launch (upgrade charge, troops leaving)." },
+      { "name": "ease-fall", "value": "cubic-bezier(0.11, 0, 0.5, 0)", "usage": "Ease.InQuad: things dropping onto the board (Fireball, a tower landing)." },
+      { "name": "ease-settle", "value": "linear(0, 0.5 5%, 1 10%, 1.25 15%, 1.276 18%, 1.25 21%, 1.125 25%, 1 30%, 0.938 35%, 0.938 40%, 0.969 45%, 1 50%, 1.016 60%, 1 70%, 0.996 80%, 1)", "usage": "Ease.OutElastic with amplitude 1, period 0.4: a landing settling. Use it on the size of a squash, not on a whole object." },
+      { "name": "ease-breathe", "value": "cubic-bezier(0.37, 0, 0.63, 1)", "usage": "Ease.InOutSine: idle loops (the Battle button breathing, a ready glow) and the intro fade." }
+    ]
+  },
+  "scale": {
+    "note": "Multipliers on an object's rest scale.",
+    "tokens": [
+      { "name": "scale-press", "value": "0.92", "usage": "New. Held down: every button, every card." },
+      { "name": "scale-select", "value": "1.08", "usage": "Card selected in hand (CardBase Select)." },
+      { "name": "scale-drag", "value": "1.12", "usage": "Card being dragged (CardBase Drag)." },
+      { "name": "scale-nav", "value": "1.15", "usage": "Selected nav and slot tab (MenuNavButton, serialized 1.15)." },
+      { "name": "scale-panel-from", "value": "0.8", "usage": "Where a modal starts when it opens (info panel bump)." },
+      { "name": "scale-pop-peak", "value": "1.06", "usage": "Overshoot of Enter Pop (0.6 to 1.06 to 1) and the tower spawn (0.01 to 1.06 to 1)." },
+      { "name": "scale-commit", "value": "1.22", "usage": "Peak of the commit punch before a played card collapses." },
+      { "name": "punch-soft", "value": "0.12", "usage": "New. A counter tick, an icon receiving a coin, a stat row landing (DOPunchScale strength)." },
+      { "name": "punch-hard", "value": "0.35", "usage": "The mana counter refusing (1 to 1.35 to 1), a level-up bounce, a reward tile landing." },
+      { "name": "hit-squash", "value": "1.3", "usage": "Heavy hit, 1 to 1.3 to `hit-rebound` to 1 over 0.18s." },
+      { "name": "hit-rebound", "value": "0.88", "usage": "The rebound after `hit-squash`." },
+      { "name": "land-x", "value": "1.25", "usage": "New. Width at the instant a tower or card lands. Pair with `land-y`: width times height stays about 1." },
+      { "name": "land-y", "value": "0.8", "usage": "New. Height at the instant of landing." },
+      { "name": "breathe", "value": "1.04", "usage": "New. Peak of an idle breath: the Battle button, an affordable Upgrade button." }
+    ]
+  },
+  "distance": {
+    "note": "Canvas units at 1080x1920.",
+    "tokens": [
+      { "name": "lift-card", "value": "22px", "usage": "How far a selected card rises (CardBase moves its Juice node to y 22)." },
+      { "name": "shake-card", "value": "18px", "usage": "Card art refusal shake, decaying over `dur-deny`." },
+      { "name": "shake-bar", "value": "14px", "usage": "Mana bar refusal shake; every other refused button uses it too." },
+      { "name": "rise-banner", "value": "40px", "usage": "How far the wave banner and the old warning text rise (40 to 80)." },
+      { "name": "rise-toast", "value": "24px", "usage": "New. How far a refusal toast slides in." }
+    ]
+  },
+  "angle": {
+    "tokens": [
+      { "name": "tilt-drag", "value": "12deg", "usage": "Maximum lean of a dragged card (spring: lean 7, recovery 60 degrees per second)." },
+      { "name": "tilt-deny", "value": "6deg", "usage": "New. Rotation wobble added to a refused button's shake." }
+    ]
+  },
+  "shake": {
+    "note": "Camera shake as a share of screen height. The match camera is orthographic size 6, so 1% is 0.12 units.",
+    "tokens": [
+      { "name": "shake-micro", "value": "0.42%", "usage": "0.05 units: a Square or Mortar blast on screen (today's only shake, CameraFeedback.Shake(0.12, 0.05, 35))." },
+      { "name": "shake-small", "value": "0.8%", "usage": "New. A spell landing (Fireball, Lance, Ice)." },
+      { "name": "shake-medium", "value": "1.5%", "usage": "New. Your base being hit." },
+      { "name": "shake-large", "value": "2.5%", "usage": "New. The final blow on a base." },
+      { "name": "zoom-kick", "value": "5%", "usage": "Own tower placed: orthographic size 6 to 5.7 and back over 0.28s." },
+      { "name": "shake-freq", "value": "35", "usage": "Shake frequency, in Hz, for every shake above." }
+    ]
+  },
+  "haptic": {
+    "note": "Nice Vibrations presets (HapticPatterns.PresetType), played through MMF_NVPreset and gated by the Vibration setting.",
+    "tokens": [
+      { "name": "haptic-select", "value": "Selection", "usage": "Card select. New: every button press, a page snapping, the ghost snapping onto a slot." },
+      { "name": "haptic-light", "value": "LightImpact", "usage": "A card played." },
+      { "name": "haptic-medium", "value": "MediumImpact", "usage": "Your tower placed. New: a spell landing." },
+      { "name": "haptic-heavy", "value": "HeavyImpact", "usage": "New. Your base hit, at most once per `budget-haptic`." },
+      { "name": "haptic-success", "value": "Success", "usage": "Your tower levelled. New: a card upgraded, a new card revealed, victory." },
+      { "name": "haptic-warning", "value": "Warning", "usage": "A refused play (invalid, no mana). New: every refusal, menu included." },
+      { "name": "haptic-failure", "value": "Failure", "usage": "New. Defeat." }
+    ]
+  },
+  "audio": {
+    "note": "New: the game has no audio yet. Volumes are linear, per mixer group.",
+    "tokens": [
+      { "name": "vol-ui", "value": "0.5", "usage": "Menu and HUD buttons, toggles, page snaps." },
+      { "name": "vol-game", "value": "0.8", "usage": "Gameplay: placing, casting, hits." },
+      { "name": "vol-impact", "value": "1", "usage": "Impacts and celebrations: base hit, upgrade, victory." },
+      { "name": "vol-music", "value": "0.35", "usage": "Music bed; ducked by `duck-music` under celebrations." },
+      { "name": "duck-music", "value": "-6dB", "usage": "How far music dips under a celebration or a banner." },
+      { "name": "pitch-jitter", "value": "6%", "usage": "Random pitch either way on every play, so a repeated sound never sounds identical." },
+      { "name": "pitch-step", "value": "1.0595", "usage": "One semitone. Ladders: each coin, each consecutive hit, each stat row ticking climbs one step." },
+      { "name": "sfx-cooldown", "value": "50ms", "usage": "The same sound cannot restart sooner than this." }
+    ]
+  },
+  "opacity": {
+    "tokens": [
+      { "name": "disabled", "value": "0.5", "usage": "Disabled controls (the Color Tint's disabled alpha)." },
+      { "name": "flash-peak", "value": "0.55", "usage": "Peak alpha of the refusal overlay on a card." },
+      { "name": "ghost-blocked", "value": "0.3", "usage": "New. A ghost over a spot it cannot be placed on." }
+    ]
+  },
+  "budget": {
+    "note": "New. Limits that keep a busy board readable and comfortable.",
+    "tokens": [
+      { "name": "budget-shake", "value": "2", "usage": "Camera shakes per second. A request inside the window merges into the running shake (the larger wins)." },
+      { "name": "budget-flash", "value": "3", "usage": "Large flashes per second (photosensitivity guideline). Hit flashes on single enemies do not count." },
+      { "name": "budget-numbers", "value": "16", "usage": "Floating numbers alive at once; the oldest fades early." },
+      { "name": "budget-voices", "value": "12", "usage": "Sounds playing at once; the quietest is stolen." },
+      { "name": "budget-haptic", "value": "100ms", "usage": "Minimum gap between two haptics, so a burst of hits never buzzes continuously." }
+    ]
+  }
+}

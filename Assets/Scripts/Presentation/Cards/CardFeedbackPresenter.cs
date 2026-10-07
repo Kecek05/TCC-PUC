@@ -88,6 +88,11 @@ public class CardFeedbackPresenter : MonoBehaviour, IPointerDownHandler, IPointe
     {
         if (_committed) return;
         PlayState(selectFeedback);
+
+        // A card the tutorial has closed does not answer the finger at all.
+        if (_card.InteractionBlocked) return;
+        Juice.Sfx(SfxId.Pick);
+        Juice.Haptic(HapticRole.Select);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -132,6 +137,8 @@ public class CardFeedbackPresenter : MonoBehaviour, IPointerDownHandler, IPointe
             // The card is on its way to the server: it collapses now and is retired or restored by the answer.
             _committed = true;
             PlayState(playFeedback);
+            Juice.Sfx(SfxId.Play);
+            Juice.Haptic(HapticRole.Light);
             return;
         }
 
@@ -141,6 +148,7 @@ public class CardFeedbackPresenter : MonoBehaviour, IPointerDownHandler, IPointe
         if (validation.Reason == CardInvalidReason.BlockedByUI) return;
 
         PlayRefusal(validation.Reason);
+        Explain(validation.Reason);
     }
 
     private void HandlePlayResolved(CardValidation validation)
@@ -151,12 +159,34 @@ public class CardFeedbackPresenter : MonoBehaviour, IPointerDownHandler, IPointe
         _committed = false;
         PlayState(restoreFeedback);
         PlayRefusal(validation.Reason);
+        Explain(validation.Reason);
     }
 
     private void HandlePlacedInSlot()
     {
         _committed = false;
         PlayState(enterFeedback);
+        Juice.Sfx(SfxId.Pick, 2, 0.6f);
+    }
+
+    /// <summary>
+    /// Says why, in words: the refusal toast with its deny sound and Warning buzz. Short of mana, it says by how
+    /// much. A refusal the card already shows (the shake, the flash) is not repeated, only explained.
+    /// </summary>
+    private void Explain(CardInvalidReason reason)
+    {
+        RefusalReason refusal = RefusalReasons.From(reason);
+        if (refusal == RefusalReason.None) return;
+
+        string detail = null;
+        if (reason == CardInvalidReason.NotEnoughMana && _card.CardData != null &&
+            ServiceLocator.TryGet(out BaseClientManaManager mana))
+        {
+            int missing = Mathf.Max(1, Mathf.CeilToInt(_card.CardData.Cost - mana.PredictedMana));
+            detail = missing.ToString();
+        }
+
+        Juice.Refuse(refusal, detail);
     }
 
     private void PlayRefusal(CardInvalidReason reason)

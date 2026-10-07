@@ -42,6 +42,7 @@ public class ClientManager : BaseClientManager
         UserData = new UserData();
 
         InitializeGameSettings();
+        InitializeJuice();
         InitializePlayerSave();
         InitializeRewards();
         InitializeTutorial();
@@ -63,6 +64,16 @@ public class ClientManager : BaseClientManager
     {
         _gameSettings = new GameSettingsService();
         ServiceLocator.Register<BaseGameSettingsService>(_gameSettings);
+    }
+
+    /// <summary>
+    /// Installs the feedback services (sound, haptics, refusal toasts) right after the settings they read, for
+    /// the same reason the settings live here: the menu's first button press must already click and buzz,
+    /// and every scene after it shares the same instances.
+    /// </summary>
+    private void InitializeJuice()
+    {
+        JuiceServices.Install(_gameSettings);
     }
 
     /// <summary>
@@ -246,6 +257,7 @@ public class ClientManager : BaseClientManager
         networkClient?.Dispose();
         ServiceLocator.Unregister<BaseRewardService>();
         ServiceLocator.Unregister<BasePlayerSaveManager>();
+        JuiceServices.Uninstall();
         ServiceLocator.Unregister<BaseGameSettingsService>();
         ServiceLocator.Unregister<BaseClientManager>();
     }

@@ -126,7 +126,6 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         }
 
         RectTransform slotRect = (RectTransform)slotTransform;
-        rectTransform.anchoredPosition = slotRect.anchoredPosition;
         originalPosition = slotRect.anchoredPosition;
 
         selfCanvasGroup.alpha = 1f;
@@ -136,7 +135,52 @@ public abstract class AbstractCard : MonoBehaviour, ICardActivatable, IBeginDrag
         // the block has to be cleared with it, or a recycled card would read as closed while being open.
         InteractionBlocked = false;
 
+        if (FlyInFromNextCard()) return;
+
+        rectTransform.anchoredPosition = originalPosition;
         OnPlacedInSlot?.Invoke();
+    }
+
+    private static int s_flightFrame = -1;
+    private static int s_flightsThisFrame;
+
+    /// <summary>
+    /// HandCard: a drawn card comes off the NEXT pile. It flies from the next-card slot to its own, growing to
+    /// full size, and only announces itself placed (the enter pop, the pick sound) when it lands. Cards drawn in
+    /// the same frame (the opening hand) leave the pile one after another. False when there is no pile on screen
+    /// to leave from: the card just appears, as before.
+    /// </summary>
+    /// <remarks>
+    /// It moves the root, which belongs to the drag and the slide home: grabbing a card mid-flight kills the
+    /// flight (OnBeginDrag's DOKill) and the card simply follows the finger.
+    /// </remarks>
+    private bool FlyInFromNextCard()
+    {
+        Transform from = _cardContainer != null ? _cardContainer.NextCardAnchor : null;
+        if (from == null || !from.gameObject.activeInHierarchy || !isActiveAndEnabled || Juice.ReduceMotion) return false;
+
+        if (s_flightFrame != Time.frameCount)
+        {
+            s_flightFrame = Time.frameCount;
+            s_flightsThisFrame = 0;
+        }
+
+        JuiceTokensSO t = Juice.Tokens;
+        float delay = s_flightsThisFrame++ * t.Durations.Stagger * 2f;
+
+        rectTransform.DOKill();
+        rectTransform.position = from.position;
+        rectTransform.localScale = Vector3.one * 0.55f;
+
+        DOTween.Sequence().SetUpdate(true).SetLink(gameObject).SetTarget(rectTransform).SetDelay(delay)
+            .Join(rectTransform.DOAnchorPos(originalPosition, t.Durations.Travel).SetEase(t.Eases.Out))
+            .Join(rectTransform.DOScale(1f, t.Durations.Travel).SetEase(t.Eases.Out))
+            .OnComplete(() => OnPlacedInSlot?.Invoke())
+            .OnKill(() =>
+            {
+                if (rectTransform != null) rectTransform.localScale = Vector3.one;
+            });
+        return true;
     }
     
     public virtual void OnBeginDrag(PointerEventData eventData)

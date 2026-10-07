@@ -29,6 +29,9 @@ public class ClientTowerRangeGFX : MonoBehaviour
     private bool _levelSubscribed;
     private Tween _scaleTween;
 
+    /// <summary>The selected tower's numbers, over it (built on first use).</summary>
+    private TowerInfoPopup _info;
+
     private static ClientTowerRangeGFX _instance;
 
     private void Awake()
@@ -84,8 +87,20 @@ public class ClientTowerRangeGFX : MonoBehaviour
         }
 
         // Tapping empty ground — or re-tapping the tower whose ring is already up — hides it (toggle).
-        if (best == null || best == _currentTower) Hide();
-        else ShowForTower(best);
+        if (best == null || best == _currentTower)
+        {
+            Hide();
+            return;
+        }
+
+        ShowForTower(best);
+        Juice.Sfx(SfxId.Tap);
+        Juice.Haptic(HapticRole.Select);
+
+        // The art, never the networked root; and not over a spawn or level-up animation of its own.
+        ClientTowerGFX gfx = best.GetComponentInChildren<ClientTowerGFX>();
+        if (gfx != null && !gfx.IsPlayingLevelFeedback)
+            JuiceFx.Punch(gfx.transform, Juice.Tokens.Scales.PunchSoft, unscaled: false);
     }
 
     /// <summary>Positions the shared ring over <paramref name="tower"/> and scales it in.</summary>
@@ -107,6 +122,9 @@ public class ClientTowerRangeGFX : MonoBehaviour
         transform.position = tower.transform.position;
         SetVisible(true);
         AnimateRange(fromZero: true);
+
+        if (_info == null) _info = TowerInfoPopup.Create();
+        _info.Show(tower);
     }
 
     public void Hide()
@@ -116,6 +134,7 @@ public class ClientTowerRangeGFX : MonoBehaviour
         UnsubscribeLevel();
         _currentTower = null;
         SetVisible(false);
+        if (_info != null) _info.Hide();
     }
 
     // DOTween scale-in to the tower's diameter (2 x range). fromZero pops it in from nothing on select;

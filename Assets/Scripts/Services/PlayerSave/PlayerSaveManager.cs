@@ -96,15 +96,22 @@ public class PlayerSaveManager : BasePlayerSaveManager
         RaiseActiveDeckContentChanged(ActiveDeck);
     }
 
-    public override bool TryEquipCard(CardType cardType)
+    public override EquipRefusal GetEquipRefusal(CardType cardType)
     {
-        if (cardType == CardType.None) return false;
-        if (!IsCardOwned(cardType)) return false;
+        if (cardType == CardType.None) return EquipRefusal.InvalidCard;
+        if (!IsCardOwned(cardType)) return EquipRefusal.NotOwned;
 
         DeckSaveData deck = ActiveDeck;
-        if (deck.Cards.Count >= DeckSize) return false;
-        if (deck.Cards.Contains(cardType)) return false;
+        if (deck.Cards.Contains(cardType)) return EquipRefusal.AlreadyInDeck;
+        if (deck.Cards.Count >= DeckSize) return EquipRefusal.DeckFull;
+        return EquipRefusal.None;
+    }
 
+    public override bool TryEquipCard(CardType cardType)
+    {
+        if (GetEquipRefusal(cardType) != EquipRefusal.None) return false;
+
+        DeckSaveData deck = ActiveDeck;
         deck.Cards.Add(cardType);
         Persist();
 

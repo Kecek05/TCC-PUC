@@ -32,6 +32,7 @@ public class SpellCard : AbstractCard
 
         SpellCardDataSO spellCardData = GetSpellCardDataSO();
         _ghostSpellCard.SetSprite(spellCardData.SpellGhostSprite);
+        _ghostSpellCard.SetTargetsTowers(spellCardData.SpellData is SpellBuffDataSO);
         
         _ghostSpellCard.SetScale(spellCardData.SpellData.Range * 2f);
     }
@@ -63,14 +64,21 @@ public class SpellCard : AbstractCard
         var baseCheck = base.CanPlayCardAt(worldPosition);
         if (!baseCheck) return baseCheck;
 
-        if ((IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap) || (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap))
+        // Which field refused it decides the words: "works on your field" or "works on theirs".
+        if (IsEnemyMap(worldPosition) && !GetSpellCardDataSO().CanUseInEnemyMap)
             return CardValidation.Invalid(CardInvalidReason.EnemyMap);
+
+        if (IsLocalMap(worldPosition) && !GetSpellCardDataSO().CanUseInLocalMap)
+            return CardValidation.Invalid(CardInvalidReason.LocalMap);
 
         return CardValidation.Valid;
     }
 
     public override void ActivateCard(Vector2 worldPosition)
     {
+        // The brackets stay on their targets until a beat after the spell lands.
+        _ghostSpellCard.LockTargets(GetSpellCardDataSO().SpellData.TravelTime + 0.25f);
+
         _cardSpellDeployer.OnSpellResult += HandleSpellResult;
         _clientManaManager.PredictSpend(cardDataSo.Cost);
 

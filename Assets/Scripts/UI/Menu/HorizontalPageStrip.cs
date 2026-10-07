@@ -31,6 +31,13 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public event Action<int> OnPageChanged;
     public event Action<int> OnPageSettled;
+
+    /// <summary>
+    /// An animated move to a different page has begun: a nav tap or a released swipe that committed. Unlike
+    /// <see cref="OnPageChanged"/>, never raised for the instant layout at start-up, so presentation (the
+    /// whoosh, the tick on arrival) can answer the player without sounding off when the menu loads.
+    /// </summary>
+    public event Action<int> OnPageSwitchStarted;
     public int CurrentPageIndex { get; private set; }
 
     /// <summary>
@@ -173,6 +180,7 @@ public class HorizontalPageStrip : MonoBehaviour, IBeginDragHandler, IDragHandle
         if (animated)
         {
             IsSettled = false;
+            if (changed) OnPageSwitchStarted?.Invoke(index);
             _activeTween = pageStrip.DOAnchorPosX(targetX, snapDuration)
                 .SetEase(snapEase)
                 .OnComplete(() => Settle(settledIndex));

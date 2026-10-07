@@ -1,8 +1,9 @@
 using System;
 
 /// <summary>
-/// Comfort settings the player controls: screen shake and vibration. Game feel reads these before moving the
-/// camera or buzzing the phone, so turning one off silences it everywhere at once.
+/// Comfort settings the player controls: screen shake, vibration, sound, music and reduce motion. Game feel
+/// reads these before moving the camera, buzzing the phone or playing a sound, so turning one off silences it
+/// everywhere at once.
 /// </summary>
 /// <remarks>
 /// Plain C# and registered in <see cref="ServiceLocator"/> by <c>ClientManager</c>, like the save and the
@@ -17,9 +18,20 @@ public abstract class BaseGameSettingsService
 
     public abstract bool ScreenShakeEnabled { get; }
     public abstract bool VibrationEnabled { get; }
+    public abstract bool SoundEnabled { get; }
+    public abstract bool MusicEnabled { get; }
+
+    /// <summary>
+    /// Fewer moving parts for players who need them: no camera shake or zoom kick, no idle loops, punches
+    /// halved, large flashes at most one a second. Sounds and haptics are untouched.
+    /// </summary>
+    public abstract bool ReduceMotion { get; }
 
     public abstract void SetScreenShakeEnabled(bool enabled);
     public abstract void SetVibrationEnabled(bool enabled);
+    public abstract void SetSoundEnabled(bool enabled);
+    public abstract void SetMusicEnabled(bool enabled);
+    public abstract void SetReduceMotion(bool enabled);
 
     protected void RaiseSettingsChanged() => OnSettingsChanged?.Invoke();
 }

@@ -28,6 +28,11 @@ public class ManaCanvas : MonoBehaviour
     private float _barFill;
 
     private bool _initialized = false;
+
+    // ManaBar beats: a whole point gained, the bar filling up, the ceiling rising.
+    private int _shownWhole = -1;
+    private bool _wasFull;
+    private float _maxAtStart = -1f;
     
     private void Start()
     {
@@ -57,6 +62,7 @@ public class ManaCanvas : MonoBehaviour
         _maxMana = _serverManaManager.GetMaxManaNetworkVariable(_teamManager.GetLocalTeam());
 
         _maxMana.OnValueChanged += OnServerMaxManaChanged;
+        _maxAtStart = _maxMana.Value;
 
         _initialized = true;
     }
@@ -74,11 +80,44 @@ public class ManaCanvas : MonoBehaviour
         _barFill = 1f - (_fillPos / _fillTotal);
         
         manaFill.SetDashFill(_barFill);
-        manaText.text = $"{Mathf.FloorToInt(_clientManaManager.PredictedMana)}";
+        int whole = Mathf.FloorToInt(_clientManaManager.PredictedMana);
+        manaText.text = $"{whole}";
+
+        PlayManaBeats(whole);
+    }
+
+    /// <summary>
+    /// A point that regenerates punches the counter with a mana tick a step higher per point; reaching the
+    /// ceiling chimes. Only single-point gains count: a refund or the tutorial's top-up jumps several at once
+    /// and stays quiet, so the bar never chatters.
+    /// </summary>
+    private void PlayManaBeats(int whole)
+    {
+        bool full = _maxMana != null && whole >= Mathf.FloorToInt(_maxMana.Value);
+
+        if (_shownWhole >= 0 && whole == _shownWhole + 1)
+        {
+            JuiceFx.Punch(manaText.transform, Juice.Tokens.Scales.PunchSoft, unscaled: false);
+            if (full && !_wasFull) Juice.Sfx(SfxId.Full);
+            else Juice.Sfx(SfxId.Mana, Mathf.Min(whole, 10), 0.7f);
+        }
+
+        _shownWhole = whole;
+        _wasFull = full;
     }
 
     private void OnServerMaxManaChanged(float previousValue, float newValue)
     {
         manaBackgroundFill.SetDashCount(newValue);
+
+        // The ceiling rising is its own beat: "+1 MAX" off the counter, a hard punch, a rising chime.
+        if (_maxAtStart < 0f || newValue <= previousValue || previousValue <= 0f) return;
+
+        int gained = Mathf.RoundToInt(newValue - previousValue);
+        if (gained <= 0) return;
+
+        CounterAnimator.On(manaText).Float(gained, Juice.Tokens.Colors.ManaGain, " MAX");
+        JuiceFx.Punch(manaText.transform, Juice.Tokens.Scales.PunchHard, unscaled: false);
+        Juice.Sfx(SfxId.Rise);
     }
 }

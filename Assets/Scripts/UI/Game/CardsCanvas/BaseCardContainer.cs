@@ -9,6 +9,9 @@ public abstract class BaseCardContainer : MonoBehaviour
 
     public abstract Transform AddCardToSlot(AbstractCard card);
 
+    /// <summary>Where a card drawn into the hand starts its flight (the next-card pile), or null for none.</summary>
+    public virtual Transform NextCardAnchor => null;
+
     public abstract void SetNextCard(Sprite image);
 
     public abstract void SetNextCardNone();

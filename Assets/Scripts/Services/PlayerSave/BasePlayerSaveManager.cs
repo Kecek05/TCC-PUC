@@ -54,6 +54,13 @@ public abstract class BasePlayerSaveManager
     /// <summary>Adds a card to the active deck. False when unowned, already in the deck, or the deck is full.</summary>
     public abstract bool TryEquipCard(CardType cardType);
 
+    /// <summary>
+    /// Why <see cref="TryEquipCard"/> would refuse <paramref name="cardType"/> right now, or
+    /// <see cref="EquipRefusal.None"/> when it would succeed. The deck page asks this first so the player is
+    /// told which rule stopped them (not owned, deck full, already in the deck) rather than one generic no.
+    /// </summary>
+    public abstract EquipRefusal GetEquipRefusal(CardType cardType);
+
     public abstract void UnequipCard(CardType cardType);
 
     /// <summary>Replaces a slot's cards wholesale (used by the debug-hand override).</summary>

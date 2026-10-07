@@ -35,8 +35,30 @@ public static class FloatingNumbers
         Spawn(position, text, intensity, color);
     }
 
+    /// <summary>
+    /// A word over the board ("INCOMING!", "SENT x3"): the same pooled rise as a number, for the few beats
+    /// that are worth saying out loud. Rare, so building the string at the call site is fine.
+    /// </summary>
+    public static void Say(Vector3 position, string text, float intensity, Color color)
+    {
+        Spawn(position, text, intensity, Solid(color));
+    }
+
+    /// <summary>A gradient that is just one colour, for callers that think in colours.</summary>
+    public static Gradient Solid(Color color)
+    {
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(new[] { new GradientColorKey(color, 0f), new GradientColorKey(color, 1f) },
+            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) });
+        return gradient;
+    }
+
     private static void Spawn(Vector3 position, string text, float intensity, Gradient color)
     {
+        // Each player watches one field at a time; a number on the other one is never seen but would still
+        // take a slot of the pooled budget from a number that is.
+        if (!CameraFeedback.IsOnScreen(position, 0.05f)) return;
+
         MMFloatingTextSpawnEvent.Trigger(Channel, position, text, Vector3.up, intensity,
             forceColor: color != null, animateColorGradient: color);
     }

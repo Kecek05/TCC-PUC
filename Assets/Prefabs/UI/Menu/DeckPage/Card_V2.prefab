@@ -162,6 +162,7 @@ GameObject:
   - component: {fileID: 178032822153203776}
   - component: {fileID: 2745080530156327638}
   - component: {fileID: 3995438516113708414}
+  - component: {fileID: 669973946355887433}
   m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
@@ -270,6 +271,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &669973946355887433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987056305721209469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 8019318411945330067}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 0
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &2592887435207427794
 GameObject:
   m_ObjectHideFlags: 0
@@ -1351,6 +1370,7 @@ MonoBehaviour:
   lockedTint: {r: 0.32, g: 0.32, b: 0.32, a: 1}
   lockedLabel: Locked
   maxLevelLabel: MAX
+  visual: {fileID: 0}
 --- !u!1 &6639068167159200915
 GameObject:
   m_ObjectHideFlags: 0

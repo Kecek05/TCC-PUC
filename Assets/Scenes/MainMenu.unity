@@ -326,6 +326,7 @@ GameObject:
   - component: {fileID: 43101939}
   - component: {fileID: 43101938}
   - component: {fileID: 43101941}
+  - component: {fileID: 43101942}
   m_Layer: 0
   m_Name: TypeButton
   m_TagString: Untagged
@@ -450,6 +451,24 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 1, y: -2.5}
   m_UseGraphicAlpha: 1
+--- !u!114 &43101942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43101936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &43409781
 GameObject:
   m_ObjectHideFlags: 0
@@ -653,7 +672,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -60, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &65134163
 MonoBehaviour:
@@ -668,15 +687,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.14901961}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.16}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: a1f32cfc658cb504c86e77c6882f3974, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -700,7 +719,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 65134161}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
@@ -715,7 +734,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 65134161}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
@@ -932,6 +951,7 @@ GameObject:
   - component: {fileID: 92139694}
   - component: {fileID: 92139693}
   - component: {fileID: 92139692}
+  - component: {fileID: 92139695}
   m_Layer: 5
   m_Name: BuyButton
   m_TagString: Untagged
@@ -1041,6 +1061,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 92139690}
   m_CullTransparentMesh: 1
+--- !u!114 &92139695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 92139690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &100999504
 GameObject:
   m_ObjectHideFlags: 0
@@ -1185,6 +1223,7 @@ RectTransform:
   - {fileID: 1609039159}
   - {fileID: 1997126644}
   - {fileID: 619013633}
+  - {fileID: 1923005941}
   m_Father: {fileID: 1446648312}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.92100006}
@@ -1204,6 +1243,7 @@ GameObject:
   - component: {fileID: 146425359}
   - component: {fileID: 146425358}
   - component: {fileID: 146425357}
+  - component: {fileID: 146425360}
   m_Layer: 0
   m_Name: ClientButton
   m_TagString: Untagged
@@ -1313,6 +1353,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146425355}
   m_CullTransparentMesh: 1
+--- !u!114 &146425360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146425355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &170349411
 GameObject:
   m_ObjectHideFlags: 0
@@ -2741,6 +2799,126 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 286b5e75b7df1c7478ef93ae0db827d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuNavButton
+--- !u!1 &452395027
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 452395028}
+  - component: {fileID: 452395032}
+  - component: {fileID: 452395031}
+  - component: {fileID: 452395030}
+  - component: {fileID: 452395029}
+  m_Layer: 0
+  m_Name: SettingsCanvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &452395028
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452395027}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 958219600}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &452395029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452395027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcda0329aaed2e447af613a806cd2714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsPanel
+  openButton: {fileID: 1923005937}
+  font: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
+  panelSprite: {fileID: 21300000, guid: 864542868f71d3a46b1fb4e422819bde, type: 3}
+  pillSprite: {fileID: 21300000, guid: a1f32cfc658cb504c86e77c6882f3974, type: 3}
+  circleSprite: {fileID: 21300000, guid: 83f001df46b056a4995f1cd7c3d4f665, type: 3}
+  closeSprite: {fileID: 21300000, guid: 35ffecfad94bd8544be0de0bfdab06e7, type: 3}
+--- !u!114 &452395030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452395027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &452395031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452395027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0.5
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &452395032
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 452395027}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 12
+  m_TargetDisplay: 0
 --- !u!1 &479056166
 GameObject:
   m_ObjectHideFlags: 0
@@ -4133,6 +4311,9 @@ MonoBehaviour:
     CardTypeOccupied: 0
   deckSlotBar: {fileID: 2100112217}
   cardSortController: {fileID: 1207561708}
+  animateLayout: 1
+  showSlotOutlines: 1
+  slotOutlineColor: {r: 1, g: 1, b: 1, a: 0.16}
 --- !u!1 &735042450
 GameObject:
   m_ObjectHideFlags: 0
@@ -5004,6 +5185,7 @@ GameObject:
   - component: {fileID: 860480069}
   - component: {fileID: 860480068}
   - component: {fileID: 860480067}
+  - component: {fileID: 860480070}
   m_Layer: 0
   m_Name: UpgradeButton
   m_TagString: Untagged
@@ -5114,6 +5296,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 860480065}
   m_CullTransparentMesh: 1
+--- !u!114 &860480070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860480065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 4
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &872931557
 GameObject:
   m_ObjectHideFlags: 0
@@ -5575,6 +5775,7 @@ Transform:
   - {fileID: 1745252970}
   - {fileID: 988678471}
   - {fileID: 1370789421}
+  - {fileID: 452395028}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &967675042
@@ -6266,7 +6467,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
+      value: 0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6495,6 +6696,7 @@ GameObject:
   - component: {fileID: 1012175131}
   - component: {fileID: 1012175130}
   - component: {fileID: 1012175129}
+  - component: {fileID: 1012175132}
   m_Layer: 0
   m_Name: ServerButton
   m_TagString: Untagged
@@ -6604,6 +6806,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012175127}
   m_CullTransparentMesh: 1
+--- !u!114 &1012175132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012175127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1027108796
 GameObject:
   m_ObjectHideFlags: 0
@@ -6689,6 +6909,8 @@ MonoBehaviour:
   currentGemsLabel: {fileID: 1918288210}
   playerNameLabel: {fileID: 1471622075}
   currentTrophiesLabel: {fileID: 1352464005}
+  moneyIcon: {fileID: 0}
+  arrivalDelay: 0.6
 --- !u!1 &1040753232
 GameObject:
   m_ObjectHideFlags: 0
@@ -6892,6 +7114,7 @@ GameObject:
   - component: {fileID: 1067687992}
   - component: {fileID: 1067687991}
   - component: {fileID: 1067687994}
+  - component: {fileID: 1067687995}
   m_Layer: 0
   m_Name: OrderButton
   m_TagString: Untagged
@@ -7016,6 +7239,24 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 1, y: -2.5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1067687995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067687989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1071445815
 GameObject:
   m_ObjectHideFlags: 0
@@ -7078,6 +7319,7 @@ GameObject:
   - component: {fileID: 1137407564}
   - component: {fileID: 1137407563}
   - component: {fileID: 1137407562}
+  - component: {fileID: 1137407565}
   m_Layer: 0
   m_Name: BattleButton
   m_TagString: Untagged
@@ -7188,6 +7430,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1137407560}
   m_CullTransparentMesh: 1
+--- !u!114 &1137407565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137407560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 1
+  pressSfx: 2
+  clickSfx: 4
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1207561706
 GameObject:
   m_ObjectHideFlags: 0
@@ -7894,6 +8154,7 @@ GameObject:
   - component: {fileID: 1267415844}
   - component: {fileID: 1267415843}
   - component: {fileID: 1267415842}
+  - component: {fileID: 1267415845}
   m_Layer: 0
   m_Name: JoinButton
   m_TagString: Untagged
@@ -8003,6 +8264,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1267415840}
   m_CullTransparentMesh: 1
+--- !u!114 &1267415845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1267415840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 4
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1283406722
 GameObject:
   m_ObjectHideFlags: 0
@@ -10871,6 +11150,81 @@ RectTransform:
   m_AnchoredPosition: {x: -0.7794, y: -86.23633}
   m_SizeDelta: {x: 770.1487, y: 529.2167}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1801189344
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1801189345}
+  - component: {fileID: 1801189347}
+  - component: {fileID: 1801189346}
+  m_Layer: 0
+  m_Name: Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1801189345
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801189344}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1923005941}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 54, y: 54}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1801189346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801189344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 579df7b1d0201be4f89867ab02098f1e, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1801189347
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801189344}
+  m_CullTransparentMesh: 1
 --- !u!1 &1801763337
 GameObject:
   m_ObjectHideFlags: 0
@@ -11045,6 +11399,7 @@ GameObject:
   - component: {fileID: 1833190549}
   - component: {fileID: 1833190548}
   - component: {fileID: 1833190547}
+  - component: {fileID: 1833190550}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -11153,6 +11508,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1833190545}
   m_CullTransparentMesh: 1
+--- !u!114 &1833190550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1833190545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &1839761709
 GameObject:
   m_ObjectHideFlags: 0
@@ -11746,6 +12119,146 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1918288208}
   m_CullTransparentMesh: 1
+--- !u!1 &1923005936
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1923005941}
+  - component: {fileID: 1923005940}
+  - component: {fileID: 1923005938}
+  - component: {fileID: 1923005937}
+  - component: {fileID: 1923005939}
+  m_Layer: 0
+  m_Name: Settings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1923005937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923005936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1923005938}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1923005938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923005936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12100001, g: 0.094111115, b: 0.087388895, a: 0.7882353}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: a1f32cfc658cb504c86e77c6882f3974, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1923005939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923005936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
+--- !u!222 &1923005940
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923005936}
+  m_CullTransparentMesh: 1
+--- !u!224 &1923005941
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1923005936}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1801189345}
+  m_Father: {fileID: 142708167}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 268.8622, y: 0.6499634}
+  m_SizeDelta: {x: 75.8665, y: 75.8665}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &1971324376
 GameObject:
   m_ObjectHideFlags: 0
@@ -12662,6 +13175,11 @@ MonoBehaviour:
   - {fileID: 1801763339}
   - {fileID: 872931559}
   startingPageIndex: 1
+  plateSprite: {fileID: 21300000, guid: a1f32cfc658cb504c86e77c6882f3974, type: 3}
+  plateColor: {r: 1, g: 1, b: 1, a: 0.08}
+  platePadding: {x: 70, y: 10}
+  staggerPageContent: 1
+  maxStaggeredChildren: 8
 --- !u!1 &2100112214
 GameObject:
   m_ObjectHideFlags: 0
@@ -12797,6 +13315,7 @@ GameObject:
   - component: {fileID: 2122710131}
   - component: {fileID: 2122710130}
   - component: {fileID: 2122710129}
+  - component: {fileID: 2122710132}
   m_Layer: 5
   m_Name: BuyButton
   m_TagString: Untagged
@@ -12906,6 +13425,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2122710127}
   m_CullTransparentMesh: 1
+--- !u!114 &2122710132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122710127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!224 &2146238183 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7777831004562489272, guid: a8c352de775bbb646ace805b72cf8ff9, type: 3}

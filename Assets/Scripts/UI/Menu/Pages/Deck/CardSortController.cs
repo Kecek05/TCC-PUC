@@ -71,6 +71,7 @@ public class CardSortController : MonoBehaviour
 
         _keyIndex = (_keyIndex + 1) % keyCycle.Count;
         RefreshLabel();
+        if (typeButtonText != null) JuiceFx.Punch(typeButtonText.transform, Juice.Tokens.Scales.PunchSoft);
         OnSortChanged?.Invoke(Key, _ascending);
     }
 

@@ -120,6 +120,7 @@ GameObject:
   - component: {fileID: 5478493330160567952}
   - component: {fileID: 7125633161254864660}
   - component: {fileID: 1190618751649356852}
+  - component: {fileID: 8780874997453574893}
   m_Layer: 0
   m_Name: TabButton
   m_TagString: Untagged
@@ -256,6 +257,24 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8780874997453574893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6111395106244086761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92dca7fc81560479ec1f956247c12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  target: {fileID: 0}
+  breatheWhenIdle: 0
+  pressSfx: 2
+  clickSfx: 3
+  haptic: 1
+  disabledReason: 0
 --- !u!1 &6946689587215574374
 GameObject:
   m_ObjectHideFlags: 0

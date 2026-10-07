@@ -50,7 +50,8 @@ public static class Loader
         currentScene = Scene.Loading;
         loadType = LoadType.None;
 
-        SceneManager.LoadScene(Scene.Loading.ToString());
+        // Every switch is a circle wipe: the screen is covered first, then the scene changes under it.
+        SceneTransition.Cover(() => SceneManager.LoadScene(Scene.Loading.ToString()));
     }
     
     /// <summary>
@@ -70,7 +71,12 @@ public static class Loader
             return;
         }
 
-        NetworkManager.Singleton.SceneManager.LoadScene(Scene.Loading.ToString(), LoadSceneMode.Single);
+        SceneTransition.Cover(() =>
+        {
+            // The host can have gone in the moment the wipe took.
+            if (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null) return;
+            NetworkManager.Singleton.SceneManager.LoadScene(Scene.Loading.ToString(), LoadSceneMode.Single);
+        });
     }
     
     /// <summary>
@@ -82,25 +88,31 @@ public static class Loader
         loadType = LoadType.Client;
         currentScene = Scene.Loading;
 
-        SceneManager.LoadScene(Scene.Loading.ToString());
+        SceneTransition.Cover(() => SceneManager.LoadScene(Scene.Loading.ToString()));
     }
     
     public static void LoadCallback()
     {
+        // The loading screen wipes out before what it was loading arrives, like every other switch.
+        Scene target = targetScene;
         switch(loadType)
         {
             case LoadType.None:
-                SceneManager.LoadScene(targetScene.ToString());
-                currentScene = targetScene;
+                currentScene = target;
+                SceneTransition.Cover(() => SceneManager.LoadScene(target.ToString()));
                 break;
             case LoadType.Client:
                 // Debug.Log($"Load Callback Client Connect");
-                ServiceLocator.Get<BaseClientManager>().ConnectClient();
                 currentScene = Scene.GameScene;
+                SceneTransition.Cover(() => ServiceLocator.Get<BaseClientManager>().ConnectClient());
                 break;
             case LoadType.Host:
-                NetworkManager.Singleton.SceneManager.LoadScene(targetScene.ToString(), LoadSceneMode.Single);
-                currentScene = targetScene;
+                currentScene = target;
+                SceneTransition.Cover(() =>
+                {
+                    if (NetworkManager.Singleton == null || NetworkManager.Singleton.SceneManager == null) return;
+                    NetworkManager.Singleton.SceneManager.LoadScene(target.ToString(), LoadSceneMode.Single);
+                });
                 break;
         }
     }

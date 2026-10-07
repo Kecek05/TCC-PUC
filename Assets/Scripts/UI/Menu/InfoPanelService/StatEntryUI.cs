@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -32,5 +33,42 @@ public class StatEntryUI : MonoBehaviour
         // nearly every card and read as a bug. Hide the label instead of printing a change that never comes.
         upgradeValue.gameObject.SetActive(stat.HasUpgrade);
         upgradeValue.text = stat.UpgradeDisplay;
+    }
+
+    /// <summary>
+    /// The upgrade's payoff for one row: the value rolls from what the old level had to what the new one has,
+    /// lit in <c>gain</c>, then the next level's "+N" pops in. Ends exactly on <see cref="SetStat"/>(after), so
+    /// completing it early always leaves the row right.
+    /// </summary>
+    public Tween RollFrom(CardStatProgress before, CardStatProgress after)
+    {
+        JuiceTokensSO t = Juice.Tokens;
+        if (statValue == null)
+        {
+            SetStat(after);
+            return null;
+        }
+
+        string format = string.IsNullOrEmpty(after.Current.Format) ? "0.##" : after.Current.Format;
+        Color rest = statValue.color;
+
+        statValue.text = before.CurrentDisplay;
+        if (upgradeValue != null) upgradeValue.gameObject.SetActive(false);
+
+        return DOTween.Sequence().SetUpdate(true).SetLink(gameObject)
+            .AppendCallback(() => statValue.color = t.Colors.Gain)
+            .Append(DOVirtual.Float(before.Current.Value, after.Current.Value, t.Durations.Count,
+                v => statValue.text = v.ToString(format)).SetEase(t.Eases.Out))
+            .AppendCallback(() =>
+            {
+                SetStat(after);
+                statValue.color = rest;
+                JuiceFx.Punch(statValue.transform, t.Scales.PunchSoft);
+                if (upgradeValue != null && after.HasUpgrade) JuiceFx.PopIn(upgradeValue.transform, 0.4f);
+            })
+            .OnKill(() =>
+            {
+                if (statValue != null) statValue.color = rest;
+            });
     }
 }

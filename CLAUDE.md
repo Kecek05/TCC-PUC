@@ -875,3 +875,222 @@ the moment balance moves — and several already had: descriptions promised "+20
 fodder" and "six seconds" while the tables beside them scaled with card level. Prose keeps the trade-off
 ("devastating down a packed lane, wasted on a lone target"), which is the part no stat row can show. The
 rewrite also dropped Anel's reference to *Ariete* and *Erosao*, two cards that do not exist.
+
+
+### Juice & Feedback System — tokens, three services, and an answer for every interaction
+
+Every tap, drop, hit, upgrade and payout now answers with motion, a sound and (on device) a buzz, all read
+from one token asset. The spec is the **Juice & Feedback System** design-system artifact
+(https://claude.ai/artifact/WRnKDH8PaTYnUQ4BPXdmDu: tokens.json, Moments.md, Unity.md and a live preview per
+recipe); the five decisions in its Unity.md were approved on 2026-10-07.
+
+**Why:** the presentation layer already knew *when* (presenters on gameplay events) but nothing knew *how
+much*: every number lived inside an authored MMF_Player, there was no audio at all, refusals were a bare
+`ScreenWarning` string (and a duplicate equip said "deck full"), and several beats were missing outright —
+damage numbers were raised but nothing spawned them, a spell landing was a `// TODO`, a levelled buff zone
+vanished before its effect ended. Presenters know *when*, services know *how*, tokens know *how much*: retiming
+the game is an edit to one asset, swapping audio an edit to one library.
+
+**How it works:**
+- **Tokens.** `JuiceTokensSO` (`Assets/Resources/Juice/JuiceTokens.asset`, read through `Juice.Tokens`, never
+  null) mirrors tokens.json group for group: durations, eases, scales, distances, shake (a share of screen
+  height: `ShakeUnits(share) = share * 2 * orthoSize`), haptic presets, audio, opacity, budgets, colours.
+  `Kecek/Juice/Import Tokens From Design System` re-imports the json, so the artifact and the asset cannot drift.
+- **One facade, three services.** `Juice.Sfx/Haptic/Refuse/Toast/ReduceMotion` tolerates a missing service, so
+  a scene launched without the boot flow still plays. `JuiceServices.Install` runs in `ClientManager` right
+  after the settings it reads, and registers `BaseSfxService`, `BaseHapticsService`, `BaseToastService`.
+- **Sound.** `SfxService`: pooled AudioSources (budget-voices, quietest stolen), per-cue cooldown, pitch
+  jitter, a semitone ladder (`Juice.Sfx(id, step)` — kills, coins and mana climb), music with ducking.
+  **Bus volumes are multipliers, not an AudioMixer** (deviation from the plan; nothing needed snapshots yet).
+  `SfxLibrarySO` maps the append-only `SfxId` to clips; 36 placeholder WAVs in `Assets/Audio/Sfx/Placeholder/`
+  were rendered from the preview synth recipes. Swapping one is a data change: drop `sfx_<cue>.wav` in
+  `Assets/Audio/Sfx` and run `Kecek/Juice/Rebuild Sfx Library`. The Feel `MMF_Sound` slots were left alone;
+  presenters call `Juice.Sfx` at the same moments, and `MMF_JuiceSfx` exists for authored players that want it.
+- **Haptics.** `HapticsService` maps a `HapticRole` to a Nice Vibrations preset through the tokens, enforces
+  budget-haptic and the Vibration setting.
+- **Refusals are typed.** `RefusalReason` (append-only) → `RefusalCopySO` (`Resources/Juice/RefusalCopy`) →
+  the toast (code-built overlay canvas, sort 26, no raycaster, hint on a second smaller line, deny sound +
+  Warning buzz). `RefusalReasons.From` translates `CardInvalidReason`, `TowerReason`, `EquipRefusal` (new; the
+  save manager's `GetEquipRefusal` names *which* rule refused) and `CardUpgradeInvalidReason`.
+  `CardInvalidReason` gained **appended** members `DifferentTower`, `TowerMaxLevel`, `NoPlaceable`, `LocalMap`.
+- **Settings.** Sound, Music (only when the library has music), Vibration, Screen shake, Reduce motion
+  (PlayerPrefs, `GameSettingsService`). `SettingsPanel` builds itself on its own canvas in MainMenu, opened by
+  the gear in the top bar. Reduce motion: no shakes or idle loops, punches halved, one large flash a second.
+- **Budgets live in the services**, never in callers: shakes/second (`JuiceCamera`), large flashes/second,
+  floating numbers alive (the spawner's pool, 16, never expands), voices, haptic gap.
+
+**Menus.**
+- **`JuicyButton` on every Button**, put there by `Kecek/Juice/Add Juicy Buttons (Prefabs And Scenes)` (re-runnable,
+  skips buttons that already have one): squash on pointer *down*, overshoot on release, click sound, Selection
+  buzz; a disabled tap shakes and explains itself through `IRefusalSource` (the ActionFrame and the info
+  panel explain a greyed Upgrade). Skipped on purpose: `MenuNavButton`s (they own their scale; the nav
+  controller plays their press/whoosh/tick and slides a `NavPlate` behind them), full-screen backdrops, the
+  Quantum Console. Battle breathes. An invisible hit area (Card_V2's Button) squashes its parent instead.
+- **Page switches** sound only when animated: `HorizontalPageStrip.OnPageSwitchStarted` fires for a nav tap
+  or a committed swipe, never for the instant start-up layout, so the menu does not chime as it loads.
+- **Deck page FLIP.** `SingleCardInDeck.Visual` (the `Content` child) is what flies; the layouts move the
+  widget root instantly, the body is drawn back where it was and tweened home. The flight's tween target is
+  the *widget*, not `Content`, so a `JuicyButton` press (which kills tweens on `Content`) cannot strand a card
+  mid-air. The equipped/removed card arcs over the page on a temporary override-sorting Canvas and lands
+  with a squash; a deck-slot switch pops the deck in slot order; a full deck shakes the deck.
+- **Info panel.** Animated close (`IsVisible` stays true until the content switches off), stat rows stagger
+  in, and the **upgrade celebration**: the save's own progress event redraws the panel, then the celebration
+  winds the changed parts back and plays them forward (charge → rarity burst → level flip → stats roll →
+  price pop), so it only ever celebrates an upgrade that was banked. A transparent catcher makes one tap
+  finish it and keeps a second Upgrade from landing mid-sequence. Ready states: the copies bar turns upgrade
+  green with a bobbing arrow on every surface, and an affordable Upgrade breathes.
+- **Gold** rolls (`CounterAnimator`) and coins fly to the icon (`CoinFlight`); a static `s_lastShownGold` makes
+  the menu count in gold earned while it was away (a match), and spending floats "-N" in deny.
+- **Match search.** `MatchSearchView` is built from the Battle button (pill, bobbing dots, clock, cancel
+  cross). The cancel is **cooperative**: `FindOrCreateMatchAsync(CancellationToken)` honours it only before a
+  join or host has begun (a quick-joined seat is handed back) and returns `MatchmakingOutcome.Cancelled`; past
+  that point the load is committed and the view says "Match found!" anyway — tearing down a half-started
+  session is riskier than letting the match load.
+
+**Match.**
+- **Damage numbers finally show.** `FloatingNumbers` raised Feel's floating-text event but no spawner listened,
+  and Feel's TextMeshPro floating text compiles *out* here (`MM_UGUI2` is defined only inside the
+  MoreMountains.Tools asmdef, never for Assembly-CSharp — the old `DamageNumber.prefab` could not render).
+  `JuiceFloatingText` (world-space TextMeshPro) + a `FloatingNumbersSpawner` in GameScene and TutorialScene,
+  built by `Kecek/Juice/Build Floating Numbers (Prefab + Match Scenes)`. Numbers off screen are skipped so the
+  other field's hits cannot take the budget. `FloatingNumbers.Say` puts words up too ("INCOMING!", "SENT x3").
+- **Tower drop-and-land** replaces the authored 0.7s level-1 scale-in (`ClientTowerGFX.dropOnSpawn`): dur-fall,
+  then land-x/land-y settling on ease-settle, ~0.6s, scaled time. `IsPlayingLevelFeedback` includes the drop,
+  so the tutorial's settle still measures it; `OnSpawnLanded` is when the presenter puts down dust, the thud
+  and the own-tower camera kick. Level-ups add a shockwave and the level-up chime; frozen/hasted tints fade.
+- **Placement.** `TowerCard.CanPlayCardAt` now refuses a different tower and a maxed one *locally*; the ghost
+  shows a wobbling deny-tinted blocked state over such a spot and ticks when it snaps to a new slot.
+  `TowerReason.AlreadyOccupied`/`NotInHand` are handled (no more "UnHandled tower reason").
+- **Spells.** `CosmeticSpellProjectile.OnImpact` blasts (`WorldFx`: flash, ring to the hit radius, sparks,
+  boom, small shake). **Buff zones last as long as their effect:** `SpawnSpellVisualRpc` now carries the
+  caster's `CardLevelScale.Duration`; zones bloom in, breathe, blink through their last fifth and fade.
+  That changed an RPC signature, and `ApprovalCheck` does not compare build versions: a build from before
+  this change (V1.0.8) and one after it can still be paired by quick match, and that client then gets no
+  spell visuals. Ship both players the same build, or add a protocol version to the connection payload.
+  `SpellCard` reports the wrong field as `EnemyMap` *or* `LocalMap`, so the toast names the right one.
+- **Your base hit:** `BaseDamageOverlay` (code-built, sort 2): red vignette, medium shake, Heavy buzz, a slow
+  red pulse below 25%, and an "under attack" banner when the camera is on the other field. Labels roll down.
+- **Sounds where they are seen:** enemy hit/heavy/kill(laddered)/leak only when `CameraFeedback.IsOnScreen`.
+- **Troops (decision 5).** The sender sees "SENT xN"; the defender gets a horn, a red ring and INCOMING! over
+  the gate. The approved "client-side reveal delay" needed no hiding at all: sent troops already stand
+  invincible and still for `SpawnDuration`, so the warning plays in that window and the server is untouched.
+- **Flow:** mana ticks per regenerated point (refund/top-up jumps stay silent), "+1 MAX" on a raised cap,
+  cards pop as they become playable, the next card pops in, wave banners horn (drum and foe colour on the last
+  wave), names slide in on the intro, the field swipe ticks, and the **end screen** stamps VICTORY in a gold
+  burst or drops DEFEAT, then reveals the payout tile by tile (a won card flips from a silhouette into a
+  rarity burst, NEW! when it was not owned at match start). One tap completes the whole end sequence.
+
+**Second pass (2026-10-07): the components now look like their previews, not only sound and move like them.**
+The first pass gave every moment its timing and audio but left several components drawn as they were. Each
+preview in the artifact was rendered and compared with a play-mode capture, then matched:
+
+- **Scene switches wipe.** `SceneTransition` (persistent, overlay sort 95) closes a disc in the nav colour before
+  every `Loader` load and opens a hole on each Single `sceneLoaded`; a client's NGO-driven load covers instantly.
+  `IrisGraphic`'s object is created **with an explicit `CanvasRenderer`**: here `AddComponent` of a `Graphic`
+  subclass did not pull it in, and the iris then neither drew nor survived a raycast (an exception every frame).
+- **MatchSearch spans both scenes.** Hosting is not a match found: `BaseMatchmaker.HostingStarted` (raised before
+  `StartHostAsync`) puts the pill in `ShowHosting` (cross gone, no "found" on the wipe). The host then waits in the
+  match scene on the **same pill** (`MatchSearchView.CreateIn`, used by `WaitingPlayersCanvas`), its clock carried
+  over through `MatchSearchView.SearchStartedAt`; "MATCH FOUND!" plays when the state leaves `WaitingForPlayers`,
+  then that screen fades onto the VS intro (`PlayersIntroductionCanvas`: name bands in name-you/name-foe, VS stamp).
+- **DeckEquip.** The popup (`ActionButtons.prefab`: a Panel-coloured sheet, USE / DETAILS side by side) is pinned
+  above the tapped card (`SingleCardInDeck.TopCenterWorld`, the body's rest top edge, so a flight or squash never
+  moves it), slid back inside the page when an edge column would push it off (`ActionFrame.KeepInsidePage`), and
+  closes on any press outside it (`Pointer.current` + an EventSystem raycast; a press on a card or on the tutorial's
+  input shield is not "outside"). Every deck position has a dashed frame a little larger than a card
+  (`JuiceSprites.DashedRoundRect`, built in code) inside a darker rounded deck well (MainMenu scene). Flights are a
+  `SingleCardInDeck.Flight`: **Equip** arcs up (DOJump 90) peaking at scale-select and lands with a slot ring,
+  **Remove** bows under the line, **Snap** is the deck closing ranks on ease-pop in slot order, **Slide** the grid.
+- **HandCard.** Hand cards wear the deck page's family-shaped grey face (`CardFacesSO`,
+  `Assets/ScriptableObjects/Cards/CardFaces.asset`, one sprite per tower/spell/troop). It is a **new `Face` image**:
+  `Background` stays the full-card raycast target, or the card would only be grabbable on its face. The mana clock,
+  the refusal flash and the ready shine all take the face's shape. Ready = pop from 0.94 + an attention bar swept
+  across a `Mask` in the face's shape + one tick. A drawn card **flies off the NEXT pile** into its slot
+  (`AbstractCard.FlyInFromNextCard`, origin `BaseCardContainer.NextCardAnchor`; same-frame draws stagger) and raises
+  `OnPlacedInSlot` on landing, so the enter pop plays on arrival. `NextCardSlot` is only handed the art (the call
+  lives in `CardUIFactory`), so it finds the family, tint and **cost** by looking the sprite up in a card list; the
+  next card shows its cost in a mana bubble like the hand does (the user asked for it instead of a NEXT tag).
+- **Damage numbers** are 25% smaller (`JuiceFloatingText.prefab` font 3.6 -> 2.7, and the setup tool's default).
+- **NavTabs**: the page slides in fully drawn (the user rejected hide-then-fade-in) and **ripples** as it lands:
+  every on-screen card and control, plus top-level sections holding neither, bumps a little in size and trembles,
+  staggered top to bottom (`MenuNavController.RippleIn`, `JuiceFx.Jiggle`). Lighter elements move more; a breathing
+  button (`JuicyButton.IsBreathing`) or a nav tab only trembles, since its scale is spoken for; never a parent and its
+  child both. `Jiggle` restores only what it moved when cut short, so a tap mid-ripple never leaves a button
+  tilted. Tapping the current tab punches and ticks.
+- **RewardReveal.** `RewardPrefab` gained a `Body` child (the sheet-coloured tile) that does the dropping: the root
+  belongs to the `GridLayoutGroup`, which would put a moving root straight back. A won card is the deck page's own
+  `Card_V2` widget (`ClientEndGameCanvas.cardWidgetPrefab`, progress read from the save) under a striped
+  `JuiceSprites.CardBack`; it trembles, flips, flashes the screen in its rarity, bursts, and shows its name in that
+  colour; NEW! is a deny-red pill. "Rewards" and "Tap anywhere to skip to the end" are built beside the rewards
+  area, never inside it (it is cleared on every grant). VICTORY is rarity-legendary, DEFEAT hp-foe; cells 250x360.
+- **SpellCast.** The aim is a faint disc under a slowly turning dashed ring with attention brackets on what the
+  spell will touch: enemies, or the player's towers for a tower buff (`SpellData is SpellBuffDataSO`, i.e. Haste).
+  Targets are found by a short periodic `FindObjectsByType` scan, because `EnemyRegistry` is server-only and a
+  joining client would see no brackets. A falling spell casts a ground shadow (Enemy layer, under the enemies)
+  that grows over its travel time; the landing washes the screen in the blast colour. A zone shows its **scaled**
+  duration as a ring radially filled on a tiny world-space canvas (the URP-safe way to draw a partial ring), and
+  fades out growing to 1.08. The clock is built **before** the bloom shrinks the zone: measured mid-bloom it came
+  out 2.5x too big. A projectile is thrown in from above and to the side, growing as it nears (`entrySide`,
+  `entryScale`); on release the brackets **lock** onto what they framed and ride it through the fall
+  (`GhostSpellCard.LockTargets`, travel time plus a beat), then fade; the landing throws arcing debris
+  (`WorldFx.Debris`) in the blast colour, dust and sparkle.
+- **BaseDamage, full recipe.** A leak adds a deny ring and sparks to the pooled LeakBurst. The heart punches hard and
+  "-N" rises off the health number. The recipe's health bar was built and then removed at the user's request: the
+  HUD shows the number only. From the other field the alert is "▼ Base hit -N" on the dark sheet just above the
+  hand. Under 25% a heartbeat loops every 0.9s (sound, the heart
+  double-punching, the edges pulsing red over a faint red rest) and stops when the match ends.
+- **TowerPlacement.** The ghost is the tower in its card tint at 43% with a solid reach ring and a check badge;
+  a spot that will refuse it (another tower, or one already at its top level, which is now blocked rather than
+  previewed) shows hatching, a dashed red ring and a cross: never hue alone. Every free slot gets a dashed frame
+  on the board while a tower card is held, and the slot the ghost snaps to lights in attention. Frames are sized
+  from the **board's slot spacing** (closest pair of slots), never from the held tower's ghost sprite: ghost sprites
+  differ in canvas and pixels per unit, and sizing off them blew some frames up to two cells wide. At 0.6 of the
+  spacing they leave a clear gap and stay inside the placeable ground.
+- **A serialized default changed in code does not reach a scene already saved with the old value.** The slot
+  frames stayed at a draft's 1.2x a cell in both match scenes after the default went to 0.6, until the scenes'
+  values were edited too. When retuning a field this pass added, check `GameScene`/`TutorialScene`/`MainMenu`.
+- **The spawn drop vs Feel.** Feel's `MMF_Player`s record their target's pose as rest in **Start**, which runs after
+  `OnNetworkSpawn` has already put the art in the drop's stretched start pose (0.86 x 1.16). The shot's squash
+  spring then settled every tower back to that pose: towers stayed squeezed narrow and tall after their first shot.
+  `ClientTowerGFX.RecaptureFeedbackRests` re-initializes the shoot and level players once the drop lands (its
+  OnKill, which also covers completion). Anything else that poses a tower before Start must do the same.
+- **Tower info popup.** Tapping a tower (the existing `ClientTowerRangeGFX` selection, with its range ring) also
+  opens `TowerInfoPopup` above it: name, an in-match tier pill in the tower's tint, then what that tower is for:
+  DPS (highlighted), damage and hits per second for an attacker; slow, armour break, ally damage / attack speed,
+  hold, mana or troops sent (with how often) for a support tower; range; and Hasted/Frozen when it is. Live: it
+  follows the camera and refreshes four times a second. Numbers are the tower data at its tier scaled by the
+  card level and buffs **as the host's `BaseServerTowerCombat` holds them** (`CardScale`, `AttackSpeedBuffPercent`,
+  `DamageBuffPercent`, read-only); a joining client has no server state and shows the authored numbers. DPS is per
+  target: splash, bounces and fragments are not multiplied in.
+- **TowerLevelUp.** Hovering a tower the card can upgrade shows a chip ("LEVEL 2 +38% dmg", or +range for a tower
+  that deals no damage). Dropping: an attention ring closes in, then a white flash, a shockwave in the tower's own
+  tint (`ClientTowerGFX.Tint`), sparkle and a small shake; the reach ring grows to the new range; the tower's
+  **tier badge** appears or punches: the tier number on a disc in the tower's tint on its top-right corner, ringed
+  dark, ringed gold at the top tier, hidden at tier 1. It replaced a row of dots under the tower, which spilled into
+  the next cell and drew over the neighbouring tower; the badge stays inside its own cell, on the tower's root so the
+  drop and a squash never move it. The chip's
+  pill is a sliced `SpriteRenderer`, which, unlike a UI Image, does not shrink its borders to fit: drawn shorter than
+  its two round ends it vanished, so it is drawn exactly ends-high and scaled, and `JuiceSprites.Pill` is two
+  pixels wider than its ends (a zero-width middle draws nothing when stretched).
+- **WaveBanner** is one unscaled DOTween sequence (the authored MMF_Player on the canvas is no longer played):
+  the strip opens, the title slams from 1.6x and a tilt, a subtitle under it, hold, rise away. The final wave is
+  foe-red with a drum and a pulsing screen edge; a wave whose progress reaches 1 gets a green "WAVE CLEARED", and the
+  next wave's banner waits for it to finish.
+- **Popup**: dismissing the info panel by its backdrop, or the card popup by a press outside it, plays a quiet tap.
+
+**Not done, deliberately or for lack of a device:** the button lip collapse (needs pressed sprites), armour
+"clink" (a client cannot tell a resisted hit), and Phase 5 — volumes, haptic strengths and budgets must be tuned
+on a real Android phone. The "Cannot generate 9 slice" error also appeared once with a different vertex count
+(1106704) during match tests; no Juice renderer is sliced at a size that could cause it, so it is logged here
+beside the open issue under Tutorial / FTUE.
+
+- Key files: `JuiceTokensSO.cs`, `Juice.cs`, `JuiceFx.cs`, `JuiceCamera.cs`, `WorldFx.cs`, `JuiceSprites.cs`,
+  `JuiceFloatingText.cs`, `BaseDamageOverlay.cs`, `Audio/*`, `Haptics/*`, `Toast/*` (under
+  `Assets/Scripts/Presentation/Juice/`); `JuicyButton.cs`, `PopupAnimator.cs`, `JuiceToggle.cs`,
+  `CounterAnimator.cs`, `CoinFlight.cs`, `RarityBurst.cs`, `TapCatcher.cs` (under `Assets/Scripts/UI/Juice/`);
+  `UiFx.cs`, `IrisGraphic.cs` (same folder); `SceneTransition.cs` (under `Assets/Scripts/Presentation/Juice/`);
+  `TowerInfoPopup.cs` (under `Assets/Scripts/Presentation/Towers/`);
+  `CardFacesSO.cs`; `SettingsPanel.cs`;
+  `MatchSearchView.cs`; editor tools `JuiceEditorTools.cs`, `JuicyButtonInstaller.cs`, `JuiceMatchSetup.cs`
+  (under `Assets/Editor/KeceK/Juice/`); assets under `Assets/Resources/Juice/`, `Assets/ScriptableObjects/Juice/`
+  (tokens.json) and `Assets/Audio/Sfx/`.

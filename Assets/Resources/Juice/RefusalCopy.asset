@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eed7729a386034458861bedeeabb33a, type: 3}
+  m_Name: RefusalCopy
+  m_EditorClassIdentifier: Assembly-CSharp::RefusalCopySO
+  Font: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
+  PillSprite: {fileID: 21300000, guid: a1f32cfc658cb504c86e77c6882f3974, type: 3}
+  IconSprite: {fileID: 21300000, guid: 83f001df46b056a4995f1cd7c3d4f665, type: 3}
+  SortingOrder: 26
+  TopOffset: 290
+  Entries:
+  - Reason: 1
+    Title: That didn't work
+    Hint: '{0}'
+  - Reason: 2
+    Title: Not enough mana
+    Hint: '{0} more'
+  - Reason: 3
+    Title: Can't play that there
+    Hint: '{0}'
+  - Reason: 4
+    Title: One moment
+    Hint: Still placing your last card
+  - Reason: 5
+    Title: Works on their field
+    Hint: Swipe down first
+  - Reason: 6
+    Title: Works on your field
+    Hint: Swipe up first
+  - Reason: 7
+    Title: That card isn't in your hand
+    Hint: 
+  - Reason: 8
+    Title: Can't build there
+    Hint: Drop it on an empty spot
+  - Reason: 9
+    Title: That spot is taken
+    Hint: Pick an empty spot
+  - Reason: 10
+    Title: Another tower is there
+    Hint: Drop the same card on it to level it up
+  - Reason: 11
+    Title: Already at its top level
+    Hint: '{0}'
+  - Reason: 12
+    Title: Deck is full
+    Hint: Remove a card first
+  - Reason: 13
+    Title: You don't own this card yet
+    Hint: Win it in a match
+  - Reason: 14
+    Title: Already in this deck
+    Hint: 
+  - Reason: 15
+    Title: Not enough gold
+    Hint: '{0}'
+  - Reason: 16
+    Title: Not enough copies
+    Hint: '{0}'
+  - Reason: 17
+    Title: Already at max level
+    Hint: 
+  - Reason: 18
+    Title: Deck isn't full
+    Hint: '{0}'
+  - Reason: 19
+    Title: Couldn't find a match
+    Hint: Check your connection
+  - Reason: 20
+    Title: Couldn't join that room
+    Hint: Check the code
+  - Reason: 21
+    Title: Not ready yet
+    Hint: 
+  - Reason: 22
+    Title: The match hasn't started
+    Hint: 
+  - Reason: 23
+    Title: Couldn't join the match
+    Hint: Press Battle to try again
