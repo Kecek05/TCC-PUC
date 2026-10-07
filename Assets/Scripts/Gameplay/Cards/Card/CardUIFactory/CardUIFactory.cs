@@ -43,7 +43,7 @@ public class CardUIFactory : MonoBehaviour
             _OnLocalDrawnACard.OnLocalDrawACard -= CreateCardUI;
         
         if (_OnLocalNextCardChanged != null)
-            _OnLocalNextCardChanged.OnLocalNextCardChanged -= CreateCardUI;
+            _OnLocalNextCardChanged.OnLocalNextCardChanged -= OnNextCardChanged;
     }
 
     private void CreateCardUI(CardType cardType)
