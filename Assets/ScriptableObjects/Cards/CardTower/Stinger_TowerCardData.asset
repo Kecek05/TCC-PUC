@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Stinger
   Description: A cheap colourless turret that ignores armour entirely, so it never
     has a bad matchup and never a great one.
-  CardImage: {fileID: 21300000, guid: 7a41256aa8c9ea34aa27e6910dede9a0, type: 3}
+  CardImage: {fileID: 21300000, guid: 85e90094854460f4ca72680d15de01d6, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 3
   UseCustomSizeCardInMenu: 0

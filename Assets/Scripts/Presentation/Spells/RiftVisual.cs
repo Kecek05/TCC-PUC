@@ -35,8 +35,10 @@ public class RiftVisual : SpellVisual
         Vector3 at = Cast.Position;
         _landedAt = Time.time;
 
-        _fill = Sprite("Fill", JuiceSprites.Glow, WithAlpha(Color.Lerp(Fx.Hues.RiftVoid, Hue, 0.35f), 0.5f), radius * 2.3f, true, -15);
-        Sprite("Edge", JuiceSprites.Outline, WithAlpha(Hue, 0.45f), radius * 2f / 0.95f, true, -14);
+        // The board's zone: the void at 40% in the middle, the hue gathering from 14% to 26% at the rim. No edge
+        // line: the pull rings and the clock are what draw its reach.
+        _fill = Sprite("Fill", JuiceSprites.AimDisc, WithAlpha(Hue, 0.26f), radius * 2f, true, -15);
+        Sprite("Void", JuiceSprites.Glow, WithAlpha(Fx.Hues.RiftVoid, 0.4f), radius * 1.3f, true, -14);
 
         // Across the lane: the fissure lies perpendicular to the path nearest the drop.
         float angle = SpellLane.TryLaneDirection(at, Cast.FieldTeam, out Vector3 lane)
@@ -97,7 +99,7 @@ public class RiftVisual : SpellVisual
             if (Time.time >= nextRing)
             {
                 nextRing = Time.time + 0.45f;
-                WorldFx.Ring(Cast.Position, WithAlpha(Color.Lerp(Hue, Color.white, 0.25f), 0.55f), radius * 1.05f, radius * 0.15f, 1.2f);
+                WorldFx.Ring(JuiceSprites.Outline, Cast.Position, WithAlpha(Color.Lerp(Hue, Color.white, 0.2f), 0.7f), radius * 1.05f, radius * 0.15f, 1.4f);
             }
 
             if (!Juice.ReduceMotion)

@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Prism
   Description: Deals no damage. Slows every enemy in its radius, buying the towers
     around it more time to fire.
-  CardImage: {fileID: 21300000, guid: 48ad5fa2c8a56634dbc43f014f0730ba, type: 3}
+  CardImage: {fileID: 21300000, guid: 7bf94cb916ab50a4d8867d183b1fe1b2, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 3
   UseCustomSizeCardInMenu: 0

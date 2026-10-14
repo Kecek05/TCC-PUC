@@ -39,6 +39,9 @@ public class TowerFeedbackPresenter : MonoBehaviour
              "nothing, the art itself being the base.")]
     [SerializeField] private bool showLevelBadge = true;
     [SerializeField, Min(0.05f)] private float badgeSize = 0.24f;
+    [Tooltip("Where the badge's centre sits, as a share of the way from the tower's centre to the corner of the " +
+             "shape it draws. Under 1 it overlaps the art.")]
+    [SerializeField, Range(0.3f, 1.2f)] private float badgeInset = 0.72f;
 
     [Tooltip("How long the attention ring takes to close in on a levelling tower before it bursts.")]
     [SerializeField, Min(0f)] private float levelUpCharge = 0.2f;
@@ -200,18 +203,21 @@ public class TowerFeedbackPresenter : MonoBehaviour
         Vector2 extents = new(0.29f, 0.29f);
         if (art != null && art.sprite != null)
         {
+            // Half of the shape the tower draws, not of its sprite's rect: a tower whose canvas is roomier than its
+            // shape (Dart) threw the badge a whole cell away.
             float k = art.transform.lossyScale.x / Mathf.Max(0.0001f, transform.lossyScale.x);
-            extents = (Vector2)art.sprite.bounds.extents * k;
+            extents = VisibleBounds.SpriteSize(art.sprite) * 0.5f * k;
         }
 
         int layer = art != null ? art.sortingLayerID : 0;
         int order = art != null ? art.sortingOrder : 0;
 
-        // On the art's top-right corner: inside the tower's own cell, over its own art only.
+        // Sitting ON the art's top-right corner, overlapping it, so it reads as part of the tower and never as a
+        // thing beside it.
         GameObject root = new GameObject("LevelBadge");
         _badge = root.transform;
         _badge.SetParent(transform, false);
-        _badge.localPosition = new Vector3(extents.x * 0.78f, extents.y * 0.78f, 0f);
+        _badge.localPosition = new Vector3(extents.x * badgeInset, extents.y * badgeInset, 0f);
 
         _badgeRing = BadgePart("Ring", badgeSize * 1.25f, layer, order + 2);
         _badgeFill = BadgePart("Fill", badgeSize, layer, order + 3);
@@ -221,15 +227,35 @@ public class TowerFeedbackPresenter : MonoBehaviour
         _badgeLabel = label.AddComponent<TMPro.TextMeshPro>();
         RefusalCopySO copy = Resources.Load<RefusalCopySO>(RefusalCopySO.ResourcePath);
         if (copy != null && copy.Font != null) _badgeLabel.font = copy.Font;
-        _badgeLabel.fontSize = badgeSize * 10f;
+        // The game's own number: Fredoka Bold in ink inside its black outline, like a card's mana cost. (In the nav
+        // colour the outline swallowed the digit and the disc with it.)
+        _badgeLabel.fontSize = badgeSize * 11f;
+        _badgeLabel.fontStyle = TMPro.FontStyles.Normal;
+        // At this size the font's full outline leaves a grey sliver of a digit; a lighter one keeps the face white.
+        Material badgeMaterial = BadgeMaterial(_badgeLabel.font);
+        if (badgeMaterial != null) _badgeLabel.fontSharedMaterial = badgeMaterial;
         _badgeLabel.alignment = TMPro.TextAlignmentOptions.Center;
         _badgeLabel.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
-        _badgeLabel.color = Juice.Tokens.Colors.Nav;
+        _badgeLabel.color = Juice.Tokens.Colors.Ink;
         _badgeLabel.rectTransform.sizeDelta = new Vector2(badgeSize * 2f, badgeSize * 1.5f);
         _badgeLabel.sortingLayerID = layer;
         _badgeLabel.sortingOrder = order + 4;
 
         root.SetActive(false);
+    }
+
+    private static Material s_badgeMaterial;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetBadgeMaterial() => s_badgeMaterial = null;
+
+    /// <summary>One material for every tower's badge: the game font's own, with a thinner outline.</summary>
+    private static Material BadgeMaterial(TMPro.TMP_FontAsset font)
+    {
+        if (s_badgeMaterial != null || font == null) return s_badgeMaterial;
+        s_badgeMaterial = new Material(font.material) { name = "TierBadgeLabel", hideFlags = HideFlags.DontSave };
+        s_badgeMaterial.SetFloat(TMPro.ShaderUtilities.ID_OutlineWidth, 0.3f);
+        return s_badgeMaterial;
     }
 
     private SpriteRenderer BadgePart(string name, float size, int layer, int order)

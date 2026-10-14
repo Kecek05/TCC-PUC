@@ -37,7 +37,7 @@ public class FerrugemVisual : SpellVisual
 
         _pool = new GameObject("Puddle").transform;
         _pool.SetParent(transform, false);
-        Sprite("Pool", SpellFxSettingsSO.Or(Fx.Sprites.Corrosion, JuiceSprites.Disc), WithAlpha(Hue, 0.62f), radius * 2.3f, true, -13, _pool);
+        Sprite("Pool", SpellFxSettingsSO.Or(Fx.Sprites.Corrosion, JuiceSprites.Disc), WithAlpha(Hue, 0.55f), radius * 2.2f, true, -13, _pool);
         Sprite("Rust", JuiceSprites.Glow, WithAlpha(Fx.Hues.Rust, 0.3f), radius * 1.2f, true, -12, _pool);
         _pool.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
 
@@ -85,7 +85,7 @@ public class FerrugemVisual : SpellVisual
         {
             yield return new WaitForSeconds(Juice.ReduceMotion ? 0.6f : 0.22f);
             Vector3 p = Cast.Position + (Vector3)(Random.insideUnitCircle * Cast.Range * 0.75f);
-            WorldFx.Ring(p, bubble, 0.02f, Random.Range(0.07f, 0.13f), 0.5f);
+            WorldFx.Ring(JuiceSprites.Outline, p, bubble, 0.03f, Random.Range(0.08f, 0.12f), 0.6f);
         }
     }
 

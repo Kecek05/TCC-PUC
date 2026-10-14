@@ -33,7 +33,7 @@ Persistent buff spells (e.g. Rage) apply their effect through an additive **accu
 
 **How it works:**
 - `ServerEnemyMovement` composes speed from independent terms: `effective = baseSpeed * slowMultiplier * (1 + speedBuffPercent)`, recomputed in `RecalculateSpeed()`. `SetSpeedMultiplier` feeds the slow term; `AddSpeedBuff(p)`/`RemoveSpeedBuff(p)` (clamped ≥ 0) feed the additive buff term.
-- **Zero bandwidth:** no new NetworkVariable — the speed change replicates for free via the existing `PathProgress` sync; buffs are pure server-side state.
+- **Zero bandwidth for the speed itself:** the speed change replicates for free via the existing `PathProgress` sync, and the accumulators stay server-side state. (Since 2026-10-13 their *size* is also published as whole percents, `SlowedPercent`/`HastedPercent`, purely so clients can draw the status; see Spell Juice.)
 - Zone spells run one server coroutine (`RageExecutor`, modeled on `HasteExecutor`): re-scan each tick, apply the bonus **once per troop per cast** (tracked in a dict), and on expiry remove exactly this cast's own contribution. Rage adds a per-troop **linger** (buff persists N seconds after a troop leaves the radius / the zone ends).
 - **Team targeting:** an enemy's `EntityTeam` is set to the *map it attacks* in `ServerWaveManager.SpawnEnemy` — identically for wave and player-sent troops — so an enemy-field spell filters `enemyTeam != casterTeam && != None` to hit both kinds. Mirrors `IceExecutor`.
 - Key files: `ServerEnemyMovement.cs`, `RageExecutor.cs`, `SpellRageDataSO.cs` (under `Assets/Scripts/Gameplay/`), with `BaseServerTowerCombat.cs` (tower-side twin) and `HasteExecutor.cs` (the zone pattern) as references.
@@ -754,6 +754,10 @@ teaches progression, and progression is only teachable once the player owns some
 
 ### Card art — generated vectors, and colour as a readable rule
 
+> **Superseded in part by "Card Art v2" below (2026-10-13):** the shapes, the level grammar and the pipeline
+> (`Art/shapes.ps1` / `render.ps1` are gone, replaced by `Art/CardArt/*.py`). What this section says about colour
+> as a rule, tint on the renderer and the measured canvas still holds.
+
 Every card that was still on placeholder art (21 of 30) now has its own shape, authored as **code** in
 `Art/shapes.ps1`, rendered to an editable `.svg` source under `Art/Vector/` and to the `.png` sprites Unity
 imports. The three armour colours are now spread deliberately across the set, and colour finally means the
@@ -1078,9 +1082,9 @@ preview in the artifact was rendered and compared with a play-mode capture, then
   next wave's banner waits for it to finish.
 - **Popup**: dismissing the info panel by its backdrop, or the card popup by a press outside it, plays a quiet tap.
 
-**Not done, deliberately or for lack of a device:** the button lip collapse (needs pressed sprites), armour
-"clink" (a client cannot tell a resisted hit), and Phase 5 — volumes, haptic strengths and budgets must be tuned
-on a real Android phone. The "Cannot generate 9 slice" error also appeared once with a different vertex count
+**Not done, deliberately or for lack of a device:** the button lip collapse (needs pressed sprites) and Phase 5 —
+volumes, haptic strengths and budgets must be tuned on a real Android phone. (The armour "clink" was on this list
+until the client could tell a resisted hit; see Spell Juice, "Resisted hits".) The "Cannot generate 9 slice" error also appeared once with a different vertex count
 (1106704) during match tests; no Juice renderer is sliced at a size that could cause it, so it is logged here
 beside the open issue under Tutorial / FTUE.
 
@@ -1130,12 +1134,53 @@ is their attack colour.
 - **Channels follow the Juice rules:** sound, shake and flash only where the player is looking; haptics only for the
   caster (`SpellCastInfo.CasterIsLocal`). Ten appended cues (`SfxId.SpellIgnite`..`SpellWindUp`) with synthesized
   placeholders in `Assets/Audio/Sfx/Placeholder/sfx_spell*.wav`.
-- **Statuses are worn, not painted, and inferred.** `SpellZoneRegistry` holds every zone a client draws;
-  `SpellStatusPresenter` (10 Hz, only while a status zone exists) applies **the executors' own rules** and dresses
-  enemies through `UnitStatusView`: Rage — troops attacking that field, inside plus `LingerDuration`; Rift — enemies
-  at the caster, not `ImmuneToSlow`, **until the zone ends even after they leave** (RiftExecutor removes the slow only
-  at expiry); Ferrugem — the same, drawn only on armoured enemies. Zero bandwidth. Per-zone bookkeeping is keyed by
-  `NetworkObjectId`, not the `EnemyManager`: enemies are pooled, and a recycled body must not inherit a status.
+- **Statuses are worn, not painted, and REPLICATED** (they were inferred from spell zones until 2026-10-13). One
+  look per *effect*, whoever caused it: hasted (Rage) wears wings, streaks and an aura; slowed (Rift **or a Prism**)
+  two echoes and a ripple; armour broken (Ferrugem **or a Torniquete**) a split shield in its own armour colour;
+  held (an Ancora) a shackle of chain and an anchor badge. `UnitStatusPresenter` reads
+  `ServerEnemyMovement.SlowedPercent` / `HastedPercent` / `Held` and `ServerEnemyHealth.ArmorBrokenPercent` and
+  dresses the enemy through a pooled `UnitStatusView`.
+  - **Why replicated:** inference cost nothing on the wire but could only ever know about spells. A tower's aura
+    re-scans on its own tick and an Ancora picks one target; neither can be guessed from outside, so towers'
+    effects simply had no visual. The values are whole percents written **only when they change**
+    (`PublishStatuses` compares before it sets: an aura re-adding what it just removed must not become traffic).
+  - The server already resolved every rule the inference had to copy (Rage's linger, Rift holding until it seals,
+    slow immunity, the slow cap), so the presenter has no rules of its own left. The one it keeps is presentation:
+    only an armoured enemy wears the broken shield.
+  - Enemies announce themselves from `EnemyFeedbackPresenter`'s spawn/despawn hooks (`Track`/`Untrack`), so nothing
+    is searched for and no component had to be added to the enemy prefabs. Polled at 10 Hz rather than subscribed:
+    four delegates per spawn would be garbage on every enemy of every wave.
+  - **Sized from the enemy it is on** (`_k` = its visible size over the boards' 30px troop): the match's troops are
+    about half the size the boards draw, and wings sized for the board's troop buried the real one.
+  - An announcing word ("-30%", "HELD") is rate-limited per status, so a whole wave walking into a Prism ticks
+    instead of chattering.
+  - `SpellZoneRegistry` is now only what a frozen tower's frost clock reads.
+  - The chain and anchor are Codex sprites (`fx_chain_ring`, `fx_anchor`), same recipe as the rest.
+  - **Four more NetworkVariables on enemies: both players need the same build.**
+- **The Chain tower's jumps are drawn** (`ChainLightningFx`): once its bullet lands, an arc leaps from enemy to enemy
+  in the order the server hit them, 45 ms apart, thinner and dimmer the way the damage falls off
+  (`DamageFalloffPercent`), a ring and sparks on each landing and the zap one semitone higher per jump. White core,
+  glow in the tower's own tint, since that tint is the damage it deals. Only the first leg used to be drawn.
+  - **One Rpc per shot, never one per jump:** `ServerChainTowerCombat.PlayChainRpc(Vector2[])` carries the whole path.
+    **Positions, not enemy references:** the chain's kills are despawning as it arrives and a reference to one would
+    no longer resolve. Server space on the wire, translated with the tower's team like a bullet's origin.
+  - Sent only when the bolt jumped at least once: a lone target is just a shot, which is the card's declared
+    weakness and should look like it.
+  - The Rpc lives on the server class because the tower has no client combat of its own (it borrows
+    `ClientCircleTowerCombat` for the first leg) and its prefab is a variant; presentation stays in
+    `ChainLightningFx`, which pools its line renderers and animates them by hand (a Chain fires about once a second
+    per tower; a tween per leap would be garbage on each).
+  - The arcs stagger while the server resolves every jump in one frame, so the last damage number can lead its arc
+    by up to ~0.2 s. Gameplay timing was deliberately left alone.
+- **Everything drawn round a unit is sized from the shape it DRAWS (`VisibleBounds`), never its sprite's rect.**
+  `Sprite.bounds` is the whole texture rect, padding included, and the tower art does not agree on padding: Dart's
+  shape fills under half of its canvas. Sized off the rect, the aim bracket, the ice block and the tier badge came
+  out twice the tower on Dart and right on every other. `VisibleBounds` reads the sprite's mesh, which hugs the
+  shape **only when the sprite is imported with a Tight mesh**; Dart's three sprites were Full Rect and are Tight
+  now. Art with padding must be Tight, or it will be measured by its rect again.
+  - The tier badge sits ON the art's top-right corner (`badgeInset`, a share of the way to the corner of the
+    drawn shape) and its number is the game's own: Fredoka Bold in ink inside a black outline, like a mana cost.
+    In the nav colour the outline swallowed both the digit and the disc.
 - **Towers:** `ClientTowerGFX` no longer repaints; it adds a `TowerStatusView` (ice block, frost clock, snowflake
   badge, two cracks before the thaw, a shatter; a spinning halo and gold muzzle sparks for haste). The frost clock
   and crack timing come from the Ice cast's zone, since the replicated `IsFrozen` bool carries no duration. Overlays
@@ -1150,16 +1195,170 @@ is their attack colour.
 - **Decisions (approved 2026-10-07):**
   - **A Lance with no enemy under it still spends the card on a whiff.** The aim's grey "No target" state is the
     protection, not a refusal; on landing `LanceVisual` fizzles and says NO TARGET. No gameplay change.
-  - **Resisted hits will be drawn grey and small (`dmg-resist`) — approved, not built yet.** Floating numbers come
-    from replicated health, which cannot say a hit was resisted, so the client first needs that fact (a resisted
-    flag alongside the hit). This is what lets Ferrugem's proof beat read grey-to-white instead of only bigger.
+  - **Resisted hits are drawn grey and small (`dmg-resist`) — approved, built 2026-10-13** (see "Resisted hits"
+    below). This is what lets Ferrugem's proof beat read grey-to-white instead of only bigger.
   - **The `sp-*` spell hues are approved as designed**, Rage's move off teal included.
 - Verified live in a match against the bot through the Unity CLI (debug casts run the real executor plus the cast
   RPC; Haste, Ice and the Prism placement by real `ExecuteEvents` card drags). A test match that reaches EndMatch
   banks a reward into the save: hold both lanes (`HoldLaneBeforeWave(team, totalWaves)`) and floor both bases first.
+- **Resisted hits (built 2026-10-13).** `ServerEnemyHealth` replicates one more fact, `LastHitResisted`: the
+  armour cut this hit down (an off-colour attack) **and no armour break is on the enemy**. The second half is
+  deliberate: under a Torniquete or a Ferrugem the hit reads white again even though part of the resistance may be
+  left, because the change of colour is the proof that the break worked. `EnemyFeedbackPresenter` reads it on the
+  health drop and answers with a muted-ink flash (70 ms), a number at 0.74 size in `dmg-resist`, and the clink;
+  never the heavy-hit squash.
+  - **The bool is declared BEFORE `_currentHealth`, and written before it.** NGO writes and reads a behaviour's
+    dirty variables in declaration order inside one delta, so the client holds the flag by the time the health
+    change it describes raises its event. Moving the field below the health breaks the pairing silently.
+  - Two hits inside one network tick arrive as one drop wearing the later hit's flag: a colour, never an amount.
+  - **A new NetworkVariable: both players need the same build** (the same caveat as the spell RPC's duration).
+- **The 1:1 pass against the canvas (2026-10-13).** Each board was frozen at its beats (the boards' `.dc.html`
+  rendered locally and paused with the Web Animations API) and compared with play-mode captures of the same beat.
+  - **Effects are drawn UNLIT.** The match scenes light every sorting layer, the effects' `UI` layer from several
+    point lights at once, and a lit sprite there is multiplied past white: Fireball's orange shockwave came out
+    pale yellow, a zone's hue as a white glare (which is also why the first pass's clocks looked thick). Every
+    sprite and line of `WorldFx`, the spell visuals, the unit and tower statuses and the aim now uses
+    `Resources/Juice/FxUnlit.mat` through `JuiceSprites.Unlit` / `Unlight(renderer)`, so a token colour is the
+    colour on screen wherever on the board it is. **This changes every `WorldFx` user, not only spells** (tower
+    dust and level-up shockwave, the leak ring, kill pops): they are now their token colours too. The material is
+    an asset (not `Shader.Find`) so a build cannot strip its shader; without it callers fall back to lit.
+  - **The aim's tags are the board's pills**: the sheet colour, a hairline outline (gold for KO, half-white for
+    damage, the spell's hue otherwise), an icon where the board has one (snowflake, split shield, the deny dot),
+    and its words ("+25% speed", "Armour -50%", "No target · needs an enemy under it"). Sized in ems of
+    `SpellFx.Aim.TagSize`. Tags that would cover each other are **stacked**, lowest target first: the match packs
+    enemies far tighter than the board draws them (they are about half the size the boards assume).
+  - The aim's disc is the board's gradient (`JuiceSprites.AimDisc`: thin in the middle, 30% at the rim); Fireball
+    has its centre pip, Ice its rime lines, Lance a diamond lock the size of its anchor and a band 0.88 of the
+    lane's width. Zone fills use the same gradient (they were a glow, bright in the middle: the opposite).
+  - **`SpellLane.Sample` rounds the bends.** The paths turn at right angles and a translucent band nearly as wide
+    as the lane folds over itself inside such a corner, which shows as a darker wedge.
+  - Landings at the boards' sizes: Fireball's two tick marks on the closing ring, a thick shockwave in the hue and
+    a hairline one in sparkle, eight fire blobs, a flat near-black scorch (176 by 72 px of a 134px reach);
+    Lance's slash through each enemy and its 7px scar; every spell kill pops (a white ring and three sparks,
+    `WorldFx.KillPop`) and the stamp uses the font's real multiplication sign.
+  - **Survivors are shoved** (`EnemyFeedbackPresenter.Shove`): back from a blast, down the lane from a spear. The
+    visual only, like the heavy-hit pin: where an enemy is must never depend on what one client drew.
+  - Haste's zap makes each tower flash pale gold in its own shape, punch, and say what it gained; a thawed tower
+    punches back to size. `TowerStatusView.Punch` always lands back at scale one, even cut short.
+  - **Floating numbers that would land on each other climb instead** (`FloatingNumbers.Uncrowd`, a ring of the
+    last eight spawns, allocation-free): a spear through a column reads as that many hits. Applies to every hit.
+  - No new Codex sprite was needed: everything the boards add over the first pass is a shape, not a painting.
 - Key files: `SpellVisual.cs` (base + `SpellVisualFactory`), `FireballVisual.cs`, `LanceVisual.cs`, `IceVisual.cs`,
   `HasteVisual.cs`, `RageVisual.cs`, `RiftVisual.cs`, `FerrugemVisual.cs`, `SpellCastInfo.cs`, `SpellZoneRegistry.cs`,
-  `SpellStatusPresenter.cs`, `UnitStatusView.cs`, `TowerStatusView.cs`, `SpellLane.cs`, `SpellFxLevels.cs`,
+  `UnitStatusPresenter.cs`, `UnitStatusView.cs`, `VisibleBounds.cs` (under `Presentation/Juice/`),
+  `ChainLightningFx.cs` (under `Presentation/Towers/`), `TowerStatusView.cs`, `SpellLane.cs`, `SpellFxLevels.cs`,
   `SpellFxSettingsSO.cs` (under `Assets/Scripts/Presentation/Spells/`); `GhostSpellCard.cs`, `SpellCard.cs`,
   `CardSpellDeployer.cs`, `ClientTowerGFX.cs`, `WorldFx.cs`; editor tool `SpellFxEditorTools.cs` (under
   `Assets/Editor/KeceK/Juice/`); sprites under `Assets/Sprites/Spells/FX/`.
+
+### Card Art v2 — a level adds a part, and the card shows the token
+
+All 30 cards were redrawn from the approved **Card Art Redesign** canvas
+(https://claude.ai/artifact/WXNvaiWccKprNdVeUFa7uC): 16 towers with three level sprites each, the troop cards, the
+wave enemies' outlines, the seven spell emblems, and three things on the card itself (shadowed art, a lip, a tier
+strip on the card page). `Art/README.md` has the rules of the set and the pipeline.
+
+**Why:** the first generation nested shrunken copies of each outline, which turned spiky shapes into noise and left
+level 3 a dot; Prism, Tourniquet and Anel were the same broken circle in strokes half as thick as the originals'
+walls; Dart and Mortar were near twins; every Swarm unit on the lane drew the whole six-arrow card emblem; and the
+spell icons came from three icon packs.
+
+**How it works:**
+- **The structure did not move.** Still three sprites on one 748 px canvas and one pivot, stacked by
+  `GFX/Level1|2|3`; still authored white and tinted on the renderer. Every sprite was written under the file name
+  the game already imported, so no `.meta`, prefab or scene had to be re-pointed for the art itself.
+- **A level adds a part: body, chamber, core.** Walls and gaps are true offsets (shapely buffers) rather than
+  scaled copies, and the hollow of a body is always a plain cell ("spikes outside, simple inside"), so nothing
+  that nests in it can tangle. The five primitives (Circle, Stinger, Square, Slam, Dart) still nest copies of
+  themselves; Mortar, Needle, Beacon, Chain and Shard are a ring, one outside feature and a signature inside;
+  the six support towers are open strokes that assemble (Ancora becomes an anchor at level 3).
+- **A card's image carries its own shadow or line.** `CardImage` is now the tower's shadowed level 1, the troop's
+  outlined emblem, or the spell's `_card` emblem (baked hard shadow). Baking it into the sprite means the hand,
+  the deck page, the card page, the next-card slot and the reward reveal all show it with no component of their
+  own. The placement ghost is unaffected: it reads `TowerGhostSprite`, the no-shadow level 1.
+- **One art box, three sizes.** A tower's art fills a box 0.66 of the face wide; a spell emblem and a troop are
+  drawn smaller inside the same box, because a hexagon and a diamond leave less room than a square. In the hand
+  that is `CardFacesSO.ArtScale(type)` applied to the Icon (and by `NextCardSlot`); on the deck page it is data,
+  each card's `CustomSizeCardInMenu` (towers 113 by default, spells 95, troops 85.5).
+- **`FaceLip` is a mesh effect, not a second Image.** It duplicates the graphic's own vertices a little lower and
+  darker, so the lip takes the face's sprite, colour and alpha on every rebuild: a locked or unaffordable tint
+  needs no bookkeeping, and the drop is a share of the graphic's width. On the card faces and the cost bubbles of
+  `CardBase.prefab` and `Card_V2.prefab`; `NextCardSlot` adds it to the face it builds. On `Card_V2` the face
+  also carries the `Mask`, and the mask simply grows by the lip: nothing is drawn down there.
+- **Card and lane are two sprites where a card shows a group.** `Swarm.png` and `Miragem.png` are now one body
+  (the prefabs `EnemyArmyUnit`, `EnemyMiragem`, `EnemyMiragemDecoy` kept their references), and the card points at
+  `Swarm_Card.png` / `Miragem_Card.png`. Enemy prefabs are all at scale 1, so **a troop's size on the lane is
+  whatever its sprite draws**: a Swarm unit is rendered at 0.6 of a standard body. Miragem and its decoy share one
+  sprite, as the bluff needs.
+- **The wave enemies keep their silhouettes.** `render.py` re-inks them from `Art/CardArt/wave-originals/`: the
+  white body is kept pixel for pixel and the black line redrawn round it from a distance field at the shared
+  weight (34 px at 2000 ppu, about twice the old one). `BaseEnemy1` is also the Triangle card's art, so the
+  basic troop is today's arrowhead; the other troop cards are built from a slightly narrower one, as designed.
+- **The tier strip (card page).** For a tower, the stats reported once per tier ("Damage Lvl 1/2/3") leave the
+  grid and are printed under a picture of the tower at that tier: `TowerTierStrip`, built in code under
+  `StatsPage`, three mint tiles stacking the prefab's own `Level1..3` sprites in their own colours.
+  `InfoPanelCanvas.SplitTierStats` groups the rows by the label `AddPerTier` writes; `_gridStatIndex` remembers
+  which stat each remaining grid row shows, which is what the upgrade celebration now pairs before/after
+  through. `FitStatGrid` takes the height the strip reserves and keeps the grid's bottom edge; the strip shrinks
+  as a whole when the rows left need the room (the grid is guaranteed three quarters of its size). Spells,
+  troops and a tower whose stats are all flat show the grid exactly as before.
+- **Spell emblems are Codex renders** from one brief (`Art/CardArt/spells/`), white on black, alpha = brightness.
+- Verified in play mode through the Unity CLI: deck page, card page (Mortar, Anel, Fireball), the hand, all 16
+  towers on the board at mixed tiers, the re-inked waves.
+- Key files: `Art/CardArt/shapes.py`, `render.py`; `FaceLip.cs` (under `Assets/Scripts/UI/Juice/`),
+  `TowerTierStrip.cs`, `InfoPanelService.cs`, `CardFacesSO.cs`, `CardGFXController.cs`, `NextCardSlot.cs`;
+  prefabs `CardBase.prefab`, `Card_V2.prefab`; sprites under `Assets/Sprites/Towers|Enemies|UI/Cards`.
+
+### ManaBar — the spend and the full bar
+
+The two beats of the Juice system's ManaBar recipe that were still missing. The hand frame's mana lines are
+untouched: everything here is drawn around them.
+
+- **Spend drains.** `ManaCanvas` draws the fill from a displayed value that follows the predicted mana exactly
+  while it rises and eases down to it over dur-select on ease-out when it drops by half a point or more (a card
+  paid for). The counter still states the truth at once. The same drop plays the spend's beat: "-N" rises beside
+  the counter in mana-gain and the counter gives a soft punch. A refund (mana jumping up) stays silent.
+- **Full announces itself with a MAX chip** (attention pill) that pops beside the counter and stays until the
+  player spends. Built in code, so GameScene and TutorialScene needed no new objects.
+- **The frame does not animate when full.** The recipe's breathing glow was built and then removed at the user's
+  request: it read as the mana bar blinking. Do not bring it back. If a frame effect is ever wanted again, the
+  findings stand: a Shapes border only thickens inward, which moves its centre line and with it every dash; past
+  its corner radius it floods the rect; and the frame's rectangles are `ShapesBlendMode.Opaque`, which draws
+  nothing below full alpha.
+- Key files: `ManaCanvas.cs`.
+
+### Follow-ups to Card Art v2 (2026-10-13)
+
+- **A stacking slow (or haste) now says its number.** `UnitStatusView.SetStatuses` only announced a status when it
+  switched ON, so a Prism's slow landing on an enemy already inside a Rift changed its speed and printed nothing.
+  The view now remembers the amount it last saw (`_slowAmount`, `_hasteAmount`) and plays the beat again whenever
+  the amount GROWS by a printable step, saying the new **total** ("-45%" then "-70%"). The amount is followed down
+  as well as up, so a source that leaves and returns is a stack again. Same global throttle as before
+  (`AnnounceGap`), so a whole wave gaining a stack still ticks rather than chatters.
+- **A troop card held over the board turns into its troops** (`TroopHoldVisual`, TroopSend). Tower cards hand over
+  to a ghost and spells to an aim because both have a place to land; a troop goes to the other field wherever it
+  is dropped, so its visual rides the card itself, in the card's canvas: the bodies lifted above the finger and
+  hopping on the spot, three attention chevrons climbing away, and "xN" for how many it sends. Built in code as a
+  child of the card's animated root (it leans and grows with the drag), so no scene object and no factory
+  plumbing. The card's face fades through a `CanvasGroup` added to the GFX object, never the root's, which would
+  take the visual with it. On a play the visual detaches and flicks up and away (ease-anticipate, dur-travel);
+  whether it is a play is decided **before** `base.OnEndDrag`, because on the host the server's answer can retire
+  the card inside that call.
+- **The bot plays the whole set.** `BotDeckListSO` has five 8-card decks (Balanced, Fortress, Control, Rush,
+  Siege) that together use all 30 cards. Each keeps at least four cards costing 4 or less, because the hand only
+  deals what the current max mana can pay for and wave 1 caps it at 4. `HeuristicBotBrain` learned the three
+  spells it did not know (Lance after Fireball on the nearest threat; Rift, and Ferrugem only when something on
+  the lane is armoured, once it has towers), and **places a support tower only once a damage tower stands**:
+  towers are picked by family, and a lone Fonte or Anel would otherwise be its whole defence.
+- **The bot builds a mixed line, and banks for it.** Taking the first affordable tower built three Darts in every
+  match: the hand only deals what the mana cap can pay for, so in the first waves the cheapest tower returns
+  after each play, and a bot that spends the moment it can afford anything never holds 4 mana. Placement now
+  prefers a tower TYPE the line does not have yet (`StandingTowerTypes`), and when such a card is in hand but
+  out of reach now and within the cap, `FindTowerPlacement` reports `bankForNew`: `FindTowerPlay` then returns
+  nothing (no repeat, no level-up), and the existing save-up step holds the mana. Only on a calm lane
+  (`_underPressure` false) and never for the first tower; with nothing new within the cap, a repeat still goes up.
+  `TowerTarget` is still 3, so a deck shows three of its towers: raise it in `BotSettingsSO` for more.
+- Verified in play mode: "-45%" then "-70%" on a stacked slow; the troop card's visual, its launch and its cancel;
+  the bot drawing Rush, Siege and Control and building Dart + Prism + Dart on Control at a cap of 4.
+- Key files: `UnitStatusView.cs`, `TroopHoldVisual.cs` (under `Assets/Scripts/UI/Game/Cards/`),
+  `SpawnEnemyCard.cs`, `HeuristicBotBrain.cs`, `Assets/ScriptableObjects/Bot/BotDeckListSO.asset`.

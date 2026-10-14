@@ -2257,6 +2257,7 @@ GameObject:
   - component: {fileID: 3105630213889146441}
   - component: {fileID: 4894588830616289725}
   - component: {fileID: 4834175355498452699}
+  - component: {fileID: 4649236480245461631}
   m_Layer: 5
   m_Name: CostImage
   m_TagString: Untagged
@@ -2322,6 +2323,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4649236480245461631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432681441327528042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9810d1fb6e9c11b4f9e7bb61efe5d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FaceLip
+  drop: 0.07
+  shade: 0.74
 --- !u!1 &1954237859857500637
 GameObject:
   m_ObjectHideFlags: 0
@@ -2333,6 +2348,7 @@ GameObject:
   - component: {fileID: 39719154446104956}
   - component: {fileID: 2755395928498497284}
   - component: {fileID: 7292001876285076177}
+  - component: {fileID: 7081883211710373945}
   m_Layer: 0
   m_Name: Face
   m_TagString: Untagged
@@ -2397,6 +2413,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7081883211710373945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954237859857500637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9810d1fb6e9c11b4f9e7bb61efe5d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FaceLip
+  drop: 0.055
+  shade: 0.72
 --- !u!1 &2031161904394247245
 GameObject:
   m_ObjectHideFlags: 0
@@ -6843,8 +6873,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4847860331909447245}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.15, y: 0.36}
-  m_AnchorMax: {x: 0.85, y: 0.9}
+  m_AnchorMin: {x: 0.1963, y: 0.4085}
+  m_AnchorMax: {x: 0.8037, y: 0.8513}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

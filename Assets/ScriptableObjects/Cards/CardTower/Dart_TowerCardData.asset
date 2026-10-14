@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Dart
   Description: Cheap and relentless. Each dart barely stings, but it never stops
     firing.
-  CardImage: {fileID: 21300000, guid: ce547fe25a4ab0b47866822b32b0ae8a, type: 3}
+  CardImage: {fileID: 21300000, guid: 07febdd92f4d3834486b34ff6589b7e4, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 0

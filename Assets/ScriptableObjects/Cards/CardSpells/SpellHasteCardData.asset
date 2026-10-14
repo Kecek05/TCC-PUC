@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Haste
   Description: Drop a zone on your own field. Ally towers inside attack faster, including
     ones you build while it lasts.
-  CardImage: {fileID: 21300000, guid: 08b5704e2cab9f6459fe964d331f0741, type: 3}
+  CardImage: {fileID: 21300000, guid: f4fe2aa920d44eb28f81871eaf529ec4, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 1
   UseCustomSizeCardInMenu: 1
-  CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  CustomSizeCardInMenu: {x: 95, y: 95}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

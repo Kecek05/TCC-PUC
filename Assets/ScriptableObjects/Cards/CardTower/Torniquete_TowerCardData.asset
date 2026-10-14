@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Tourniquet
   Description: Deals no damage. Corrodes the armour of every enemy in its radius
     so the towers around it cut straight through.
-  CardImage: {fileID: 21300000, guid: 6b6ee2381893e444a8fe66f7fb9c9365, type: 3}
+  CardImage: {fileID: 21300000, guid: f9c93cf556034dd44a6f3ddfe2a4220d, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0

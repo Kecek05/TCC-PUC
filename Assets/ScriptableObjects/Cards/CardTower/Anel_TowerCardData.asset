@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Anel
   Description: Deals no damage. Every ally tower in its radius hits harder and faster,
     but never another Anel.
-  CardImage: {fileID: 21300000, guid: 6797d585c5755b1488f153ada6475855, type: 3}
+  CardImage: {fileID: 21300000, guid: 4607efdb8e51a6949a0ecc15517eb562, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0

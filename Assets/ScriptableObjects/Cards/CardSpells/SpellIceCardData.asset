@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Ice
   Description: Cast on the enemy's field to freeze their defences, leaving them wide
     open.
-  CardImage: {fileID: 21300000, guid: fc7324b43ab6f644da62b6f0f7f95411, type: 3}
+  CardImage: {fileID: 21300000, guid: 0f489881f838478da00d15b14b39716e, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 4
   UseCustomSizeCardInMenu: 1
-  CustomSizeCardInMenu: {x: 118.54, y: 118.54}
+  CustomSizeCardInMenu: {x: 95, y: 95}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

@@ -2,12 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Default competent bot. Each tick it works its own lane first — build or level a tower, then Fireball
-/// a dangerous cluster or Haste its towers when the lane is under real pressure — and only spends what
-/// is left on the offence (troops, Ice on the opponent's towers, Rage on their lane). A tower it wants
-/// but cannot afford yet makes it hold the mana rather than leak it into a cheap troop. Pure decision
-/// logic — all mutation happens in the BotController via the shared deployer cores.
+/// Default competent bot. Each tick it works its own lane first — build or level a tower, then a spell on
+/// the lane when it is under real pressure (Fireball or Lance for damage, Rift, Ferrugem or Haste to help the
+/// towers) — and only spends what is left on the offence (troops, Ice on the opponent's towers, Rage on
+/// their lane). A tower it wants but cannot afford yet makes it hold the mana rather than leak it into a
+/// cheap troop. Pure decision logic — all mutation happens in the BotController via the shared deployer cores.
 /// </summary>
+/// <remarks>
+/// It plays every card in the set: towers and troops by family, so a new one needs nothing here, and the
+/// seven spells by name, because where a spell goes is part of what it is. A support tower (no damage of its
+/// own) is only placed once a damage tower is standing for it to support.
+/// </remarks>
 public class HeuristicBotBrain : IBotBrain
 {
     private readonly BotSettingsSO _settings;
@@ -15,6 +20,10 @@ public class HeuristicBotBrain : IBotBrain
     // Base HP only decreases, so the highest value seen approximates the starting max. Used to tell how
     // badly the bot is losing without needing the health-settings SO.
     private float _maxOwnHealthSeen = -1f;
+
+    // Set each decision: whether the lane is under real pressure. A calm lane lets the bot bank mana for a
+    // tower its line does not have yet instead of repeating the cheap one in its hand.
+    private bool _underPressure;
 
     public HeuristicBotBrain(BotSettingsSO settings)
     {
@@ -41,6 +50,7 @@ public class HeuristicBotBrain : IBotBrain
             if (p > worstProgress) { worstProgress = p; worstThreat = e; }
         }
         bool underPressure = threats.Count >= 3 || worstProgress >= 0.5f || lowHealth;
+        _underPressure = underPressure;
 
         // ---------- 1) THE LANE: build and level the defence, threat or no threat ----------
         // Not gated on being attacked. Towers are the bot's whole defence and cost 4-6 while a troop
@@ -53,13 +63,31 @@ public class HeuristicBotBrain : IBotBrain
         // ---------- 2) DEFENCE: spells, once the lane is under real pressure ----------
         if (underPressure && threats.Count > 0)
         {
+            // Damage first, on the enemy closest to the base: a blast, or a lance down the lane from it.
             CardType fireball = FindSpell(ctx, SpellType.Fireball);
             if (fireball != CardType.None)
                 return BotDecision.Spell(fireball, worstThreat.transform.position);
 
+            CardType lance = FindSpell(ctx, SpellType.Lance);
+            if (lance != CardType.None)
+                return BotDecision.Spell(lance, worstThreat.transform.position);
+
+            // The rest only buys the towers time or bite, so it needs towers to be worth a card.
             List<TowerManager> ownTowers = ctx.TowersOf(ctx.Team);
             if (ownTowers.Count > 0)
             {
+                CardType rift = FindSpell(ctx, SpellType.Rift);
+                if (rift != CardType.None)
+                    return BotDecision.Spell(rift, worstThreat.transform.position);
+
+                // Ferrugem strips armour: nothing to strip, nothing to cast it for.
+                if (AnyArmoured(threats))
+                {
+                    CardType ferrugem = FindSpell(ctx, SpellType.Ferrugem);
+                    if (ferrugem != CardType.None)
+                        return BotDecision.Spell(ferrugem, worstThreat.transform.position);
+                }
+
                 CardType haste = FindSpell(ctx, SpellType.Haste);
                 if (haste != CardType.None)
                     return BotDecision.Spell(haste, ownTowers[0].transform.position);
@@ -123,31 +151,111 @@ public class HeuristicBotBrain : IBotBrain
 
         if (CountOwnTowers(ctx) < _settings.TowerTarget)
         {
-            CardType placement = FindTowerPlacement(ctx, near, budget, out pos);
+            CardType placement = FindTowerPlacement(ctx, near, budget, out pos, out bool bankForNew);
             if (placement != CardType.None) return placement;
+
+            // A tower the line lacks is within reach of the mana cap: neither repeat nor level, bank for it.
+            // Asked again at the cap (the save-up step), the same card comes back as the play to wait for.
+            if (bankForNew) return CardType.None;
         }
 
         return FindTowerUpgrade(ctx, near, budget, out pos);
     }
 
-    /// <summary>A tower card in hand within budget, plus the free own slot nearest the threat.</summary>
-    private CardType FindTowerPlacement(BotContext ctx, Vector2? near, float budget, out Vector2 pos)
+    /// <summary>
+    /// A tower card in hand within budget, plus the free own slot nearest the threat. Two rules pick the card.
+    /// A support tower (Prism, Tourniquet, Anel, Ancora, Espelho, Fonte) is only placed once a damage tower is
+    /// standing, since on its own it defends nothing. And a tower the line does not have yet beats one it
+    /// already has: the cheapest tower comes back to the hand first, so taking the first affordable card built
+    /// a line of three Darts and never showed the rest of the deck. With nothing new to place, a repeat still
+    /// goes up: a line is worth more than variety.
+    /// </summary>
+    /// <param name="bankForNew">True when nothing is returned because a tower of a new type sits in the hand
+    /// just out of reach: affordable at the mana cap but not at <paramref name="budget"/>. The hand only deals
+    /// what the cap can pay for, so in the first waves the cheapest tower returns after every play, and a bot
+    /// that spends the moment it can afford anything never holds enough for the others. Only on a calm lane,
+    /// and never for the first tower.</param>
+    private CardType FindTowerPlacement(BotContext ctx, Vector2? near, float budget, out Vector2 pos, out bool bankForNew)
     {
         pos = default;
+        bankForNew = false;
 
         AbstractPlaceable freeSlot = ctx.NearestFreePlaceable(near);
         if (freeSlot == null) return CardType.None;
 
+        bool hasDamageTower = HasDamageTower(ctx);
+        HashSet<TowerType> standing = StandingTowerTypes(ctx);
+
+        CardType repeat = CardType.None;
+        CardType repeatSupport = CardType.None;
         foreach (CardType card in ctx.HandCards)
         {
-            if (ctx.Cards.GetCardDataByType(card) is TowerCardDataSO tc && Affordable(tc.Cost, budget))
+            if (ctx.Cards.GetCardDataByType(card) is not TowerCardDataSO tc) continue;
+
+            bool damage = DealsDamage(tc.ResolveTowerData());
+            if (!damage && !hasDamageTower) continue;
+
+            if (!standing.Contains(tc.TowerType) && !Affordable(tc.Cost, budget))
+            {
+                // New to the line, out of reach for now: worth waiting for if the cap can ever pay for it.
+                if (hasDamageTower && !_underPressure && Affordable(tc.Cost, ctx.MaxMana)) bankForNew = true;
+                continue;
+            }
+
+            if (!Affordable(tc.Cost, budget)) continue;
+
+            if (!standing.Contains(tc.TowerType))
             {
                 pos = freeSlot.PlaceablePoint.position;
                 return card;
             }
+
+            if (damage) { if (repeat == CardType.None) repeat = card; }
+            else if (repeatSupport == CardType.None) repeatSupport = card;
         }
 
-        return CardType.None;
+        // A new tower is coming: hold the repeat back and let the caller bank for it.
+        if (bankForNew) return CardType.None;
+
+        CardType chosen = repeat != CardType.None ? repeat : repeatSupport;
+        if (chosen != CardType.None) pos = freeSlot.PlaceablePoint.position;
+        return chosen;
+    }
+
+    /// <summary>The tower types the bot already has on its field.</summary>
+    private static HashSet<TowerType> StandingTowerTypes(BotContext ctx)
+    {
+        HashSet<TowerType> types = new();
+        if (ctx.OwnPlaceables == null) return types;
+
+        foreach (AbstractPlaceable pl in ctx.OwnPlaceables)
+            if (pl != null && pl.IsOccupied() && pl.OccupiedTower != null && pl.OccupiedTower.Data != null)
+                types.Add(pl.OccupiedTower.Data.TowerType);
+
+        return types;
+    }
+
+    /// <summary>Whether a tower hits anything itself. Unknown data counts as yes, so a tower is never held back by a missing reference.</summary>
+    private static bool DealsDamage(TowerDataSO data) => data == null || data.GetDamageByLevel(1) > 0f;
+
+    private static bool HasDamageTower(BotContext ctx)
+    {
+        if (ctx.OwnPlaceables == null) return false;
+
+        foreach (AbstractPlaceable pl in ctx.OwnPlaceables)
+            if (pl != null && pl.IsOccupied() && pl.OccupiedTower != null && DealsDamage(pl.OccupiedTower.Data))
+                return true;
+
+        return false;
+    }
+
+    private static bool AnyArmoured(List<EnemyManager> enemies)
+    {
+        foreach (EnemyManager enemy in enemies)
+            if (enemy != null && enemy.Data != null && enemy.Data.ArmorColor != ArmorColor.None)
+                return true;
+
+        return false;
     }
 
     /// <summary>

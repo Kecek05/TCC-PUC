@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Beacon
   Description: A beam that grows stronger the longer it holds one target. Anything
     that forces it to switch throws the ramp away.
-  CardImage: {fileID: 21300000, guid: e4500bdc27eb6a74fad380fcbea7c381, type: 3}
+  CardImage: {fileID: 21300000, guid: 773e650faeebf3d4ea2c5dfaa22a90be, type: 3}
   CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0

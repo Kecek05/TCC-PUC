@@ -94,23 +94,54 @@ public abstract class SpellVisual : MonoBehaviour
     {
         int kills = 0;
         List<EnemyFeedbackRelay> watched = new();
-        System.Action<EnemyExitKind> onExit = kind => { if (kind == EnemyExitKind.Killed) kills++; };
+        List<System.Action<EnemyExitKind>> handlers = new();
 
         foreach (EnemyManager enemy in targets)
         {
             if (enemy == null || !enemy.TryGetComponent(out EnemyFeedbackRelay relay)) continue;
+
+            // Each kill pops where that enemy stood (a white ring and three sparks), and counts toward the stamp.
+            Transform body = enemy.transform;
+            System.Action<EnemyExitKind> onExit = kind =>
+            {
+                if (kind != EnemyExitKind.Killed) return;
+                kills++;
+                if (body != null && CameraFeedback.IsOnScreen(body.position, 0.05f)) WorldFx.KillPop(body.position);
+            };
             relay.OnExit += onExit;
             watched.Add(relay);
+            handlers.Add(onExit);
         }
 
         yield return new WaitForSeconds(window);
 
-        foreach (EnemyFeedbackRelay relay in watched)
-            if (relay != null) relay.OnExit -= onExit;
+        for (int i = 0; i < watched.Count; i++)
+            if (watched[i] != null) watched[i].OnExit -= handlers[i];
 
         if (kills < 2 || !CameraFeedback.IsOnScreen(stampAt, 0.05f)) yield break;
-        FloatingNumbers.Say(stampAt, "x" + kills, 1.6f, Juice.Tokens.Colors.Sparkle);
+        FloatingNumbers.Say(stampAt, MultiplySign + kills, 1.6f, Juice.Tokens.Colors.Sparkle);
         Juice.Sfx(SfxId.Stamp, 0, 0.8f);
+    }
+
+    /// <summary>The board's multiplication sign, or a plain x when the game font has no glyph for it.</summary>
+    private static string MultiplySign
+    {
+        get
+        {
+            TMPro.TMP_FontAsset font = Fx.Aim.TagFont != null ? Fx.Aim.TagFont : TMPro.TMP_Settings.defaultFontAsset;
+            return font != null && font.HasCharacter('\u00d7', true, true) ? "\u00d7" : "x";
+        }
+    }
+
+    /// <summary>
+    /// Knocks an enemy's body off its spot and lets it ease home (its visual only, see
+    /// <see cref="EnemyFeedbackPresenter.Shove"/>): a blast's survivor thrown back, a spear's shoved down the lane.
+    /// </summary>
+    protected static void Shove(EnemyManager enemy, Vector3 offset)
+    {
+        if (enemy == null || !enemy.isActiveAndEnabled) return;
+        EnemyFeedbackPresenter presenter = enemy.GetComponentInChildren<EnemyFeedbackPresenter>();
+        if (presenter != null) presenter.Shove(offset);
     }
 
     // ---------- zones ----------
@@ -130,7 +161,7 @@ public abstract class SpellVisual : MonoBehaviour
     {
         GameObject go = new GameObject(name);
         go.transform.SetParent(parent != null ? parent : transform, false);
-        SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
+        SpriteRenderer renderer = JuiceSprites.Unlight(go.AddComponent<SpriteRenderer>());
         renderer.sprite = sprite;
         renderer.color = color;
         renderer.sortingLayerName = ground ? GroundLayer : AirLayer;
@@ -145,15 +176,16 @@ public abstract class SpellVisual : MonoBehaviour
     private static void ResetStatics() => _lineMaterial = null;
 
     /// <summary>
-    /// The pipeline's default sprite material, borrowed for line renderers (a strip, a bolt) so they sit in the same
-    /// light as every sprite beside them. Read off a throwaway renderer rather than found by shader name, which a
-    /// build can strip.
+    /// The material for line renderers (a strip, a bolt): the unlit effect material every sprite beside them uses,
+    /// or, without it, the pipeline's default sprite material read off a throwaway renderer (never found by shader
+    /// name, which a build can strip).
     /// </summary>
     protected static Material LineMaterial
     {
         get
         {
             if (_lineMaterial != null) return _lineMaterial;
+            if (JuiceSprites.Unlit != null) return _lineMaterial = JuiceSprites.Unlit;
             GameObject probe = new GameObject("LineMaterialProbe");
             _lineMaterial = probe.AddComponent<SpriteRenderer>().sharedMaterial;
             Object.Destroy(probe);
@@ -194,7 +226,8 @@ public abstract class SpellVisual : MonoBehaviour
         canvas.sortingLayerName = GroundLayer;
         canvas.sortingOrder = order;
 
-        float diameter = radius * 2f * 1.08f;
+        // The boards' clock runs a little outside the zone: a 150px circle round a 134px reach.
+        float diameter = radius * 2f * 1.12f / 0.95f;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(diameter, diameter);
         rect.localPosition = Vector3.zero;

@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Chain
   Description: The bolt jumps between nearby enemies, weakening with every jump.
     Devastating down a packed lane, wasted on a lone target.
-  CardImage: {fileID: 21300000, guid: 9a8d0c76ca35f1f41b4e93c059021848, type: 3}
+  CardImage: {fileID: 21300000, guid: dc714185eea618b418fad9cc754c5975, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 8
   UseCustomSizeCardInMenu: 0

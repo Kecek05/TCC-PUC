@@ -81,6 +81,16 @@ public static class JuiceSprites
         return Mathf.Clamp01(1f - Mathf.Abs(d - 0.95f) / 0.035f);
     }, null, 256);
 
+    /// <summary>
+    /// <see cref="Outline"/> at a third of the weight (512px, so it stays crisp): the hairline a zone's clock and a
+    /// shockwave's thin echo are drawn with. At a radius of 1.3 units it is about 2px of a 1080-wide screen's 380.
+    /// </summary>
+    public static Sprite Hairline => _hairline != null ? _hairline : _hairline = Build("JuiceHairline", (x, y) =>
+    {
+        float d = Mathf.Sqrt(x * x + y * y);
+        return Mathf.Clamp01(1.5f - Mathf.Abs(d - 0.97f) / 0.011f);
+    }, null, 512);
+
     /// <summary>A rounded triangle pointing down: a pointer under a popup, or an alert pointing home.</summary>
     public static Sprite ArrowDown => _arrowDown != null ? _arrowDown : _arrowDown = Build("JuiceArrowDown", (x, y) =>
     {
@@ -191,6 +201,63 @@ public static class JuiceSprites
     /// <summary>A rounded rectangle with 24px corners, cut for slicing: tiles and sheets of any size keep them.</summary>
     public static Sprite Panel => _panel != null ? _panel : _panel = BuildRounded("JuicePanel", 64, 24);
 
+    /// <summary>
+    /// The disc under a spell's aim (Spell Juice): thin in the middle and gathering toward the rim (8%, 22% at
+    /// seven tenths of the radius, 30% at the edge when tinted at 30%), so what stands inside it stays readable and
+    /// the reach still has an edge.
+    /// </summary>
+    public static Sprite AimDisc => _aimDisc != null ? _aimDisc : _aimDisc = Build("JuiceAimDisc", (x, y) =>
+    {
+        float r = Mathf.Sqrt(x * x + y * y);
+        float a = r < 0.72f ? Mathf.Lerp(0.27f, 0.73f, r / 0.72f) : Mathf.Lerp(0.73f, 1f, (r - 0.72f) / 0.28f);
+        return a * Mathf.Clamp01((1f - r) * 96f);
+    }, null, 256);
+
+    /// <summary>
+    /// Rage's wind (Spell Juice): spokes a quarter as wide as the gaps between them, twelve round the disc, fading
+    /// in from the middle so the centre stays clear. Tinted white at about a sixth and turned, it reads as air
+    /// being dragged round the zone.
+    /// </summary>
+    public static Sprite WindSwirl => _windSwirl != null ? _windSwirl : _windSwirl = Build("JuiceWindSwirl", (x, y) =>
+    {
+        float r = Mathf.Sqrt(x * x + y * y);
+        float turn = (Mathf.Atan2(y, x) / (Mathf.PI * 2f) + 1f) * 12f;
+        float f = turn - Mathf.Floor(turn);
+        float spoke = Mathf.Clamp01(f * 30f) * Mathf.Clamp01((0.233f - f) * 30f);
+        float ring = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.28f, 0.62f, r)) * Mathf.Clamp01((0.98f - r) * 40f);
+        return spoke * ring;
+    }, null, 256);
+
+    private static Sprite _windSwirl;
+    private static Sprite _aimDisc, _hairline;
+    private static Material _unlit;
+    private static bool _unlitLooked;
+
+    /// <summary>
+    /// The sprite material that ignores the board's 2D lights (<c>Resources/Juice/FxUnlit</c>). The match scenes
+    /// light every sorting layer, the effects' <c>UI</c> layer from several lights at once, and a lit sprite there
+    /// is multiplied past white: an orange shockwave came out pale yellow, a zone's hue as a white glare. Effects
+    /// drawn with this one show their token colour exactly, wherever on the board they are. Null if the asset is
+    /// missing, in which case callers keep the default (lit) material.
+    /// </summary>
+    public static Material Unlit
+    {
+        get
+        {
+            if (_unlitLooked) return _unlit;
+            _unlitLooked = true;
+            _unlit = Resources.Load<Material>("Juice/FxUnlit");
+            return _unlit;
+        }
+    }
+
+    /// <summary>Puts <paramref name="renderer"/> on the unlit effect material, when there is one.</summary>
+    public static T Unlight<T>(T renderer) where T : Renderer
+    {
+        Material unlit = Unlit;
+        if (renderer != null && unlit != null) renderer.sharedMaterial = unlit;
+        return renderer;
+    }
     private static Sprite _dashedRing, _bracket, _cardBack, _pill, _panel, _outline, _check, _cross, _hatchedDisc, _arrowDown;
     private static readonly System.Collections.Generic.Dictionary<string, Sprite> DashedRects = new();
 
@@ -198,6 +265,9 @@ public static class JuiceSprites
     private static void ResetMoreStatics()
     {
         _dashedRing = _bracket = _cardBack = _pill = _panel = _outline = _check = _cross = _hatchedDisc = _arrowDown = null;
+        _aimDisc = _hairline = _windSwirl = null;
+        _unlit = null;
+        _unlitLooked = false;
         DashedRects.Clear();
     }
 

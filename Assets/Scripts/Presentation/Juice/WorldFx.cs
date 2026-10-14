@@ -35,14 +35,23 @@ public static class WorldFx
     /// <summary>A ring thrown outward from <paramref name="fromRadius"/> to <paramref name="toRadius"/>, fading.</summary>
     public static void Ring(Vector3 position, Color color, float fromRadius, float toRadius, float duration = -1f)
     {
+        Ring(JuiceSprites.Ring, position, color, fromRadius, toRadius, duration);
+    }
+
+    /// <summary>
+    /// <see cref="Ring(Vector3, Color, float, float, float)"/> drawn with another ring sprite: a hairline for a
+    /// shockwave's thin echo, an outline for a crisp one. Radii are the sprite's edge, whatever its size in pixels.
+    /// </summary>
+    public static void Ring(Sprite sprite, Vector3 position, Color color, float fromRadius, float toRadius, float duration = -1f)
+    {
         JuiceTokensSO t = Juice.Tokens;
         float d = duration > 0f ? duration : t.Durations.Settle;
-        SpriteRenderer ring = Take(JuiceSprites.Ring, position, color, fromRadius);
+        SpriteRenderer ring = TakeSized(sprite, position, color, fromRadius * 2f, SortingLayer, SortingOrder);
         if (ring == null) return;
 
         Transform tr = ring.transform;
         DOTween.Sequence().SetLink(ring.gameObject)
-            .Join(tr.DOScale(ScaleFor(toRadius), d).SetEase(t.Eases.Out))
+            .Join(tr.DOScale(tr.localScale * (toRadius / Mathf.Max(0.0001f, fromRadius)), d).SetEase(t.Eases.Out))
             .Join(ring.DOFade(0f, d).SetEase(t.Eases.In))
             .OnComplete(() => Give(ring));
     }
@@ -198,7 +207,9 @@ public static class WorldFx
     /// A mark left on the ground that holds, then fades: a scorch, a frosted patch. Drawn on the enemies' layer
     /// beneath their bodies, so what walks over it stays readable.
     /// </summary>
-    public static void Decal(Sprite sprite, Vector3 position, Color color, float size, float hold, float fade, float rotation = 0f)
+    /// <param name="flatten">Height as a share of width: a mark seen at the board's slant rather than from straight above.</param>
+    public static void Decal(Sprite sprite, Vector3 position, Color color, float size, float hold, float fade, float rotation = 0f,
+        float flatten = 1f)
     {
         if (sprite == null) sprite = JuiceSprites.Glow;
         SpriteRenderer decal = TakeSized(sprite, position, color, size, GroundLayer, GroundOrder);
@@ -206,7 +217,7 @@ public static class WorldFx
 
         Transform tr = decal.transform;
         tr.rotation = Quaternion.Euler(0f, 0f, rotation);
-        Vector3 full = tr.localScale;
+        Vector3 full = Vector3.Scale(tr.localScale, new Vector3(1f, flatten, 1f));
         tr.localScale = full * 0.6f;
 
         DOTween.Sequence().SetLink(decal.gameObject)
@@ -267,6 +278,37 @@ public static class WorldFx
             .OnComplete(() => Give(ray));
     }
 
+    /// <summary>
+    /// A cut of light across a point: a thin bar that snaps to length and is gone (Lance's pierce, 46 by 4 px on
+    /// the board). <paramref name="along"/> is the direction it lies in.
+    /// </summary>
+    public static void Slash(Vector3 position, Vector3 along, float length, float width, Color color)
+    {
+        SpriteRenderer bar = TakeSized(JuiceSprites.Disc, position, color, 1f, SortingLayer, SortingOrder + 1);
+        if (bar == null) return;
+
+        Transform tr = bar.transform;
+        tr.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(along.y, along.x) * Mathf.Rad2Deg);
+        float w = width / SpriteSize;
+        tr.localScale = new Vector3(length * 0.2f / SpriteSize, w, 1f);
+
+        DOTween.Sequence().SetLink(bar.gameObject)
+            .Append(tr.DOScale(new Vector3(length * 1.2f / SpriteSize, w, 1f), 0.03f))
+            .Append(tr.DOScale(new Vector3(length * 1.5f / SpriteSize, w * 0.5f, 1f), 0.15f))
+            .Join(bar.DOFade(0f, 0.15f))
+            .OnComplete(() => Give(bar));
+    }
+
+    /// <summary>
+    /// A kill inside a spell's blast: a crisp white ring and three sparks where the enemy stood, on top of its
+    /// own death burst, so a multi-kill reads as that many pops.
+    /// </summary>
+    public static void KillPop(Vector3 position)
+    {
+        Ring(JuiceSprites.Outline, position, Color.white, 0.09f, 0.45f, 0.4f);
+        Sparks(position, Color.white, 3, 0.45f, 0.16f);
+    }
+
     /// <summary>A mote that rises and fades: an ember off a meteor, a light mote off Lance's scar, a feather.</summary>
     public static void Mote(Vector3 position, Color color, float size, Vector3 drift, float duration, Sprite sprite = null)
     {
@@ -312,7 +354,8 @@ public static class WorldFx
         {
             GameObject go = new GameObject("Fx");
             go.transform.SetParent(root, false);
-            renderer = go.AddComponent<SpriteRenderer>();
+            // Unlit: the board's lights would multiply a token colour past white (see JuiceSprites.Unlit).
+            renderer = JuiceSprites.Unlight(go.AddComponent<SpriteRenderer>());
         }
 
         renderer.sortingLayerName = layer;

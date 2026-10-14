@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Cisma
   Description: Splits when killed, and the halves split again. Area damage fired
     too early only makes more targets.
-  CardImage: {fileID: 21300000, guid: fd9c6d0cd9b768a4293c325e174f2714, type: 3}
+  CardImage: {fileID: 21300000, guid: 75acb7339b2c85b4b97bd61b14d186f8, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 4
-  UseCustomSizeCardInMenu: 0
-  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 85.5, y: 85.5}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

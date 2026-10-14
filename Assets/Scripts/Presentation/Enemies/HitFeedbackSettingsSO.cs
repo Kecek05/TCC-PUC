@@ -29,6 +29,13 @@ public class HitFeedbackSettingsSO : ScriptableObject
     public Gradient HeavyNumberColor;
     [Min(0f)] public float HeavyNumberIntensity = 1.5f;
 
+    [Title("Resisted Hit")]
+    [Tooltip("A hit the enemy's armour cut down (an off-colour attack). Its number is this much of a normal one's " +
+             "size, in the tokens' dmg-resist grey: the design's 14px against 19px.")]
+    [PropertyRange(0.3f, 1f)] public float ResistedNumberIntensity = 0.74f;
+    [Tooltip("The body's flash on a resisted hit is the muted ink instead of the hit colour, and this long.")]
+    [Min(0f)] public float ResistedFlashDuration = 0.07f;
+
     [Title("Effects")]
     public PooledVfxSO SpawnPuff;
     public PooledVfxSO DeathBurst;

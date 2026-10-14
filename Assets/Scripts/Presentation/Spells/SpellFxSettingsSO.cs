@@ -63,6 +63,7 @@ public class SpellFxSettingsSO : ScriptableObject
         [Tooltip("tint-orange: orange armour.")] public Color ArmorOrange = Hex("#ff8242");
         [Tooltip("tint-pink: pink armour.")] public Color ArmorPink = Hex("#ff4280");
         [Tooltip("tint-purple: purple armour.")] public Color ArmorPurple = Hex("#7242ff");
+        [Tooltip("The held status (Ancora): the steel of its chain and anchor.")] public Color Hold = Hex("#d6e0f0");
     }
 
     [Serializable]
@@ -85,15 +86,17 @@ public class SpellFxSettingsSO : ScriptableObject
         public Sprite ShieldBreak;
         public Sprite[] Flakes = Array.Empty<Sprite>();
         [Tooltip("The frozen badge: Ice's card art.")] public Sprite Snowflake;
+        [Tooltip("The held status: a shackle of chain links closed round the enemy.")] public Sprite ChainRing;
+        [Tooltip("The held status's badge.")] public Sprite Anchor;
     }
 
     [Serializable]
     public class AimSettings
     {
-        [Tooltip("The aim disc's fill, as alpha over the spell's hue.")] [Range(0f, 1f)] public float DiscAlpha = 0.2f;
+        [Tooltip("The aim disc at its rim, as alpha over the spell's hue; it thins to about a quarter of this in the middle.")] [Range(0f, 1f)] public float DiscAlpha = 0.3f;
         [Tooltip("Font for the aim's tags (KO, -200, +25%...). Empty: TMP's default font.")] public TMP_FontAsset TagFont;
-        [Tooltip("World height of a tag's text.")] public float TagSize = 2.4f;
-        [Tooltip("How far above a target, in world units, its tag sits.")] public float TagLift = 0.42f;
+        [Tooltip("Font size of a tag's words (the board's 11px of a 380px-wide phone). The pill is sized from it.")] public float TagSize = 2f;
+        [Tooltip("How far above the top of a target, in world units, the middle of its tag sits.")] public float TagLift = 0.34f;
     }
 
     [FoldoutGroup("Hues"), HideLabel, InlineProperty] public HueTokens Hues = new();

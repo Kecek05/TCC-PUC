@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Shadow
   Description: A lone attacker immune to every slow. Punishes defences that lean
     on control instead of raw damage.
-  CardImage: {fileID: 21300000, guid: d8a908bc99c8f07408fdf3a9a8989942, type: 3}
+  CardImage: {fileID: 21300000, guid: ca41d24db209a3940bc38627c97bc9ed, type: 3}
   CardColor: {r: 0.44715405, g: 0.25943398, b: 1, a: 1}
   Cost: 6
-  UseCustomSizeCardInMenu: 0
-  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 85.5, y: 85.5}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

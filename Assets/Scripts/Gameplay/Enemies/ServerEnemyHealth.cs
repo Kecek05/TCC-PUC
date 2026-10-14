@@ -5,8 +5,28 @@ using UnityEngine;
 public class ServerEnemyHealth : NetworkBehaviour, IDamageable
 {
     [SerializeField] private EnemyManager enemyManager;
-    
-    
+
+    /// <summary>
+    /// Whether the last hit was cut down by this enemy's armor (an off-color attack, no armor break on it). The one
+    /// fact a client cannot work out from the health it sees: it draws that hit small and grey instead of white.
+    /// <para/>
+    /// Declared BEFORE <see cref="_currentHealth"/> on purpose. NGO writes and reads a behaviour's dirty variables
+    /// in declaration order inside one delta, so a client has this value in hand by the time the health change
+    /// that it describes raises its event. Two hits inside one network tick arrive as a single drop wearing the
+    /// later hit's flag; that is a number's colour, never its amount.
+    /// </summary>
+    private NetworkVariable<bool> _lastHitResisted = new(
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
+    /// <summary>
+    /// How much of this enemy's off-color armor is stripped right now, in whole percent (0 = whole, 100 = gone), for
+    /// the clients to draw the broken shield. The damage maths stays on <see cref="_colorResistClearPercent"/>.
+    /// </summary>
+    private NetworkVariable<byte> _armorBrokenPercent = new(
+        writePerm: NetworkVariableWritePermission.Server
+    );
+
     private NetworkVariable<float> _currentHealth = new(
         writePerm: NetworkVariableWritePermission.Server
     );
@@ -21,6 +41,8 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
 
     public NetworkVariable<float> CurrentHealth => _currentHealth;
     public NetworkVariable<float> MaxHealth => _maxHealth;
+    public NetworkVariable<bool> LastHitResisted => _lastHitResisted;
+    public NetworkVariable<byte> ArmorBrokenPercent => _armorBrokenPercent;
     public static event Action<EnemyManager> OnDeath;
 
     /// <summary>
@@ -51,9 +73,12 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         _maxHealth.Value = enemyManager.Data.MaxHealth
                            * enemyManager.CardScale.Health
                            * enemyManager.SplitStatMultiplier;
+        // Before the health, like every write of it: a pooled body must not start its next life "resisted".
+        _lastHitResisted.Value = false;
         _currentHealth.Value = _maxHealth.Value;
         // Pooled instances re-enter OnNetworkSpawn on reuse; clears from a previous life must not carry over.
         _colorResistClearPercent = 0f;
+        PublishArmorBreak();
 
         EnemyRegistry.Register(enemyManager);
     }
@@ -89,6 +114,10 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
         float resistance = enemyManager.Data.OffColorResistance * (1f - Mathf.Clamp01(_colorResistClearPercent));
         float effective = ArmorResistance.Resolve(damage, enemyManager.Data.ArmorColor, resistance);
 
+        // Grey only while the armor is whole. Once a Torniquete or a Ferrugem is stripping it the hit reads white
+        // again, even if a part of the resistance is left: the change of colour is the proof that the break worked.
+        // Written before the health so both travel in one delta and this one is read first (see the field).
+        _lastHitResisted.Value = effective < damage.Amount - 0.001f && _colorResistClearPercent <= 0f;
         _currentHealth.Value -= effective;
 
         if (_currentHealth.Value <= 0f)
@@ -110,6 +139,7 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     {
         if (!IsServer) return;
         _colorResistClearPercent += percent;
+        PublishArmorBreak();
     }
 
     /// <summary>
@@ -120,5 +150,13 @@ public class ServerEnemyHealth : NetworkBehaviour, IDamageable
     {
         if (!IsServer) return;
         _colorResistClearPercent = Mathf.Max(0f, _colorResistClearPercent - percent);
+        PublishArmorBreak();
+    }
+
+    /// <summary>Whole percent, written only on a change (see ServerEnemyMovement.PublishStatuses).</summary>
+    private void PublishArmorBreak()
+    {
+        byte broken = (byte)Mathf.RoundToInt(Mathf.Clamp01(_colorResistClearPercent) * 100f);
+        if (_armorBrokenPercent.Value != broken) _armorBrokenPercent.Value = broken;
     }
 }

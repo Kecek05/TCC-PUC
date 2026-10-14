@@ -78,9 +78,19 @@ public class IceVisual : SpellVisual
         WorldFx.Debris(new[] { Fx.Sprites.IceShard }, at, radius * 0.8f, Fx.Hues.IceSoft, 6, 0.22f);
 
         // The ground stays frosted for the freeze, then lets go a beat before the towers thaw.
-        WorldFx.Decal(Fx.Sprites.FrostNova, at, WithAlpha(Fx.Hues.IceSoft, 0.28f), radius * 2.2f, Mathf.Max(0f, freeze - 0.6f), 0.6f,
-            Random.Range(0f, 360f));
-        WorldFx.Decal(JuiceSprites.Glow, at, WithAlpha(Fx.Hues.IceSoft, 0.22f), radius * 2.4f, Mathf.Max(0f, freeze - 0.6f), 0.6f);
+        // The board's frosted ground: ice-soft at 34% in the middle melting into the hue and gone by seven tenths of
+        // a 132px disc (the reach is 112), under nine hairlines of rime.
+        float hold = Mathf.Max(0f, freeze - 0.6f);
+        WorldFx.Decal(JuiceSprites.Glow, at, WithAlpha(Fx.Hues.IceSoft, 0.34f), radius * 2.1f, hold, 0.6f);
+        WorldFx.Decal(JuiceSprites.Glow, at, WithAlpha(Hue, 0.18f), radius * 2.36f, hold, 0.6f);
+        for (int i = 0; i < 9; i++)
+        {
+            SpriteRenderer line = Sprite("Rime", JuiceSprites.Ray, new Color(1f, 1f, 1f, 0.2f), 1f, true, -11);
+            line.transform.localRotation = Quaternion.Euler(0f, 0f, 10f + i * 40f);
+            line.transform.localScale = new Vector3(0.06f / 1.28f, radius * 0.95f / 1.28f, 1f);
+            line.transform.localPosition = line.transform.localRotation * Vector3.up * radius * 0.12f;
+            line.DOFade(0f, 0.6f).SetDelay(hold).SetEase(T.Eases.In).SetLink(gameObject);
+        }
 
         RegisterZone();
         Destroy(gameObject, freeze + 0.5f);

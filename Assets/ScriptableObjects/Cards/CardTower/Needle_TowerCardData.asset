@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Needle
   Description: Long range, slow shots, and it hits like a truck. A swarm walks right
     past it.
-  CardImage: {fileID: 21300000, guid: d2946088d0406fe4fa0ce2fccf1b783d, type: 3}
+  CardImage: {fileID: 21300000, guid: 31c77b3a12e63524898fbc871b03c1ce, type: 3}
   CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 4
   UseCustomSizeCardInMenu: 0

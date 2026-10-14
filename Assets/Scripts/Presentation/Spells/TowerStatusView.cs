@@ -22,7 +22,11 @@ public class TowerStatusView : MonoBehaviour
     private float _size = 0.9f;
     private bool _primed;
 
-    private SpriteRenderer _block, _crackA, _crackB, _badgeBack, _badge;
+    /// <summary>The board's proportions around a 54px tower: an 80px block, a 78px frost clock, a 22px badge.</summary>
+    private const float BlockSize = 1.48f, ClockSize = 1.44f, BadgeSize = 0.41f, BadgeOffset = 0.555f;
+
+    private SpriteRenderer _block, _crackA, _crackB, _badgeBack, _badgeRing, _badge, _chill, _flash;
+    private Tween _punch;
     private Image _clock;
     private bool _frozen;
     private Coroutine _thaw;
@@ -57,11 +61,19 @@ public class TowerStatusView : MonoBehaviour
 
         _block.gameObject.SetActive(true);
         _badgeBack.gameObject.SetActive(true);
+        _chill.gameObject.SetActive(true);
+
+        // The badge pops on a beat after the block, the way the board staggers them.
+        Transform badge = _badgeBack.transform;
+        Vector3 badgeRest = Vector3.one * (_size * BadgeSize / Size(_badgeBack.sprite));
+        badge.DOKill();
+        badge.localScale = silent ? badgeRest : Vector3.zero;
+        if (!silent) badge.DOScale(badgeRest, Juice.Tokens.Durations.Pop).SetDelay(0.1f).SetEase(Juice.Tokens.Eases.Pop).SetLink(gameObject);
         _crackA.gameObject.SetActive(false);
         _crackB.gameObject.SetActive(false);
 
         Transform block = _block.transform;
-        Vector3 rest = Vector3.one * (_size * 1.32f / Size(_block.sprite));
+        Vector3 rest = Vector3.one * (_size * BlockSize / Size(_block.sprite));
         block.DOKill();
         _block.DOKill();
         _block.color = WithAlpha(_block.color, 0.95f);
@@ -119,7 +131,9 @@ public class TowerStatusView : MonoBehaviour
         _clock.gameObject.SetActive(false);
         _crackA.gameObject.SetActive(false);
         _crackB.gameObject.SetActive(false);
+        _badgeBack.transform.DOKill();
         _badgeBack.gameObject.SetActive(false);
+        _chill.gameObject.SetActive(false);
 
         bool wasShown = _block.gameObject.activeSelf;
         _block.transform.DOKill();
@@ -132,6 +146,45 @@ public class TowerStatusView : MonoBehaviour
         WorldFx.Ring(at, fx.Hues.IceSoft, _size * 0.15f, _size * 0.75f, 0.3f);
         WorldFx.Sparks(at, Color.white, 5, _size * 0.7f, 0.12f);
         if (CameraFeedback.IsOnScreen(at, 0.05f)) Juice.Sfx(SfxId.SpellShatter);
+
+        // Free again: the tower punches back to size (punch-soft) as the shards fly.
+        Punch(0.14f);
+    }
+
+    /// <summary>
+    /// A punch of the whole tower that always lands back at its own size, even cut short: the drop, a level-up or
+    /// another punch may take the transform over mid-way.
+    /// </summary>
+    public void Punch(float amount)
+    {
+        if (Juice.ReduceMotion) amount *= 0.5f;
+        Transform tr = transform;
+        if (DOTween.IsTweening(tr)) return;
+
+        _punch?.Kill();
+        _punch = tr.DOPunchScale(Vector3.one * amount, 0.28f, 5, 0.6f).SetLink(gameObject)
+            .OnKill(() => { if (tr != null) tr.localScale = Vector3.one; });
+    }
+
+    /// <summary>
+    /// Haste's zap arriving: the tower flashes pale gold in its own shape and punches (the board's 1.16), so each
+    /// tower visibly takes the charge in turn.
+    /// </summary>
+    public void Zapped()
+    {
+        Build();
+        if (_art != null && _art.sprite != null)
+        {
+            _flash.sprite = _art.sprite;
+            _flash.transform.localPosition = _art.transform.localPosition;
+            _flash.transform.localRotation = _art.transform.localRotation;
+            _flash.transform.localScale = _art.transform.localScale;
+            _flash.gameObject.SetActive(true);
+            _flash.DOKill();
+            _flash.color = new Color(1f, 0.965f, 0.76f, 0.95f);
+            _flash.DOFade(0f, 0.12f).SetLink(gameObject).OnComplete(() => _flash.gameObject.SetActive(false));
+        }
+        Punch(0.16f);
     }
 
     // ---------- hasted ----------
@@ -201,18 +254,11 @@ public class TowerStatusView : MonoBehaviour
         SpellFxSettingsSO fx = SpellFxSettingsSO.Instance;
         // Measured in this object's own space (the art is its child), not from world bounds: the first state arrives
         // at spawn, mid-drop, when this object is still stretched by the drop's start pose.
-        // And from the sprite's tight mesh, not its rect: the tower sprites differ in canvas (Dart's shape fills under
-        // half of its texture), so the rect would blow some overlays up to twice the tower.
+        // And from the shape the sprite draws, not its rect (VisibleBounds): the tower sprites differ in canvas, and
+        // the rect blew some overlays up to twice the tower.
         if (_art != null && _art.sprite != null)
         {
-            Vector2 min = Vector2.positiveInfinity, max = Vector2.negativeInfinity;
-            foreach (Vector2 v in _art.sprite.vertices)
-            {
-                min = Vector2.Min(min, v);
-                max = Vector2.Max(max, v);
-            }
-
-            Vector3 extent = Vector3.Scale(max - min, _art.transform.localScale);
+            Vector2 extent = Vector2.Scale(VisibleBounds.SpriteSize(_art.sprite), _art.transform.localScale);
             float measured = Mathf.Max(extent.x, extent.y);
             if (measured > 0.05f && measured < 10f) _size = measured;
         }
@@ -226,7 +272,7 @@ public class TowerStatusView : MonoBehaviour
         _orbB = Make("Orb", JuiceSprites.Glow, fx.Hues.HasteSoft, layer, baseOrder + 6);
         _orbA.transform.localScale = _orbB.transform.localScale = Vector3.one * (0.16f / Size(JuiceSprites.Glow));
 
-        _block = Make("IceBlock", SpellFxSettingsSO.Or(fx.Sprites.IceBlock, JuiceSprites.Panel), new Color(0.84f, 0.96f, 1f, 0.95f), layer, baseOrder + 8);
+        _block = Make("IceBlock", SpellFxSettingsSO.Or(fx.Sprites.IceBlock, JuiceSprites.Panel), new Color(0.84f, 0.965f, 1f, 0.96f), layer, baseOrder + 8);
         _crackA = Make("CrackA", SpellFxSettingsSO.Or(fx.Sprites.Crack, JuiceSprites.Ray), Color.white, layer, baseOrder + 9);
         _crackB = Make("CrackB", SpellFxSettingsSO.Or(fx.Sprites.Crack, JuiceSprites.Ray), Color.white, layer, baseOrder + 9);
         _crackA.transform.localScale = _crackB.transform.localScale = Vector3.one * (_size * 0.85f / Size(_crackA.sprite));
@@ -234,14 +280,28 @@ public class TowerStatusView : MonoBehaviour
         _crackB.transform.localRotation = Quaternion.Euler(0f, 0f, -55f);
         _crackB.transform.localPosition = new Vector3(_size * 0.12f, -_size * 0.06f, 0f);
 
-        _badgeBack = Make("FrozenBadge", JuiceSprites.Disc, Juice.Tokens.Colors.Sheet, layer, baseOrder + 10);
-        _badgeBack.transform.localPosition = new Vector3(_size * 0.46f, _size * 0.46f, 0f);
-        _badgeBack.transform.localScale = Vector3.one * (_size * 0.36f / Size(_badgeBack.sprite));
-        _badge = Make("Snowflake", SpellFxSettingsSO.Or(fx.Sprites.Snowflake, JuiceSprites.Star), fx.Hues.IceSoft, layer, baseOrder + 11);
+        // The badge: the sheet's dark disc inside a 2px rim in the ice hue, on the block's top-right corner.
+        _badgeBack = Make("FrozenBadge", JuiceSprites.Disc, Juice.Tokens.Colors.Sheet, layer, baseOrder + 11);
+        _badgeBack.transform.localPosition = new Vector3(_size * BadgeOffset, _size * BadgeOffset, 0f);
+        _badgeBack.transform.localScale = Vector3.one * (_size * BadgeSize / Size(_badgeBack.sprite));
+        _badgeRing = Make("Rim", JuiceSprites.Disc, fx.Hues.Ice, layer, baseOrder + 10);
+        _badgeRing.transform.SetParent(_badgeBack.transform, false);
+        _badgeRing.transform.localScale = Vector3.one * 1.18f;
+
+        // The chill under the block (the hue at 22%) and the pale flash a zap leaves on the tower's own shape.
+        _chill = Make("Chill", JuiceSprites.Panel, WithAlpha(fx.Hues.Ice, 0.22f), layer, baseOrder + 7);
+        _chill.drawMode = SpriteDrawMode.Sliced;
+        _chill.size = Vector2.one * 1.28f;
+        _chill.transform.localScale = Vector3.one * (_size * 1.22f / 1.28f);
+        _chill.gameObject.SetActive(false);
+        _flash = Make("ZapFlash", _art != null ? _art.sprite : JuiceSprites.Disc, Color.clear, layer, baseOrder + 5);
+        _flash.gameObject.SetActive(false);
+        _badge = Make("Snowflake", SpellFxSettingsSO.Or(fx.Sprites.Snowflake, JuiceSprites.Star), fx.Hues.IceSoft, layer, baseOrder + 12);
         _badge.transform.SetParent(_badgeBack.transform, false);
         _badge.transform.localScale = Vector3.one * (Size(_badgeBack.sprite) * 0.66f / Size(_badge.sprite));
 
-        _clock = BuildClock(layer, baseOrder + 9);
+        // Under the block: the board's clock is a hair smaller than the ice, so it shows as a rim running round it.
+        _clock = BuildClock(layer, baseOrder + 6);
 
         _block.gameObject.SetActive(false);
         _crackA.gameObject.SetActive(false);
@@ -258,7 +318,7 @@ public class TowerStatusView : MonoBehaviour
     {
         GameObject go = new GameObject(name);
         go.transform.SetParent(transform, false);
-        SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
+        SpriteRenderer renderer = JuiceSprites.Unlight(go.AddComponent<SpriteRenderer>());
         renderer.sprite = sprite;
         renderer.color = color;
         renderer.sortingLayerID = layer;
@@ -278,7 +338,7 @@ public class TowerStatusView : MonoBehaviour
         canvas.sortingLayerID = layer;
         canvas.sortingOrder = order;
 
-        float diameter = _size * 1.62f;
+        float diameter = _size * ClockSize / 0.95f;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(diameter, diameter);
         rect.localPosition = Vector3.zero;

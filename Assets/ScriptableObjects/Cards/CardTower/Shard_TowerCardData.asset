@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Shard
   Description: 'An ordinary shot with a vicious finish: every kill sprays fragments
     over the enemies around it.'
-  CardImage: {fileID: 21300000, guid: e8de7002f66a8484fb68e3c4ea0053b4, type: 3}
+  CardImage: {fileID: 21300000, guid: 2c56f85af7276384aa1162d9712e6dd9, type: 3}
   CardColor: {r: 0.44715405, g: 0.25943398, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 0

@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Swarm
   Description: Floods the enemy's lane with fragile fodder, overwhelming their defences
     by sheer number.
-  CardImage: {fileID: 21300000, guid: 38c420d1761230a42b16932aa96e39de, type: 3}
+  CardImage: {fileID: 21300000, guid: e9c38b1c5dbb43018704d001a21030ad, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 6
-  UseCustomSizeCardInMenu: 0
-  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 85.5, y: 85.5}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

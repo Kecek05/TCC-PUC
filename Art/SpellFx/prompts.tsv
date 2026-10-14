@@ -14,3 +14,5 @@ fx_rift	a fissure tearing open in the ground seen from directly above: an elonga
 fx_corrosion	a corrosive acid puddle seen from directly above: an irregular blobby splat with round bubbles of different sizes on it and a few separate droplets around its edge.
 fx_shield_break	a heater-shaped shield icon cracked down the middle into two halves that are breaking apart, with a jagged gap between them and two or three small chips flying off.
 fx_flakes	four small irregular rust flakes, like chipped paint, each a different shape, laid out in a 2 by 2 grid with plenty of space between them.
+fx_chain_ring	a shackle seen from directly above: a closed circular ring made of about ten thick oval chain links joined end to end, evenly spaced around the circle, with an empty middle. Each link is a bold rounded outline. Perfectly centred and symmetric.
+fx_anchor	one single bold ship anchor icon, upright: a ring at the top, a straight shank, a short crossbar under the ring, and two curved flukes with pointed tips at the bottom. Solid white, thick rounded strokes, simple enough to read at 20 pixels.

@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Ram
   Description: Slow and heavy, but it lunges into sudden dashes. Good at punishing
     towers clumped in one spot.
-  CardImage: {fileID: 21300000, guid: a88129b427c6e9445b019302be0de2cc, type: 3}
+  CardImage: {fileID: 21300000, guid: e3cb49739f7c1be4eb0e75a4c3a6caf6, type: 3}
   CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
-  UseCustomSizeCardInMenu: 0
-  CustomSizeCardInMenu: {x: 0, y: 0}
+  UseCustomSizeCardInMenu: 1
+  CustomSizeCardInMenu: {x: 85.5, y: 85.5}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

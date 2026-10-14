@@ -5,7 +5,8 @@ using UnityEngine;
 
 /// <summary>
 /// How an enemy reads under fire: a flash and a number on every hit, a squash and a brief freeze on a heavy
-/// one, a puff when it arrives and a burst when it dies.
+/// one, a small grey number and a clink when its armour cut the hit down, a puff when it arrives and a burst
+/// when it dies.
 /// </summary>
 /// <remarks>
 /// Client-side and event-driven. Hits come from the replicated health (a drop is a hit, and the drop is its
@@ -56,12 +57,22 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
         s_lastKillAt = -10f;
         s_killStep = 0;
         s_lastIncomingAt = -10f;
+        s_resistGradient = null;
     }
+
+    /// <summary>How long a shove takes, out and back (the boards' knock: 70 ms out, 230 ms home).</summary>
+    private const float ShoveSeconds = 0.3f;
+    private const float ShoveOutShare = 0.24f;
 
     private BaseVfxPool _vfx;
     private Color _bodyColor;
     private float _lastHealth;
     private float _flashLeft;
+    private float _flashDuration;
+    private Color _flashColor;
+    private Vector3 _shove;
+    private float _shoveLeft;
+    private static Gradient s_resistGradient;
     private float _pinLeft;
     private Vector3 _pinnedPosition;
     private bool _catchingUp;
@@ -86,12 +97,16 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
         relay.OnExit += HandleExit;
         clientMovement.OnVisualReady += HandleVisualReady;
         _listening = true;
+
+        // What it is under (slowed, hasted, held, armour broken) is drawn from here on.
+        UnitStatusPresenter.Track(enemyManager);
     }
 
     public override void OnNetworkDespawn()
     {
         if (!_listening) return;
         _listening = false;
+        UnitStatusPresenter.Untrack(enemyManager);
 
         enemyManager.ServerHealth.CurrentHealth.OnValueChanged -= HandleHealthChanged;
         relay.OnExit -= HandleExit;
@@ -111,7 +126,7 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
         {
             _flashLeft -= dt;
             body.color = _flashLeft > 0f
-                ? Color.Lerp(_bodyColor, settings.FlashColor, _flashLeft / settings.FlashDuration)
+                ? Color.Lerp(_bodyColor, _flashColor, _flashLeft / _flashDuration)
                 : _bodyColor;
             busy |= _flashLeft > 0f;
         }
@@ -132,6 +147,31 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
             busy |= _catchingUp;
         }
 
+        if (_shoveLeft > 0f)
+        {
+            _shoveLeft -= dt;
+
+            // A pin holds the body where the hit caught it; the shove takes over the moment it lets go.
+            if (_pinLeft <= 0f)
+            {
+                _catchingUp = false;
+                float t = 1f - Mathf.Clamp01(_shoveLeft / ShoveSeconds);
+                float k;
+                if (t < ShoveOutShare)
+                {
+                    float o = 1f - t / ShoveOutShare;
+                    k = 1f - o * o * o;
+                }
+                else
+                {
+                    k = 1f - Mathf.SmoothStep(0f, 1f, (t - ShoveOutShare) / (1f - ShoveOutShare));
+                }
+                visual.position = visual.parent.position + _shove * k;
+                if (_shoveLeft <= 0f) visual.localPosition = Vector3.zero;
+            }
+            busy |= _shoveLeft > 0f;
+        }
+
         enabled = busy;
     }
 
@@ -141,7 +181,15 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
         _lastHealth = current;
         if (damage <= 0.01f) return;
 
-        Flash();
+        // Read off the server's own verdict (ServerEnemyHealth.LastHitResisted, which arrives ahead of the health
+        // it describes): the armour cut this hit down, so it is drawn small and grey and never as a heavy one.
+        if (enemyManager.ServerHealth.LastHitResisted.Value)
+        {
+            ShowResisted(damage);
+            return;
+        }
+
+        Flash(settings.FlashColor, settings.FlashDuration);
 
         float max = enemyManager.ServerHealth.MaxHealth.Value > 0f
             ? enemyManager.ServerHealth.MaxHealth.Value
@@ -163,6 +211,36 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
 
         Pin(settings.HitStopSeconds);
         if (heavyHitFeedback != null) heavyHitFeedback.PlayFeedbacks();
+    }
+
+    /// <summary>
+    /// A hit the armour took the edge off (Ferrugem's proof beat, and every off-colour hit in the match): the body
+    /// greys for an instant instead of flashing red, the number is small in dmg-resist, and it clinks. The same
+    /// enemy under an armour break answers in white again, which is how the player sees the break working.
+    /// </summary>
+    private void ShowResisted(float damage)
+    {
+        Flash(Juice.Tokens.Colors.InkMuted, settings.ResistedFlashDuration);
+
+        Vector3 position = body.transform.position;
+        if (CameraFeedback.IsOnScreen(position)) Juice.Sfx(SfxId.Clink, 0, 0.55f);
+        if (!settings.ShowDamageNumbers) return;
+
+        s_resistGradient ??= FloatingNumbers.Solid(Juice.Tokens.Colors.DamageResist);
+        FloatingNumbers.Damage(position + settings.NumberOffset, damage, settings.ResistedNumberIntensity, s_resistGradient);
+    }
+
+    /// <summary>
+    /// Knocks the body off its spot and lets it ease home: a blast's survivor thrown back, a spear's shoved down
+    /// the lane. The visual only, like the heavy-hit pin and for the same reason: the root belongs to the server's
+    /// path, and where an enemy really is must never depend on what one client drew.
+    /// </summary>
+    public void Shove(Vector3 worldOffset)
+    {
+        if (!_listening || Juice.ReduceMotion) return;
+        _shove = worldOffset;
+        _shoveLeft = ShoveSeconds;
+        enabled = true;
     }
 
     private void HandleExit(EnemyExitKind kind)
@@ -232,12 +310,13 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
         Juice.Haptic(HapticRole.Light);
     }
 
-    private void Flash()
+    private void Flash(Color color, float duration)
     {
-        if (settings.FlashDuration <= 0f) return;
+        if (duration <= 0f) return;
 
-        _flashLeft = settings.FlashDuration;
-        body.color = settings.FlashColor;
+        _flashLeft = _flashDuration = duration;
+        _flashColor = color;
+        body.color = color;
         enabled = true;
     }
 
@@ -254,6 +333,7 @@ public class EnemyFeedbackPresenter : NetworkBehaviour
     private void ResetVisualState()
     {
         _flashLeft = 0f;
+        _shoveLeft = 0f;
         _pinLeft = 0f;
         _catchingUp = false;
         body.color = _bodyColor;

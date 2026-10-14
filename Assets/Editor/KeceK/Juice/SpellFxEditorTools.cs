@@ -47,6 +47,8 @@ namespace Kecek.Editor
             s.Rift = Load("fx_rift");
             s.Corrosion = Load("fx_corrosion");
             s.ShieldBreak = Load("fx_shield_break");
+            s.ChainRing = Load("fx_chain_ring");
+            s.Anchor = Load("fx_anchor");
             s.Flakes = Enumerable.Range(0, 4).Select(i => Load($"fx_flake_{i}")).Where(sprite => sprite != null).ToArray();
             s.Snowflake = AssetDatabase.LoadAssetAtPath<Sprite>(SnowflakePath);
 

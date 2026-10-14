@@ -33,6 +33,7 @@ MonoBehaviour:
     ArmorOrange: {r: 1, g: 0.50980395, b: 0.25882354, a: 1}
     ArmorPink: {r: 1, g: 0.25882354, b: 0.5019608, a: 1}
     ArmorPurple: {r: 0.44705883, g: 0.25882354, b: 1, a: 1}
+    Hold: {r: 0.8392157, g: 0.8784314, b: 0.9411765, a: 1}
   Sprites:
     Meteor: {fileID: 21300000, guid: d31d7d2d22733f44c855b3c267ab5200, type: 3}
     Flame: {fileID: 21300000, guid: 65dc662bcf0c3bb4c93e47a1a1ed0188, type: 3}
@@ -55,8 +56,10 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 8eb813cdf6b163a40acdad1a201c44e5, type: 3}
     - {fileID: 21300000, guid: b246ea2a255cb9b4382705fb53b9ffe0, type: 3}
     Snowflake: {fileID: 21300000, guid: fc7324b43ab6f644da62b6f0f7f95411, type: 3}
+    ChainRing: {fileID: 21300000, guid: 22a70cf131d3f214e94ad36e7afc8d89, type: 3}
+    Anchor: {fileID: 21300000, guid: b16d38ece36d91c44a1049d9e22a922b, type: 3}
   Aim:
-    DiscAlpha: 0.2
+    DiscAlpha: 0.3
     TagFont: {fileID: 11400000, guid: ac1f576a347eb384a941aa94b5aab4be, type: 2}
-    TagSize: 2.4
-    TagLift: 0.42
+    TagSize: 1.8
+    TagLift: 0.34

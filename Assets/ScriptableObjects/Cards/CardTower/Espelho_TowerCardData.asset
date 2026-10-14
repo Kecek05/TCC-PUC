@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Espelho
   Description: Never fires at your field. On a timer it sends a weak attacker down
     the opponent's lane instead.
-  CardImage: {fileID: 21300000, guid: 970f83b0850a4654f8706dcecdfb429f, type: 3}
+  CardImage: {fileID: 21300000, guid: dfbf8451bb3df4c40ac89c687f1a0070, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 7
   UseCustomSizeCardInMenu: 0

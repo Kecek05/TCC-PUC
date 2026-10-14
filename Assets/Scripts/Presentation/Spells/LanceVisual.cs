@@ -15,14 +15,15 @@ using UnityEngine;
 /// </remarks>
 public class LanceVisual : SpellVisual
 {
-    private const float SpearLength = 2.3f;
-    private const float SpearHeight = 2.7f;
+    private const float SpearLength = 2.5f;
+    private const float SpearHeight = 3.04f;
     private const float RaceTime = 0.16f;
     private const float LengthMultiplier = 3f;
 
     private readonly List<Vector3> _band = new();
     private Transform _spear;
     private LineRenderer _core, _glow, _crack;
+    private Vector3 _anchorAt;
 
     private float HalfWidth => Cast.Data != null ? Cast.Data.Range * Cast.Scale.Range : 0.45f;
     private float SearchRadius => HalfWidth * LengthMultiplier * 0.5f;
@@ -42,12 +43,13 @@ public class LanceVisual : SpellVisual
 
         Vector3 start = Target() + Vector3.up * SpearHeight;
         _spear.position = start;
-        WorldFx.Flash(start, Color.white, 0.22f, 0.25f);
-        WorldFx.Sparks(start, Fx.Hues.LightEdge, 4, 0.3f, 0.14f);
+        // A glint where it appears (the board's 22px star, turning as it flares).
+        WorldFx.Flash(start + Vector3.up * SpearLength * 0.5f, Color.white, 0.22f, 0.25f);
+        WorldFx.Sparks(start + Vector3.up * SpearLength * 0.5f, Color.white, 1, 0.01f, 0.5f);
 
         // Anticipation (a hair up on ease-out), then the fall onto wherever the anchor has walked to by then.
-        float lift = 0.08f;
-        Vector3 lifted = start + Vector3.up * 0.16f;
+        float lift = 0.1f;
+        Vector3 lifted = start + Vector3.up * 0.25f;
         _spear.DOMove(lifted, lift).SetEase(T.Eases.Out).SetLink(gameObject).OnComplete(() =>
         {
             DOVirtual.Float(0f, 1f, travel - lift, k =>
@@ -81,6 +83,7 @@ public class LanceVisual : SpellVisual
         }
 
         Vector3 anchorAt = anchor.transform.position;
+        _anchorAt = anchorAt;
         float halfBand = HalfWidth * LengthMultiplier / path.TotalLength;
         float center = anchor.ServerMovement.PathProgress.Value;
         float physical = SpellLane.PhysicalProgress(anchor);
@@ -91,13 +94,15 @@ public class LanceVisual : SpellVisual
         Shake(T.Shake.Small, T.Durations.Shake);
         Buzz(HapticRole.Medium);
         Sfx(SfxId.Impact);
-        WorldFx.Flash(anchorAt, Color.white, 0.55f);
-        WorldFx.Ring(anchorAt, Color.white, 0.1f, 0.55f, 0.35f);
+        // The board's impact: a 110px core, a crisp 96px ring and four sparks at the anchor.
+        WorldFx.Flash(anchorAt, Color.Lerp(Fx.Hues.LightEdge, Color.white, 0.6f), 0.8f);
+        WorldFx.Ring(JuiceSprites.Outline, anchorAt, Color.white, 0.17f, 0.86f, 0.45f);
+        WorldFx.Sparks(anchorAt, Fx.Hues.LightEdge, 4, 0.7f, 0.22f);
 
         // The race: the strip lights from the anchor outward both ways.
         int anchorIndex = NearestIndex(_band, anchorAt);
-        _glow = Line("Glow", WithAlpha(Fx.Hues.LightEdge, 0.45f), 0.5f, 37);
-        _core = Line("Core", Color.white, 0.16f, 38);
+        _glow = Line("Glow", WithAlpha(Fx.Hues.LightEdge, 0.45f), 0.43f, 37);
+        _core = Line("Core", Color.white, 0.143f, 38);
         DOVirtual.Float(0f, 1f, RaceTime, k => Reveal(anchorIndex, k)).SetEase(Ease.Linear).SetLink(gameObject)
             .OnComplete(Scar);
 
@@ -124,7 +129,7 @@ public class LanceVisual : SpellVisual
                 .SetLink(gameObject);
         }
 
-        StartCoroutine(StampKills(targets, anchorAt + Vector3.up * 0.75f));
+        StartCoroutine(StampKills(targets, anchorAt + new Vector3(1f, 0.9f, 0f)));
         Destroy(gameObject, 2.4f);
     }
 
@@ -134,8 +139,12 @@ public class LanceVisual : SpellVisual
         Vector3 at = enemy.transform.position;
         Vector3 along = LaneTangent(at);
 
-        WorldFx.Streak(at - along * 0.32f, at + along * 0.32f, Color.white, 0.12f, 0.2f);
-        WorldFx.Sparks(at, Fx.Hues.LightEdge, 4, 0.35f, 0.14f);
+        // A slash along the lane through it (46 by 4 px) and a small ring; then it is shoved down the lane, away
+        // from where the spear landed. Whoever dies pops instead (StampKills).
+        WorldFx.Slash(at, along, 0.82f, 0.075f, Color.white);
+        WorldFx.Ring(JuiceSprites.Outline, at, Color.white, 0.09f, 0.43f, 0.4f);
+        Vector3 push = at - _anchorAt;
+        Shove(enemy, (push.sqrMagnitude > 0.0004f ? push.normalized : -along) * 0.15f);
         if (CameraFeedback.IsOnScreen(at, 0.05f)) Juice.Sfx(SfxId.SpellPierce, step);
     }
 
@@ -148,18 +157,20 @@ public class LanceVisual : SpellVisual
         _crack.positionCount = _band.Count;
         _crack.SetPositions(_band.ToArray());
 
-        DOVirtual.Float(1f, 0f, 1f, a =>
+        // The scar: the strip's own shape in light-edge, 7px wide, .9 falling to .45 over 0.8 s and gone by 1.5 s.
+        _core.widthMultiplier = 0.125f;
+        DOVirtual.Float(0f, 1.5f, 1.5f, t =>
         {
             if (_core == null) return;
-            Color c = Color.Lerp(Fx.Hues.LightEdge, Color.white, a);
+            float a = t < 0.8f ? Mathf.Lerp(0.9f, 0.45f, t / 0.8f) : Mathf.Lerp(0.45f, 0f, (t - 0.8f) / 0.7f);
+            Color c = Color.Lerp(Fx.Hues.LightEdge, Color.white, Mathf.Clamp01(1f - t * 6f));
             c.a = a;
             _core.startColor = _core.endColor = c;
-            _core.widthMultiplier = Mathf.Lerp(0.08f, 0.16f, a);
-        }).SetEase(T.Eases.In).SetLink(gameObject);
+        }).SetEase(Ease.Linear).SetLink(gameObject);
 
         DOVirtual.Float(0.45f, 0f, 0.3f, a => { if (_glow != null) _glow.startColor = _glow.endColor = WithAlpha(Fx.Hues.LightEdge, a); })
             .SetLink(gameObject);
-        DOVirtual.Float(0.55f, 0f, 1.6f, a => { if (_crack != null) _crack.startColor = _crack.endColor = WithAlpha(_crack.startColor, a); })
+        DOVirtual.Float(0.55f, 0f, 2.2f, a => { if (_crack != null) _crack.startColor = _crack.endColor = WithAlpha(_crack.startColor, a); })
             .SetEase(T.Eases.In).SetLink(gameObject);
 
         for (int i = 0; i < (Juice.ReduceMotion ? 3 : 7); i++)

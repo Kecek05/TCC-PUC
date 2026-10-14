@@ -3,14 +3,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// A spell's area while it works, as this client draws it: where, how big, whose, and until when. The unit
-/// statuses (raged, slowed, armour broken) and a frozen tower's frost clock are read off these, so no status has
-/// to cross the network.
+/// A spell's area while it works, as this client draws it: where, how big, whose, and until when. A frozen tower's
+/// frost clock is read off these: the replicated frozen flag says a tower is frozen, not for how much longer.
 /// </summary>
 /// <remarks>
-/// Each zone applies the server's own rule for who it touches (see <see cref="SpellStatusPresenter"/>), which is
-/// what keeps the inferred statuses honest: a Rift slows everything that has touched it until it seals, a Rage
-/// bonus lingers 1 s after a troop leaves. Timed on scaled time, like the gameplay it mirrors.
+/// Unit statuses used to be inferred from these as well; they are replicated now (see
+/// <see cref="UnitStatusPresenter"/>), since a tower's aura or an Ancora's grip cannot be guessed from a zone.
+/// Timed on scaled time, like the gameplay it mirrors.
 /// </remarks>
 public sealed class SpellZone
 {
@@ -26,14 +25,6 @@ public sealed class SpellZone
 
     /// <summary>The effect's size at the caster's level, as a fraction (0.5 = +50%), for the float that announces it.</summary>
     public readonly float Magnitude;
-
-    /// <summary>
-    /// Per unit: for a lingering zone, when its status runs out; for the others, simply "touched". Keyed by the
-    /// network id rather than the EnemyManager: enemies are pooled, and a body recycled into a new enemy mid-zone
-    /// must not inherit the old one's status (the server's per-zone sets treat it as already handled, so it is not
-    /// slowed or broken there either).
-    /// </summary>
-    public readonly Dictionary<ulong, float> Units = new();
 
     public SpellZone(SpellType spell, Vector3 center, float radius, TeamType casterTeam, float startTime, float duration,
         float linger, float magnitude)
@@ -75,7 +66,7 @@ public static class SpellZoneRegistry
     {
         if (zone == null || Active.Contains(zone)) return;
 
-        // A zone holds enemies by reference; a scene change must not carry them into the next match.
+        // A scene change must not carry one match's zones into the next.
         if (!_hooked)
         {
             _hooked = true;
@@ -83,7 +74,6 @@ public static class SpellZoneRegistry
         }
 
         Active.Add(zone);
-        SpellStatusPresenter.EnsureRunning();
     }
 
     public static void Remove(SpellZone zone) => Active.Remove(zone);

@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: SQUARE
   Description: Heavy artillery. Fires slowly, but every shell explodes on impact
     and splashes across grouped enemies.
-  CardImage: {fileID: 21300000, guid: 02932376a293bd94f83a8905a692df62, type: 3}
+  CardImage: {fileID: 21300000, guid: b8915b70b470c2141918b8f779a1d141, type: 3}
   CardColor: {r: 1, g: 0.25943398, b: 0.5031646, a: 1}
   Cost: 6
   UseCustomSizeCardInMenu: 0

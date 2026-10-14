@@ -48,6 +48,31 @@ public static class SpellLane
             Vector3 local = translator.ServerToLocal(path.SamplePosition(t), team);
             into.Add(new Vector3(local.x, local.y, 0f));
         }
+
+        RoundBends(into, 3);
+    }
+
+    private static readonly List<Vector3> Scratch = new();
+
+    /// <summary>
+    /// Rounds the polyline's corners (each point becomes the mean of its neighbours within <paramref name="reach"/>
+    /// samples, the window shrinking toward the ends so they stay put). The paths turn at right angles, and a band
+    /// nearly as wide as the lane folds over itself on the inside of such a corner: drawn translucent, the fold
+    /// shows as a darker wedge. Rounded by about the band's half-width it lies flat, the way the board draws it.
+    /// </summary>
+    private static void RoundBends(List<Vector3> points, int reach)
+    {
+        if (points.Count < 5) return;
+        Scratch.Clear();
+        Scratch.AddRange(points);
+
+        for (int i = 1; i < points.Count - 1; i++)
+        {
+            int window = Mathf.Min(reach, Mathf.Min(i, points.Count - 1 - i));
+            Vector3 sum = Vector3.zero;
+            for (int k = -window; k <= window; k++) sum += Scratch[i + k];
+            points[i] = sum / (window * 2 + 1);
+        }
     }
 
     /// <summary>

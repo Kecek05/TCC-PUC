@@ -9,7 +9,7 @@ os.makedirs(OUT, exist_ok=True)
 
 MAX_SIDE = 512
 # Radial art keeps its centre on the image centre (the rune, the nova and the zones spin or scale about it).
-CENTRED = {"fx_frost_nova", "fx_haste_rune", "fx_scorch", "fx_corrosion", "fx_smoke", "fx_ice_block"}
+CENTRED = {"fx_frost_nova", "fx_haste_rune", "fx_scorch", "fx_corrosion", "fx_smoke", "fx_ice_block", "fx_chain_ring"}
 
 
 def to_alpha(img):

@@ -18,7 +18,7 @@ MonoBehaviour:
   CardPrefab: {fileID: 1325791681110519822, guid: 3b1f5624b2ddeaa40a3ed0f6abc58e55, type: 3}
   CardName: Fonte
   Description: Generates mana and nothing else. The slot it takes is a slot not defending.
-  CardImage: {fileID: 21300000, guid: aa5bdecf5f5fcf64ab40893de21c3e98, type: 3}
+  CardImage: {fileID: 21300000, guid: d35358192dc31b840ba4965c3837e22e, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 8
   UseCustomSizeCardInMenu: 0

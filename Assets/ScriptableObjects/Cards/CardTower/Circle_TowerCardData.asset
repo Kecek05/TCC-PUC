@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: CIRCLE
   Description: Your starter defence. Fires steady, unremarkable shots at whatever
     wanders into range.
-  CardImage: {fileID: 21300000, guid: b56bbe1d2da3aac408e2d258d012869b, type: 3}
+  CardImage: {fileID: 21300000, guid: d0c0ba6337bb108458e00b5f8acdc1b2, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 4
   UseCustomSizeCardInMenu: 0

@@ -19,7 +19,7 @@ MonoBehaviour:
   CardName: Mortar
   Description: Fires a magazine of heavy shells in a burst, then reloads. Loaded
     it erases a wave; empty it is a hole in your defence.
-  CardImage: {fileID: 21300000, guid: 9d729230c626df1479336892a6609397, type: 3}
+  CardImage: {fileID: 21300000, guid: 64f9521a98e0b8d43b8d2aeadc3b147b, type: 3}
   CardColor: {r: 1, g: 0.5095688, b: 0.25943398, a: 1}
   Cost: 7
   UseCustomSizeCardInMenu: 0

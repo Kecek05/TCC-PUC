@@ -1,105 +1,88 @@
-# Card art — vector sources
+# Card art
 
-Every card that was still on placeholder art now has its own vector shape. The shapes are
-authored here as code, rendered to `.svg` sources and to the `.png` sprites Unity imports.
+Every card's art is generated: the towers and troops from geometry written as code, the spell emblems from Codex
+renders. The design it implements is the **Card Art Redesign** canvas
+(https://claude.ai/artifact/WXNvaiWccKprNdVeUFa7uC).
 
 ```
-Art/shapes.ps1        the shape library - geometry only, no pixels
-Art/render.ps1        pixels, levels, shadows, the card manifest
-Art/Vector/**.svg     editable source, one per card
-Assets/Sprites/**.png what Unity imports
+Art/CardArt/shapes.py          the shape library: towers (three levels each) and troop cards
+Art/CardArt/render.py          pixels: canvases, shadows, outlines, files
+Art/CardArt/spells/            the Codex brief (prompts.tsv, run_one.sh) and the raw renders
+Art/CardArt/wave-originals/    the hand-drawn wave enemies, as they were before the re-ink
+Art/Vector/**.svg              editable source, one per card, written by render.py
+Art/SpellFx/                   the spell EFFECT sprites and sounds (a separate recipe, see its README)
+Assets/Sprites/**.png          what Unity imports
 ```
 
-Re-render everything:
+Re-render everything (needs `pip install pillow numpy shapely`):
 
-```powershell
-powershell -ExecutionPolicy Bypass -File Art\render.ps1
+```
+python Art/CardArt/render.py
 ```
 
-It overwrites only the generated files and never touches the four hand-drawn towers
-(Circle, Square, Slam, Dart) or the wave enemies. After running it, let Unity import, then
-re-apply the sprite settings if the import defaults come back wrong (see *Import settings*).
+It writes every sprite under the file name the game already imports, so the `.meta` beside it (pixels per unit,
+mesh type, guid) is untouched and no prefab or card asset has to be re-pointed. `--out <folder>` renders into a
+staging folder instead of `Assets/`.
 
-## Why a script instead of a drawing app
+## The rules of the set
 
-The three tower levels have to nest concentrically and the whole set has to stay
-consistent with art that already exists. Both are constraint problems, not drawing
-problems — see *Solved, not authored* below. Authoring the geometry once and deriving
-everything else means a level-2 sprite can never drift from its level 1, and re-balancing
-a shape is one number rather than three redraws.
+1. **One primitive, one idea.** A cut, a split or a repeat. Never an illustration.
+2. **Spikes outside, simple inside.** The hollow of a tower body is always a plain cell, so what nests in it never
+   tangles. The first generation nested shrunken copies of the outline, which turned a star into noise.
+3. **A level adds a part:** level 1 is the body, level 2 the chamber, level 3 the core. Only the five primitives
+   (Circle, Stinger, Square, Slam, Dart) nest copies of themselves, because there the copy is the idea.
+4. **Nothing under 5% of the sprite.** Walls are 11 to 17%, gaps 5% or more: every tier survives at 46 px, the
+   size a tower is drawn at on a 540 px wide screen.
+5. **Closed and coloured deals damage. Open and white supports.** Colour still means that colour's damage.
+6. **Troops share one line weight** (34 px at 2000 pixels per unit), and a card emblem is never a lane body.
+7. **Spells are filled emblems from one hand.**
 
-`Geometry.Parse` in WPF speaks the same path mini-language as SVG, so one string is both
-what lands in the `.svg` and what the rasteriser draws. They cannot disagree.
+## Towers
 
-## The style, measured
+Three sprites per tower on one 748 px canvas with one pivot, stacked by the prefab's `GFX/Level1`, `Level2`,
+`Level3`. A 500-unit body lands 339 px from the pivot, which leaves room for the hard shadow: +22, +30 px at
+level 1, easing to 0.76 and 0.58 of that for levels 2 and 3. `<Name>Tower1_NO_SHADOW.png` is the level 1 face
+alone (the placement ghost uses it).
 
-Nothing here was invented — every constant came off the existing sprites:
+Walls and gaps are true offsets (shapely buffers), not scaled copies, so a wall is the same thickness all the way
+round whatever the silhouette. Three families:
 
-| | value | measured on |
-|---|---|---|
-| tower canvas | 748×748 | CircleTower1 |
-| level ratios | 1 : 0.466 : 0.241 | CircleTower1/2/3 |
-| drop shadow | +22, +30 at level 1 | CircleTower1, SquareTower1 |
-| troop silhouette | 496 white inside 582 black | BaseEnemy1 |
-| spell icon | 512×512, edge to edge, no shadow | meteorite, snowflakes |
-| pixels-per-unit | towers 1300, troops 2000, spells 1300 | the sprite `.meta` files |
+- **Primitives**: a polygon nested three times, corners rounded so the walls can be thick.
+- **Specials** (Mortar, Needle, Beacon, Chain, Shard): a ring, one feature outside it, and a signature inside,
+  which is what the tower fires. Mortar's level 2 is its magazine of four chambers; Needle's level 3 its crosshair.
+- **Support** (Prism, Tourniquet, Anel, Ancora, Espelho, Fonte): open figures built from separate strokes, which
+  assemble as they level. Ancora is flukes, then shank and stock, then the eye.
 
-Art is authored **white**. Colour is a tint — `CardDataSO.CardColor` for the card and
-`SpriteRenderer.color` on the prefab — which is how Dart, Square and Slam already work. A
-card can be recoloured without re-rendering, and the baked black shadow stays black under
-any tint because anything times zero is zero.
+New art with padding around its shape must import with a **Tight** sprite mesh: status overlays and the level
+badge are sized from the mesh, not from the texture's rect.
 
-## Solved, not authored
+## Troops
 
-Two things the four hand-drawn towers only *look* consistent about:
+Arrowheads, each one a single cut away from the basic body. `<Name>.png` is the lane body inside its black line,
+`<Name>_NO_OUTLINE.png` the body alone. Where a card shows a group (Swarm, Miragem) the group is a separate
+`<Name>_Card.png` and the lane sprite is one body: enemy prefabs are all at scale 1, so a troop's size on the lane
+is whatever its sprite draws (`TROOPS` in `shapes.py` carries that size; a Swarm unit is 0.6 of a standard body).
 
-**Where the shape sits.** Centring each level's bounding box drifts for anything not
-symmetric about its own centre — a triangle's bbox centre is nowhere near the point it
-shrinks toward, so the nested copies crawl upward. The hand-drawn pentagon shows the right
-answer: SlamTower1/2/3 have bbox centres at y 342 / 358.5 / 369, *converging* on 374 rather
-than sitting on it, which is the signature of anchoring the shape's own centre. Every shape
-declares that point, defaulting to (500,500).
+The wave enemies (`BaseEnemy1`, `_Fast`, `_Tank`, `BaseEnemy2_Normal`, `BaseEnemyBoss`) keep their hand-drawn
+silhouettes. `render.py` re-inks them from `wave-originals/`: the white body is kept pixel for pixel and the black
+line is redrawn round it at the shared weight, from a distance field.
 
-**How big the nested levels are.** 0.466× works for a circle and drops level 2 straight onto
-level 1's wall on a triangle or a hexagram. `Fit-Next` binary-searches the largest size at
-which the next level's ink misses this one's, probing with the real silhouette rather than a
-circle — a triangle nests in a triangular hole at nearly its full width, while the largest
-circle that fits there is less than half of it. Ten of the twelve towers clear the reference
-ratio and are drawn at it; Needle, Shard and Ancora nest tighter because their shapes demand it.
+## Spells
 
-## The shape vocabulary
+`spells/run_one.sh <name> "<subject>"` asks Codex for one emblem, white on pure black; `prompts.tsv` holds the seven
+subjects and the one style brief they share. `render.py` turns each raw render into `<icon>.png` (white, alpha =
+brightness, 512 px, no shadow) and `<icon>_card.png` (the same at 0.9 over a hard shadow), which is what a spell's
+`CardImage` points at.
 
-A tower is an **outline**: the outer contour plus a shrunken copy of itself, filled even-odd.
-A constant-width stroke was tried first and cannot do the job — 114px leaves a circle looking
-like a ring but fills a triangle or a star in solid.
+## On a card
 
-- **Damage towers are closed figures and carry a colour.** Stinger a triangle (continuing
-  Slam's pentagon and Dart's hexagon downward), Needle a spindle, Beacon a lens, Mortar an
-  octagon, Chain a hexagram, Shard a four-point splinter.
-- **Support towers are open or broken figures and stay white.** Prism three fat arcs, Anel the
-  same idea at a finer grain, Tourniquet two opposed clamps, Ancora an anchor, Espelho a
-  diamond cut along its mirror line, Fonte a droplet.
-- **Troops are filled silhouettes in the arrowhead family**, the way BaseEnemy1 and its
-  variants are — split (Cisma), echoed (Miragem), blunt (Ram), swept (Shadow), in formation
-  (Swarm), crowned (MiniBoss).
-- **Spell icons are filled illustrations** at 512, matching meteorite and snowflakes.
-
-Every tower silhouette must keep its **centre open**, because levels 2 and 3 nest inside it.
-That constraint is why Ancora's stock stops at the crossbar instead of running the full height,
-and why Espelho is split horizontally rather than down the middle.
-
-## Import settings
-
-Unity's defaults are wrong for these (pixels-per-unit especially). The settings are applied
-once per file and stored in the `.meta`, so they survive; if a file is ever re-added from
-scratch, set: texture type **Sprite (2D and UI)**, mode **Single**, pivot **Center**,
-**Alpha Is Transparency** on, mipmaps off, wrap **Clamp**, and the pixels-per-unit from the
-table above.
+A card's image is the sprite that carries its own shadow or line: a tower's shadowed level 1, a troop's outlined
+emblem, a spell's `_card` emblem. The face's lip and the cost bubble's lip are a mesh effect (`FaceLip`), and how
+big each family's art is drawn on the face lives in `CardFaces.asset` for the hand and in each card's
+`CustomSizeCardInMenu` for the deck page.
 
 ## Editing a shape
 
-Change it in `shapes.ps1` and re-run `render.ps1`. Editing the `.svg` by hand works for a
-one-off, but the next render overwrites it — port the change back into the library.
-
-Numbers live in a 1000×1000 design box centred on (500,500); nothing in `shapes.ps1` knows
-about pixels.
+Change it in `shapes.py` and re-run `render.py`. Editing an `.svg` by hand works for a one-off, but the next render
+overwrites it: port the change back into the library. Numbers live in a 1000 x 1000 design box centred on (0,0),
+y down.

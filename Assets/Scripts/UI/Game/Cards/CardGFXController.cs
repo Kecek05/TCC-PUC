@@ -50,6 +50,10 @@ public class CardGFXController : MonoBehaviour
         cardIconImage.sprite = cardDataSo.CardImage;
         cardIconImage.color = cardDataSo.CardColor;
 
+        // One art box for every card; a spell emblem and a troop are drawn smaller inside it than a tower.
+        if (faces != null)
+            cardIconImage.rectTransform.localScale = Vector3.one * faces.ArtScale(cardDataSo.ExistingType);
+
         // The clock covers the share of mana still missing over the whole face; the refusal flash and the shine
         // follow the same shape, so every overlay sits exactly on the card it belongs to.
         Sprite face = faces != null ? faces.For(cardDataSo.ExistingType) : null;

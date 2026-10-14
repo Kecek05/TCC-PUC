@@ -23,10 +23,14 @@ public class NextCardSlot : MonoBehaviour
     [Tooltip("The face's size as a multiple of the art's.")]
     [SerializeField, MinValue(1f)] private float faceScale = 1.28f;
 
+    [Tooltip("A tower's art box as a share of the face's width, the same share the hand's cards use.")]
+    [SerializeField, Range(0.3f, 1f)] private float artShare = 0.66f;
+
     private Image _face;
     private Image _costBubble;
     private TextMeshProUGUI _costLabel;
     private bool _built;
+    private float _artRest = 1f;
 
     /// <summary>Where a card drawn into the hand starts its flight.</summary>
     public Transform FlightOrigin => cardImage != null ? cardImage.transform : transform;
@@ -41,7 +45,7 @@ public class NextCardSlot : MonoBehaviour
 
         // The next card arriving is a beat of its own (HandCard, Enter Pop), unscaled like the hand.
         if (!changed || image == null || !isActiveAndEnabled) return;
-        JuiceFx.PopIn(cardImage.transform, 0.5f);
+        JuiceFx.PopIn(cardImage.transform, 0.5f, _artRest);
         if (_face != null && _face.enabled) JuiceFx.PopIn(_face.transform, 0.5f);
         if (_costBubble != null && _costBubble.enabled) JuiceFx.PopIn(_costBubble.transform, 0.5f);
     }
@@ -64,8 +68,10 @@ public class NextCardSlot : MonoBehaviour
 
         Sprite face = shown != null && faces != null ? faces.For(shown.ExistingType) : null;
 
-        // The art in its card's own colour, as the hand draws it.
+        // The art in its card's own colour and at its family's size, as the hand draws it.
         cardImage.color = shown != null ? shown.CardColor : Color.white;
+        _artRest = shown != null && faces != null ? faces.ArtScale(shown.ExistingType) * artShare * faceScale : 1f;
+        cardImage.transform.localScale = Vector3.one * _artRest;
         _face.sprite = face;
         _face.enabled = face != null;
         if (face != null) _face.color = faces.Tint;
@@ -97,6 +103,7 @@ public class NextCardSlot : MonoBehaviour
         _face.preserveAspect = true;
         _face.raycastTarget = false;
         _face.enabled = false;
+        faceGo.AddComponent<FaceLip>();
 
         // The cost straddles the face's bottom edge in a mana bubble, as on the hand's cards.
         JuiceTokensSO t = Juice.Tokens;
@@ -112,6 +119,7 @@ public class NextCardSlot : MonoBehaviour
         _costBubble.color = t.Colors.Mana;
         _costBubble.raycastTarget = false;
         _costBubble.enabled = false;
+        bubbleGo.AddComponent<FaceLip>().Configure(0.07f, 0.74f);
 
         GameObject labelGo = new GameObject("CostLabel", typeof(RectTransform));
         RectTransform labelRect = (RectTransform)labelGo.transform;

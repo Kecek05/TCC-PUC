@@ -26,6 +26,7 @@ public class HasteVisual : SpellVisual
     private float _landedAt = -1f;
     private float _spinSpeed;
     private int _zapStep;
+    private float _bonus;
 
     protected override void OnPlay()
     {
@@ -39,7 +40,8 @@ public class HasteVisual : SpellVisual
         Vector3 at = Cast.Position;
         _landedAt = Time.time;
 
-        _fill = Sprite("Fill", JuiceSprites.Glow, WithAlpha(Hue, 0.32f), radius * 2.3f, true, -14);
+        // Thin in the middle, gathering at the rim (12%, 22%, 34%): the towers inside stay readable.
+        _fill = Sprite("Fill", JuiceSprites.AimDisc, WithAlpha(Hue, 0.34f), radius * 2f, true, -14);
         Bloom(_fill.transform);
 
         _spinner = new GameObject("Spinner").transform;
@@ -65,8 +67,8 @@ public class HasteVisual : SpellVisual
         Sfx(SfxId.SpellWindUp);
         Buzz(HapticRole.Light);
 
-        float bonus = Cast.Data is SpellBuffDataSO buff ? buff.AttackSpeedBonus * Cast.Scale.EffectBonus : 0f;
-        RegisterZone(0f, bonus);
+        _bonus = Cast.Data is SpellBuffDataSO buff ? buff.AttackSpeedBonus * Cast.Scale.EffectBonus : 0f;
+        RegisterZone(0f, _bonus);
 
         StartCoroutine(ZapLoop(duration));
         StartCoroutine(Crackle(duration));
@@ -136,7 +138,16 @@ public class HasteVisual : SpellVisual
 
         WorldFx.Ring(to, Hue, 0.1f, 0.5f, 0.3f);
         WorldFx.Sparks(to, Fx.Hues.HasteSoft, 4, 0.35f, 0.14f);
-        if (CameraFeedback.IsOnScreen(to, 0.05f)) Juice.Sfx(SfxId.SpellZap, step);
+
+        // The tower takes the charge: a pale-gold flash in its own shape, a punch, and what it gained in hasted.
+        TowerStatusView status = tower.GetComponentInChildren<TowerStatusView>();
+        if (status != null) status.Zapped();
+        if (CameraFeedback.IsOnScreen(to, 0.05f))
+        {
+            Juice.Sfx(SfxId.SpellZap, step);
+            if (_bonus > 0.001f)
+                FloatingNumbers.Say(to + new Vector3(0f, 0.55f, 0f), "+" + Mathf.RoundToInt(_bonus * 100f) + "%", 0.9f, Juice.Tokens.Colors.Hasted);
+        }
         if (Cast.CasterIsLocal) Juice.Haptic(HapticRole.Select);
     }
 

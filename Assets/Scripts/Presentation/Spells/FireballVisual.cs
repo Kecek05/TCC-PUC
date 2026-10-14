@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ public class FireballVisual : SpellVisual
 
     private Transform _meteor;
     private SpriteRenderer _reticle;
+    private readonly SpriteRenderer[] _reticleTicks = new SpriteRenderer[2];
     private SpriteRenderer _shadow;
 
     protected override void OnPlay()
@@ -30,17 +32,31 @@ public class FireballVisual : SpellVisual
         Vector3 from = at + new Vector3(SpawnHeight * EntrySide, SpawnHeight, 0f);
 
         // The shadow on the ground grows and darkens as the meteor comes down (ease-fall over the flight).
-        _shadow = Sprite("Shadow", JuiceSprites.Disc, new Color(0f, 0f, 0f, 0f), radius * 1.6f, true, -10);
+        // The board's 110 by 40 px under a 134px reach, a hair below the centre.
+        _shadow = Sprite("Shadow", JuiceSprites.Glow, new Color(0f, 0f, 0f, 0f), radius * 1.64f * 1.3f, true, -10);
         Transform shadow = _shadow.transform;
-        Vector3 shadowFull = new Vector3(shadow.localScale.x, shadow.localScale.y * 0.42f, 1f);
+        shadow.localPosition = Vector3.down * radius * 0.06f;
+        Vector3 shadowFull = new Vector3(shadow.localScale.x, shadow.localScale.y * 0.36f, 1f);
         shadow.localScale = shadowFull * 0.3f;
         shadow.DOScale(shadowFull, travel).SetEase(T.Eases.Fall).SetLink(gameObject);
-        _shadow.DOFade(0.38f, travel).SetEase(T.Eases.Fall).SetLink(gameObject);
+        _shadow.DOFade(0.6f, travel).SetEase(T.Eases.Fall).SetLink(gameObject);
 
         // The ring that closes: 1.35x the radius down to the radius, landing exactly when the meteor does.
         _reticle = Sprite("Reticle", JuiceSprites.Outline, WithAlpha(Hue, 0f), radius * 2f * 1.35f / 0.95f, false, 20);
         Transform reticle = _reticle.transform;
         Vector3 reticleRest = reticle.localScale / 1.35f;
+
+        // Two tick marks across the ring (the board's 2.5 by 14 px), turning with it: a sight closing on the spot.
+        for (int i = 0; i < 2; i++)
+        {
+            SpriteRenderer tick = Sprite("Tick", JuiceSprites.Disc, Hue, 1f, false, 20, reticle);
+            float ring = 1.28f * 0.95f * (i == 0 ? 1f : -1f);
+            tick.transform.localPosition = new Vector3(0f, ring, 0f);
+            tick.transform.localScale = new Vector3(0.045f / 1.28f / reticleRest.x, 0.25f / 1.28f / reticleRest.x, 1f);
+            _reticleTicks[i] = tick;
+            tick.color = WithAlpha(Hue, 0f);
+            tick.DOFade(0.95f, T.Durations.Select).SetLink(gameObject);
+        }
         DOTween.Sequence().SetLink(gameObject)
             .Join(_reticle.DOFade(0.95f, T.Durations.Select))
             .Join(reticle.DOScale(reticleRest, travel).SetEase(Ease.Linear))
@@ -105,13 +121,16 @@ public class FireballVisual : SpellVisual
         Buzz(HapticRole.Medium);
         Sfx(SfxId.Boom);
 
+        // The slammed door, at the board's sizes for a 134px reach: a 160px white-hot core, a thick shockwave in the
+        // hue out to 172px and a hairline one in sparkle to 206px a beat later, eight fire blobs thrown 51px, eight
+        // sparks to 72px and ten bits of debris.
         WorldFx.Flash(at, Color.Lerp(Fx.Hues.FireCore, Color.white, 0.4f), radius * 0.95f);
-        WorldFx.Ring(at, Hue, radius * 0.2f, radius * 1.1f, 0.45f);
-        DOVirtual.DelayedCall(0.08f, () => WorldFx.Ring(at, Juice.Tokens.Colors.Sparkle, radius * 0.3f, radius * 1.3f, 0.55f), false)
+        WorldFx.Ring(at, Hue, radius * 0.26f, radius * 1.28f, 0.45f);
+        DOVirtual.DelayedCall(0.08f, () => WorldFx.Ring(JuiceSprites.Hairline, at, Juice.Tokens.Colors.Sparkle, radius * 0.46f, radius * 1.53f, 0.45f), false)
             .SetLink(gameObject);
-        WorldFx.Burst(Fx.Sprites.Flame, at, Hue, 8, radius * 0.75f, 0.42f, true, 0.4f);
-        WorldFx.Sparks(at, Juice.Tokens.Colors.Sparkle, 8, radius * 1.1f);
-        WorldFx.Debris(at, radius, Juice.Tokens.Colors.Blast);
+        WorldFx.Burst(JuiceSprites.Glow, at, Color.Lerp(Hue, Fx.Hues.FireCore, 0.25f), 8, radius * 0.76f, radius * 0.5f, false, 0.48f);
+        WorldFx.Sparks(at, Juice.Tokens.Colors.Sparkle, 8, radius * 1.07f, 0.25f);
+        WorldFx.Debris(at, radius * 1.15f, Juice.Tokens.Colors.Blast, 10);
 
         for (int i = 0; i < (Juice.ReduceMotion ? 2 : 5); i++)
         {
@@ -121,14 +140,25 @@ public class FireballVisual : SpellVisual
         }
 
         // The scorch: burnt ground with dying embers, held a beat and faded over a couple of seconds.
-        WorldFx.Decal(Fx.Sprites.Scorch, at, WithAlpha(Fx.Hues.Smoke, 0.85f), radius * 2.2f, 0.4f, 2.1f, Random.Range(0f, 360f));
+        // The board's 176 by 72 px burnt mark (wider than the reach, lying flat), near-black, held and gone by 2.7 s.
+        WorldFx.Decal(Fx.Sprites.Scorch, at + Vector3.down * radius * 0.06f, new Color(0.086f, 0.055f, 0.118f, 0.92f),
+            radius * 2.62f, 1.3f, 1.2f, 0f, 0.41f);
         for (int i = 0; i < 6; i++)
         {
-            Vector3 p = at + (Vector3)(Random.insideUnitCircle * radius * 0.55f);
-            WorldFx.Mote(p, Fx.Hues.Ember, Random.Range(0.1f, 0.16f), Vector3.up * 0.05f, Random.Range(1.2f, 1.8f));
+            Vector2 spread = Random.insideUnitCircle;
+            Vector3 p = at + new Vector3(spread.x * radius * 0.75f, spread.y * radius * 0.28f, 0f);
+            WorldFx.Mote(p, Fx.Hues.Ember, Random.Range(0.1f, 0.14f), Vector3.up * 0.05f, Random.Range(1.2f, 1.8f));
         }
 
-        StartCoroutine(StampKills(EnemiesNear(at, radius * 1.1f, Cast.FieldTeam), at + Vector3.up * 0.75f));
+        // Whoever is left standing is thrown back from the blast (their kills pop through StampKills).
+        List<EnemyManager> caught = EnemiesNear(at, radius * 1.1f, Cast.FieldTeam);
+        foreach (EnemyManager enemy in caught)
+        {
+            Vector3 away = enemy.transform.position - at;
+            Shove(enemy, (away.sqrMagnitude > 0.0004f ? away.normalized : Vector3.up) * 0.2f);
+        }
+
+        StartCoroutine(StampKills(caught, at + new Vector3(radius * 1.07f, radius * 0.72f, 0f)));
         Destroy(gameObject, 1.5f);
     }
 }

@@ -33,9 +33,11 @@ public class RageVisual : SpellVisual
 
         _zone = new GameObject("Zone").transform;
         _zone.SetParent(transform, false);
-        Sprite("Fill", JuiceSprites.Glow, WithAlpha(Hue, 0.36f), radius * 2.3f, true, -14, _zone);
-        Sprite("Rim", JuiceSprites.Outline, WithAlpha(Hue, 0.75f), radius * 2f / 0.95f, true, -13, _zone);
-        _swirl = Sprite("Wind", JuiceSprites.DashedRing, WithAlpha(Color.white, 0.3f), radius * 1.7f / 0.95f, true, -13, _zone).transform;
+        // The board's zone: the hue thin in the middle and 44% at the rim, a 2px rim line at 70%, and the wind,
+        // white spokes at 16% turning once every 2.2 s.
+        Sprite("Fill", JuiceSprites.AimDisc, WithAlpha(Hue, 0.44f), radius * 2f, true, -14, _zone);
+        Sprite("Rim", JuiceSprites.Outline, WithAlpha(Hue, 0.7f), radius * 2f / 0.95f, true, -13, _zone);
+        _swirl = Sprite("Wind", JuiceSprites.WindSwirl, WithAlpha(Color.white, 0.16f), radius * 1.8f, true, -13, _zone).transform;
 
         Vector3 rest = _zone.localScale;
         _zone.localScale = rest * 0.4f;
@@ -50,7 +52,7 @@ public class RageVisual : SpellVisual
         {
             float a = (i + Random.Range(-0.2f, 0.2f)) * Mathf.PI * 2f / streaks;
             Vector3 dir = new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0f);
-            WorldFx.Streak(at + dir * radius * 0.25f, at + dir * radius * 1.25f, WithAlpha(Color.white, 0.85f), 0.1f, 0.3f);
+            WorldFx.Streak(at + dir * radius * 0.6f, at + dir * radius * 1.0f, WithAlpha(Color.white, 0.9f), 0.06f, 0.3f);
         }
         WorldFx.Ring(at, Hue, radius * 0.2f, radius * 1.15f, 0.45f);
         WorldFx.Burst(Fx.Sprites.Wing, at, Fx.Hues.RageSoft, 6, radius, 0.26f, false, 0.55f);
@@ -66,7 +68,7 @@ public class RageVisual : SpellVisual
 
     private void Update()
     {
-        if (_swirl != null && !Juice.ReduceMotion) _swirl.Rotate(0f, 0f, 150f * Time.deltaTime);
+        if (_swirl != null && !Juice.ReduceMotion) _swirl.Rotate(0f, 0f, -164f * Time.deltaTime);
     }
 
     private IEnumerator Feathers(float duration)

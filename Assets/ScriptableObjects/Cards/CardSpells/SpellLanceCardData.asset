@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Lance
   Description: Drive a narrow lance of damage down your own lane. It shreds a wave
     strung out in single file and barely scratches a spread one.
-  CardImage: {fileID: 21300000, guid: 06860a8cac96dcd448e47b79a6ef5f96, type: 3}
+  CardImage: {fileID: 21300000, guid: a538a8f57eb04ad7866d34effcc52095, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 5
   UseCustomSizeCardInMenu: 1
-  CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  CustomSizeCardInMenu: {x: 95, y: 95}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}

@@ -108,6 +108,18 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
     private Vector2 _statsArea;
     private Vector2 _statCellSize;
     private Vector2 _statSpacing;
+    private Vector2 _statsRestPosition;
+
+    /// <summary>A tower's per-tier stats, drawn under a picture of the tower at each tier (Card Art v2). Built
+    /// on first use; hidden for spells, troops and towers whose stats do not change with the tier.</summary>
+    private TowerTierStrip _tierStrip;
+
+    /// <summary>For each row of the stat grid, which entry of the card's full stat list it shows. The grid no
+    /// longer holds every stat: the per-tier ones live in the tier strip.</summary>
+    private readonly List<int> _gridStatIndex = new();
+
+    /// <summary>Gap between the tier strip and the stat grid under it.</summary>
+    private const float TierStripGap = 14f;
 
     private BasePlayerSaveManager _playerSave;
 
@@ -504,12 +516,16 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
         int rows = 0;
         if (statsBefore != null && statsAfter != null)
         {
-            int count = Mathf.Min(statEntries.Count, Mathf.Min(statsBefore.Count, statsAfter.Count));
+            // The grid shows a subset of the stats (the per-tier ones are in the tier strip), so each row is
+            // paired through the index of the stat it shows.
+            int count = Mathf.Min(statEntries.Count, _gridStatIndex.Count);
             for (int i = 0; i < count; i++)
             {
-                if (!statEntries[i].gameObject.activeSelf || statsBefore[i].Label != statsAfter[i].Label) continue;
+                int stat = _gridStatIndex[i];
+                if (stat >= statsBefore.Count || stat >= statsAfter.Count) continue;
+                if (!statEntries[i].gameObject.activeSelf || statsBefore[stat].Label != statsAfter[stat].Label) continue;
 
-                Tween roll = statEntries[i].RollFrom(statsBefore[i], statsAfter[i]);
+                Tween roll = statEntries[i].RollFrom(statsBefore[stat], statsAfter[stat]);
                 if (roll == null) continue;
 
                 float at = stats + rows * rowGap;
@@ -519,6 +535,12 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
                 rows++;
             }
         }
+
+        // The tier strip already shows the new numbers; they answer with a soft punch as the rows start rolling.
+        _celebration.InsertCallback(stats, () =>
+        {
+            if (_tierStrip != null) _tierStrip.Pulse();
+        });
 
         // 5. Settle: the next price pops in.
         float settle = stats + Mathf.Max(0, rows - 1) * rowGap + t.Durations.Count;
@@ -597,6 +619,7 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
 
         _statCellSize = statsGrid.cellSize;
         _statSpacing = statsGrid.spacing;
+        _statsRestPosition = statsParent.anchoredPosition;
 
         // The rendered size, not the local one: should a fit ever be saved into the scene (running the
         // ShowInfoPanel button in the editor would do it), rect * scale still recovers the area the grid is
@@ -617,9 +640,13 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
     /// <para>Never scales above 1 — a two-row card blown up to fill the panel would read as a different
     /// widget from the eight-row card beside it.</para>
     /// </remarks>
-    private void FitStatGrid(int count)
+    /// <param name="reservedTop">Height at the top of the stats area taken by the tier strip, which the grid
+    /// gives up and moves below.</param>
+    private void FitStatGrid(int count, float reservedTop = 0f)
     {
         if (statsGrid == null || _statsArea.x <= 0f || _statsArea.y <= 0f) return;
+
+        float areaHeight = Mathf.Max(1f, _statsArea.y - reservedTop);
 
         int columns = StatColumns;
         int rows = Mathf.Max(1, Mathf.CeilToInt(count / (float)columns));
@@ -630,13 +657,111 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
         // The margin comes off the height the fit may use, but NOT off the rect below, so the table simply
         // stops short of the frame instead of ending flush against it. Kept out of the rect on purpose: a
         // margin that scaled with the grid would shrink exactly when the grid is tallest and needs it most.
-        float usableHeight = Mathf.Max(1f, _statsArea.y - statsBottomMargin);
+        float usableHeight = Mathf.Max(1f, areaHeight - statsBottomMargin);
 
         float scale = Mathf.Min(1f, _statsArea.x / neededWidth, usableHeight / neededHeight);
 
         statsParent.localScale = new Vector3(scale, scale, 1f);
         statsParent.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _statsArea.x / scale);
-        statsParent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _statsArea.y / scale);
+        statsParent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, areaHeight / scale);
+
+        // The area lost its top: the rect keeps its bottom edge, whatever its pivot.
+        statsParent.anchoredPosition = _statsRestPosition - new Vector2(0f, reservedTop * statsParent.pivot.y);
+    }
+
+    /// <summary>
+    /// Splits a tower's stats in two: the ones reported once per tier ("Damage Lvl 1/2/3") go to the tier
+    /// strip, grouped under their name; everything else stays a row of the grid, remembered by its index in
+    /// the full list so the upgrade celebration can still pair before with after.
+    /// </summary>
+    private List<TowerTierStrip.TierStat> SplitTierStats(IReadOnlyList<CardStatProgress> stats)
+    {
+        _gridStatIndex.Clear();
+        List<TowerTierStrip.TierStat> tierStats = new();
+        int count = stats?.Count ?? 0;
+        bool isTower = _card is TowerCardDataSO;
+
+        int i = 0;
+        while (i < count)
+        {
+            if (isTower && TryParseTier(stats[i].Label, out string label, out int tier) && tier == 1)
+            {
+                List<CardStatProgress> run = new() { stats[i] };
+                while (i + run.Count < count &&
+                       TryParseTier(stats[i + run.Count].Label, out string nextLabel, out int nextTier) &&
+                       nextLabel == label && nextTier == run.Count + 1)
+                    run.Add(stats[i + run.Count]);
+
+                if (run.Count > 1)
+                {
+                    tierStats.Add(new TowerTierStrip.TierStat(label, run));
+                    i += run.Count;
+                    continue;
+                }
+            }
+
+            _gridStatIndex.Add(i);
+            i++;
+        }
+
+        return tierStats;
+    }
+
+    /// <summary>"Damage Lvl 2" is Damage at tier 2: the label <c>TowerCardDataSO.AddPerTier</c> writes.</summary>
+    private static bool TryParseTier(string label, out string name, out int tier)
+    {
+        name = label;
+        tier = 0;
+        if (string.IsNullOrEmpty(label)) return false;
+
+        const string marker = " Lvl ";
+        int at = label.LastIndexOf(marker, System.StringComparison.Ordinal);
+        if (at <= 0 || !int.TryParse(label.Substring(at + marker.Length), out tier)) return false;
+
+        name = label.Substring(0, at);
+        return true;
+    }
+
+    /// <summary>
+    /// Shows the tier strip across the top of the stats area and returns the height it takes, or hides it and
+    /// returns 0. The strip shrinks as a whole when the rows left for the grid need the room.
+    /// </summary>
+    private float ShowTierStrip(List<TowerTierStrip.TierStat> tierStats, int gridCount)
+    {
+        if (tierStats.Count == 0 || _statsArea.x <= 0f || !(_card is TowerCardDataSO tower))
+        {
+            if (_tierStrip != null) _tierStrip.Hide();
+            return 0f;
+        }
+
+        if (_tierStrip == null)
+        {
+            _tierStrip = TowerTierStrip.Create((RectTransform)statsParent.parent, title);
+            RectTransform strip = _tierStrip.Rect;
+            strip.anchorMin = statsParent.anchorMin;
+            strip.anchorMax = statsParent.anchorMax;
+            strip.pivot = new Vector2(0.5f, 1f);
+        }
+
+        // What the grid still needs: its rows at three quarters of their size, so they stay readable.
+        float gridMin = 0f;
+        if (gridCount > 0 && statsGrid != null)
+        {
+            int rows = Mathf.CeilToInt(gridCount / (float)StatColumns);
+            gridMin = (rows * _statCellSize.y + (rows - 1) * _statSpacing.y) * 0.75f + statsBottomMargin + TierStripGap;
+        }
+
+        float natural = TowerTierStrip.HeightFor(tierStats.Count);
+        float scale = Mathf.Min(1f, (_statsArea.y - gridMin) / natural);
+
+        RectTransform rect = _tierStrip.Rect;
+        rect.localScale = new Vector3(scale, scale, 1f);
+        rect.anchoredPosition = new Vector2(
+            _statsRestPosition.x - _statsArea.x * (statsParent.pivot.x - 0.5f),
+            _statsRestPosition.y + _statsArea.y * (1f - statsParent.pivot.y));
+        _tierStrip.Show(tower, tierStats, _statsArea.x / scale);
+
+        return natural * scale + (gridCount > 0 ? TierStripGap : 0f);
     }
 
     /// <summary>
@@ -683,9 +808,11 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
     {
         if (statsParent == null || statEntryPrefab == null) return;
 
-        int count = stats?.Count ?? 0;
+        // A tower's per-tier stats go under the tier they belong to; the grid keeps the rest.
+        List<TowerTierStrip.TierStat> tierStats = SplitTierStats(stats);
+        int count = _gridStatIndex.Count;
 
-        FitStatGrid(count);
+        FitStatGrid(count, ShowTierStrip(tierStats, count));
 
         while (statEntries.Count < count)
             statEntries.Add(Instantiate(statEntryPrefab, statsParent));
@@ -695,7 +822,7 @@ public class InfoPanelCanvas : BaseInfoPanelService, IRefusalSource
             bool used = i < count;
 
             statEntries[i].gameObject.SetActive(used);
-            if (used) statEntries[i].SetStat(stats[i]);
+            if (used) statEntries[i].SetStat(stats[_gridStatIndex[i]]);
         }
     }
 

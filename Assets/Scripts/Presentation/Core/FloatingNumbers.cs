@@ -53,11 +53,53 @@ public static class FloatingNumbers
         return gradient;
     }
 
+    private const int Recent = 8;
+    // About the footprint of a three-digit number: two that start closer than this draw over each other.
+    private const float CrowdWidth = 0.55f;
+    private const float CrowdHeight = 0.26f;
+    private const float CrowdSeconds = 0.25f;
+    private static readonly Vector3[] RecentAt = new Vector3[Recent];
+    private static readonly float[] RecentTime = new float[Recent];
+    private static int _recentNext;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        for (int i = 0; i < Recent; i++) RecentTime[i] = -10f;
+        _recentNext = 0;
+    }
+
+    /// <summary>
+    /// A number that would land on one shown a moment ago is set above it instead (a line higher each time, leaning
+    /// left and right), so a spell through a tight column reads as that many hits and not as one unreadable pile. The
+    /// boards stagger them the same way. Allocation-free: a ring of the last few spawns.
+    /// </summary>
+    private static Vector3 Uncrowd(Vector3 position)
+    {
+        float now = Time.unscaledTime;
+        int crowd = 0;
+        for (int i = 0; i < Recent; i++)
+        {
+            if (now - RecentTime[i] > CrowdSeconds) continue;
+            Vector3 apart = RecentAt[i] - position;
+            if (Mathf.Abs(apart.x) < CrowdWidth && Mathf.Abs(apart.y) < CrowdHeight) crowd++;
+        }
+
+        RecentAt[_recentNext] = position;
+        RecentTime[_recentNext] = now;
+        _recentNext = (_recentNext + 1) % Recent;
+
+        if (crowd == 0) return position;
+        float side = crowd % 2 == 1 ? 1f : -1f;
+        return position + new Vector3(side * 0.12f, 0.3f * crowd, 0f);
+    }
+
     private static void Spawn(Vector3 position, string text, float intensity, Gradient color)
     {
         // Each player watches one field at a time; a number on the other one is never seen but would still
         // take a slot of the pooled budget from a number that is.
         if (!CameraFeedback.IsOnScreen(position, 0.05f)) return;
+        position = Uncrowd(position);
 
         MMFloatingTextSpawnEvent.Trigger(Channel, position, text, Vector3.up, intensity,
             forceColor: color != null, animateColorGradient: color);

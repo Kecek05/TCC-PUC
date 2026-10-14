@@ -15,12 +15,30 @@ public class ServerEnemyMovement : NetworkBehaviour
     private NetworkVariable<bool> _reversed = new(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<bool> _invincible = new(writePerm: NetworkVariableWritePermission.Server);
 
+    // What this enemy is under, for the clients to DRAW (wings, echoes, a shackle): the size of the stacked slow
+    // and speed buff in whole percent, and whether something grips it. The speed itself already reaches clients
+    // through PathProgress; these say WHY it changed, which a client cannot work out for a tower's aura or an
+    // Ancora's single target. Written only when the whole-percent value changes, so a source ticking the same
+    // amount on and off costs nothing.
+    private NetworkVariable<byte> _slowedPercent = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<byte> _hastedPercent = new(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<bool> _held = new(writePerm: NetworkVariableWritePermission.Server);
+
     private BaseGameFlowManager _gameFlowManager;
     
     public NetworkVariable<float> PathProgress => _pathProgress;
     public NetworkVariable<float> CurrentSpeed => _currentSpeed;
     public NetworkVariable<bool> Reversed => _reversed;
     public NetworkVariable<bool> Invincible => _invincible;
+
+    /// <summary>The stacked slow this enemy is under, in whole percent after the cap (0 = none).</summary>
+    public NetworkVariable<byte> SlowedPercent => _slowedPercent;
+
+    /// <summary>The stacked move-speed buff this enemy is under, in whole percent (0 = none).</summary>
+    public NetworkVariable<byte> HastedPercent => _hastedPercent;
+
+    /// <summary>Whether something is gripping this enemy in place (an Ancora).</summary>
+    public NetworkVariable<bool> Held => _held;
 
     public bool IsTargetable => !_invincible.Value;
 
@@ -131,6 +149,7 @@ public class ServerEnemyMovement : NetworkBehaviour
         _reversed.Value = _reversedLocal;
         // Pooled instances re-enter OnNetworkSpawn on reuse; a grip from a previous life must not carry over.
         _holdCount = 0;
+        _held.Value = false;
         _localProgress = _startProgress;
         _pathProgress.Value = _startProgress;
 
@@ -196,9 +215,23 @@ public class ServerEnemyMovement : NetworkBehaviour
     /// <summary>
     /// Recomputes the replicated speed from its independent contributions. Server-only.
     /// </summary>
+    /// <summary>
+    /// The statuses clients draw, kept in step with the accumulators the speed is composed from. Rounded to whole
+    /// percent and compared before writing: NGO marks a NetworkVariable dirty on every set of a different value,
+    /// and an aura re-adding the amount it just removed must not turn into traffic.
+    /// </summary>
+    private void PublishStatuses()
+    {
+        byte slowed = (byte)Mathf.Clamp(Mathf.RoundToInt(Mathf.Min(_slowPercent, MaxSlowPercent) * 100f), 0, 100);
+        byte hasted = (byte)Mathf.Clamp(Mathf.RoundToInt(_speedBuffPercent * 100f), 0, 255);
+        if (_slowedPercent.Value != slowed) _slowedPercent.Value = slowed;
+        if (_hastedPercent.Value != hasted) _hastedPercent.Value = hasted;
+    }
+
     private void RecalculateSpeed()
     {
         if (!IsServer) return;
+        PublishStatuses();
         float dashFactor = _dashActive ? Mathf.Max(1f, enemyManager.Data.DashSpeedMultiplier) : 1f;
         _currentSpeed.Value = _baseSpeed
                               * _slowMultiplier
@@ -280,6 +313,7 @@ public class ServerEnemyMovement : NetworkBehaviour
     {
         if (!IsServer) return;
         _holdCount++;
+        if (!_held.Value) _held.Value = true;
     }
 
     /// <summary>
@@ -290,6 +324,7 @@ public class ServerEnemyMovement : NetworkBehaviour
     {
         if (!IsServer) return;
         if (_holdCount > 0) _holdCount--;
+        if (_holdCount == 0 && _held.Value) _held.Value = false;
     }
 
     /// <summary>

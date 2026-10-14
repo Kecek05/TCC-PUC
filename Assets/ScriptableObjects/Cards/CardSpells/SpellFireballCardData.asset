@@ -19,11 +19,11 @@ MonoBehaviour:
   CardName: Fireball
   Description: Hurl a fireball onto your own lane, damaging every enemy caught in
     the blast.
-  CardImage: {fileID: 21300000, guid: 5389eac387c0f254e8b48df24abbc22c, type: 3}
+  CardImage: {fileID: 21300000, guid: 51954d1de8ae45ce9ea6d88885b41cac, type: 3}
   CardColor: {r: 1, g: 1, b: 1, a: 1}
   Cost: 2
   UseCustomSizeCardInMenu: 1
-  CustomSizeCardInMenu: {x: 119.8, y: 119.8}
+  CustomSizeCardInMenu: {x: 95, y: 95}
   ShowPlaceholderNameOverlay: 0
   UseCustomPositionCardInMenu: 0
   CustomPositionCardInMenu: {x: 0, y: 0}
