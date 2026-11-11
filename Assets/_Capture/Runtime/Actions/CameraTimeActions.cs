@@ -56,6 +56,8 @@ namespace KeceK.Capture
         public float Seconds = 0.8f;
         [Tooltip("Keep re-centring on the target for this long after arriving (0 = stop on arrival).")]
         public float FollowSeconds;
+        [Tooltip("Stop following as soon as the target no longer resolves (the enemy died), whatever FollowSeconds says.")]
+        public bool UntilGone;
 
         public CameraFocus() { }
         public CameraFocus(BoardTarget target, float zoom, float seconds, float followSeconds = 0f)
@@ -96,7 +98,9 @@ namespace KeceK.Capture
             while (follow < FollowSeconds)
             {
                 follow += CaptureTime.Delta;
-                aim = Target.Resolve(ctx) ?? aim;
+                Vector2? now = Target.Resolve(ctx);
+                if (UntilGone && !now.HasValue) yield break;
+                aim = now ?? aim;
                 Vector3 p = rig.position;
                 float s = 1f - Mathf.Exp(-CaptureTime.Delta * 6f);
                 rig.position = new Vector3(Mathf.Lerp(p.x, aim.x, s), Mathf.Lerp(p.y, aim.y, s), p.z);

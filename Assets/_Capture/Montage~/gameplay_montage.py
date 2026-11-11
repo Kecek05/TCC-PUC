@@ -28,6 +28,21 @@ def duration(path):
                                 check=True, capture_output=True, text=True).stdout.strip())
 
 
+# What the narrator reads for each beat the take marked.
+LABELS = {
+    "1 menu e deck": "1. Menu: a tela de deck com os 8 slots, troca rápida entre dois decks salvos e volta",
+    "2 vertice na curva": "2. Teto baixo: só cartas baratas cabem; Vértice posicionada numa curva do caminho",
+    "3 evolucao nivel 2": "3. Evolução: outra Vértice solta sobre a mesma torre, que sobe para o nível 2",
+    "4 teto sobe": "4. Fim da wave 4: o teto de mana sobe (+1 MAX) e o Farol entra no ciclo (próxima carta)",
+    "5 swipe para o rival": "5. Swipe para o rival: o tabuleiro dele",
+    "5 ice nas torres": "5. Ice congela as torres dele",
+    "6 restia": "6. De volta ao próprio tabuleiro: Réstia numa wave em fila",
+    "5 enxame": "5. Swipe de novo: o Enxame solto no campo dele (vai até a base)",
+    "7 ultimas waves": "7. Últimas waves",
+    "7 vitoria e recompensas": "7. Vitória e recompensas (moedas e cópias de carta), tela parada",
+}
+
+
 def mmss(t):
     return f"{int(t // 60):02}:{int(round(t % 60)):02}" if round(t % 60) < 60 else f"{int(t // 60) + 1:02}:00"
 
@@ -43,19 +58,37 @@ def main():
     if not segments:
         sys.exit("no segments in " + RAW)
 
-    # Normalise every segment to the same stream layout so the concat is a plain copy.
+    # The match runs as one take; if the whole video would pass 3 minutes, the stretch between the
+    # "~corte-inicio" and "~corte-fim" marks (early waves of plain defence) is dropped with one dry cut,
+    # trimmed only as much as needed to land near 2:50.
+    raw_total = sum(duration(s) for s in segments)
+    budget = 170.0
+
+    # Normalise every piece to the same stream layout so the concat is a plain copy.
     pieces, offset, timeline = [], 0.0, []
     for seg in segments:
         stem = os.path.splitext(os.path.basename(seg))[0]
-        dst = os.path.join(WORK, stem + ".mp4")
-        run(["ffmpeg", "-v", "error", "-y", "-i", seg, "-vf", "scale=1080:1920:flags=lanczos,fps=60,setsar=1",
-             "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-pix_fmt", "yuv420p",
-             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", dst])
-        pieces.append(dst)
-        for t, label in marks.get(stem, []):
-            timeline.append((offset + float(t), label))
-        timeline.append((offset, f"[corte] {stem}"))
-        offset += duration(dst)
+        seg_marks = marks.get(stem, [])
+        spans = [(0.0, duration(seg))]
+        start = next((t for t, l in seg_marks if l == "~corte-inicio"), None)
+        stop = next((t for t, l in seg_marks if l == "~corte-fim"), None)
+        if raw_total > 180.0 and start is not None and stop is not None and stop > start:
+            drop = min(stop - start, raw_total - budget)
+            spans = [(0.0, stop - drop), (stop, spans[0][1])]
+
+        for k, (a, b) in enumerate(spans):
+            dst = os.path.join(WORK, f"{stem}_{k}.mp4")
+            run(["ffmpeg", "-v", "error", "-y", "-ss", f"{a:.3f}", "-i", seg, "-t", f"{b - a:.3f}",
+                 "-vf", "scale=1080:1920:flags=lanczos,fps=60,setsar=1",
+                 "-c:v", "libx264", "-preset", "medium", "-crf", "14", "-pix_fmt", "yuv420p",
+                 "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", dst])
+            pieces.append(dst)
+            for t, label in seg_marks:
+                if label.startswith("~") or not (a <= float(t) < b):
+                    continue
+                timeline.append((offset + float(t) - a, label))
+            timeline.append((offset, f"[corte seco] {stem}" + (f" parte {k + 1}" if len(spans) > 1 else "")))
+            offset += b - a
 
     listing = os.path.join(WORK, "concat.txt")
     with open(listing, "w", encoding="utf-8") as f:
@@ -77,16 +110,16 @@ def main():
         if os.path.getsize(slides) <= SLIDES_LIMIT:
             break
 
-    # The still: the middle of the match (segment 03, the ceiling change, has towers and enemies in play).
-    still_at = next((t for t, label in timeline if label.startswith("5 enxame")), offset / 2)
-    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, still_at - 1.0):.2f}", "-i", master, "-frames:v", "1",
+    # The still: the middle of the match, our field full of towers with a line of enemies under the Lance's aim.
+    still_at = next((t for t, label in timeline if label.startswith("6 restia")), offset / 2)
+    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{max(0.0, still_at + 0.3):.2f}", "-i", master, "-frames:v", "1",
          os.path.join(OUT, "bisect-td-gameplay-still.png")])
 
     timeline.sort()
     with open(os.path.join(OUT, "marcacoes.txt"), "w", encoding="utf-8") as f:
         f.write(f"Bisect TD - gameplay ({mmss(offset)} no total)\n\n")
         for t, label in timeline:
-            f.write(f"{mmss(t)}  {label}\n")
+            f.write(f"{mmss(t)}  {LABELS.get(label, label)}\n")
 
     print(f"total {offset:.2f}s, slides {os.path.getsize(slides) / 1048576:.1f} MB")
 

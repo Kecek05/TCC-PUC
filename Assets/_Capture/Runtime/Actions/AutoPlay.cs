@@ -28,13 +28,16 @@ namespace KeceK.Capture
         public float KeepMana;
         [Tooltip("Path progress of the build spots, in the order towers go down. Nothing under the top HUD " +
                  "(around 0.2 the slots sit under the lives/wave panel and every drop there is refused).")]
-        public List<float> BuildSpots = new() { 0.32f, 0.52f, 0.7f, 0.85f, 0.42f, 0.62f, 0.78f };
+        public List<float> BuildSpots = new() { 0.32f, 0.52f, 0.7f, 0.85f, 0.42f, 0.62f, 0.78f, 0.92f, 0.37f, 0.47f, 0.57f, 0.67f };
 
         // A play the game refused is not tried again soon: a player who sees a drop bounce picks another spot.
         [NonSerialized] private Dictionary<string, float> _refusedUntil;
         public bool ShowFinger = true;
         [Tooltip("Off tape: when the hand holds no tower, hop to the rival's field and Ice their towers so the cycle moves.")]
         public bool AllowIceHop;
+        [Tooltip("Let the policy send troop cards. Off for a filmed match: a Swarm the policy sends on its own can " +
+                 "end the match early (ten units at 5 damage each), before the beats the script still has to film.")]
+        public bool AllowTroops;
 
         public AutoPlay() { }
         public AutoPlay(WaitUntil until, params CardType[] reserve)
@@ -136,7 +139,7 @@ namespace KeceK.Capture
             // 3. No tower to play: keep the cycle moving with a troop (sent from anywhere on the board).
             foreach (AbstractCard card in playable)
             {
-                if (card.CardData is not SpawnEnemyCardDataSO || !home) continue;
+                if (!AllowTroops || card.CardData is not SpawnEnemyCardDataSO || !home) continue;
                 PlayCard send = new(card.CardData.CardType, BoardTarget.Field(BoardSide.Local)) { ShowFinger = ShowFinger };
                 if (Allowed(ctx, send)) return send;
             }
@@ -222,6 +225,62 @@ namespace KeceK.Capture
         }
 
         public string Describe() => $"RunUntil {Until.Describe()} x{Speed}: {Body?.Describe()}";
+    }
+}
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+namespace KeceK.Capture
+{
+    /// <summary>
+    /// Runs the middle of a real match and watches for its end, which the script does not control: whenever the
+    /// match ends, the body stops and the end screen is filmed (into the open recording, or a new file), so a
+    /// match that ends early still ends on camera.
+    /// </summary>
+    [System.Serializable]
+    public class MatchGuard : ICaptureAction
+    {
+        [UnityEngine.SerializeReference] public ICaptureAction Body;
+        public string EndFileName = "take_end";
+        public float EndScreenSeconds = 7.5f;
+
+        public MatchGuard() { }
+        public MatchGuard(ICaptureAction body, string endFileName, float endScreenSeconds = 7.5f)
+        {
+            Body = body;
+            EndFileName = endFileName;
+            EndScreenSeconds = endScreenSeconds;
+        }
+
+        public System.Collections.IEnumerator Run(CaptureContext ctx)
+        {
+            bool done = false;
+            UnityEngine.Coroutine body = ctx.Director.StartCoroutine(RunBody(ctx, () => done = true));
+
+            while (!done && ctx.State != GameState.EndMatch) yield return null;
+            if (done) yield break;
+
+            ctx.Director.StopCoroutine(body);
+            ctx.Finger.Release();
+            UnityEngine.Time.timeScale = 1f;
+            ctx.Log("  match ended under the guard: filming the end screen");
+
+            if (ctx.Recorder == null || !ctx.Recorder.IsRecording)
+                yield return new BeginRecording(EndFileName).Run(ctx);
+
+            yield return new HideDebugUi().Run(ctx);
+            ctx.Mark("7 vitoria e recompensas");
+            yield return new Wait(EndScreenSeconds).Run(ctx);
+            yield return new EndRecording().Run(ctx);
+        }
+
+        private System.Collections.IEnumerator RunBody(CaptureContext ctx, System.Action onDone)
+        {
+            if (Body != null) yield return Body.Run(ctx);
+            onDone();
+        }
+
+        public string Describe() => $"MatchGuard ({Body?.Describe()})";
     }
 }
 #endif

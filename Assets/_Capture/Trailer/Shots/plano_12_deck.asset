@@ -22,52 +22,52 @@ MonoBehaviour:
   Deck: 
   LeaveAfter: 0
   Setup:
-  - rid: 2373392876161991210
-  - rid: 2373392876161991211
-  - rid: 2373392876161991212
-  - rid: 2373392876161991213
-  - rid: 2373392876161991214
+  - rid: 2373392876557304618
+  - rid: 2373392876557304619
+  - rid: 2373392876557304620
+  - rid: 2373392876557304621
+  - rid: 2373392876557304622
   LeadInSeconds: 0.5
   Beats:
-  - rid: 2373392876161991215
-  - rid: 2373392876161991216
-  - rid: 2373392876161991217
-  - rid: 2373392876161991218
-  - rid: 2373392876161991219
-  - rid: 2373392876161991220
-  - rid: 2373392876161991221
-  - rid: 2373392876161991222
-  - rid: 2373392876161991223
-  - rid: 2373392876161991224
-  - rid: 2373392876161991225
-  - rid: 2373392876161991226
-  - rid: 2373392876161991227
-  - rid: 2373392876161991228
-  - rid: 2373392876161991229
-  - rid: 2373392876161991230
-  - rid: 2373392876161991231
-  - rid: 2373392876161991232
-  - rid: 2373392876161991233
-  - rid: 2373392876161991234
-  - rid: 2373392876161991235
-  - rid: 2373392876161991236
-  - rid: 2373392876161991237
-  - rid: 2373392876161991238
-  - rid: 2373392876161991239
-  - rid: 2373392876161991240
-  - rid: 2373392876161991241
-  - rid: 2373392876161991242
-  - rid: 2373392876161991243
-  - rid: 2373392876161991244
-  - rid: 2373392876161991245
-  - rid: 2373392876161991246
-  - rid: 2373392876161991247
-  - rid: 2373392876161991248
-  - rid: 2373392876161991249
-  - rid: 2373392876161991250
-  - rid: 2373392876161991251
-  - rid: 2373392876161991252
-  - rid: 2373392876161991253
+  - rid: 2373392876557304623
+  - rid: 2373392876557304624
+  - rid: 2373392876557304625
+  - rid: 2373392876557304626
+  - rid: 2373392876557304627
+  - rid: 2373392876557304628
+  - rid: 2373392876557304629
+  - rid: 2373392876557304630
+  - rid: 2373392876557304631
+  - rid: 2373392876557304632
+  - rid: 2373392876557304633
+  - rid: 2373392876557304634
+  - rid: 2373392876557304635
+  - rid: 2373392876557304636
+  - rid: 2373392876557304637
+  - rid: 2373392876557304638
+  - rid: 2373392876557304639
+  - rid: 2373392876557304640
+  - rid: 2373392876557304641
+  - rid: 2373392876557304642
+  - rid: 2373392876557304643
+  - rid: 2373392876557304644
+  - rid: 2373392876557304645
+  - rid: 2373392876557304646
+  - rid: 2373392876557304647
+  - rid: 2373392876557304648
+  - rid: 2373392876557304649
+  - rid: 2373392876557304650
+  - rid: 2373392876557304651
+  - rid: 2373392876557304652
+  - rid: 2373392876557304653
+  - rid: 2373392876557304654
+  - rid: 2373392876557304655
+  - rid: 2373392876557304656
+  - rid: 2373392876557304657
+  - rid: 2373392876557304658
+  - rid: 2373392876557304659
+  - rid: 2373392876557304660
+  - rid: 2373392876557304661
   TailSeconds: 1.5
   CutIn: 0
   CutSeconds: 4
@@ -75,10 +75,10 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2373392876161991210
+    - rid: 2373392876557304618
       type: {class: LeaveMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392876161991211
+    - rid: 2373392876557304619
       type: {class: PrepareSave, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         OwnEveryCard: 1
@@ -92,234 +92,234 @@ MonoBehaviour:
         - Slot: 2
           Cards: 
         ActiveSlot: 2
-    - rid: 2373392876161991212
+    - rid: 2373392876557304620
       type: {class: HideDebugUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392876161991213
+    - rid: 2373392876557304621
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: Deck
         UnderName: Buttons
         HoverSeconds: 0.25
         ShowFinger: 0
-    - rid: 2373392876161991214
+    - rid: 2373392876557304622
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 1.2
         MaxSeconds: 0
-    - rid: 2373392876161991215
+    - rid: 2373392876557304623
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
         Hold: 0.06
-    - rid: 2373392876161991216
+    - rid: 2373392876557304624
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991217
+    - rid: 2373392876557304625
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991218
+    - rid: 2373392876557304626
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991219
+    - rid: 2373392876557304627
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
         Hold: 0.06
-    - rid: 2373392876161991220
+    - rid: 2373392876557304628
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991221
+    - rid: 2373392876557304629
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991222
+    - rid: 2373392876557304630
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991223
+    - rid: 2373392876557304631
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 20
         Hold: 0.06
-    - rid: 2373392876161991224
+    - rid: 2373392876557304632
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991225
+    - rid: 2373392876557304633
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991226
+    - rid: 2373392876557304634
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991227
+    - rid: 2373392876557304635
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 12
         Hold: 0.06
-    - rid: 2373392876161991228
+    - rid: 2373392876557304636
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991229
+    - rid: 2373392876557304637
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991230
+    - rid: 2373392876557304638
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991231
+    - rid: 2373392876557304639
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 16
         Hold: 0.06
-    - rid: 2373392876161991232
+    - rid: 2373392876557304640
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991233
+    - rid: 2373392876557304641
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991234
+    - rid: 2373392876557304642
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991235
+    - rid: 2373392876557304643
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 15
         Hold: 0.06
-    - rid: 2373392876161991236
+    - rid: 2373392876557304644
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991237
+    - rid: 2373392876557304645
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991238
+    - rid: 2373392876557304646
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991239
+    - rid: 2373392876557304647
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 7
         Hold: 0.06
-    - rid: 2373392876161991240
+    - rid: 2373392876557304648
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991241
+    - rid: 2373392876557304649
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991242
+    - rid: 2373392876557304650
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991243
+    - rid: 2373392876557304651
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 6
         Hold: 0.06
-    - rid: 2373392876161991244
+    - rid: 2373392876557304652
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.12
         MaxSeconds: 0
-    - rid: 2373392876161991245
+    - rid: 2373392876557304653
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: ActionButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0
         ShowFinger: 1
-    - rid: 2373392876161991246
+    - rid: 2373392876557304654
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.22
         MaxSeconds: 0
-    - rid: 2373392876161991247
+    - rid: 2373392876557304655
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.4
         MaxSeconds: 0
-    - rid: 2373392876161991248
+    - rid: 2373392876557304656
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: Button
         UnderName: DeckEntry1
         HoverSeconds: 0.25
         ShowFinger: 1
-    - rid: 2373392876161991249
+    - rid: 2373392876557304657
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.8
         MaxSeconds: 0
-    - rid: 2373392876161991250
+    - rid: 2373392876557304658
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: Button
         UnderName: DeckEntry2
         HoverSeconds: 0.25
         ShowFinger: 1
-    - rid: 2373392876161991251
+    - rid: 2373392876557304659
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.8
         MaxSeconds: 0
-    - rid: 2373392876161991252
+    - rid: 2373392876557304660
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: Button
         UnderName: DeckEntry3
         HoverSeconds: 0.25
         ShowFinger: 1
-    - rid: 2373392876161991253
+    - rid: 2373392876557304661
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.8

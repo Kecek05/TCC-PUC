@@ -124,12 +124,15 @@ def finale_cuts():
     with open(os.path.join(OUT, "finale.json"), encoding="utf-8") as f:
         m = json.load(f)
     kill = m["final-kill"]
+    last = m["last-enemy"]
     victory = m["victory"]
+    muffled = "lowpass=f=650,volume=0.8"
     return [
         (16, "Última wave.", [(FINALE, m["cuts_in"], m["cuts_in"] + 3.0)], None),
-        # Slow motion: the last 4 s up to and just past the kill; the audio muffled (low-pass) as in a slow-mo beat.
-        (17, "", [(FINALE, kill - 3.3, kill + 0.7)], "lowpass=f=650,volume=0.8"),
-        (18, "", [(FINALE, victory + 0.4, victory + 3.4)], None),
+        # Slow motion (the director's time-scale ramp): the camera pushing in on the last enemy, then the final
+        # hits up to the kill. The audio muffled (low-pass) for the slow-motion beat.
+        (17, "", [(FINALE, last, last + 1.5), (FINALE, kill - 2.5, kill)], muffled),
+        (18, "", [(FINALE, victory, victory + 3.0)], None),
     ]
 
 

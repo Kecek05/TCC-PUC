@@ -382,12 +382,12 @@ namespace KeceK.Capture.EditorTools
                 WaitUntil.Wave(1, L, 30f),
                 new ProtectMatch { HealthFloor = 6f, HoldLastWave = false },
                 new RaiseManaCap(10),
-                new PlayCard(CardType.TowerMortar, Slot(0.55f), 0.3f) { TopUpMana = true, ShowFinger = false },
-                new PlayCard(CardType.TowerBeacon, Slot(0.78f), 0.3f) { TopUpMana = true, ShowFinger = false },
+                // A defence that can actually kill wave 10's 2000-HP boss (speed 0.5) before it reaches the base:
+                // three Mortars and two Beacons on the last stretch, all at tier 3, a Chain and a Dart up front.
+                new Sequence(BuildAndLevel(CardType.TowerMortar, 0.55f, 0.75f, 0.9f)),
+                new Sequence(BuildAndLevel(CardType.TowerBeacon, 0.65f, 0.84f)),
                 new PlayCard(CardType.TowerChain, Slot(0.35f), 0.3f) { TopUpMana = true, ShowFinger = false },
-                new PlayCard(CardType.TowerDart, Slot(0.18f), 0.3f) { TopUpMana = true, ShowFinger = false },
-                new PlayCard(CardType.TowerMortar, TowerOf(CardType.TowerMortar), 0.3f) { TopUpMana = true, ShowFinger = false },
-                new PlayCard(CardType.TowerBeacon, TowerOf(CardType.TowerBeacon), 0.3f) { TopUpMana = true, ShowFinger = false },
+                new PlayCard(CardType.TowerDart, Slot(0.45f), 0.3f) { TopUpMana = true, ShowFinger = false },
                 new PauseBot(),
                 new FastForward(WaitUntil.Wave(10, L, 400f), 6f),
                 new SetLives(L, 22f),
@@ -405,7 +405,7 @@ namespace KeceK.Capture.EditorTools
                 // the edit keeps only the seconds around the kill.
                 WaitUntil.LastEnemy(10, L, 1.01f, 150f),
                 new Mark("last-enemy"),
-                new Parallel(new CameraFocus(Lead(L), 0.55f, 0.6f, 6.0f), new TimeScaleRamp(0.3f, 0.35f)),
+                new Parallel(new CameraFocus(Lead(L), 0.55f, 0.6f, 60f) { UntilGone = true }, new TimeScaleRamp(0.3f, 0.35f)),
                 WaitUntil.AtMost(0, L, 45f),
                 new Mark("final-kill"),
                 new Wait(0.9f),
@@ -456,6 +456,25 @@ namespace KeceK.Capture.EditorTools
             new RaiseManaCap(cap),
             new Wait(1.5f),
         };
+
+        /// <summary>Off tape: a tower of this type on each spot, each dropped on twice more (tier 3).</summary>
+        private static ICaptureAction[] BuildAndLevel(CardType tower, params float[] spots)
+        {
+            List<ICaptureAction> steps = new();
+            foreach (float spot in spots)
+            {
+                steps.Add(new PlayCard(tower, Slot(spot), 0.3f) { TopUpMana = true, ShowFinger = false });
+                steps.Add(new Wait(0.6f));
+            }
+
+            for (int i = 0; i < spots.Length * 2; i++)
+            {
+                steps.Add(new PlayCard(tower, UpgradableTowerOf(tower), 0.3f) { TopUpMana = true, ShowFinger = false });
+                steps.Add(new Wait(0.6f));
+            }
+
+            return steps.ToArray();
+        }
 
         private static ShotDefinition TowerSpot(string part, string slug, CardType tower, float slot,
             EnemyType enemy, int count, double from, double to, bool tier3 = false, bool lanceFirst = false,

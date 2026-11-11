@@ -35,4 +35,7 @@ beats plus `AutoPlay` (a human-paced policy) through the hand UI.
 2. Play from `StartScene`, wait for the Main Menu.
 3. Select a shot or match script and use `Kecek/Capture/Play Selected Shot Or Script`, or from the Unity CLI:
    `KeceK.Capture.EditorTools.CaptureMenu.PlayAsset("Assets/_Capture/...asset")`; poll `CaptureMenu.Status()`.
-4. Raw takes land in `Recordings/` (git-ignored). Edit with `python -I Assets/_Capture/Montage~/trailer_montage.py`.
+4. Raw takes land in `Recordings/` (git-ignored). Edit with `python -I Assets/_Capture/Montage~/trailer_montage.py`
+   (the final cuts live in its `SHOTS` list; the finale's come from `Recordings/Trailer/finale.json`, the take's
+   marks) and `python -I Assets/_Capture/Montage~/gameplay_montage.py Recordings/Gameplay/marks.json`.
+   A `ShotDefinition`'s CutIn/CutSeconds are the first guess; the montage script is the edit.
