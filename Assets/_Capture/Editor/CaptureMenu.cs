@@ -79,7 +79,7 @@ namespace KeceK.Capture.EditorTools
                 if (shot != null) shots.Add(shot);
             }
 
-            shots.Sort((a, b) => a.Number.CompareTo(b.Number));
+            shots.Sort((a, b) => a.Number != b.Number ? a.Number.CompareTo(b.Number) : string.CompareOrdinal(a.Part, b.Part));
 
             StringBuilder json = new();
             json.AppendLine("[");
@@ -88,7 +88,8 @@ namespace KeceK.Capture.EditorTools
                 ShotDefinition s = shots[i];
                 json.Append("  {")
                     .Append($"\"number\": {s.Number}, ")
-                    .Append($"\"file\": \"{s.FileName}.mp4\", ")
+                    .Append($"\"part\": \"{s.Part}\", ")
+                    .Append($"\"file\": \"{s.EditSource}.mp4\", ")
                     .Append($"\"cutIn\": {s.CutIn.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ")
                     .Append($"\"seconds\": {s.CutSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture)}, ")
                     .Append($"\"caption\": \"{Escape(s.Caption)}\"")

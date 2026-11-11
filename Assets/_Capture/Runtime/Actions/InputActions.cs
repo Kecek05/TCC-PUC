@@ -50,6 +50,22 @@ namespace KeceK.Capture
                 yield return null;
             }
 
+            // A player waits for the mana before dragging; the client's own affordability check says when.
+            while (!TopUpMana && card != null && !card.CanPlayCard().IsValid)
+            {
+                waited += CaptureTime.Delta;
+                if (waited >= WaitForCardSeconds)
+                {
+                    ctx.Log($"  {Card} never became affordable; play skipped");
+                    yield break;
+                }
+
+                yield return null;
+            }
+
+            if (card == null) card = HandCards.Find(ctx, Card);
+            if (card == null) yield break;
+
             if (TopUpMana && ctx.ServerMana != null && ctx.Settings != null)
             {
                 int cost = ctx.Settings.Cost(Card);
@@ -95,14 +111,14 @@ namespace KeceK.Capture
     public class Swipe : ICaptureAction
     {
         public BoardSide To = BoardSide.Rival;
-        public float DragSeconds = 0.32f;
-        [Tooltip("Screen fraction (0..1) the finger travels; a slow drag past a third commits.")]
-        public float Travel = 0.42f;
+        public float DragSeconds = 0.28f;
+        [Tooltip("Screen fraction (0..1) the finger travels. Released at speed, so the game reads a flick.")]
+        public float Travel = 0.45f;
         public float SettleSeconds = 0.45f;
         public bool ShowFinger = true;
 
         public Swipe() { }
-        public Swipe(BoardSide to, float dragSeconds = 0.32f)
+        public Swipe(BoardSide to, float dragSeconds = 0.28f)
         {
             To = to;
             DragSeconds = dragSeconds;
@@ -127,7 +143,7 @@ namespace KeceK.Capture
             Vector2 to = To == BoardSide.Rival ? new Vector2(w * 0.62f, h * (centre - half)) : new Vector2(w * 0.62f, h * (centre + half));
 
             ctx.Finger.ShowIndicator = ShowFinger;
-            yield return ctx.Finger.Drag(slide.gameObject, from, () => to, DragSeconds, 0.06f, 0.02f);
+            yield return ctx.Finger.Drag(slide.gameObject, from, () => to, DragSeconds, 0.06f, 0f, flick: true);
             ctx.Finger.ShowIndicator = true;
 
             yield return new Wait(SettleSeconds).Run(ctx);

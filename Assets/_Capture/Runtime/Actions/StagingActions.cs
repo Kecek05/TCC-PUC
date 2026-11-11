@@ -106,14 +106,14 @@ namespace KeceK.Capture
         public float Interval;
 
         public SpawnCrowd() { }
-        public SpawnCrowd(BoardSide side, EnemyType enemy, int count, float from, float to, float interval = 0f)
+        public SpawnCrowd(BoardSide side, EnemyType enemy, int count, double from, double to, double interval = 0d)
         {
             Side = side;
             Enemy = enemy;
             Count = count;
-            FromProgress = from;
-            ToProgress = to;
-            Interval = interval;
+            FromProgress = (float)from;
+            ToProgress = (float)to;
+            Interval = (float)interval;
         }
 
         public IEnumerator Run(CaptureContext ctx)
@@ -163,7 +163,11 @@ namespace KeceK.Capture
         public string Describe() => $"RivalSendTroops {Card}";
     }
 
-    /// <summary>Builds a tower on the rival's field through the tower deployer's core (the bot's own path).</summary>
+    /// <summary>
+    /// Builds a tower on the rival's field through the tower deployer's core (the bot's own path). The core
+    /// only accepts a card the bot holds, so when the named tower is not in its hand any tower that is goes
+    /// down instead: the shot needs "a defended lane", not a particular tower.
+    /// </summary>
     [Serializable]
     public class RivalPlaceTower : ICaptureAction
     {
@@ -187,10 +191,22 @@ namespace KeceK.Capture
                 yield break;
             }
 
-            ctx.ServerMana?.GrantMana(team, 99f);
-            TowerValidation result = ctx.TowerDeployer.TryDeployTower(team, Card, slot.Value,
-                Unity.Netcode.NetworkManager.ServerClientId, out _);
-            ctx.Log($"  rival {Card}: {result.Reason}");
+            List<CardType> candidates = new() { Card };
+            if (ctx.Settings?.Cards != null)
+                foreach (CardDataSO card in ctx.Settings.Cards.CardDataList)
+                    if (card is TowerCardDataSO && card.CardType != Card) candidates.Add(card.CardType);
+
+            BaseCardHandManager hands = ServiceLocator.TryGet(out BaseCardHandManager h) ? h : null;
+            foreach (CardType candidate in candidates)
+            {
+                if (hands != null && !hands.TeamHasCardInHand(team, candidate)) continue;
+
+                ctx.ServerMana?.GrantMana(team, 99f);
+                TowerValidation result = ctx.TowerDeployer.TryDeployTower(team, candidate, slot.Value,
+                    Unity.Netcode.NetworkManager.ServerClientId, out _);
+                ctx.Log($"  rival {candidate}: {result.Reason}");
+                if (result.IsValid) yield break;
+            }
         }
 
         public string Describe() => $"RivalPlaceTower {Card} near {NearPathProgress:0.00}";
@@ -253,6 +269,97 @@ namespace KeceK.Capture
         }
 
         public string Describe() => $"SetBaseHealth {Side} {Health}";
+    }
+
+    /// <summary>
+    /// Freezes the wave count where it is (both lanes wait before their next wave), so a staged shot never
+    /// crosses a wave start, whose banner and mana-ceiling reset would land in the middle of it. Off goes back
+    /// to holding before the last wave only (<see cref="ProtectMatch"/>'s hold).
+    /// </summary>
+    /// <remarks>The game keeps ONE hold per lane: run this after ProtectMatch, never before, or it is overwritten.</remarks>
+    [Serializable]
+    public class HoldWaves : ICaptureAction
+    {
+        public bool Hold = true;
+
+        public HoldWaves() { }
+        public HoldWaves(bool hold) => Hold = hold;
+
+        public IEnumerator Run(CaptureContext ctx)
+        {
+            if (ctx.Waves == null) yield break;
+
+            int total = ctx.Waves.GetTotalWaves();
+            foreach (TeamType team in new[] { TeamType.Red, TeamType.Blue })
+            {
+                bool local = team == ctx.LocalTeam;
+                int current = local ? ctx.Waves.GetLocalCurrentWave().Value : ctx.Waves.GetEnemyCurrentWave().Value;
+                ctx.Waves.HoldLaneBeforeWave(team, Hold ? Mathf.Clamp(current + 1, 1, total) : total);
+            }
+        }
+
+        public string Describe() => Hold ? "HoldWaves" : "ReleaseWaves";
+    }
+
+    /// <summary>
+    /// Off tape only: runs the match faster (the game's own waves, just sooner) until a condition holds, then
+    /// back to normal speed.
+    /// </summary>
+    [Serializable]
+    public class FastForward : ICaptureAction
+    {
+        public WaitUntil Until = WaitUntil.Wave(4);
+        public float Speed = 4f;
+
+        public FastForward() { }
+        public FastForward(WaitUntil until, float speed = 4f)
+        {
+            Until = until;
+            Speed = speed;
+        }
+
+        public IEnumerator Run(CaptureContext ctx)
+        {
+            if (ctx.Recorder != null && ctx.Recorder.IsRecording)
+                throw new InvalidOperationException("FastForward is off-tape only");
+
+            Time.timeScale = Speed;
+            float t = 0f;
+            while (!Until.Holds(ctx) && t < Until.TimeoutSeconds)
+            {
+                t += CaptureTime.Delta;
+                yield return null;
+            }
+
+            Time.timeScale = 1f;
+            if (t >= Until.TimeoutSeconds) ctx.Log($"  fast-forward timed out: {Until.Describe()}");
+        }
+
+        public string Describe() => $"FastForward x{Speed} until {Until.Describe()}";
+    }
+
+    /// <summary>Sets a base's health directly (up or down): a staged shot's starting lives.</summary>
+    [Serializable]
+    public class SetLives : ICaptureAction
+    {
+        public BoardSide Side = BoardSide.Local;
+        public float Health = 100f;
+
+        public SetLives() { }
+        public SetLives(BoardSide side, float health)
+        {
+            Side = side;
+            Health = health;
+        }
+
+        public IEnumerator Run(CaptureContext ctx)
+        {
+            if (ctx.Health == null) yield break;
+            Unity.Netcode.NetworkVariable<float> hp = ctx.Side(Side) == TeamType.Red ? ctx.Health.RedHealth : ctx.Health.BlueHealth;
+            hp.Value = Health;
+        }
+
+        public string Describe() => $"SetLives {Side} {Health}";
     }
 
     public static class BotIdentity

@@ -21,6 +21,8 @@ namespace KeceK.Capture
         public int CardLevel;
         [Tooltip("Wait until the players' introduction has cleared and the board is visible.")]
         public bool WaitForBoard = true;
+        [Tooltip("Return once the match scene is up, before the bot is seated and the match starts (a take that films the wait and the intro).")]
+        public bool ReturnAtSceneLoad;
         public float TimeoutSeconds = 90f;
 
         public StartLocalMatch() { }
@@ -41,6 +43,11 @@ namespace KeceK.Capture
             if (!start.Result) throw new InvalidOperationException("StartLocalHostAsync failed");
 
             BotFill.Shorten(ctx);
+            if (ReturnAtSceneLoad)
+            {
+                ctx.Log("  match scene loaded");
+                yield break;
+            }
 
             float t = 0f;
             while (ctx.State != GameState.InMatch)

@@ -70,6 +70,23 @@ namespace KeceK.Capture
         public static WaitUntil MaxMana(int amount, float timeout = 120f) =>
             new() { Condition = WaitCondition.MaxManaAtLeast, Amount = amount, TimeoutSeconds = timeout };
 
+        public static WaitUntil AtMost(int count, BoardSide side, float timeout = 30f) =>
+            new() { Condition = WaitCondition.EnemiesAtMost, Amount = count, Side = side, TimeoutSeconds = timeout };
+
+        /// <summary>Wave <paramref name="wave"/> (or later) has had this share of its enemies removed (1 = all gone).</summary>
+        public static WaitUntil WaveDone(int wave, BoardSide side = BoardSide.Local, float share = 1f, float timeout = 120f) =>
+            new() { Condition = WaitCondition.WaveProgressAtLeast, Amount = wave, Side = side, MinProgress = share, TimeoutSeconds = timeout };
+
+        /// <summary>The wave has one enemy left and it is below this share of its health: the final blow is coming.</summary>
+        public static WaitUntil LastEnemy(int wave, BoardSide side, float healthShare, float timeout = 90f) =>
+            new() { Condition = WaitCondition.LastEnemyDying, Amount = wave, Side = side, MinProgress = healthShare, TimeoutSeconds = timeout };
+
+        public static WaitUntil Mana(int amount, float timeout = 60f) =>
+            new() { Condition = WaitCondition.ManaAtLeast, Amount = amount, TimeoutSeconds = timeout };
+
+        public static WaitUntil Standing(CardType tower, BoardSide side = BoardSide.Local, float timeout = 10f) =>
+            new() { Condition = WaitCondition.TowerStanding, Card = tower, Side = side, TimeoutSeconds = timeout };
+
         public IEnumerator Run(CaptureContext ctx)
         {
             float t = 0f;
@@ -113,6 +130,45 @@ namespace KeceK.Capture
                 case WaitCondition.MaxManaAtLeast:
                     return ctx.ServerMana != null && ctx.ServerMana.GetMaxMana(ctx.LocalTeam) >= Amount;
 
+                case WaitCondition.EnemiesAtMost:
+                    return BoardTarget.CountEnemiesOn(ctx.Side(Side)) <= Amount;
+
+                case WaitCondition.TowerStanding:
+                    return BoardTarget.TowerOf(Card, Side).Resolve(ctx).HasValue;
+
+                case WaitCondition.ManaAtLeast:
+                    return ctx.ServerMana != null && ctx.ServerMana.GetMana(ctx.LocalTeam) >= Amount - 0.01f;
+
+                case WaitCondition.LastEnemyDying:
+                {
+                    // The wave's own count of what is left (spawned or not): exactly one, on the board, and low.
+                    if (ctx.Waves == null) return false;
+                    TeamType team = ctx.Side(Side);
+                    var remaining = Reflect.Get<System.Collections.Generic.Dictionary<TeamType, int>>(ctx.Waves, "_remainingEnemiesOfWave");
+                    if (remaining == null || !remaining.TryGetValue(team, out int left) || left != 1) return false;
+
+                    int wave = team == TeamType.Red ? ctx.Waves.RedCurrentWave.Value : ctx.Waves.BlueCurrentWave.Value;
+                    if (wave < Amount) return false;
+
+                    foreach (EnemyManager e in BoardTarget.EnemiesOn(team))
+                    {
+                        if (e.ServerMovement.Reversed.Value) continue;
+                        float max = Mathf.Max(1f, e.ServerHealth.MaxHealth.Value);
+                        if (e.ServerHealth.CurrentHealth.Value / max <= MinProgress) return true;
+                    }
+
+                    return false;
+                }
+
+                case WaitCondition.WaveProgressAtLeast:
+                {
+                    if (ctx.Waves == null) return false;
+                    bool red = ctx.Side(Side) == TeamType.Red;
+                    float progress = red ? ctx.Waves.RedCurrentWaveProgressNormalized.Value : ctx.Waves.BlueCurrentWaveProgressNormalized.Value;
+                    int wave = red ? ctx.Waves.RedCurrentWave.Value : ctx.Waves.BlueCurrentWave.Value;
+                    return wave >= Amount && progress >= MinProgress - 0.0001f;
+                }
+
                 default:
                     return true;
             }
@@ -126,6 +182,11 @@ namespace KeceK.Capture
             WaitCondition.LaneClear => $"WaitUntil {Side} lane clear",
             WaitCondition.CardInHand => $"WaitUntil {Card} in hand",
             WaitCondition.MaxManaAtLeast => $"WaitUntil max mana >= {Amount}",
+            WaitCondition.EnemiesAtMost => $"WaitUntil <= {Amount} enemies on {Side} lane",
+            WaitCondition.TowerStanding => $"WaitUntil {Side} {Card} standing",
+            WaitCondition.WaveProgressAtLeast => $"WaitUntil {Side} wave {Amount} progress >= {MinProgress:0.00}",
+            WaitCondition.ManaAtLeast => $"WaitUntil mana >= {Amount}",
+            WaitCondition.LastEnemyDying => $"WaitUntil {Side} wave {Amount}'s last enemy below {MinProgress:P0} health",
             _ => "WaitUntil ?",
         } + $" (<= {TimeoutSeconds:0}s)";
     }
@@ -138,6 +199,11 @@ namespace KeceK.Capture
         LaneClear,
         CardInHand,
         MaxManaAtLeast,
+        EnemiesAtMost,
+        TowerStanding,
+        WaveProgressAtLeast,
+        LastEnemyDying,
+        ManaAtLeast,
     }
 
     /// <summary>Runs its children at the same time and finishes when the last one does.</summary>
@@ -169,6 +235,24 @@ namespace KeceK.Capture
         }
 
         public string Describe() => $"Parallel x{Actions.Count}";
+    }
+
+    /// <summary>Runs its children one after another (a composite step).</summary>
+    [Serializable]
+    public class Sequence : ICaptureAction
+    {
+        [SerializeReference] public List<ICaptureAction> Actions = new();
+
+        public Sequence() { }
+        public Sequence(params ICaptureAction[] actions) => Actions = new List<ICaptureAction>(actions);
+
+        public IEnumerator Run(CaptureContext ctx)
+        {
+            foreach (ICaptureAction action in Actions)
+                if (action != null) yield return action.Run(ctx);
+        }
+
+        public string Describe() => $"Sequence x{Actions.Count}";
     }
 
     /// <summary>Notes the current video time under a label (the gameplay video's narration marks).</summary>

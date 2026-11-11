@@ -30,10 +30,16 @@ namespace KeceK.Capture.EditorTools
             MovieRecorderSettings movie = ScriptableObject.CreateInstance<MovieRecorderSettings>();
             movie.name = "Capture Movie";
             movie.Enabled = true;
+            // Custom at 40 Mbps: these are raw takes that the edit re-encodes (CRF 18), and the "High" preset
+            // came out near 5 Mbps at 1080x1920/60, thin enough to show in the flat colour fields.
             movie.EncoderSettings = new CoreEncoderSettings
             {
                 Codec = CoreEncoderSettings.OutputCodec.MP4,
-                EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.High,
+                EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.Custom,
+                TargetBitRate = 40f,
+                EncodingProfile = CoreEncoderSettings.H264EncodingProfile.High,
+                GopSize = 30,
+                KeyframeDistance = 30,
             };
             movie.CaptureAlpha = false;
             movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = Width, OutputHeight = Height };

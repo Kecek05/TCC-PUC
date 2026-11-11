@@ -1,0 +1,159 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3e9063a425a234cac90434b278db20, type: 3}
+  m_Name: plano_07_teto
+  m_EditorClassIdentifier: Assembly-CSharp::KeceK.Capture.ShotDefinition
+  Settings: {fileID: 11400000, guid: c7dcd366856fc4e42bf952123b777f5c, type: 2}
+  Number: 7
+  Part: 
+  Slug: teto
+  SourceFile: 
+  Notes: 
+  NewMatch: 1
+  Deck: 0a00000005000000100000001100000012000000
+  LeaveAfter: 1
+  Setup:
+  - rid: 2373392875755405898
+  - rid: 2373392875755405899
+  - rid: 2373392875755405900
+  - rid: 2373392875755405901
+  - rid: 2373392875755405902
+  - rid: 2373392875755405903
+  - rid: 2373392875755405904
+  - rid: 2373392875755405905
+  LeadInSeconds: 0.2
+  Beats:
+  - rid: 2373392875755405906
+  - rid: 2373392875755405907
+  - rid: 2373392875755405908
+  TailSeconds: 0.5
+  CutIn: 1.6
+  CutSeconds: 3
+  Caption: Cada wave libera cartas mais fortes.
+  references:
+    version: 2
+    RefIds:
+    - rid: 2373392875755405898
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 1
+        Side: 0
+        State: 4
+        Amount: 1
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 30
+    - rid: 2373392875755405899
+      type: {class: ProtectMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        HealthFloor: 40
+        HoldLastWave: 1
+    - rid: 2373392875755405900
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 10
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.3
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 15
+        TopUpMana: 0
+        ShowFinger: 0
+    - rid: 2373392875755405901
+      type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Until:
+          Condition: 1
+          Side: 0
+          State: 4
+          Amount: 3
+          MinProgress: 0
+          Card: 0
+          TimeoutSeconds: 200
+        Speed: 4
+    - rid: 2373392875755405902
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 17
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.6
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 40
+        TopUpMana: 0
+        ShowFinger: 0
+    - rid: 2373392875755405903
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 10
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.45
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 30
+        TopUpMana: 0
+        ShowFinger: 0
+    - rid: 2373392875755405904
+      type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Until:
+          Condition: 1
+          Side: 0
+          State: 4
+          Amount: 4
+          MinProgress: 0
+          Card: 0
+          TimeoutSeconds: 200
+        Speed: 4
+    - rid: 2373392875755405905
+      type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Until:
+          Condition: 8
+          Side: 0
+          State: 4
+          Amount: 4
+          MinProgress: 0.7
+          Card: 0
+          TimeoutSeconds: 200
+        Speed: 3
+    - rid: 2373392875755405906
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 1
+        Side: 0
+        State: 4
+        Amount: 5
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 40
+    - rid: 2373392875755405907
+      type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Label: wave5
+    - rid: 2373392875755405908
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 4
+        MaxSeconds: 0

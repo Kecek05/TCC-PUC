@@ -1,0 +1,192 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3e9063a425a234cac90434b278db20, type: 3}
+  m_Name: plano_09_quebram
+  m_EditorClassIdentifier: Assembly-CSharp::KeceK.Capture.ShotDefinition
+  Settings: {fileID: 11400000, guid: c7dcd366856fc4e42bf952123b777f5c, type: 2}
+  Number: 9
+  Part: 
+  Slug: quebram
+  SourceFile: 
+  Notes: 
+  NewMatch: 1
+  Deck: 05000000060000000a00000010000000
+  LeaveAfter: 1
+  Setup:
+  - rid: 2373392875755405925
+  - rid: 2373392875755405926
+  - rid: 2373392875755405927
+  - rid: 2373392875755405928
+  - rid: 2373392875755405929
+  - rid: 2373392875755405930
+  - rid: 2373392875755405931
+  - rid: 2373392875755405932
+  - rid: 2373392875755405933
+  - rid: 2373392875755405934
+  - rid: 2373392875755405935
+  - rid: 2373392875755405936
+  - rid: 2373392875755405937
+  - rid: 2373392875755405938
+  - rid: 2373392875755405939
+  LeadInSeconds: 0.6
+  Beats:
+  - rid: 2373392875755405940
+  - rid: 2373392875755405941
+  - rid: 2373392875755405942
+  - rid: 2373392875755405943
+  - rid: 2373392875755405944
+  - rid: 2373392875755405945
+  TailSeconds: 1.5
+  CutIn: 0
+  CutSeconds: 3
+  Caption: ...ou quebram a dele.
+  references:
+    version: 2
+    RefIds:
+    - rid: 2373392875755405925
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 1
+        Side: 0
+        State: 4
+        Amount: 1
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 30
+    - rid: 2373392875755405926
+      type: {class: ProtectMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        HealthFloor: 1
+        HoldLastWave: 1
+    - rid: 2373392875755405927
+      type: {class: HoldWaves, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Hold: 1
+    - rid: 2373392875755405928
+      type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Until:
+          Condition: 8
+          Side: 0
+          State: 4
+          Amount: 1
+          MinProgress: 1
+          Card: 0
+          TimeoutSeconds: 120
+        Speed: 5
+    - rid: 2373392875755405929
+      type: {class: PauseBot, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data: 
+    - rid: 2373392875755405930
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Health: 100
+    - rid: 2373392875755405931
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 1
+        Health: 100
+    - rid: 2373392875755405932
+      type: {class: RaiseManaCap, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Max: 10
+        FillPool: 1
+    - rid: 2373392875755405933
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1.5
+        MaxSeconds: 0
+    - rid: 2373392875755405934
+      type: {class: RivalPlaceTower, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 2
+        NearPathProgress: 0.93
+    - rid: 2373392875755405935
+      type: {class: RivalPlaceTower, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 10
+        NearPathProgress: 0.88
+    - rid: 2373392875755405936
+      type: {class: RivalPlaceTower, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 9
+        NearPathProgress: 0.83
+    - rid: 2373392875755405937
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1
+        MaxSeconds: 0
+    - rid: 2373392875755405938
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Health: 100
+    - rid: 2373392875755405939
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 1
+        Health: 100
+    - rid: 2373392875755405940
+      type: {class: Swipe, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 1
+        DragSeconds: 0.28
+        Travel: 0.45
+        SettleSeconds: 0.45
+        ShowFinger: 1
+    - rid: 2373392875755405941
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.3
+        MaxSeconds: 0
+    - rid: 2373392875755405942
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 6
+        Target:
+          Kind: 1
+          Side: 1
+          PathProgress: 0.7
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.5
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 1
+    - rid: 2373392875755405943
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.9
+        MaxSeconds: 0
+    - rid: 2373392875755405944
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 5
+        Target:
+          Kind: 5
+          Side: 1
+          PathProgress: 0.5
+          Tower: 0
+          Radius: 1
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.45
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 1
+    - rid: 2373392875755405945
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 6
+        MaxSeconds: 0

@@ -34,7 +34,7 @@ namespace KeceK.Capture
         /// says (re-read every frame, so a moving target is tracked), let go.
         /// </summary>
         public IEnumerator Drag(GameObject target, Vector2 from, Func<Vector2> to, float duration,
-            float pressHold = 0.10f, float releaseHold = 0.05f)
+            float pressHold = 0.10f, float releaseHold = 0.05f, bool flick = false)
         {
             if (target == null) throw new InvalidOperationException("Drag target is null");
 
@@ -57,13 +57,16 @@ namespace KeceK.Capture
             while (t < duration)
             {
                 t += CaptureTime.Delta;
-                float k = Ease(Mathf.Clamp01(t / duration));
+                float x = Mathf.Clamp01(t / duration);
+                // A flick is still accelerating when the finger leaves the glass: that speed is what a swipe
+                // reads as intent. A placement eases in and settles on its spot.
+                float k = flick ? x * x : Ease(x);
                 MoveHeld(Vector2.LerpUnclamped(from, to(), k));
                 yield return null;
             }
 
             MoveHeld(to());
-            yield return Hold(releaseHold);
+            if (!flick) yield return Hold(releaseHold);
 
             ReleaseHeld();
         }

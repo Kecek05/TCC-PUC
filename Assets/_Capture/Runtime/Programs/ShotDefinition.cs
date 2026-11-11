@@ -24,7 +24,12 @@ namespace KeceK.Capture
 
         [Header("Identity")]
         public int Number = 1;
+        [Tooltip("Letter for a shot filmed in several pieces (13a, 13b...). Empty for a single take.")]
+        public string Part = "";
         public string Slug = "shot";
+        [Tooltip("Filmed inside another shot's take: name that take's file (e.g. plano_01_uma-carta) and this " +
+                 "shot only says where its cut is. Running it records nothing.")]
+        public string SourceFile = "";
         [TextArea] public string Notes = "";
 
         [Header("Match")]
@@ -50,7 +55,10 @@ namespace KeceK.Capture
         [Tooltip("On-screen caption (PT-BR). Empty: none.")]
         public string Caption = "";
 
-        public string FileName => $"plano_{Number:00}_{Slug}";
+        public string FileName => $"plano_{Number:00}{Part}_{Slug}";
+
+        /// <summary>The raw file the edit cuts this shot from.</summary>
+        public string EditSource => string.IsNullOrEmpty(SourceFile) ? FileName : SourceFile;
 
         string ICaptureProgram.ProgramName => FileName;
         CaptureSettingsSO ICaptureProgram.Settings => Settings;
@@ -59,6 +67,7 @@ namespace KeceK.Capture
         public List<ICaptureAction> BuildSequence()
         {
             List<ICaptureAction> sequence = new();
+            if (!string.IsNullOrEmpty(SourceFile)) return sequence;
 
             if (NewMatch)
             {

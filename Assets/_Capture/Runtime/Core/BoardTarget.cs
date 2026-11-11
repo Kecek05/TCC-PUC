@@ -39,7 +39,15 @@ namespace KeceK.Capture
         public static BoardTarget TowerOf(CardType tower, BoardSide side = BoardSide.Local) =>
             new() { Kind = BoardTargetKind.TowerOfType, Tower = tower, Side = side };
 
+        /// <summary>A standing tower of this type below its top tier (a level-up drop target).</summary>
+        public static BoardTarget UpgradableTowerOf(CardType tower, BoardSide side = BoardSide.Local) =>
+            new() { Kind = BoardTargetKind.UpgradableTower, Tower = tower, Side = side };
+
         public static BoardTarget Towers(BoardSide side) => new() { Kind = BoardTargetKind.TowersCentre, Side = side };
+
+        /// <summary>The centre of the tightest group of towers (what one area spell can cover).</summary>
+        public static BoardTarget TowerBunch(BoardSide side, float radius = 1.2f) =>
+            new() { Kind = BoardTargetKind.DensestTowers, Side = side, Radius = radius };
 
         public static BoardTarget Lead(BoardSide side) => new() { Kind = BoardTargetKind.LeadEnemy, Side = side };
 
@@ -65,9 +73,11 @@ namespace KeceK.Capture
                 BoardTargetKind.FreeSlotNearPath => FreeSlotNear(ctx, team, PathPoint(ctx, team, PathProgress)),
                 BoardTargetKind.PathPoint => PathPoint(ctx, team, PathProgress),
                 BoardTargetKind.TowerOfType => TowerPosition(ctx, team, Tower),
+                BoardTargetKind.UpgradableTower => TowerPosition(ctx, team, Tower, belowTopTier: true),
                 BoardTargetKind.TowersCentre => TowersCentre(team),
                 BoardTargetKind.LeadEnemy => LeadEnemy(team),
                 BoardTargetKind.DensestEnemies => DensestEnemies(team, Radius),
+                BoardTargetKind.DensestTowers => Densest(TowerPoints(team), Radius),
                 BoardTargetKind.FieldCentre => FieldCentre(ctx, team),
                 _ => null,
             };
@@ -110,12 +120,13 @@ namespace KeceK.Capture
             return best;
         }
 
-        private static Vector2? TowerPosition(CaptureContext ctx, TeamType team, CardType tower)
+        private static Vector2? TowerPosition(CaptureContext ctx, TeamType team, CardType tower, bool belowTopTier = false)
         {
             foreach (TowerManager t in TowerRegistry.ActiveTowers)
             {
                 if (t == null || TowerTeam(t) != team) continue;
                 if (tower != CardType.None && ctx.Settings != null && ctx.Settings.CardOf(t) != tower) continue;
+                if (belowTopTier && t.ServerTowerCombat != null && TowerTier(t) >= 3) continue;
                 return t.transform.position;
             }
 
@@ -161,6 +172,19 @@ namespace KeceK.Capture
         {
             List<Vector2> points = new();
             foreach (EnemyManager e in EnemiesOn(team)) points.Add(e.transform.position);
+            return Densest(points, radius);
+        }
+
+        private static List<Vector2> TowerPoints(TeamType team)
+        {
+            List<Vector2> points = new();
+            foreach (TowerManager t in TowerRegistry.ActiveTowers)
+                if (t != null && TowerTeam(t) == team) points.Add(t.transform.position);
+            return points;
+        }
+
+        private static Vector2? Densest(List<Vector2> points, float radius)
+        {
             if (points.Count == 0) return null;
 
             int bestCount = 0;
@@ -218,6 +242,10 @@ namespace KeceK.Capture
             return n;
         }
 
+        /// <summary>The in-match placement tier (1-3), read off the server combat's network variable.</summary>
+        public static int TowerTier(TowerManager tower) =>
+            tower.ServerTowerCombat != null ? tower.ServerTowerCombat.TowerLevel.Value : 1;
+
         public static TeamType TowerTeam(TowerManager tower) =>
             tower.Team != null ? tower.Team.GetTeamType() : TeamType.None;
     }
@@ -228,6 +256,8 @@ namespace KeceK.Capture
         PathPoint,
         TowerOfType,
         TowersCentre,
+        UpgradableTower,
+        DensestTowers,
         LeadEnemy,
         DensestEnemies,
         FieldCentre,

@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3e9063a425a234cac90434b278db20, type: 3}
+  m_Name: plano_05_hud
+  m_EditorClassIdentifier: Assembly-CSharp::KeceK.Capture.ShotDefinition
+  Settings: {fileID: 11400000, guid: c7dcd366856fc4e42bf952123b777f5c, type: 2}
+  Number: 5
+  Part: 
+  Slug: hud
+  SourceFile: 
+  Notes: 
+  NewMatch: 1
+  Deck: 0a000000130000001200000005000000100000000f0000000700000014000000
+  LeaveAfter: 1
+  Setup:
+  - rid: 2373392875755405868
+  - rid: 2373392875755405869
+  - rid: 2373392875755405870
+  - rid: 2373392875755405871
+  - rid: 2373392875755405872
+  - rid: 2373392875755405873
+  - rid: 2373392875755405874
+  - rid: 2373392875755405875
+  LeadInSeconds: 1.5
+  Beats:
+  - rid: 2373392875755405876
+  - rid: 2373392875755405877
+  - rid: 2373392875755405878
+  - rid: 2373392875755405879
+  - rid: 2373392875755405880
+  TailSeconds: 1.5
+  CutIn: 0.3
+  CutSeconds: 3
+  Caption: PvP 1v1 EM TEMPO REAL
+  references:
+    version: 2
+    RefIds:
+    - rid: 2373392875755405868
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 1
+        Side: 0
+        State: 4
+        Amount: 1
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 30
+    - rid: 2373392875755405869
+      type: {class: ProtectMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        HealthFloor: 30
+        HoldLastWave: 1
+    - rid: 2373392875755405870
+      type: {class: RaiseManaCap, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Max: 10
+        FillPool: 1
+    - rid: 2373392875755405871
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1.5
+        MaxSeconds: 0
+    - rid: 2373392875755405872
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 10
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.35
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755405873
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 19
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.7
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 6
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755405874
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 2
+        Side: 0
+        State: 4
+        Amount: 3
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 20
+    - rid: 2373392875755405875
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1.5
+        MaxSeconds: 0
+    - rid: 2373392875755405876
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1
+        MaxSeconds: 0
+    - rid: 2373392875755405877
+      type: {class: Swipe, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 1
+        DragSeconds: 0.28
+        Travel: 0.45
+        SettleSeconds: 0.45
+        ShowFinger: 1
+    - rid: 2373392875755405878
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1.3
+        MaxSeconds: 0
+    - rid: 2373392875755405879
+      type: {class: Swipe, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 0
+        DragSeconds: 0.28
+        Travel: 0.45
+        SettleSeconds: 0.45
+        ShowFinger: 1
+    - rid: 2373392875755405880
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 1
+        MaxSeconds: 0

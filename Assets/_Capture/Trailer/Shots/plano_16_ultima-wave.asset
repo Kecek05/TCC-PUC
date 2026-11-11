@@ -1,0 +1,357 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3e9063a425a234cac90434b278db20, type: 3}
+  m_Name: plano_16_ultima-wave
+  m_EditorClassIdentifier: Assembly-CSharp::KeceK.Capture.ShotDefinition
+  Settings: {fileID: 11400000, guid: c7dcd366856fc4e42bf952123b777f5c, type: 2}
+  Number: 16
+  Part: 
+  Slug: ultima-wave
+  SourceFile: 
+  Notes: 
+  NewMatch: 1
+  Deck: 1300000012000000140000000a000000
+  LeaveAfter: 1
+  Setup:
+  - rid: 2373392875755406144
+  - rid: 2373392875755406145
+  - rid: 2373392875755406146
+  - rid: 2373392875755406147
+  - rid: 2373392875755406148
+  - rid: 2373392875755406149
+  - rid: 2373392875755406150
+  - rid: 2373392875755406151
+  - rid: 2373392875755406152
+  - rid: 2373392875755406153
+  - rid: 2373392875755406154
+  - rid: 2373392875755406155
+  - rid: 2373392875755406156
+  - rid: 2373392875755406157
+  LeadInSeconds: 0.3
+  Beats:
+  - rid: 2373392875755406158
+  - rid: 2373392875755406159
+  - rid: 2373392875755406160
+  - rid: 2373392875755406161
+  - rid: 2373392875755406162
+  - rid: 2373392875755406163
+  - rid: 2373392875755406164
+  - rid: 2373392875755406165
+  - rid: 2373392875755406166
+  - rid: 2373392875755406167
+  - rid: 2373392875755406168
+  - rid: 2373392875755406169
+  - rid: 2373392875755406170
+  - rid: 2373392875755406171
+  - rid: 2373392875755406172
+  - rid: 2373392875755406173
+  - rid: 2373392875755406174
+  - rid: 2373392875755406175
+  - rid: 2373392875755406176
+  - rid: 2373392875755406177
+  - rid: 2373392875755406178
+  - rid: 2373392875755406179
+  TailSeconds: 1.5
+  CutIn: 0
+  CutSeconds: 3
+  Caption: "\xDAltima wave."
+  references:
+    version: 2
+    RefIds:
+    - rid: 2373392875755406144
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 1
+        Side: 0
+        State: 4
+        Amount: 1
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 30
+    - rid: 2373392875755406145
+      type: {class: ProtectMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        HealthFloor: 6
+        HoldLastWave: 0
+    - rid: 2373392875755406146
+      type: {class: RaiseManaCap, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Max: 10
+        FillPool: 1
+    - rid: 2373392875755406147
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 19
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.55
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406148
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 18
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.78
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406149
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 20
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.35
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406150
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 10
+        Target:
+          Kind: 0
+          Side: 0
+          PathProgress: 0.18
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406151
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 19
+        Target:
+          Kind: 2
+          Side: 0
+          PathProgress: 0.5
+          Tower: 19
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406152
+      type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Card: 18
+        Target:
+          Kind: 2
+          Side: 0
+          PathProgress: 0.5
+          Tower: 18
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        DragSeconds: 0.3
+        WaitForCardSeconds: 20
+        TopUpMana: 1
+        ShowFinger: 0
+    - rid: 2373392875755406153
+      type: {class: PauseBot, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data: 
+    - rid: 2373392875755406154
+      type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Until:
+          Condition: 1
+          Side: 0
+          State: 4
+          Amount: 10
+          MinProgress: 0
+          Card: 0
+          TimeoutSeconds: 400
+        Speed: 6
+    - rid: 2373392875755406155
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 0
+        Health: 22
+    - rid: 2373392875755406156
+      type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 1
+        Health: 14
+    - rid: 2373392875755406157
+      type: {class: SpawnCrowd, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Side: 1
+        Enemy: 1
+        Count: 6
+        FromProgress: 0.2
+        ToProgress: 0.5
+        Interval: 0
+    - rid: 2373392875755406158
+      type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 0
+    - rid: 2373392875755406159
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.75
+        MaxSeconds: 0
+    - rid: 2373392875755406160
+      type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 1
+    - rid: 2373392875755406161
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.75
+        MaxSeconds: 0
+    - rid: 2373392875755406162
+      type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 0
+    - rid: 2373392875755406163
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.75
+        MaxSeconds: 0
+    - rid: 2373392875755406164
+      type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 1
+    - rid: 2373392875755406165
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.75
+        MaxSeconds: 0
+    - rid: 2373392875755406166
+      type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        To: 0
+    - rid: 2373392875755406167
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.75
+        MaxSeconds: 0
+    - rid: 2373392875755406168
+      type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Label: cuts-done
+    - rid: 2373392875755406169
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 9
+        Side: 0
+        State: 4
+        Amount: 10
+        MinProgress: 0.07
+        Card: 0
+        TimeoutSeconds: 120
+    - rid: 2373392875755406170
+      type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Label: last-enemy
+    - rid: 2373392875755406171
+      type: {class: Parallel, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Actions:
+        - rid: 2373392875755406180
+        - rid: 2373392875755406181
+    - rid: 2373392875755406172
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 6
+        Side: 0
+        State: 4
+        Amount: 0
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 16
+    - rid: 2373392875755406173
+      type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Label: final-kill
+    - rid: 2373392875755406174
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.9
+        MaxSeconds: 0
+    - rid: 2373392875755406175
+      type: {class: Parallel, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Actions:
+        - rid: 2373392875755406182
+        - rid: 2373392875755406183
+    - rid: 2373392875755406176
+      type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Condition: 0
+        Side: 0
+        State: 5
+        Amount: 1
+        MinProgress: 0
+        Card: 0
+        TimeoutSeconds: 20
+    - rid: 2373392875755406177
+      type: {class: HideDebugUi, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data: 
+    - rid: 2373392875755406178
+      type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Label: victory
+    - rid: 2373392875755406179
+      type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 5
+        MaxSeconds: 0
+    - rid: 2373392875755406180
+      type: {class: CameraFocus, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Target:
+          Kind: 6
+          Side: 0
+          PathProgress: 0.5
+          Tower: 0
+          Radius: 1.2
+          Offset: {x: 0, y: 0}
+        Zoom: 0.55
+        Seconds: 0.6
+        FollowSeconds: 2.4
+    - rid: 2373392875755406181
+      type: {class: TimeScaleRamp, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Target: 0.25
+        Seconds: 0.35
+    - rid: 2373392875755406182
+      type: {class: TimeScaleRamp, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Target: 1
+        Seconds: 0.5
+    - rid: 2373392875755406183
+      type: {class: CameraReset, ns: KeceK.Capture, asm: Assembly-CSharp}
+      data:
+        Seconds: 0.5
