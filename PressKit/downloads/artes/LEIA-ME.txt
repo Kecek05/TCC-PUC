@@ -1,0 +1,12 @@
+Bisect TD - artes do jogo / game art
+
+PNG com fundo transparente, nas cores do jogo. Livres para thumbnails, videos e materias sobre o Bisect TD.
+Transparent PNGs in the game's colours. Free to use in thumbnails, videos and coverage of Bisect TD.
+
+torres/              cada torre nos niveis 1, 2 e 3 / every tower at tiers 1, 2 and 3
+cartas/              a arte de cada uma das 30 cartas / the art of all 30 cards
+tropas/              as tropas que os jogadores mandam / the troops players send
+inimigos-das-waves/  os inimigos das waves / the wave enemies
+feiticos/            os emblemas dos feiticos / the spell emblems
+
+Contato / contact: joaokecek.business@gmail.com - Instagram @bisect.td
