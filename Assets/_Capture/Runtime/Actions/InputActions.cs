@@ -25,6 +25,9 @@ namespace KeceK.Capture
         [Tooltip("Off for a play that happens out of frame: no touch mark.")]
         public bool ShowFinger = true;
 
+        /// <summary>The local verdict of the last run: true sent, false refused, null not played at all.</summary>
+        [NonSerialized] public bool? LastAccepted;
+
         public PlayCard() { }
 
         public PlayCard(CardType card, BoardTarget target, float dragSeconds = 0.55f)
@@ -36,6 +39,7 @@ namespace KeceK.Capture
 
         public IEnumerator Run(CaptureContext ctx)
         {
+            LastAccepted = null;
             AbstractCard card = null;
             float waited = 0f;
             while ((card = HandCards.Find(ctx, Card)) == null)
@@ -100,6 +104,7 @@ namespace KeceK.Capture
             ctx.Finger.ShowIndicator = true;
 
             if (card != null) card.OnDropResolved -= OnResolved;
+            LastAccepted = accepted == true;
             ctx.Log($"  {Card} -> {Target}: {(accepted == true ? "sent" : "REFUSED")}");
         }
 

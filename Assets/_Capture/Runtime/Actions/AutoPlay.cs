@@ -26,8 +26,12 @@ namespace KeceK.Capture
         public float MaxPause = 1.2f;
         public List<CardType> Reserve = new();
         public float KeepMana;
-        [Tooltip("Path progress of the build spots, in the order towers go down.")]
-        public List<float> BuildSpots = new() { 0.32f, 0.52f, 0.7f, 0.2f, 0.85f, 0.42f, 0.62f };
+        [Tooltip("Path progress of the build spots, in the order towers go down. Nothing under the top HUD " +
+                 "(around 0.2 the slots sit under the lives/wave panel and every drop there is refused).")]
+        public List<float> BuildSpots = new() { 0.32f, 0.52f, 0.7f, 0.85f, 0.42f, 0.62f, 0.78f };
+
+        // A play the game refused is not tried again soon: a player who sees a drop bounce picks another spot.
+        [NonSerialized] private Dictionary<string, float> _refusedUntil;
         public bool ShowFinger = true;
         [Tooltip("Off tape: when the hand holds no tower, hop to the rival's field and Ice their towers so the cycle moves.")]
         public bool AllowIceHop;
@@ -57,6 +61,9 @@ namespace KeceK.Capture
                     float before = ctx.Director.Clock;
                     yield return play.Run(ctx);
                     elapsed += ctx.Director.Clock - before;
+
+                    if (play is PlayCard card && card.LastAccepted == false)
+                        Refused[card.Describe()] = ctx.Director.Clock + 25f;
                 }
 
                 float pause = UnityEngine.Random.Range(MinPause, MaxPause);
@@ -70,6 +77,11 @@ namespace KeceK.Capture
                 elapsed += pause;
             }
         }
+
+        private Dictionary<string, float> Refused => _refusedUntil ??= new Dictionary<string, float>();
+
+        private bool Allowed(CaptureContext ctx, PlayCard play) =>
+            !Refused.TryGetValue(play.Describe(), out float until) || ctx.Director.Clock >= until;
 
         private ICaptureAction Decide(CaptureContext ctx)
         {
@@ -97,7 +109,10 @@ namespace KeceK.Capture
                 CardType type = card.CardData.CardType;
                 if (type is CardType.SpellLance or CardType.SpellFireball && home &&
                     BoardTarget.CountEnemiesOn(ctx.LocalTeam, 0.35f) >= 4)
-                    return new PlayCard(type, BoardTarget.Bunch(BoardSide.Local, 1.6f)) { ShowFinger = ShowFinger };
+                {
+                    PlayCard spell = new(type, BoardTarget.Bunch(BoardSide.Local, 1.6f)) { ShowFinger = ShowFinger };
+                    if (Allowed(ctx, spell)) return spell;
+                }
             }
 
             // 2. Towers: level up what stands, else build on the next spot.
@@ -107,22 +122,23 @@ namespace KeceK.Capture
                 CardType type = card.CardData.CardType;
 
                 BoardTarget upgrade = BoardTarget.UpgradableTowerOf(type);
-                if (upgrade.Resolve(ctx).HasValue)
-                    return new PlayCard(type, upgrade) { ShowFinger = ShowFinger };
+                PlayCard levelUp = new(type, upgrade) { ShowFinger = ShowFinger };
+                if (upgrade.Resolve(ctx).HasValue && Allowed(ctx, levelUp)) return levelUp;
 
                 foreach (float spot in BuildSpots)
                 {
                     BoardTarget slot = BoardTarget.Slot(spot);
-                    if (slot.Resolve(ctx).HasValue && !TowerNear(ctx, spot))
-                        return new PlayCard(type, slot) { ShowFinger = ShowFinger };
+                    PlayCard build = new(type, slot) { ShowFinger = ShowFinger };
+                    if (slot.Resolve(ctx).HasValue && !TowerNear(ctx, spot) && Allowed(ctx, build)) return build;
                 }
             }
 
             // 3. No tower to play: keep the cycle moving with a troop (sent from anywhere on the board).
             foreach (AbstractCard card in playable)
             {
-                if (card.CardData is SpawnEnemyCardDataSO && home)
-                    return new PlayCard(card.CardData.CardType, BoardTarget.Field(BoardSide.Local)) { ShowFinger = ShowFinger };
+                if (card.CardData is not SpawnEnemyCardDataSO || !home) continue;
+                PlayCard send = new(card.CardData.CardType, BoardTarget.Field(BoardSide.Local)) { ShowFinger = ShowFinger };
+                if (Allowed(ctx, send)) return send;
             }
 
             // 4. Off tape only: Ice their towers (it can only be cast on their field) so it leaves the hand.

@@ -1362,3 +1362,27 @@ untouched: everything here is drawn around them.
   the bot drawing Rush, Siege and Control and building Dart + Prism + Dart on Control at a cap of 4.
 - Key files: `UnitStatusView.cs`, `TroopHoldVisual.cs` (under `Assets/Scripts/UI/Game/Cards/`),
   `SpawnEnemyCard.cs`, `HeuristicBotBrain.cs`, `Assets/ScriptableObjects/Bot/BotDeckListSO.asset`.
+
+### Capture tooling: trailer and gameplay videos (`Assets/_Capture/`)
+
+Editor/dev-only (`#if UNITY_EDITOR || DEVELOPMENT_BUILD`) tooling that films the game from inside: a
+`CaptureDirector` that only runs `ICaptureAction` steps, `ShotDefinition` / `MatchScript` assets generated
+from code (`TrailerShotLibrary`, `GameplayScriptLibrary`), a `VirtualFinger` that plays cards through the real
+hand UI with `ExecuteEvents`, and the Unity Recorder behind `ICaptureRecorder` (H.264, constant 60 fps, audio).
+`Assets/_Capture/README.md` has the run steps; `Montage~/` holds the ffmpeg edits; output goes to the
+git-ignored `Recordings/`.
+
+- **No assembly definition, on purpose.** All game code is in `Assembly-CSharp`, which an asmdef cannot
+  reference. The capture code lives in the default assemblies (an `Editor/` folder for the Recorder side),
+  kept out of release builds by the define, not by an assembly boundary.
+- **The game keeps ONE lane hold per team** (`HoldLaneBeforeWave`): `ProtectMatch`'s "before the last wave"
+  and `HoldWaves`'s "before the next wave" overwrite each other, so `HoldWaves` must run after it.
+- **The hand only deals what the current max mana can pay for** (wave 1 caps at 4), so a staged shot raises
+  the ceiling through the tutorial's seam (`GetMaxManaNetworkVariable`), and a 4-card deck keeps every card in
+  hand (a played card comes straight back: how a level-up is filmed).
+- **Slots near path progress 0.2 sit under the top-left HUD**: a drop there is refused as `BlockedByUI`.
+- **The bot's tower core refuses cards not in the bot's hand** (`NotInHand`); staging falls back to any tower
+  it holds.
+- **Wave 10 ends with a 2000-HP boss** (speed 0.5) among 20-25 small enemies: anything keyed on "the last
+  enemy" must read the wave's own remaining count (`_remainingEnemiesOfWave`), not what is on the board.
+- Recording writes the save (deck slots, upgrades, match rewards): back up `player_save.json` first.

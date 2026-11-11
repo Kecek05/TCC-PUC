@@ -22,19 +22,19 @@ MonoBehaviour:
   Deck: 
   LeaveAfter: 0
   Setup:
-  - rid: 2373392875755406133
-  - rid: 2373392875755406134
-  - rid: 2373392875755406135
-  - rid: 2373392875755406136
-  - rid: 2373392875755406137
+  - rid: 2373392876161991359
+  - rid: 2373392876161991360
+  - rid: 2373392876161991361
+  - rid: 2373392876161991362
+  - rid: 2373392876161991363
   LeadInSeconds: 0.4
   Beats:
-  - rid: 2373392875755406138
-  - rid: 2373392875755406139
-  - rid: 2373392875755406140
-  - rid: 2373392875755406141
-  - rid: 2373392875755406142
-  - rid: 2373392875755406143
+  - rid: 2373392876161991364
+  - rid: 2373392876161991365
+  - rid: 2373392876161991366
+  - rid: 2373392876161991367
+  - rid: 2373392876161991368
+  - rid: 2373392876161991369
   TailSeconds: 1.5
   CutIn: 0.4
   CutSeconds: 3
@@ -42,10 +42,10 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2373392875755406133
+    - rid: 2373392876161991359
       type: {class: LeaveMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392875755406134
+    - rid: 2373392876161991360
       type: {class: PrepareSave, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         OwnEveryCard: 1
@@ -53,51 +53,51 @@ MonoBehaviour:
         Gold: 0
         Decks: []
         ActiveSlot: -1
-    - rid: 2373392875755406135
+    - rid: 2373392876161991361
       type: {class: HideDebugUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392875755406136
+    - rid: 2373392876161991362
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: Deck
         UnderName: Buttons
         HoverSeconds: 0.25
         ShowFinger: 0
-    - rid: 2373392875755406137
+    - rid: 2373392876161991363
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 1
         MaxSeconds: 0
-    - rid: 2373392875755406138
+    - rid: 2373392876161991364
       type: {class: TapDeckCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
         Hold: 0.08
-    - rid: 2373392875755406139
+    - rid: 2373392876161991365
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.3
         MaxSeconds: 0
-    - rid: 2373392875755406140
+    - rid: 2373392876161991366
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: InfoButton
         UnderName: ActionButtons(Clone)
         HoverSeconds: 0.25
         ShowFinger: 1
-    - rid: 2373392875755406141
+    - rid: 2373392876161991367
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 1.2
         MaxSeconds: 0
-    - rid: 2373392875755406142
+    - rid: 2373392876161991368
       type: {class: TapUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         ObjectName: UpgradeButton
         UnderName: Panel
         HoverSeconds: 0.25
         ShowFinger: 1
-    - rid: 2373392875755406143
+    - rid: 2373392876161991369
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 3
