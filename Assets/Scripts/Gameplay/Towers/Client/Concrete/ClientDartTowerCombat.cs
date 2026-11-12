@@ -23,7 +23,7 @@ public class ClientDartTowerCombat : BaseClientTowerCombat
         // Resolve the target NetworkObject on this client
         Transform targetTransform = null;
         if (targetRef.TryGet(out NetworkObject targetObj))
-            targetTransform = targetObj.transform;
+            targetTransform = TroopMotion.DrawnTransform(targetObj.transform); // the drawn body, not the lane centreline
 
         // Convert server-space origin to local-space
         BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();

@@ -20,5 +20,13 @@ MonoBehaviour:
   Damage: 15
   ArmorColor: 2
   OffColorResistance: 0.35
+  ImmuneToSlow: 0
+  SplitCount: 0
+  SplitGenerations: 0
+  SplitChildStatPercent: 0.5
+  DashInterval: 0
+  DashDuration: 0
+  DashSpeedMultiplier: 1
   EnemySprite: {fileID: 0}
+  MotionProfile: {fileID: 11400000, guid: b770a3c1c8a14ef41a751798a79e9db7, type: 2}
   EnemyPrefab: {fileID: 972179451941447193, guid: 593ec09ee5edc754ba75674269154d2d, type: 3}

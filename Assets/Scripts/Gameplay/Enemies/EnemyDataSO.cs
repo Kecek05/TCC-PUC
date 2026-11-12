@@ -52,6 +52,9 @@ public class EnemyDataSO : ScriptableObject
 
     [Title("Visuals")]
     public Sprite EnemySprite;
+    [Tooltip("How this troop walks (route sway, gait, lean, dust). Empty = TroopMotionSettingsSO's default. " +
+             "Presentation only. A decoy must share its real troop's profile, like its MoveSpeed.")]
+    public TroopMotionProfileSO MotionProfile;
 
     [Title("References")]
     public GameObject EnemyPrefab;

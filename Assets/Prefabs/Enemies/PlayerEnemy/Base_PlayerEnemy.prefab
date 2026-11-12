@@ -527,6 +527,38 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
+--- !u!1 &3714388215924898234
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8943835308495348511}
+  m_Layer: 0
+  m_Name: Motion
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8943835308495348511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3714388215924898234}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3397813077358877234}
+  m_Father: {fileID: 1307187381120889640}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4363792576233563548
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +575,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4200182677454096121
 Transform:
   m_ObjectHideFlags: 0
@@ -1148,6 +1180,7 @@ GameObject:
   - component: {fileID: 7844695896164365614}
   - component: {fileID: 5891856645607366871}
   - component: {fileID: 6874475427022184791}
+  - component: {fileID: 971990069487083161}
   m_Layer: 0
   m_Name: Base_PlayerEnemy
   m_TagString: Untagged
@@ -1168,7 +1201,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3397813077358877234}
+  - {fileID: 8943835308495348511}
   - {fileID: 4200182677454096121}
   - {fileID: 7168168494665704421}
   m_Father: {fileID: 0}
@@ -1275,7 +1308,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   interpolationSpeed: 10
   entityTeam: {fileID: 7844695896164365614}
-  GFXObject: {fileID: 6480048203697955608}
 --- !u!114 &3167976796718860805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1337,6 +1369,23 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: ec1fc4234ebbf9f42af4d3c1d5f84561, type: 2}
   heavyHitFeedback: {fileID: 2342188441020360858}
   catchUpSharpness: 30
+--- !u!114 &971990069487083161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5240486951047393607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d160b43f583c4ca48b3f9687553f229d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TroopMotion
+  ShowTopMostFoldoutHeaderGroup: 1
+  enemyManager: {fileID: 6139324921012430164}
+  clientMovement: {fileID: 9055292217098003053}
+  motion: {fileID: 8943835308495348511}
+  gfx: {fileID: 3397813077358877234}
 --- !u!1 &6480048203697955608
 GameObject:
   m_ObjectHideFlags: 0
@@ -1368,7 +1417,7 @@ Transform:
   m_Children:
   - {fileID: 5159738071109105211}
   - {fileID: 8785467807549830912}
-  m_Father: {fileID: 1307187381120889640}
+  m_Father: {fileID: 8943835308495348511}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7417763135568675936
 GameObject:

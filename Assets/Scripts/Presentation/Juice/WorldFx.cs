@@ -204,6 +204,29 @@ public static class WorldFx
     }
 
     /// <summary>
+    /// A small puff on the ground, under the bodies: the dust a troop's step kicks up. Same motion as
+    /// <see cref="Puff"/>, on the enemies' layer so the troop that raised it stays drawn on top.
+    /// </summary>
+    public static void GroundPuff(Vector3 position, Color color, float size, Vector3 drift, float duration)
+    {
+        SpriteRenderer puff = TakeSized(JuiceSprites.Glow, position, color, size * 0.6f, GroundLayer, GroundOrder + 2);
+        if (puff == null) return;
+
+        Transform tr = puff.transform;
+        Color clear = color;
+        clear.a = 0f;
+        puff.color = clear;
+        Vector3 to = tr.localScale / 0.6f * 1.3f;
+
+        DOTween.Sequence().SetLink(puff.gameObject)
+            .Join(puff.DOFade(color.a, duration * 0.12f))
+            .Join(tr.DOMove(position + drift, duration).SetEase(Juice.Tokens.Eases.Out))
+            .Join(tr.DOScale(to, duration).SetEase(Juice.Tokens.Eases.Out))
+            .Insert(duration * 0.3f, puff.DOFade(0f, duration * 0.7f).SetEase(Juice.Tokens.Eases.In))
+            .OnComplete(() => Give(puff));
+    }
+
+    /// <summary>
     /// A mark left on the ground that holds, then fades: a scorch, a frosted patch. Drawn on the enemies' layer
     /// beneath their bodies, so what walks over it stays readable.
     /// </summary>

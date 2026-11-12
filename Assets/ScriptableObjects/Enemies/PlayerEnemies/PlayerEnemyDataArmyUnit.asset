@@ -28,4 +28,5 @@ MonoBehaviour:
   DashDuration: 0
   DashSpeedMultiplier: 1
   EnemySprite: {fileID: 0}
+  MotionProfile: {fileID: 11400000, guid: 7db6c0358107ebf43babfe1b9b9169df, type: 2}
   EnemyPrefab: {fileID: 7708427927526269066, guid: fa9a78bf2714b86469b641d64ee40374, type: 3}

@@ -1386,3 +1386,85 @@ git-ignored `Recordings/`.
 - **Wave 10 ends with a 2000-HP boss** (speed 0.5) among 20-25 small enemies: anything keyed on "the last
   enemy" must read the wave's own remaining count (`_remainingEnemiesOfWave`), not what is on the board.
 - Recording writes the save (deck slots, upgrades, match rewards): back up `player_save.json` first.
+
+### Troop Motion — organic routes and a walking gait (visual only)
+
+Every troop now walks its own line inside the lane (a seeded offset, a slow sway, rounded corners, room made
+for its neighbours) with a gait on top (a spawn pop, stepping hop with squash and stretch, a waddle, a lean
+into turns, dust). Decisions approved 2026-11-11: visual-only offset, offset + Perlin sway, +/-0.15 lateral,
+seed from `NetworkObjectId`, runtime steering, cosmetic stride only, smoother remote clients, 100 troops per field.
+
+**Why visual only:** every gameplay range check (towers, auras, splash, spell radii) measures to the enemy's
+ROOT on the server, which sits on the lane centreline. Offsetting the root would have changed when troops enter
+range, i.e. balance. The root is untouched; the drawn body sits at most ~0.25 from it (lateral 0.15 + corner
+cut + steering along the lane).
+
+**How it works:**
+- **Hierarchy:** `Root -> Motion -> GFX -> EnemyGFX/HealthFill`, inserted in the two base prefabs
+  (`BaseEnemy`, `Base_PlayerEnemy`), so all 14 variants inherit it. `TroopMotion` writes `Motion`'s position
+  and `GFX`'s rotation and scale. `GFX`'s POSITION stays `EnemyFeedbackPresenter`'s (hit-stop pin, shove),
+  which is why the route needed its own transform; the heavy-hit squash stays on `EnemyGFX`, so the scales
+  compose. The old spawn scale-in (the `Feedbacks` MMF_Player, GFX scale on enable) is deactivated: the spawn
+  pop owns GFX scale now.
+- **Determinism:** seed = hash of `NetworkObjectId` (server-assigned, identical on every peer, zero bytes on the
+  wire), drawn through `Unity.Mathematics.Random`. Sway is laid out per world unit walked, not per second, so the
+  route is a pure function of seed + progress: host and client draw the same line, and a held troop does not
+  drift. Steering is the one stateful term and can differ by a hair between peers (approved).
+- **`LaneCurve`** bakes each `WaypointPath` into a LUT with every corner a quadratic Bezier (`CornerTrim` 0.34,
+  never past half a segment, so it must stay above `MaxLateral * 1.42` or an inside troop loops). It is indexed
+  by gameplay progress, but the arc length is low-pass filtered over ~0.55u each side: mapped raw, a Bezier
+  corner dropped the drawn speed to 71% at every bend and the walk read as hitching (the user called it laggy);
+  mapped by the curve's own length the speed was constant but the body drifted ~0.4u behind gameplay before
+  the first bend. Filtered: speed 85-100%, drift under 0.12u. `LaneCurve.Measure(path)` reports both.
+- **`TroopCrowd`** (static, ticked by an on-demand hidden `TroopCrowdRunner` at execution order 100, after the
+  movement scripts and before the presenter's LateUpdate pin) runs three passes: every troop reads its progress,
+  the lane is insertion-sorted by distance and neighbours inside a short window push apart, every troop is drawn.
+  No allocation per frame, no GetComponent in the loop.
+- **Steering is mostly sideways and allowed to overlap a little** (user feedback 2026-11-11: "able to overlap,
+  but just a bit"). `SeparationFactor` 0.7 means bodies react only once closer than 70% of their summed radii;
+  `AlongShare` 0.1 / `MaxAlong` 0.06 because an along push makes a body brake and catch up, which reads as lag.
+  Sent troops meeting the wave head-on look `HeadOnLookAhead` seconds ahead and only sidestep.
+- **Cosmetic speed variance is `SurgeShare`, a share of the troop's speed** (6% default). The first pass
+  authored it as an absolute amplitude, which at a 0.32 stride was +/-40% speed inside every step: stutter, not
+  gait. Keep it under ~0.1.
+- **Facing** is the lane direction tilted by the sideways drift (capped 45 degrees), through an under-damped
+  spring plus a lean proportional to the turn rate. It is NOT taken from the frame's motion: a crowd's along push
+  can move a body backwards for a moment, and one troop spun round to face backwards before this.
+- **Remote clients extrapolate** (`ClientEnemyMovement.PredictProgress`): advance at the replicated
+  `CurrentSpeed` (zero while invincible, held or not `InMatch`), ease toward the last heard `PathProgress` plus
+  the time since; never step back on jitter, draw a real pull back (Ancora) as a drag, snap past `SnapDistance`.
+  **Time standing still does not count toward the extrapolation** (`_heardAt` is refreshed while not walking):
+  without that, a troop finishing its spawn-in extrapolated across the whole second it stood, lurched ~0.4u
+  ahead and was dragged back by the server's first update (184 backward frames in one MPPM run, 7 after).
+  The host is unchanged: it draws the server's exact `Progress`, and its root keeps the old lerp, because on the
+  host the root is what range checks read.
+- **Effects that land ON a troop follow the drawn body** through `TroopMotion.DrawnPosition` /
+  `DrawnTransform`: cosmetic bullets (Circle, Dart, Square), status visuals (`UnitStatusView`), the spell aim's
+  brackets, tags and lock, Lance's slash, Fireball's shove direction. **Rules that mirror gameplay keep the
+  root**: `SpellVisual.EnemiesNear`, `SpellLane.FindAnchor`, the aim's reach test. Chain lightning still draws
+  to server positions (up to ~0.2 off the body), and the tutorial's pointers still read the root.
+- **Tuning:** `TroopMotionSettingsSO` (`Resources/Juice/TroopMotion`, shared: corners, steering, client
+  prediction, dust budget, gizmo toggle) and `TroopMotionProfileSO` per troop family, referenced from
+  `EnemyDataSO.MotionProfile` (empty = Default). Profiles: Default; Heavy (Tank, MiniBoss, Ram); Swift (Fast,
+  Swarm); Boss (its 0.75 body is the whole lane, so `MaxLateral` 0.03). **Miragem and its decoy must share a
+  profile**, like their MoveSpeed. Changing a C# default does not reach these assets: edit the assets.
+- **Gizmos** (Scene view, play mode, `DrawRouteGizmos`): each troop's walked trail (solid) and the route its seed
+  lays out ahead (dashed, without steering). `capture_scene_view` does not render gizmos.
+- **Verified host vs real client with MPPM (2026-11-11)**: main Editor hosting, virtual Player 2 quick-joined
+  through Relay, 24 identical troops + 6 reversed sent troops (+ the wave), every troop's drawn position recorded
+  per frame on both and compared in server space. Once walking, at the same progress the drawn bodies sit
+  **0.005u apart on average, 95% within 0.015u**; the outliers (up to ~0.17u) are steering in dense crowds, the
+  one approved stateful term. At the same wall-clock instant the client trails by ~25 ms (~0.03u). Host only: 24
+  troops face within 15 degrees of the lane. A NetworkBehaviour was added to every enemy (`TroopMotion`, last on
+  the root, so earlier behaviour indices are unchanged): both players need the same build.
+- **Driving MPPM from the CLI** (how the test above ran): the virtual players' API is internal to
+  `UnityEditor.MultiplayerModule` (`MultiplayerPlaymode.Players`, `UnityPlayer.Activate/Deactivate` by
+  reflection). Every play-mode domain reload moves each Editor's Pipeline port, so resolve ports by PID
+  (`unity pipeline editors`) before each command, and confirm the target by `Application.dataPath` (a clone's
+  contains `/Library/VP/`). The game initialises Unity Services without a profile, so **both Editors sign in as
+  the same anonymous player**: give the clone its own (`SignOut(true)`, `SwitchProfile`, sign in, then
+  `UserData.SetPlayerAuthId`). The clone shares the main Editor's `persistentDataPath`, i.e. the same save.
+- Key files: `TroopMotion.cs`, `TroopCrowd.cs`, `TroopCrowdRunner.cs`, `LaneCurve.cs`, `TroopMotionSettingsSO.cs`,
+  `TroopMotionProfileSO.cs` (under `Assets/Scripts/Presentation/Enemies/`); `ClientEnemyMovement.cs`,
+  `EnemyDataSO.cs`, `WorldFx.GroundPuff`; assets `Assets/Resources/Juice/TroopMotion.asset` and
+  `Assets/ScriptableObjects/Juice/TroopMotion/`.

@@ -136,7 +136,7 @@ public class LanceVisual : SpellVisual
     private void Pierce(EnemyManager enemy, int step)
     {
         if (enemy == null || !enemy.isActiveAndEnabled) return;
-        Vector3 at = enemy.transform.position;
+        Vector3 at = TroopMotion.DrawnPosition(enemy); // the body it pierces, not the lane centreline
         Vector3 along = LaneTangent(at);
 
         // A slash along the lane through it (46 by 4 px) and a small ring; then it is shoved down the lane, away

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafe18b8edf44c14ca731d5c58608f75, type: 3}
+  m_Name: TroopMotion_Heavy
+  m_EditorClassIdentifier: Assembly-CSharp::TroopMotionProfileSO
+  MaxLateral: 0.15
+  OffsetRange: 0.07
+  SwayAmplitude: 0.04
+  SwayFrequency: 0.4
+  StrideLength: 0.42
+  StrideJitter: 0.08
+  SurgeShare: 0.05
+  HopScale: 0.045
+  StepStretch: 0.07
+  WaddleAngle: 4.5
+  SpeedStretch: 0.16
+  TurnFrequency: 2.8
+  TurnDamping: 0.7
+  LeanPerTurnRate: 0.03
+  MaxLean: 9
+  SpawnPopDuration: 0.42
+  SpawnPopOvershoot: 1.4
+  IdleBreath: 0.022
+  IdleBreathRate: 0.6
+  DustChance: 0.6
+  DustSize: 0.2

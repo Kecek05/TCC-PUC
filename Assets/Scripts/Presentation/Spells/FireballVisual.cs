@@ -154,7 +154,7 @@ public class FireballVisual : SpellVisual
         List<EnemyManager> caught = EnemiesNear(at, radius * 1.1f, Cast.FieldTeam);
         foreach (EnemyManager enemy in caught)
         {
-            Vector3 away = enemy.transform.position - at;
+            Vector3 away = TroopMotion.DrawnPosition(enemy) - at;
             Shove(enemy, (away.sqrMagnitude > 0.0004f ? away.normalized : Vector3.up) * 0.2f);
         }
 

@@ -70,7 +70,7 @@ public class UnitStatusView : MonoBehaviour
         _rageOn = _slowOn = _brokenOn = _heldOn = false;
         _rage = _slow = _broken = _held = 0f;
         _hasteAmount = _slowAmount = 0f;
-        _lastPosition = enemy.transform.position;
+        _lastPosition = TroopMotion.DrawnPosition(enemy);
         // The armour-broken badge wears the enemy's own armour colour: it is that armour that broke.
         _armour = SpellFxSettingsSO.Instance.ArmorTint(enemy.Data != null ? enemy.Data.ArmorColor : ArmorColor.None);
         _badge.color = new Color(_armour.r, _armour.g, _armour.b, 0f);
@@ -105,7 +105,7 @@ public class UnitStatusView : MonoBehaviour
         if (_enemy == null) return;
 
         SpellFxSettingsSO fx = SpellFxSettingsSO.Instance;
-        Vector3 at = _enemy.transform.position;
+        Vector3 at = TroopMotion.DrawnPosition(_enemy);
         Vector3 over = at + Vector3.up * (0.2f + 0.65f * _k);
         bool seen = CameraFeedback.IsOnScreen(at, 0.05f);
         float now = Time.unscaledTime;
@@ -185,7 +185,7 @@ public class UnitStatusView : MonoBehaviour
         _broken = Mathf.MoveTowards(_broken, _brokenOn ? 1f : 0f, dt * FadeSpeed);
         _held = Mathf.MoveTowards(_held, _heldOn ? 1f : 0f, dt * FadeSpeed);
 
-        Vector3 at = _enemy.transform.position;
+        Vector3 at = TroopMotion.DrawnPosition(_enemy);
         Vector3 moved = at - _lastPosition;
         if (moved.sqrMagnitude > 0.000004f) _facing = Vector3.Lerp(_facing, moved.normalized, 0.25f).normalized;
         _lastPosition = at;

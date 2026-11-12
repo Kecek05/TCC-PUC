@@ -295,7 +295,7 @@ public class GhostSpellCard : MonoBehaviour
         {
             Follow(_brackets);
             FollowTags();
-            if (_lock != null && _lock.gameObject.activeSelf && _anchor != null) _lock.transform.position = _anchor.transform.position;
+            if (_lock != null && _lock.gameObject.activeSelf && _anchor != null) _lock.transform.position = TroopMotion.DrawnPosition(_anchor);
         }
         Follow(_locked);
     }
@@ -306,7 +306,7 @@ public class GhostSpellCard : MonoBehaviour
         {
             if (pair.Value == null) continue;
             if (pair.Key == null) pair.Value.gameObject.SetActive(false);
-            else pair.Value.transform.position = pair.Key.transform.position;
+            else pair.Value.transform.position = TroopMotion.DrawnPosition(pair.Key);
         }
     }
 
@@ -330,7 +330,7 @@ public class GhostSpellCard : MonoBehaviour
 
         _tagOrder.Sort((a, b) =>
         {
-            int byHeight = a.Key.transform.position.y.CompareTo(b.Key.transform.position.y);
+            int byHeight = TroopMotion.DrawnPosition(a.Key).y.CompareTo(TroopMotion.DrawnPosition(b.Key).y);
             return byHeight != 0 ? byHeight : a.Key.GetInstanceID().CompareTo(b.Key.GetInstanceID());
         });
 
@@ -338,7 +338,7 @@ public class GhostSpellCard : MonoBehaviour
         {
             AimTag tag = pair.Value;
             Vector2 size = new Vector2(tag.Back.size.x, tag.Back.size.y) * tag.Back.transform.localScale.x;
-            Vector3 at = pair.Key.transform.position + Vector3.up * tag.Lift;
+            Vector3 at = TroopMotion.DrawnPosition(pair.Key) + Vector3.up * tag.Lift;
             Rect rect = new Rect(at.x - size.x * 0.5f, at.y - size.y * 0.5f, size.x, size.y);
 
             for (int guard = 0; guard < 8; guard++)
@@ -526,7 +526,7 @@ public class GhostSpellCard : MonoBehaviour
         AimTag tag = TakeTag();
         Dress(tag, spec);
         tag.Lift = LiftFor(target);
-        tag.Root.position = target.transform.position + Vector3.up * tag.Lift;
+        tag.Root.position = TroopMotion.DrawnPosition(target) + Vector3.up * tag.Lift;
         tag.Root.gameObject.SetActive(true);
         Pop(tag, 0.6f);
         _tags[target] = tag;
@@ -857,7 +857,7 @@ public class GhostSpellCard : MonoBehaviour
         float scale = Mathf.Min(size, 1.2f) * bracketScale / 1.28f;
 
         Transform tr = bracket.transform;
-        tr.position = target.transform.position;
+        tr.position = TroopMotion.DrawnPosition(target);
         bracket.gameObject.SetActive(true);
         bracket.color = Juice.Tokens.Colors.Attention;
 

@@ -25,7 +25,7 @@ public class ClientSquareTowerCombat : BaseClientTowerCombat
 
         Transform targetTransform = null;
         if (targetRef.TryGet(out NetworkObject targetObj))
-            targetTransform = targetObj.transform;
+            targetTransform = TroopMotion.DrawnTransform(targetObj.transform); // the drawn body, not the lane centreline
 
         BaseMapTranslator mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
         Vector3 localOrigin = mapTranslator.ServerToLocal(originServerPos, entityTeam.GetTeamType());

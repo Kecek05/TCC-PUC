@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafe18b8edf44c14ca731d5c58608f75, type: 3}
+  m_Name: TroopMotion_Boss
+  m_EditorClassIdentifier: Assembly-CSharp::TroopMotionProfileSO
+  MaxLateral: 0.03
+  OffsetRange: 0.02
+  SwayAmplitude: 0.012
+  SwayFrequency: 0.25
+  StrideLength: 0.55
+  StrideJitter: 0.05
+  SurgeShare: 0.04
+  HopScale: 0.03
+  StepStretch: 0.05
+  WaddleAngle: 3
+  SpeedStretch: 0.1
+  TurnFrequency: 1.8
+  TurnDamping: 0.8
+  LeanPerTurnRate: 0.02
+  MaxLean: 5
+  SpawnPopDuration: 0.6
+  SpawnPopOvershoot: 1
+  IdleBreath: 0.02
+  IdleBreathRate: 0.45
+  DustChance: 1
+  DustSize: 0.2
