@@ -22,42 +22,42 @@ MonoBehaviour:
   Deck: 1300000012000000140000000a000000
   LeaveAfter: 1
   Setup:
-  - rid: 2373392876557304778
-  - rid: 2373392876557304779
-  - rid: 2373392876557304780
-  - rid: 2373392876557304781
-  - rid: 2373392876557304782
-  - rid: 2373392876557304783
-  - rid: 2373392876557304784
-  - rid: 2373392876557304785
-  - rid: 2373392876557304786
-  - rid: 2373392876557304787
-  - rid: 2373392876557304788
-  - rid: 2373392876557304789
+  - rid: 2373392879914582267
+  - rid: 2373392879914582268
+  - rid: 2373392879914582269
+  - rid: 2373392879914582270
+  - rid: 2373392879914582271
+  - rid: 2373392879914582272
+  - rid: 2373392879914582273
+  - rid: 2373392879914582274
+  - rid: 2373392879914582275
+  - rid: 2373392879914582276
+  - rid: 2373392879914582277
+  - rid: 2373392879914582278
   LeadInSeconds: 0.3
   Beats:
-  - rid: 2373392876557304790
-  - rid: 2373392876557304791
-  - rid: 2373392876557304792
-  - rid: 2373392876557304793
-  - rid: 2373392876557304794
-  - rid: 2373392876557304795
-  - rid: 2373392876557304796
-  - rid: 2373392876557304797
-  - rid: 2373392876557304798
-  - rid: 2373392876557304799
-  - rid: 2373392876557304800
-  - rid: 2373392876557304801
-  - rid: 2373392876557304802
-  - rid: 2373392876557304803
-  - rid: 2373392876557304804
-  - rid: 2373392876557304805
-  - rid: 2373392876557304806
-  - rid: 2373392876557304807
-  - rid: 2373392876557304808
-  - rid: 2373392876557304809
-  - rid: 2373392876557304810
-  - rid: 2373392876557304811
+  - rid: 2373392879914582279
+  - rid: 2373392879914582280
+  - rid: 2373392879914582281
+  - rid: 2373392879914582282
+  - rid: 2373392879914582283
+  - rid: 2373392879914582284
+  - rid: 2373392879914582285
+  - rid: 2373392879914582286
+  - rid: 2373392879914582287
+  - rid: 2373392879914582288
+  - rid: 2373392879914582289
+  - rid: 2373392879914582290
+  - rid: 2373392879914582291
+  - rid: 2373392879914582292
+  - rid: 2373392879914582293
+  - rid: 2373392879914582294
+  - rid: 2373392879914582295
+  - rid: 2373392879914582296
+  - rid: 2373392879914582297
+  - rid: 2373392879914582298
+  - rid: 2373392879914582299
+  - rid: 2373392879914582300
   TailSeconds: 1.5
   CutIn: 0
   CutSeconds: 3
@@ -65,7 +65,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2373392876557304778
+    - rid: 2373392879914582267
       type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Condition: 1
@@ -75,56 +75,56 @@ MonoBehaviour:
         MinProgress: 0
         Card: 0
         TimeoutSeconds: 30
-    - rid: 2373392876557304779
+    - rid: 2373392879914582268
       type: {class: ProtectMatch, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         HealthFloor: 6
         HoldLastWave: 0
-    - rid: 2373392876557304780
+    - rid: 2373392879914582269
       type: {class: RaiseManaCap, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Side: 0
         Max: 10
         FillPool: 1
-    - rid: 2373392876557304781
+    - rid: 2373392879914582270
       type: {class: Sequence, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Actions:
-        - rid: 2373392876557304812
-        - rid: 2373392876557304813
-        - rid: 2373392876557304814
-        - rid: 2373392876557304815
-        - rid: 2373392876557304816
-        - rid: 2373392876557304817
-        - rid: 2373392876557304818
-        - rid: 2373392876557304819
-        - rid: 2373392876557304820
-        - rid: 2373392876557304821
-        - rid: 2373392876557304822
-        - rid: 2373392876557304823
-        - rid: 2373392876557304824
-        - rid: 2373392876557304825
-        - rid: 2373392876557304826
-        - rid: 2373392876557304827
-        - rid: 2373392876557304828
-        - rid: 2373392876557304829
-    - rid: 2373392876557304782
+        - rid: 2373392879914582301
+        - rid: 2373392879914582302
+        - rid: 2373392879914582303
+        - rid: 2373392879914582304
+        - rid: 2373392879914582305
+        - rid: 2373392879914582306
+        - rid: 2373392879914582307
+        - rid: 2373392879914582308
+        - rid: 2373392879914582309
+        - rid: 2373392879914582310
+        - rid: 2373392879914582311
+        - rid: 2373392879914582312
+        - rid: 2373392879914582313
+        - rid: 2373392879914582314
+        - rid: 2373392879914582315
+        - rid: 2373392879914582316
+        - rid: 2373392879914582317
+        - rid: 2373392879914582318
+    - rid: 2373392879914582271
       type: {class: Sequence, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Actions:
-        - rid: 2373392876557304830
-        - rid: 2373392876557304831
-        - rid: 2373392876742901760
-        - rid: 2373392876742901761
-        - rid: 2373392876742901762
-        - rid: 2373392876742901763
-        - rid: 2373392876742901764
-        - rid: 2373392876742901765
-        - rid: 2373392876742901766
-        - rid: 2373392876742901767
-        - rid: 2373392876742901768
-        - rid: 2373392876742901769
-    - rid: 2373392876557304783
+        - rid: 2373392879914582319
+        - rid: 2373392879914582320
+        - rid: 2373392879914582321
+        - rid: 2373392879914582322
+        - rid: 2373392879914582323
+        - rid: 2373392879914582324
+        - rid: 2373392879914582325
+        - rid: 2373392879914582326
+        - rid: 2373392879914582327
+        - rid: 2373392879914582328
+        - rid: 2373392879914582329
+        - rid: 2373392879914582330
+    - rid: 2373392879914582272
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 20
@@ -139,7 +139,7 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304784
+    - rid: 2373392879914582273
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 10
@@ -154,10 +154,10 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304785
+    - rid: 2373392879914582274
       type: {class: PauseBot, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392876557304786
+    - rid: 2373392879914582275
       type: {class: FastForward, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Until:
@@ -169,17 +169,17 @@ MonoBehaviour:
           Card: 0
           TimeoutSeconds: 400
         Speed: 6
-    - rid: 2373392876557304787
+    - rid: 2373392879914582276
       type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Side: 0
         Health: 22
-    - rid: 2373392876557304788
+    - rid: 2373392879914582277
       type: {class: SetLives, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Side: 1
         Health: 14
-    - rid: 2373392876557304789
+    - rid: 2373392879914582278
       type: {class: SpawnCrowd, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Side: 1
@@ -188,56 +188,56 @@ MonoBehaviour:
         FromProgress: 0.2
         ToProgress: 0.5
         Interval: 0
-    - rid: 2373392876557304790
+    - rid: 2373392879914582279
       type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         To: 0
-    - rid: 2373392876557304791
+    - rid: 2373392879914582280
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.75
         MaxSeconds: 0
-    - rid: 2373392876557304792
+    - rid: 2373392879914582281
       type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         To: 1
-    - rid: 2373392876557304793
+    - rid: 2373392879914582282
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.75
         MaxSeconds: 0
-    - rid: 2373392876557304794
+    - rid: 2373392879914582283
       type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         To: 0
-    - rid: 2373392876557304795
+    - rid: 2373392879914582284
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.75
         MaxSeconds: 0
-    - rid: 2373392876557304796
+    - rid: 2373392879914582285
       type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         To: 1
-    - rid: 2373392876557304797
+    - rid: 2373392879914582286
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.75
         MaxSeconds: 0
-    - rid: 2373392876557304798
+    - rid: 2373392879914582287
       type: {class: SnapCamera, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         To: 0
-    - rid: 2373392876557304799
+    - rid: 2373392879914582288
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.75
         MaxSeconds: 0
-    - rid: 2373392876557304800
+    - rid: 2373392879914582289
       type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Label: cuts-done
-    - rid: 2373392876557304801
+    - rid: 2373392879914582290
       type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Condition: 9
@@ -247,17 +247,17 @@ MonoBehaviour:
         MinProgress: 1.01
         Card: 0
         TimeoutSeconds: 150
-    - rid: 2373392876557304802
+    - rid: 2373392879914582291
       type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Label: last-enemy
-    - rid: 2373392876557304803
+    - rid: 2373392879914582292
       type: {class: Parallel, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Actions:
-        - rid: 2373392876742901770
-        - rid: 2373392876742901771
-    - rid: 2373392876557304804
+        - rid: 2373392879914582331
+        - rid: 2373392879914582332
+    - rid: 2373392879914582293
       type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Condition: 6
@@ -267,22 +267,22 @@ MonoBehaviour:
         MinProgress: 0
         Card: 0
         TimeoutSeconds: 45
-    - rid: 2373392876557304805
+    - rid: 2373392879914582294
       type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Label: final-kill
-    - rid: 2373392876557304806
+    - rid: 2373392879914582295
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.9
         MaxSeconds: 0
-    - rid: 2373392876557304807
+    - rid: 2373392879914582296
       type: {class: Parallel, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Actions:
-        - rid: 2373392876742901772
-        - rid: 2373392876742901773
-    - rid: 2373392876557304808
+        - rid: 2373392879914582333
+        - rid: 2373392879914582334
+    - rid: 2373392879914582297
       type: {class: WaitUntil, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Condition: 0
@@ -292,19 +292,19 @@ MonoBehaviour:
         MinProgress: 0
         Card: 0
         TimeoutSeconds: 20
-    - rid: 2373392876557304809
+    - rid: 2373392879914582298
       type: {class: HideDebugUi, ns: KeceK.Capture, asm: Assembly-CSharp}
       data: 
-    - rid: 2373392876557304810
+    - rid: 2373392879914582299
       type: {class: Mark, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Label: victory
-    - rid: 2373392876557304811
+    - rid: 2373392879914582300
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 5
         MaxSeconds: 0
-    - rid: 2373392876557304812
+    - rid: 2373392879914582301
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -319,12 +319,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304813
+    - rid: 2373392879914582302
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304814
+    - rid: 2373392879914582303
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -339,12 +339,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304815
+    - rid: 2373392879914582304
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304816
+    - rid: 2373392879914582305
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -359,12 +359,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304817
+    - rid: 2373392879914582306
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304818
+    - rid: 2373392879914582307
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -379,12 +379,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304819
+    - rid: 2373392879914582308
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304820
+    - rid: 2373392879914582309
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -399,12 +399,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304821
+    - rid: 2373392879914582310
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304822
+    - rid: 2373392879914582311
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -419,12 +419,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304823
+    - rid: 2373392879914582312
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304824
+    - rid: 2373392879914582313
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -439,12 +439,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304825
+    - rid: 2373392879914582314
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304826
+    - rid: 2373392879914582315
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -459,12 +459,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304827
+    - rid: 2373392879914582316
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304828
+    - rid: 2373392879914582317
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 19
@@ -479,12 +479,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304829
+    - rid: 2373392879914582318
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876557304830
+    - rid: 2373392879914582319
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -499,12 +499,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876557304831
+    - rid: 2373392879914582320
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901760
+    - rid: 2373392879914582321
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -519,12 +519,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876742901761
+    - rid: 2373392879914582322
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901762
+    - rid: 2373392879914582323
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -539,12 +539,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876742901763
+    - rid: 2373392879914582324
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901764
+    - rid: 2373392879914582325
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -559,12 +559,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876742901765
+    - rid: 2373392879914582326
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901766
+    - rid: 2373392879914582327
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -579,12 +579,12 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876742901767
+    - rid: 2373392879914582328
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901768
+    - rid: 2373392879914582329
       type: {class: PlayCard, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Card: 18
@@ -599,16 +599,16 @@ MonoBehaviour:
         WaitForCardSeconds: 20
         TopUpMana: 1
         ShowFinger: 0
-    - rid: 2373392876742901769
+    - rid: 2373392879914582330
       type: {class: Wait, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.6
         MaxSeconds: 0
-    - rid: 2373392876742901770
+    - rid: 2373392879914582331
       type: {class: CameraFocus, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Target:
-          Kind: 6
+          Kind: 7
           Side: 0
           PathProgress: 0.5
           Tower: 0
@@ -618,17 +618,17 @@ MonoBehaviour:
         Seconds: 0.6
         FollowSeconds: 60
         UntilGone: 1
-    - rid: 2373392876742901771
+    - rid: 2373392879914582332
       type: {class: TimeScaleRamp, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Target: 0.3
         Seconds: 0.35
-    - rid: 2373392876742901772
+    - rid: 2373392879914582333
       type: {class: TimeScaleRamp, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Target: 1
         Seconds: 0.5
-    - rid: 2373392876742901773
+    - rid: 2373392879914582334
       type: {class: CameraReset, ns: KeceK.Capture, asm: Assembly-CSharp}
       data:
         Seconds: 0.5

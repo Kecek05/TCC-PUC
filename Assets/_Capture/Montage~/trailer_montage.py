@@ -29,16 +29,16 @@ SHOTS = [
     (4, "MANDE O CAOS.", [("plano_03_lado-dele", 2.20, 3.20), ("plano_03_lado-dele", 5.40, 6.40)]),
     (5, "PvP 1v1 EM TEMPO REAL", [("plano_05_hud", 2.20, 5.20)]),
     (6, "Arraste. Posicione. Evolua.", [("plano_06_evolua", 0.80, 3.80)]),
-    (7, "Cada wave libera cartas mais fortes.", [("plano_07_teto", 1.20, 4.20)]),
+    (7, "Cada wave libera cartas mais fortes.", [("plano_07_teto", 4.53, 7.53)]),
     (8, "Feitiços salvam a sua defesa...", [("plano_08_restia", 0.40, 3.40)]),
     (9, "...ou quebram a dele.", [("plano_09_quebram", 0.50, 1.30), ("plano_09_quebram", 3.80, 6.00)]),
     (10, "Combine cartas.", [("plano_10_combine", 0.20, 4.20)]),
     (11, "Termine a última wave primeiro.", [("plano_11_topo", 1.00, 4.00)]),
     (12, "Monte seu deck de 8 cartas.", [("plano_12_deck", 0.40, 2.40), ("plano_12_deck", 5.00, 7.00)]),
     (13, "30 cartas. Torres, feitiços e ataques.", [
-        ("plano_13a_agulha", 4.00, 5.00), ("plano_13b_farol", 2.00, 3.00),
-        ("plano_13c_square", 0.80, 1.80), ("plano_13d_estilhaco", 1.60, 2.60)]),
-    (14, "Toda carta tem resposta.", [("plano_14_resposta", 0.50, 1.50), ("plano_14_resposta", 3.60, 6.60)]),
+        ("plano_13a_agulha", 3.20, 4.20), ("plano_13b_farol", 2.00, 3.00),
+        ("plano_13c_square", 0.80, 1.80), ("plano_13d_estilhaco", 1.80, 2.80)]),
+    (14, "Toda carta tem resposta.", [("plano_14_resposta", 0.50, 1.50), ("plano_14_resposta", 5.20, 8.20)]),
     (15, "Evolua jogando. Nada à venda.", [("plano_15_nivel", 1.20, 4.20)]),
     # 16-18 come from the finale take; their times are filled in from its marks (see FINALE below).
 ]

@@ -27,7 +27,9 @@ namespace KeceK.Capture.EditorTools
             foreach (ShotDefinition shot in shots)
             {
                 shot.Settings = settings;
-                if (shot.NewMatch && string.IsNullOrEmpty(shot.SourceFile) && shot.Setup.Exists(a => a is HoldWaves))
+                // ...unless the shot stages lives of its own (11: the rival a wave behind and hurting).
+                if (shot.NewMatch && string.IsNullOrEmpty(shot.SourceFile) && shot.Setup.Exists(a => a is HoldWaves)
+                    && !shot.Setup.Exists(a => a is SetLives))
                 {
                     // Whatever the bot sent before it was paused may have reached a base: full lives on tape.
                     shot.Setup.Add(new SetLives(L, 100f));
@@ -201,9 +203,10 @@ namespace KeceK.Capture.EditorTools
             nine.Setup.AddRange(new ICaptureAction[]
             {
                 // Clustered where a sent troop enters their lane, so one Ice (radius 1) catches the whole line.
-                new RivalPlaceTower(CardType.TowerSquare, 0.93f),
+                // All three around one point, so they take adjacent free slots whatever the bot built first.
+                new RivalPlaceTower(CardType.TowerSquare, 0.88f),
                 new RivalPlaceTower(CardType.TowerDart, 0.88f),
-                new RivalPlaceTower(CardType.TowerSlam, 0.83f),
+                new RivalPlaceTower(CardType.TowerSlam, 0.88f),
                 new Wait(1.0f),
             });
             nine.LeadInSeconds = 0.6f;
@@ -213,7 +216,8 @@ namespace KeceK.Capture.EditorTools
                 new Wait(0.3f),
                 new PlayCard(CardType.SpawnEnemyMiniBoss, Path(0.7f, R), 0.5f) { TopUpMana = true },
                 new Wait(0.9f),
-                new PlayCard(CardType.SpellIce, TowerBunch(R, 1.0f), 0.45f) { TopUpMana = true },
+                // The towers placed by the entry (0.83-0.93), wherever the bot's own towers happen to cluster.
+                new PlayCard(CardType.SpellIce, TowersNear(0.88f, R, 2.0f), 0.45f) { TopUpMana = true },
                 new Wait(6.0f),
             };
             Edit(nine, 0.0f, 3.0f, "...ou quebram a dele.");

@@ -45,6 +45,10 @@ namespace KeceK.Capture
 
         public static BoardTarget Towers(BoardSide side) => new() { Kind = BoardTargetKind.TowersCentre, Side = side };
 
+        /// <summary>The centre of the towers standing within <paramref name="radius"/> of a point on the lane.</summary>
+        public static BoardTarget TowersNear(float pathProgress, BoardSide side, float radius = 1.3f) =>
+            new() { Kind = BoardTargetKind.TowersNearPath, PathProgress = pathProgress, Side = side, Radius = radius };
+
         /// <summary>The centre of the tightest group of towers (what one area spell can cover).</summary>
         public static BoardTarget TowerBunch(BoardSide side, float radius = 1.2f) =>
             new() { Kind = BoardTargetKind.DensestTowers, Side = side, Radius = radius };
@@ -78,6 +82,7 @@ namespace KeceK.Capture
                 BoardTargetKind.LeadEnemy => LeadEnemy(team),
                 BoardTargetKind.DensestEnemies => DensestEnemies(team, Radius),
                 BoardTargetKind.DensestTowers => Densest(TowerPoints(team), Radius),
+                BoardTargetKind.TowersNearPath => CentreNear(TowerPoints(team), PathPoint(ctx, team, PathProgress), Radius),
                 BoardTargetKind.FieldCentre => FieldCentre(ctx, team),
                 _ => null,
             };
@@ -183,6 +188,20 @@ namespace KeceK.Capture
             return points;
         }
 
+        /// <summary>Of the points within <paramref name="radius"/> of <paramref name="near"/>, the centre of the
+        /// tightest group one area spell (radius 1) can cover.</summary>
+        private static Vector2? CentreNear(List<Vector2> points, Vector2? near, float radius)
+        {
+            if (!near.HasValue) return null;
+            List<Vector2> close = new();
+            foreach (Vector2 p in points)
+                if (Vector2.Distance(p, near.Value) <= radius) close.Add(p);
+
+            // Grouped at 1.5 and centred on the group: three towers in adjacent slots (~1.1 apart) all fall
+            // inside a radius-1 spell dropped on their centre, where centring on any one of them leaves the others out.
+            return Densest(close, 1.5f);
+        }
+
         private static Vector2? Densest(List<Vector2> points, float radius)
         {
             if (points.Count == 0) return null;
@@ -258,6 +277,7 @@ namespace KeceK.Capture
         TowersCentre,
         UpgradableTower,
         DensestTowers,
+        TowersNearPath,
         LeadEnemy,
         DensestEnemies,
         FieldCentre,
