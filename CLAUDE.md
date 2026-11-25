@@ -1468,3 +1468,35 @@ cut + steering along the lane).
   `TroopMotionProfileSO.cs` (under `Assets/Scripts/Presentation/Enemies/`); `ClientEnemyMovement.cs`,
   `EnemyDataSO.cs`, `WorldFx.GroundPuff`; assets `Assets/Resources/Juice/TroopMotion.asset` and
   `Assets/ScriptableObjects/Juice/TroopMotion/`.
+
+### Background music — two loops, one director (2026-11-25)
+
+The game plays a **menu** track and a **match** track. The tracks are made in Suno (instrumental), cut into
+seamless loops by `Art/Music/make_loop.py` and dropped into `Assets/Audio/Music/`; `Art/Music/README.md` has
+the Suno prompts, the steps, and the loop points in use (menu 80 s at 96.002 BPM, match 61.4 s at 125 BPM, both
+32 bars cut on section boundaries). The raw Suno exports stay in `Art/Music/Suno/`, outside `Assets/`.
+
+- **`MusicDirector` is the only caller of `PlayMusic`.** Created by `JuiceServices.Install` beside the sound
+  service. Main Menu → menu track; a gameplay scene → the match track from `MatchReady` on (it covers
+  `DrawingCards`, `InMatch` and `EndMatch`); every other scene keeps what is playing, so the loading screen
+  never cuts the music. The scene alone is not the cue, because the host waits for an opponent *inside*
+  GameScene: the menu track carries on under the match-search pill. It **polls** `CurrentGameState`, because
+  a client never gets `OnValueChanged` for the value it is first synchronised with.
+- **A change of track is an equal-power crossfade** over the new `music-fade` token (1.5 s, not in tokens.json
+  yet) on two AudioSources. Asking for the track that is still fading out turns it round where it is instead
+  of restarting it. Verified: 4 s into a 12 s test fade, 0.173 / 0.304, the curve's own values.
+- **Ducking is a property of the cue**, not of the presenter: `SfxCue.DucksMusic` dips the music by
+  `duck-music` for as long as that clip plays. On: Fanfare, Defeat, Horn, Drum (the T4 beats and a wave
+  banner's call). A new T4 sound only needs the flag ticked in the Sfx library.
+- **Import:** `MusicImportSettings` gives anything under `Assets/Audio/Music/` Streaming + Vorbis 70% + load in
+  background, on its first import only. `Kecek/Juice/Assign Music` (also run by Rebuild Sfx Library) fills the
+  library from files named `music_menu` / `music_match`; a final track beats a placeholder, and a track picked
+  by hand is never replaced. A library with music shows the Music row in Settings on its own.
+- **The trailer has a score**, arranged by `Art/Music/trailer_music.py` onto the edit's 2 s bars (120 BPM: the
+  cuts fall on whole seconds) and mixed in by `trailer_montage.py` (`mix_with_music`). Two traps found there:
+  the montage's body is ~20 AAC pieces joined with `-c copy`, and a filter graph written to WAV keeps every
+  piece's priming samples (0.74 s too long, the game sound drifting ~37 ms per cut) unless `aresample` hard-
+  compensates by timestamp; and AAC adds ~1.2 dB of inter-sample overshoot, hence the -3 dBFS limiter.
+- Key files: `MusicDirector.cs`, `SfxService.cs`, `SfxLibrarySO.cs` (under `Assets/Scripts/Presentation/Juice/Audio/`),
+  `MusicImportSettings.cs`, `JuiceEditorTools.cs` (under `Assets/Editor/KeceK/Juice/`), `Art/Music/`,
+  `Assets/_Capture/Montage~/trailer_montage.py`.

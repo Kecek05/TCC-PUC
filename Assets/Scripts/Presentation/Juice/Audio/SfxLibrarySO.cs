@@ -20,6 +20,9 @@ public class SfxCue
 
     [Tooltip("Shift the pitch by up to the pitch-jitter token on every play, so a repeat never sounds identical.")]
     public bool Jitter = true;
+
+    [Tooltip("Dip the music by duck-music for as long as this clip plays. For the T4 beats: victory, defeat, a banner's horn.")]
+    public bool DucksMusic;
 }
 
 /// <summary>
@@ -36,10 +39,13 @@ public class SfxLibrarySO : ScriptableObject
     public List<SfxCue> Cues = new();
 
     [Title("Music")]
-    [Tooltip("Loops in the menus. Empty: no music, and the Music setting is hidden.")]
+    [Tooltip("Loops in the menus, and while the host waits for an opponent. Empty: no music there, and the Music " +
+             "setting is hidden unless the match has a track. Kecek/Juice/Assign Music fills it from " +
+             "Assets/Audio/Music/music_menu.")]
     public AudioClip MenuMusic;
 
-    [Tooltip("Loops during a match. Empty: no music in matches.")]
+    [Tooltip("Loops from the moment a match starts (MatchReady) to its end screen. Empty: no music in matches. " +
+             "Kecek/Juice/Assign Music fills it from Assets/Audio/Music/music_match.")]
     public AudioClip MatchMusic;
 
     private Dictionary<SfxId, SfxCue> _byId;

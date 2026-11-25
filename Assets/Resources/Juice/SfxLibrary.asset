@@ -20,6 +20,7 @@ MonoBehaviour:
     Volume: 0.7
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 2
     Bus: 0
     Clips:
@@ -27,6 +28,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 3
     Bus: 0
     Clips:
@@ -34,6 +36,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 4
     Bus: 0
     Clips:
@@ -41,6 +44,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 5
     Bus: 0
     Clips:
@@ -48,6 +52,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 6
     Bus: 0
     Clips:
@@ -55,6 +60,7 @@ MonoBehaviour:
     Volume: 0.8
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 7
     Bus: 1
     Clips:
@@ -62,6 +68,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 8
     Bus: 1
     Clips:
@@ -69,6 +76,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 9
     Bus: 1
     Clips:
@@ -76,6 +84,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 10
     Bus: 1
     Clips:
@@ -83,6 +92,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 11
     Bus: 1
     Clips:
@@ -90,6 +100,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 12
     Bus: 1
     Clips:
@@ -97,6 +108,7 @@ MonoBehaviour:
     Volume: 0.6
     Cooldown: 0.04
     Jitter: 1
+    DucksMusic: 0
   - Id: 13
     Bus: 1
     Clips:
@@ -104,6 +116,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 14
     Bus: 1
     Clips:
@@ -111,6 +124,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 15
     Bus: 1
     Clips:
@@ -118,6 +132,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 16
     Bus: 2
     Clips:
@@ -125,6 +140,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 17
     Bus: 2
     Clips:
@@ -132,6 +148,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 18
     Bus: 2
     Clips:
@@ -139,6 +156,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 19
     Bus: 2
     Clips:
@@ -146,6 +164,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 20
     Bus: 1
     Clips:
@@ -153,6 +172,7 @@ MonoBehaviour:
     Volume: 0.45
     Cooldown: 0.09
     Jitter: 1
+    DucksMusic: 0
   - Id: 21
     Bus: 1
     Clips:
@@ -160,6 +180,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: 0.08
     Jitter: 1
+    DucksMusic: 0
   - Id: 22
     Bus: 1
     Clips:
@@ -167,6 +188,7 @@ MonoBehaviour:
     Volume: 0.6
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 23
     Bus: 1
     Clips:
@@ -174,6 +196,7 @@ MonoBehaviour:
     Volume: 0.6
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 24
     Bus: 1
     Clips:
@@ -181,6 +204,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 25
     Bus: 2
     Clips:
@@ -188,6 +212,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 26
     Bus: 1
     Clips:
@@ -195,6 +220,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 27
     Bus: 1
     Clips:
@@ -202,6 +228,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 1
   - Id: 28
     Bus: 1
     Clips:
@@ -209,6 +236,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 1
   - Id: 29
     Bus: 2
     Clips:
@@ -216,6 +244,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 1
   - Id: 30
     Bus: 2
     Clips:
@@ -223,6 +252,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 1
   - Id: 31
     Bus: 1
     Clips:
@@ -230,6 +260,7 @@ MonoBehaviour:
     Volume: 0.6
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 32
     Bus: 1
     Clips:
@@ -237,6 +268,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 33
     Bus: 1
     Clips:
@@ -244,6 +276,7 @@ MonoBehaviour:
     Volume: 0.7
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 34
     Bus: 0
     Clips:
@@ -251,6 +284,7 @@ MonoBehaviour:
     Volume: 0.8
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 35
     Bus: 2
     Clips:
@@ -258,6 +292,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 36
     Bus: 1
     Clips:
@@ -265,6 +300,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 37
     Bus: 1
     Clips:
@@ -272,6 +308,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 38
     Bus: 2
     Clips:
@@ -279,6 +316,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 39
     Bus: 1
     Clips:
@@ -286,6 +324,7 @@ MonoBehaviour:
     Volume: 0.7
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 40
     Bus: 1
     Clips:
@@ -293,6 +332,7 @@ MonoBehaviour:
     Volume: 0.7
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 41
     Bus: 1
     Clips:
@@ -300,6 +340,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 42
     Bus: 2
     Clips:
@@ -307,6 +348,7 @@ MonoBehaviour:
     Volume: 1
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 43
     Bus: 1
     Clips:
@@ -314,6 +356,7 @@ MonoBehaviour:
     Volume: 0.7
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 44
     Bus: 1
     Clips:
@@ -321,6 +364,7 @@ MonoBehaviour:
     Volume: 0.8
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 45
     Bus: 1
     Clips:
@@ -328,6 +372,7 @@ MonoBehaviour:
     Volume: 0.8
     Cooldown: -1
     Jitter: 1
+    DucksMusic: 0
   - Id: 46
     Bus: 1
     Clips:
@@ -335,5 +380,6 @@ MonoBehaviour:
     Volume: 0.8
     Cooldown: -1
     Jitter: 1
-  MenuMusic: {fileID: 0}
-  MatchMusic: {fileID: 0}
+    DucksMusic: 0
+  MenuMusic: {fileID: 8300000, guid: 276db1f7d7163cd44a38f3df40a337da, type: 3}
+  MatchMusic: {fileID: 8300000, guid: 8660081c1066ea04f89c7f96e85dc283, type: 3}

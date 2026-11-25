@@ -14,8 +14,14 @@ public abstract class BaseSfxService : MonoBehaviour
     /// <param name="volume">Multiplies the cue's own volume and its bus.</param>
     public abstract void Play(SfxId id, int pitchStep = 0, float volume = 1f);
 
-    /// <summary>Loops a music clip on the Music bus, replacing whatever was playing. Null stops the music.</summary>
+    /// <summary>
+    /// Loops a music clip on the Music bus, crossfading from whatever was playing over the music-fade token.
+    /// Null fades the music out. <see cref="MusicDirector"/> is the one caller: it decides which track fits.
+    /// </summary>
     public abstract void PlayMusic(AudioClip clip);
+
+    /// <summary>The track playing (or fading in) now; null when there is no music.</summary>
+    public abstract AudioClip CurrentMusic { get; }
 
     /// <summary>Dips the music by the duck-music token for a while, under a celebration or a banner.</summary>
     public abstract void DuckMusic(float seconds);

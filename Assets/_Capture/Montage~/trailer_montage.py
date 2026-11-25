@@ -18,6 +18,12 @@ OUT = os.path.join(ROOT, "Recordings", "Trailer")
 WORK = os.path.join(OUT, "_work")
 FONT = os.path.join(ROOT, "Assets", "Font", "Fredoka", "static", "Fredoka-Bold.ttf")
 LOGO = os.path.join(ROOT, "PressKit", "logo", "bisect-td-logo-transparente.png")
+# The score, arranged onto this edit's 2 s bars by Art/Music/trailer_music.py. Without it the trailer keeps
+# the game's sound alone.
+MUSIC = os.path.join(OUT, "music", "trailer_music.wav")
+MUSIC_GAIN_DB = -6.0        # the score under the game: the hits and the VICTORY stinger stay in front
+LOUDNESS_LUFS = -14.0       # what YouTube, TikTok and Instagram normalise to
+TRUE_PEAK_DB = -2.0         # loudnorm's ceiling; the limiter after it (see mix_with_music) leaves AAC its headroom
 
 W, H, FPS = 1080, 1920, 60
 
@@ -136,6 +142,45 @@ def finale_cuts():
     ]
 
 
+def mix_with_music(body):
+    """The game's sound with the score under it, at the platforms' loudness. None when there is no score.
+
+    The score ducks under the game by itself (sidechain compression keyed on the game's audio), so a tower's
+    thud or the stinger is never buried, and the whole mix is brought to LOUDNESS_LUFS in two passes
+    (measure, then a linear gain with a true-peak ceiling) so the dynamics of the cut are kept."""
+    if not os.path.exists(MUSIC):
+        print(f"no score at {MUSIC}: the trailer keeps the game's sound alone", file=sys.stderr)
+        return None
+
+    # The body is ~20 AAC pieces joined with -c copy, and each carries its encoder's priming samples, marked
+    # by timestamps to be dropped. A filter graph written out as WAV keeps them all: 0.74 s too long, and the
+    # game sound slipping ~37 ms later at every cut. aresample's hard compensation drops them by timestamp.
+    length = duration(body)
+    raw_mix = os.path.join(WORK, "mix_raw.wav")
+    run(["ffmpeg", "-v", "error", "-y", "-i", body, "-i", MUSIC, "-filter_complex",
+         "[0:a]aresample=48000:async=1000:min_hard_comp=0.005:first_pts=0,asplit=2[game][key];"
+         f"[1:a]aresample=48000,volume={MUSIC_GAIN_DB}dB,apad[score];"
+         "[score][key]sidechaincompress=threshold=0.04:ratio=4:attack=5:release=300[ducked];"
+         f"[game][ducked]amix=inputs=2:normalize=0:duration=first,atrim=end={length:.6f}[mix]",
+         "-map", "[mix]", "-t", f"{length:.6f}", "-c:a", "pcm_s16le", raw_mix])
+
+    target = f"I={LOUDNESS_LUFS}:TP={TRUE_PEAK_DB}:LRA=11"
+    measured = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", raw_mix, "-af",
+                               f"loudnorm={target}:print_format=json", "-f", "null", "-"],
+                              capture_output=True, text=True).stderr
+    stats = json.loads(measured[measured.rindex("{"): measured.rindex("}") + 1])
+    mixed = os.path.join(WORK, "mix.wav")
+    run(["ffmpeg", "-v", "error", "-y", "-i", raw_mix, "-af",
+         f"loudnorm={target}:measured_I={stats['input_i']}:measured_TP={stats['input_tp']}:"
+         f"measured_LRA={stats['input_lra']}:measured_thresh={stats['input_thresh']}:"
+         f"offset={stats['target_offset']}:linear=true,aresample=48000,"
+         # AAC adds inter-sample overshoot (up to ~+1.2 dB measured, at 41 s): a -3 dBFS sample ceiling keeps
+         # the encoded file's true peak under -1 dBTP while touching only a handful of hits.
+         "alimiter=limit=0.708:attack=5:release=50:level=false",
+         "-c:a", "pcm_s16le", mixed])
+    return mixed
+
+
 def main():
     os.makedirs(WORK, exist_ok=True)
     shots = [(n, c, cuts, None) for n, c, cuts in SHOTS]
@@ -168,7 +213,9 @@ def main():
     run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", listing, "-c", "copy", body])
 
     master = os.path.join(OUT, "bisect-td-trailer-60s-ptbr.mp4")
-    run(["ffmpeg", "-v", "error", "-y", "-i", body, "-vf", caption_filter(captions),
+    mixed = mix_with_music(body)
+    audio_in = ["-i", mixed, "-map", "0:v", "-map", "1:a"] if mixed else []
+    run(["ffmpeg", "-v", "error", "-y", "-i", body, *audio_in, "-vf", caption_filter(captions),
          "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", master])
 

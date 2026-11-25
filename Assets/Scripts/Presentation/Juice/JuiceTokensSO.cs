@@ -142,6 +142,8 @@ public class JuiceTokensSO : ScriptableObject
         [Range(0f, 1f), Tooltip("vol-impact")] public float VolumeImpact = 1f;
         [Range(0f, 1f), Tooltip("vol-music")] public float VolumeMusic = 0.35f;
         [Tooltip("duck-music (dB)")] public float DuckMusicDb = -6f;
+        [Tooltip("music-fade (seconds): the crossfade between the menu and the match track. New: not in tokens.json yet.")]
+        public float MusicFade = 1.5f;
         [Tooltip("pitch-jitter: random pitch either way, as a share.")] public float PitchJitter = 0.06f;
         [Tooltip("pitch-step: one semitone, for ladders.")] public float PitchStep = 1.0595f;
         [Tooltip("sfx-cooldown (seconds)")] public float Cooldown = 0.05f;

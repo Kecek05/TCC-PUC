@@ -18,8 +18,16 @@ public class SfxService : BaseSfxService
 
     private SfxLibrarySO _library;
     private BaseGameSettingsService _settings;
-    private AudioSource _music;
     private float _duckUntil = -1f;
+
+    // Music is two sources so a change of track is a crossfade: the new one comes in on _music while the old
+    // one fades out on _musicOut. Each fade is a 0..1 gain shaped to equal power, applied over _musicLevel
+    // (the Music setting, the bus token and any duck), which eases on its own.
+    private AudioSource _music;
+    private AudioSource _musicOut;
+    private float _musicGain;
+    private float _musicOutGain;
+    private float _musicLevel;
 
     public static SfxService Create(SfxLibrarySO library, BaseGameSettingsService settings)
     {
@@ -39,8 +47,10 @@ public class SfxService : BaseSfxService
         int voices = Mathf.Max(1, JuiceTokensSO.Instance.Budgets.Voices);
         for (int i = 0; i < voices; i++) _voices.Add(CreateSource("Voice " + i));
 
-        _music = CreateSource("Music");
+        _music = CreateSource("Music A");
         _music.loop = true;
+        _musicOut = CreateSource("Music B");
+        _musicOut.loop = true;
 
         if (_library == null)
             GameLog.Warn("[Juice] No SfxLibrary in Resources/" + SfxLibrarySO.ResourcePath + "; the game will be silent.");
@@ -82,6 +92,9 @@ public class SfxService : BaseSfxService
         voice.pitch = pitch;
         voice.volume = Mathf.Clamp01(cue.Volume * BusVolume(cue.Bus, tokens) * volume);
         voice.Play();
+
+        // A T4 beat (victory, defeat, a banner's horn) gets the music out of its way for as long as it sounds.
+        if (cue.DucksMusic) DuckMusic(clip.length / Mathf.Max(0.1f, pitch));
     }
 
     // A free voice if there is one; otherwise the quietest gives way.
@@ -108,12 +121,35 @@ public class SfxService : BaseSfxService
         _ => 1f
     };
 
+    public override AudioClip CurrentMusic => _music.clip;
+
     public override void PlayMusic(AudioClip clip)
     {
-        if (_music.clip == clip && (_music.isPlaying || clip == null)) return;
+        if (_music.clip == clip && (clip == null || _music.isPlaying)) return;
 
-        _music.Stop();
+        // Asked back for the track that is still fading out (menu, match, menu in quick succession): turn it
+        // round where it is rather than restarting it from the top.
+        if (clip != null && _musicOut.clip == clip && _musicOut.isPlaying)
+        {
+            (_music, _musicOut) = (_musicOut, _music);
+            (_musicGain, _musicOutGain) = (_musicOutGain, _musicGain);
+            return;
+        }
+
+        // The track playing now fades out; whatever was still fading out before it is cut, it is near silent.
+        if (_music.clip != null && _music.isPlaying)
+        {
+            _musicOut.Stop();
+            (_music, _musicOut) = (_musicOut, _music);
+            _musicOutGain = _musicGain;
+        }
+        else
+        {
+            _music.Stop();
+        }
+
         _music.clip = clip;
+        _musicGain = 0f;
         if (clip != null) _music.Play();
     }
 
@@ -122,16 +158,34 @@ public class SfxService : BaseSfxService
         _duckUntil = Mathf.Max(_duckUntil, Time.unscaledTime + seconds);
     }
 
-    // Music volume eases toward its target every frame: the Music setting, the bus token and any duck.
+    // Every frame: the level eases toward the Music setting, the bus token and any duck; the incoming track
+    // fades in and the outgoing one out over music-fade; a source that has faded out lets go of its clip.
     private void Update()
     {
-        if (_music == null || _music.clip == null) return;
+        if (_music == null) return;
 
         JuiceTokensSO tokens = JuiceTokensSO.Instance;
+        float dt = Time.unscaledDeltaTime;
+
         bool enabled = _settings == null || (_settings.MusicEnabled && _settings.SoundEnabled);
         float target = enabled ? tokens.Audio.VolumeMusic : 0f;
         if (Time.unscaledTime < _duckUntil) target *= Mathf.Pow(10f, tokens.Audio.DuckMusicDb / 20f);
+        _musicLevel = Mathf.MoveTowards(_musicLevel, target, dt * 2f);
 
-        _music.volume = Mathf.MoveTowards(_music.volume, target, Time.unscaledDeltaTime * 2f);
+        float fadeStep = dt / Mathf.Max(0.01f, tokens.Audio.MusicFade);
+        _musicGain = Mathf.MoveTowards(_musicGain, 1f, fadeStep);
+        _musicOutGain = Mathf.MoveTowards(_musicOutGain, 0f, fadeStep);
+
+        if (_musicOut.clip != null && _musicOutGain <= 0f)
+        {
+            _musicOut.Stop();
+            _musicOut.clip = null;
+        }
+
+        _music.volume = _musicLevel * EqualPower(_musicGain);
+        _musicOut.volume = _musicLevel * EqualPower(_musicOutGain);
     }
+
+    // A linear crossfade dips in the middle; a quarter sine keeps the sum of the two tracks' power constant.
+    private static float EqualPower(float gain) => Mathf.Sin(Mathf.Clamp01(gain) * Mathf.PI * 0.5f);
 }

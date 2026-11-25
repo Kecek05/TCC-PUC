@@ -55,9 +55,14 @@ public static class Juice
 public static class JuiceServices
 {
     private static bool _installed;
+    private static MusicDirector _music;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetStatics() => _installed = false;
+    private static void ResetStatics()
+    {
+        _installed = false;
+        _music = null;
+    }
 
     public static void Install(BaseGameSettingsService settings)
     {
@@ -67,7 +72,9 @@ public static class JuiceServices
         SfxLibrarySO library = Resources.Load<SfxLibrarySO>(SfxLibrarySO.ResourcePath);
         RefusalCopySO copy = Resources.Load<RefusalCopySO>(RefusalCopySO.ResourcePath);
 
-        ServiceLocator.Register<BaseSfxService>(SfxService.Create(library, settings));
+        SfxService sfx = SfxService.Create(library, settings);
+        ServiceLocator.Register<BaseSfxService>(sfx);
+        _music = MusicDirector.Create(library, sfx);
         ServiceLocator.Register<BaseHapticsService>(new HapticsService(settings));
         ServiceLocator.Register<BaseToastService>(ToastService.Create(copy));
     }
@@ -82,6 +89,9 @@ public static class JuiceServices
 
     public static void Uninstall()
     {
+        if (_music != null) Object.Destroy(_music.gameObject);
+        _music = null;
+
         ServiceLocator.Unregister<BaseSfxService>();
         ServiceLocator.Unregister<BaseHapticsService>();
         ServiceLocator.Unregister<BaseToastService>();

@@ -218,7 +218,7 @@ namespace Kecek.Editor
                 SfxCue cue = library.Cues.FirstOrDefault(c => c.Id == id);
                 if (cue == null)
                 {
-                    cue = new SfxCue { Id = id, Bus = DefaultBus(id), Volume = DefaultVolume(id) };
+                    cue = new SfxCue { Id = id, Bus = DefaultBus(id), Volume = DefaultVolume(id), DucksMusic = DefaultDucksMusic(id) };
                     library.Cues.Add(cue);
                 }
 
@@ -230,10 +230,67 @@ namespace Kecek.Editor
             }
 
             library.Cues = library.Cues.OrderBy(c => (int)c.Id).ToList();
+            AssignMusicTo(library);
             EditorUtility.SetDirty(library);
             AssetDatabase.SaveAssetIfDirty(library);
             Debug.Log($"[Juice] Sfx library: {library.Cues.Count} cues, {filled} filled from {SfxFolder}.");
         }
+
+        // ---------- music ----------
+
+        private const string MusicFolder = "Assets/Audio/Music";
+
+        /// <summary>
+        /// Fills the library's two music slots from Assets/Audio/Music: <c>music_menu</c> and <c>music_match</c>,
+        /// any audio format. A final track beats a placeholder (anything under a Placeholder folder), and a slot
+        /// is only replaced while it is empty or still holds a placeholder, so a track picked by hand stays.
+        /// </summary>
+        [MenuItem("Kecek/Juice/Assign Music")]
+        public static void AssignMusic()
+        {
+            SfxLibrarySO library = AssetDatabase.LoadAssetAtPath<SfxLibrarySO>(LibraryAssetPath);
+            if (library == null) { Debug.LogError("[Juice] No Sfx library at " + LibraryAssetPath); return; }
+
+            AssignMusicTo(library);
+            EditorUtility.SetDirty(library);
+            AssetDatabase.SaveAssetIfDirty(library);
+        }
+
+        private static void AssignMusicTo(SfxLibrarySO library)
+        {
+            if (!AssetDatabase.IsValidFolder(MusicFolder)) return;
+
+            Undo.RecordObject(library, "Assign music");
+            library.MenuMusic = PickMusic("music_menu", library.MenuMusic);
+            library.MatchMusic = PickMusic("music_match", library.MatchMusic);
+            Debug.Log($"[Juice] Music: menu = {Describe(library.MenuMusic)}, match = {Describe(library.MatchMusic)}.");
+        }
+
+        private static AudioClip PickMusic(string fileName, AudioClip current)
+        {
+            if (current != null && !IsPlaceholder(current)) return current;
+
+            AudioClip best = null;
+            foreach (string guid in AssetDatabase.FindAssets("t:AudioClip", new[] { MusicFolder }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!string.Equals(System.IO.Path.GetFileNameWithoutExtension(path), fileName, StringComparison.OrdinalIgnoreCase)) continue;
+
+                AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+                if (best == null || (IsPlaceholder(best) && !IsPlaceholder(clip))) best = clip;
+            }
+
+            return best != null ? best : current;
+        }
+
+        private static bool IsPlaceholder(AudioClip clip) =>
+            AssetDatabase.GetAssetPath(clip).IndexOf("/Placeholder/", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static string Describe(AudioClip clip) => clip == null ? "none" : AssetDatabase.GetAssetPath(clip);
+
+        // The T4 beats the system says duck the music: the end of a match and a wave banner's call.
+        private static bool DefaultDucksMusic(SfxId id) =>
+            id is SfxId.Fanfare or SfxId.Defeat or SfxId.Horn or SfxId.Drum;
 
         // The placeholders all peak at the same level; the frequent ones are trimmed so a busy wave never drowns the rest.
         private static float DefaultVolume(SfxId id) => id switch
