@@ -48,6 +48,21 @@ public class BotContext
         return result;
     }
 
+    /// <summary>
+    /// Troops sent at <paramref name="laneTeam"/> by the other player (cards and Espelho alike) that are
+    /// marching. On a lane, a reversed enemy is always one the opponent sent, never one of the lane's own
+    /// waves. Troops still standing at their entry (spawn invincibility) are left out: a zone cast on them
+    /// would spend its time on bodies that are not moving yet.
+    /// </summary>
+    public List<EnemyManager> OwnTroopsOnLane(TeamType laneTeam)
+    {
+        List<EnemyManager> result = EnemiesOnLane(laneTeam);
+        result.RemoveAll(e => e.ServerMovement == null
+                              || !e.ServerMovement.Reversed.Value
+                              || e.ServerMovement.Invincible.Value);
+        return result;
+    }
+
     /// <summary>All active towers owned by the given team.</summary>
     public List<TowerManager> TowersOf(TeamType team)
     {

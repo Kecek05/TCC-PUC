@@ -18,8 +18,17 @@ public class BotSettingsSO : ScriptableObject
     [Tooltip("Pool of decks the bot picks from at random when it seats.")]
     [Required] public BotDeckListSO DeckList;
 
-    [Tooltip("Display name shown to the human as the opponent.")]
+    [Tooltip("Pose as a human opponent: every match the bot shows a freshly rolled default player name, " +
+             "in exactly the format a real anonymous player has (\"Player_6071#14986\"). Off, it shows " +
+             "BotName instead — for a match where the player knows they face a bot, like the tutorial.")]
+    public bool DisguiseAsPlayer = true;
+
+    [Tooltip("Display name shown to the human as the opponent when the bot is not disguised.")]
+    [HideIf(nameof(DisguiseAsPlayer))]
     public string BotName = "Bot";
+
+    /// <summary>The name the opponent sees for this match. Rolled again on every call when disguised.</summary>
+    public string RollDisplayName() => DisguiseAsPlayer ? DefaultPlayerName.RollAsStored() : BotName;
 
     [Tooltip("Persistent card level the bot plays every card at. Raise it to make the bot hit harder " +
              "without touching its deck or decision loop.")]

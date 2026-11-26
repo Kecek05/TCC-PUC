@@ -15,6 +15,7 @@ MonoBehaviour:
   EnableBotFallback: 1
   FillTimeoutSeconds: 30
   DeckList: {fileID: 11400000, guid: 268ced8bb632cbc4eb477b04e5edbf1e, type: 2}
+  DisguiseAsPlayer: 1
   BotName: Bot
   DecisionInterval: 1.2
   DecisionJitter: 0.4

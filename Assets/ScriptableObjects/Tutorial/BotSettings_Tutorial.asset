@@ -15,6 +15,7 @@ MonoBehaviour:
   EnableBotFallback: 1
   FillTimeoutSeconds: 0
   DeckList: {fileID: 11400000, guid: 268ced8bb632cbc4eb477b04e5edbf1e, type: 2}
+  DisguiseAsPlayer: 0
   BotName: Trainer
   CardLevel: 1
   DecisionInterval: 3.5

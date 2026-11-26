@@ -166,7 +166,7 @@ public class ClientManager : BaseClientManager
                 // persist it to Authentication so it becomes the player's real name.
                 if (string.IsNullOrEmpty(playerName))
                 {
-                    playerName = $"Player_{UnityEngine.Random.Range(1000, 10000)}";
+                    playerName = DefaultPlayerName.Roll();
                     try
                     {
                         await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);

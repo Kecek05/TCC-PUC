@@ -47,9 +47,49 @@ When the host waits alone in `WaitingForPlayersState` past a timeout (default 30
 **How it works:**
 - **Seating** (`BotController.SeatBot`, server-only): pick a random deck from `BotDeckListSO`, `PlayersDataManager.RegisterBot(authId, data)` (auth→data only, no clientId map), `TeamManager.AssignTeamForAuthId(authId)` (host holds Red → bot lands on Blue), and `MapTranslator.MarkPlayerInitialized(Blue)` (satisfies the `LoadingMatch→MatchReady` gate that a real client normally clears via `InitializeTeamServerRpc`). Triggered from `WaitingForPlayersState.Tick` via `ctx.BotController` (carried on `GameFlowContext`).
 - **Playing cards:** the three deployers expose a team-parameterized **core** extracted from their `[Rpc(SendTo.Server)]` bodies — `BaseCardTowerDeployer.TryDeployTower`, `BaseCardSpellDeployer.TryDeploySpell`, `BaseCardSpawnEnemyDeployer.TryDeploySpawnEnemy`. Humans reach them via the RPC (team from `SenderClientId`); the bot calls them directly. One shared path keeps mana-spend + spawn + `TriggerOnCardDeployed` (hand advance) DRY. Bot towers spawn with `NetworkManager.ServerClientId` ownership.
-- **Deciding:** `IBotBrain.Decide(BotContext) → BotDecision` (pure, side-effect-free strategy; `HeuristicBotBrain` ships as default). A server coroutine ticks each `BotSettingsSO.DecisionInterval`±jitter during `InMatch`, reading live state (mana, hand, base HP, `EnemyRegistry`/`TowerRegistry`, cached Blue placeables) all in **server-space** (no MapTranslator round-trip). Priority: defend own lane (place/upgrade tower, Fireball, Haste) → attack (troops, Ice, Rage) → hold a mana reserve.
+- **Deciding:** `IBotBrain.Decide(BotContext) → BotDecision` (pure, side-effect-free strategy; `HeuristicBotBrain` ships as default). A server coroutine ticks each `BotSettingsSO.DecisionInterval`±jitter during `InMatch`, reading live state (mana, hand, base HP, `EnemyRegistry`/`TowerRegistry`, cached Blue placeables) all in **server-space** (no MapTranslator round-trip). Priority: the lane (place/level towers) → defence spells under pressure → save up for a tower → offence (back a push with Rage/Ice, then send a troop, keeping `ManaReserve`) → spare mana (a tower card with nothing left to do, then anything before regen overflows).
+- **Every card in a deck has a play at every point of the match (2026-11-25).** The hand never discards, so a card
+  with no play is a lost slot for good, and two halve the hand. Audit that found it: all 30 cards were already in
+  the five decks, but `TowerTarget = 3` capped the line at three towers out of 55 slots per side, and the cap only
+  pays for Square/Beacon from wave 5, Mortar/Espelho from 6, Chain/Fonte from 7, by which time three cheap towers
+  had long filled it, so those six never reached the board and every copy was a dead card. The rules now:
+  - **`TowerTarget` is the core line**, built first with repeats allowed. **Past it, a tower TYPE the line lacks
+    still goes up, once** (`FindTowerPlacement(newTypesOnly)`), and banks for it like the core does; everything
+    else goes into levelling.
+  - **A stuck tower card** (type standing, every tower of it at tier 3) is placed as a new tower, **only in the
+    spare-mana step after the offence**. A first draft placed it before the offence whenever two were in hand:
+    each became a tower plus two levels on it, all ahead of the offence, and the bot turtled (twelve tower plays
+    to one troop in two minutes, Ice never cast).
+  - **Slot by role** (`ChooseSlot`): a lane tower (damage, Prism, Tourniquet, Ancora) nearest the threat; an
+    **Anel** on the free slot whose ring holds the most non-Anel towers; **Fonte/Espelho** on the slot farthest
+    from the threat (or the line's centroid), so they never take a slot a damage tower could shoot from.
+  - **Troops: bank for the biggest one the cap can pay for** (`FindTroopPlay`), the cheapest affordable one only
+    when the lane is in danger. Cheapest-first meant a 6-cost troop went out only when no 2-cost was in hand and
+    the MiniBoss (10) never.
+  - **Rage and Ice back a push**: cast while the bot's own troops are marching (`BotContext.OwnTroopsOnLane`: on a
+    lane a *reversed* enemy is always one the other player sent; still-invincible ones are skipped), Rage on the
+    densest cluster of them, Ice on the enemy tower cluster nearest the push leader. Haste goes where the most own
+    towers stand (`DensestPoint`). Outside a push they only fire as overflow spending near max mana.
+  - **Danger, not pressure, gates saving up.** `underPressure` (≥3 enemies, or danger) still triggers the defence
+    spells; `_inDanger` (an enemy past the middle of the lane, or base ≤ 40% of the max seen) is what stops banking
+    and economy towers. From the middle waves there are always three enemies, so gating on pressure meant the bot
+    never saved for anything costing more than it held: a Fonte sat in its hand for 100 s.
+  - **Testing trap:** a health floor at 40 (the usual "keep the match alive" setup) parks the bot's base at 40%,
+    which *is* `lowHealth`, so it plays as if in danger for the rest of the match. Floor it lower or reset
+    `BlueHealth`. Verified 2026-11-25 in a real Battle → bot match: natural pace on Control (all 8 cards, Chain at
+    wave 9), then the other four decks swapped in on the server (`SetDeckForPlayer(Blue, …)`) with boosted mana:
+    all 30 cards played, Fonte/Espelho at the field's edge, Anel inside the cluster.
+- **The bot passes as a real player.** It shows a fresh default name each match, rolled by `DefaultPlayerName`
+  (under `Assets/Scripts/ApplicationController/Client/`), the same class `ClientManager` uses for an anonymous
+  account. **Real names carry Unity Authentication's discriminator** (`Player_6071#14986`: the game rolls
+  `Player_1000-9999`, the service appends `#` and digits on storage, and only a very first launch goes out
+  without it), so the bot rolls `RollAsStored()`, five digits after the `#` like every one in the logs. Only the
+  shown name changes: `BOT_PLAYER` and the `ClientId == ulong.MaxValue` sentinel stay. `BotSettingsSO.DisguiseAsPlayer`
+  (on in `BotSettingsSO.asset`, off in `BotSettings_Tutorial.asset`, which keeps "Trainer": the tutorial says it
+  is a bot). The end screen now prints both names too (`ClientEndGameCanvas.SetupLabelsData`, the old
+  `//TODO: Setup Usernames`, which left "YOUR/ENEMY USERNAME" on screen in every match).
 - **Client-less integration:** `ServerCardHandManager` guards its per-client draw-sync RPCs (skips when `GetClientIdByTeamType` returns `ulong.MaxValue`, i.e. the bot). Commit-the-match: leaving `WaitingForPlayers` fires `GameFlowContext.CommitMatch` (in `WaitingForPlayersState.Exit`), which both flips `IMatchAdmission.StopAcceptingPlayers()` (on `NetworkConnectionServer`, gating `ApprovalCheck`) and calls `BaseHostManager.CloseLobbyToNewPlayers()` (stops the lobby heartbeat + deletes the discovery lobby, host keeps running) — covering the bot and 2-human paths alike.
-- Key files: `BotController.cs`, `HeuristicBotBrain.cs`, `BotContext.cs`, `IBotBrain.cs`, `BotDeckListSO.cs`, `BotSettingsSO.cs` (under `Assets/Scripts/Gameplay/Bot/`); the `BotController` GameObject lives in `GameScene`; assets under `Assets/ScriptableObjects/Bot/`.
+- Key files: `BotController.cs`, `HeuristicBotBrain.cs`, `BotContext.cs`, `IBotBrain.cs`, `BotDeckListSO.cs`, `BotSettingsSO.cs` (under `Assets/Scripts/Gameplay/Bot/`); `DefaultPlayerName.cs`; `ClientEndGameCanvas.cs`; the `BotController` GameObject lives in `GameScene` (and `TutorialScene`, with `BotSettings_Tutorial.asset`); assets under `Assets/ScriptableObjects/Bot/`.
 
 ### Player Save — 5 deck slots + collection ordering
 
@@ -1355,9 +1395,10 @@ untouched: everything here is drawn around them.
   after each play, and a bot that spends the moment it can afford anything never holds 4 mana. Placement now
   prefers a tower TYPE the line does not have yet (`StandingTowerTypes`), and when such a card is in hand but
   out of reach now and within the cap, `FindTowerPlacement` reports `bankForNew`: `FindTowerPlay` then returns
-  nothing (no repeat, no level-up), and the existing save-up step holds the mana. Only on a calm lane
-  (`_underPressure` false) and never for the first tower; with nothing new within the cap, a repeat still goes up.
-  `TowerTarget` is still 3, so a deck shows three of its towers: raise it in `BotSettingsSO` for more.
+  nothing (no repeat, no level-up), and the existing save-up step holds the mana. Never while the lane is in
+  danger and never for the first tower; with nothing new within the cap, a repeat still goes up.
+  `TowerTarget` (3) is now only the core line: since 2026-11-25 every tower type in the deck goes up past it
+  (see "Every card in a deck has a play" under Bot AI).
 - Verified in play mode: "-45%" then "-70%" on a stacked slow; the troop card's visual, its launch and its cancel;
   the bot drawing Rush, Siege and Control and building Dart + Prism + Dart on Control at a cap of 4.
 - Key files: `UnitStatusView.cs`, `TroopHoldVisual.cs` (under `Assets/Scripts/UI/Game/Cards/`),

@@ -67,12 +67,16 @@ public class BotController : BaseBotController
         var teamManager = ServiceLocator.Get<BaseTeamManager>();
         var mapTranslator = ServiceLocator.Get<BaseMapTranslator>();
 
+        // Only the shown name is disguised: the auth id and the ClientId sentinel are how the server tells
+        // the bot apart, and nothing a client sees carries either.
+        string displayName = botSettings.RollDisplayName();
+
         PlayerData botData = new PlayerData
         {
             ClientId = ulong.MaxValue, // sentinel: the bot has no network client
             UserData = new UserData
             {
-                PlayerName = botSettings.BotName,
+                PlayerName = displayName,
                 PlayerAuthId = BotAuthId,
                 UserTrophies = 0,
                 DeckCards = deck,
@@ -85,7 +89,7 @@ public class BotController : BaseBotController
         _botTeam = teamManager.GetTeam(BotAuthId);
         mapTranslator.MarkPlayerInitialized(_botTeam);  // satisfy the LoadingMatch -> MatchReady gate
 
-        GameLog.Info($"[BotController] Bot '{botSettings.BotName}' seated as {_botTeam} " +
+        GameLog.Info($"[BotController] Bot '{displayName}' seated as {_botTeam} " +
                      $"at card level {Mathf.Max(1, botSettings.CardLevel)}.");
 
         // The match commits (admission gate + lobby close) when the FSM leaves WaitingForPlayers, which

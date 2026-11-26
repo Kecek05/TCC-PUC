@@ -14,6 +14,11 @@ public class PlayerEndGameCanvasData
     [SerializeField] private TextMeshProUGUI playerWave;
     [SerializeField] private Image waveProgress;
 
+    public void ChangePlayerUsernameText(string newUsername)
+    {
+        if (playerUsername != null) playerUsername.text = newUsername;
+    }
+
     public void ChangePlayerHealthText(float newHealth)
     {
         playerHealth.text = $"{newHealth}";
@@ -422,8 +427,6 @@ public class ClientEndGameCanvas : MonoBehaviour
 
     private void SetupLabelsData(EndGameSnapshot endgameSnapshot)
     {
-        //TODO: Setup Usernames
-
         TeamType localTeam = _teamManager.GetLocalTeam();
 
         if (localTeam == TeamType.None)
@@ -431,6 +434,11 @@ public class ClientEndGameCanvas : MonoBehaviour
             GameLog.Warn("ClientEndGameCanvas: Local team is None. Cannot setup end game UI data.");
             return;
         }
+
+        // The same synced names the VS intro shows. Written even when empty, so an opponent the team manager
+        // no longer knows never leaves the scene's "ENEMY USERNAME" placeholder on screen.
+        localPlayerData.ChangePlayerUsernameText(_teamManager.GetPlayerName(localTeam));
+        enemyPlayerData.ChangePlayerUsernameText(_teamManager.GetPlayerName(_teamManager.GetEnemyTeam()));
 
         if (localTeam == TeamType.Blue)
         {
